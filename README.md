@@ -22,6 +22,8 @@ Takeoff Engine walks a contractor through a simple 3-step workflow:
 
 Trenching and earthwork volumes are automatically calculated from quantity × average depth × trench width for linear-foot pipe items.
 
+> 📄 **Non-technical client instructions:** see [`public/CLIENT_GUIDE.md`](./public/CLIENT_GUIDE.md) for a plain-language guide on how to fill out the CSV/Excel takeoff file, including required columns and the boundaries of what the import will and won't accept.
+
 ## Prerequisites
 
 - [Node.js](https://nodejs.org/) (v18 or later recommended)

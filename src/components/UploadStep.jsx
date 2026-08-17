@@ -120,6 +120,18 @@ export default function UploadStep({ onItemsParsed }) {
         <code className="text-xs bg-white border border-slate-200 rounded px-2 py-1 block overflow-x-auto">
           system, item_description, size_spec, quantity, unit, avg_depth_ft
         </code>
+        <p className="mt-3">
+          Need more detail on what's allowed?{' '}
+          <a
+            href={`${import.meta.env.BASE_URL}CLIENT_GUIDE.md`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-indigo-600 hover:text-indigo-800 underline"
+          >
+            Read the full client guide
+          </a>
+          .
+        </p>
       </div>
     </div>
   );
