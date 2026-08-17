@@ -217,7 +217,7 @@ export default function ResultsStep({ items, rates, onBack }) {
                 </tbody>
                 <tfoot>
                   <tr className="font-semibold border-t border-slate-200">
-                    <td className="py-2 pr-3" colSpan={proposalMode ? 3 : 6}>
+                    <td className="py-2 pr-3" colSpan={proposalMode ? 4 : 7}>
                       Subtotal
                     </td>
                     <td className="py-2 pr-3 text-right">{formatCurrency(sys.directCost)}</td>
