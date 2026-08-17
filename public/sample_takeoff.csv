@@ -1,0 +1,14 @@
+system,item_description,size_spec,quantity,unit,avg_depth_ft
+Sanitary,Pipe,"6"" PVC SDR-35",275,LF,4
+Sanitary,Pipe,"8"" PVC SDR-35",140,LF,6
+Sanitary,45 Elbow,"6"" PVC",6,EA,
+Sanitary,Cleanout,"6"" PVC",4,EA,
+Sanitary,Manhole,"48"" Precast",3,EA,
+Storm,Pipe,"12"" HDPE",320,LF,3
+Storm,Pipe,"18"" RCP",95,LF,5
+Storm,Catch Basin,"24"" x 24""",5,EA,
+Storm,Flared End Section,"18"" RCP",2,EA,
+Domestic Water,Pipe,"6"" C900",410,LF,3.5
+Domestic Water,Gate Valve,"6""",3,EA,
+Domestic Water,Fire Hydrant Assembly,Standard,2,EA,
+Domestic Water,Tapping Sleeve & Valve,"6"" x 6""",1,EA,
