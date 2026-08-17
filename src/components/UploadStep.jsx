@@ -1,20 +1,29 @@
 import { useCallback, useRef, useState } from 'react';
-import { downloadSampleCsv, parseTakeoffCsv } from '../lib/csv';
+import { downloadSampleCsv, downloadSampleExcel, parseTakeoffFile } from '../lib/csv';
 
 export default function UploadStep({ onItemsParsed }) {
   const [isDragging, setIsDragging] = useState(false);
   const [errors, setErrors] = useState([]);
   const [fileName, setFileName] = useState('');
+  const [isParsing, setIsParsing] = useState(false);
   const inputRef = useRef(null);
 
   const handleFile = useCallback(
     async (file) => {
       if (!file) return;
       setFileName(file.name);
-      const { items, errors: parseErrors } = await parseTakeoffCsv(file);
-      setErrors(parseErrors);
-      if (items.length > 0) {
-        onItemsParsed(items);
+      setIsParsing(true);
+      try {
+        const { items, errors: parseErrors } = await parseTakeoffFile(file);
+        setErrors(parseErrors);
+        if (items.length > 0) {
+          onItemsParsed(items);
+        }
+      } catch (err) {
+        console.error('Failed to parse takeoff file:', err);
+        setErrors([`Could not read this file. Make sure it's a valid CSV or Excel (.xlsx) file.`]);
+      } finally {
+        setIsParsing(false);
       }
     },
     [onItemsParsed]
@@ -32,7 +41,7 @@ export default function UploadStep({ onItemsParsed }) {
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-slate-900">Import Your Takeoff</h1>
         <p className="mt-2 text-slate-500">
-          Upload a CSV export of your construction takeoff to begin building a pricing estimate.
+          Upload a CSV or Excel export of your construction takeoff to begin building a pricing estimate.
         </p>
       </div>
 
@@ -50,7 +59,7 @@ export default function UploadStep({ onItemsParsed }) {
         <input
           ref={inputRef}
           type="file"
-          accept=".csv,text/csv"
+          accept=".csv,text/csv,.xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
           className="hidden"
           onChange={(e) => handleFile(e.target.files?.[0])}
         />
@@ -63,15 +72,21 @@ export default function UploadStep({ onItemsParsed }) {
           />
         </svg>
         <p className="mt-4 font-medium text-slate-700">
-          Drag &amp; drop your CSV file here, or <span className="text-indigo-600 underline">browse</span>
+          {isParsing ? (
+            'Reading file…'
+          ) : (
+            <>
+              Drag &amp; drop your CSV or Excel file here, or <span className="text-indigo-600 underline">browse</span>
+            </>
+          )}
         </p>
-        <p className="mt-1 text-sm text-slate-400">{fileName || 'Accepts .csv files only'}</p>
+        <p className="mt-1 text-sm text-slate-400">{fileName || 'Accepts .csv, .xlsx, and .xls files'}</p>
       </div>
 
       {errors.length > 0 && (
         <div className="mt-6 rounded-lg border border-red-200 bg-red-50 p-4">
           <p className="font-medium text-red-700 mb-2">
-            {errors.length} issue{errors.length > 1 ? 's' : ''} found in your CSV:
+            {errors.length} issue{errors.length > 1 ? 's' : ''} found in your file:
           </p>
           <ul className="list-disc list-inside text-sm text-red-600 space-y-1 max-h-40 overflow-y-auto">
             {errors.map((err, i) => (
@@ -81,7 +96,7 @@ export default function UploadStep({ onItemsParsed }) {
         </div>
       )}
 
-      <div className="mt-8 flex items-center justify-center gap-2 text-sm text-slate-500">
+      <div className="mt-8 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm text-slate-500">
         <span>Need a starting point?</span>
         <button
           type="button"
@@ -89,6 +104,14 @@ export default function UploadStep({ onItemsParsed }) {
           className="font-medium text-indigo-600 hover:text-indigo-800 underline"
         >
           Download Sample CSV Template
+        </button>
+        <span className="text-slate-300">|</span>
+        <button
+          type="button"
+          onClick={() => downloadSampleExcel()}
+          className="font-medium text-indigo-600 hover:text-indigo-800 underline"
+        >
+          Download Sample Excel Template
         </button>
       </div>
 

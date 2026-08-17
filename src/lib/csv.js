@@ -37,6 +37,17 @@ export function downloadSampleCsv(filename = 'takeoff_sample_template.csv') {
   triggerDownload(csv, filename, 'text/csv');
 }
 
+/**
+ * Builds and downloads a sample Excel (.xlsx) template with the same data as the CSV template.
+ */
+export async function downloadSampleExcel(filename = 'takeoff_sample_template.xlsx') {
+  const XLSX = await import('xlsx');
+  const worksheet = XLSX.utils.json_to_sheet(SAMPLE_CSV_ROWS, { header: CSV_COLUMNS });
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Takeoff');
+  XLSX.writeFile(workbook, filename);
+}
+
 export function triggerDownload(content, filename, mimeType = 'text/plain') {
   const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);
@@ -56,67 +67,115 @@ function nextId() {
 }
 
 /**
+ * Validates and normalizes an array of raw row objects (from CSV or Excel) into
+ * takeoff item objects. Returns { items, errors }.
+ */
+function normalizeRows(rawRows) {
+  const errors = [];
+  const items = [];
+
+  rawRows.forEach((rawRow, idx) => {
+    const rowNum = idx + 2; // account for header row
+    // Normalize keys to lowercase/trimmed to tolerate Excel header variations.
+    const row = {};
+    Object.keys(rawRow).forEach((key) => {
+      row[key.trim().toLowerCase()] = rawRow[key];
+    });
+
+    const missing = CSV_COLUMNS.filter((col) => col !== 'avg_depth_ft' && !String(row[col] ?? '').trim());
+    if (missing.length) {
+      errors.push(`Row ${rowNum}: missing required field(s): ${missing.join(', ')}`);
+      return;
+    }
+
+    const quantity = Number(row.quantity);
+    if (Number.isNaN(quantity)) {
+      errors.push(`Row ${rowNum}: "quantity" is not a valid number (${row.quantity})`);
+      return;
+    }
+
+    const avgDepthRaw = row.avg_depth_ft;
+    const avgDepthFt = avgDepthRaw === undefined || avgDepthRaw === '' ? 0 : Number(avgDepthRaw);
+    if (Number.isNaN(avgDepthFt)) {
+      errors.push(`Row ${rowNum}: "avg_depth_ft" is not a valid number (${avgDepthRaw})`);
+      return;
+    }
+
+    items.push({
+      id: nextId(),
+      system: String(row.system).trim(),
+      description: String(row.item_description).trim(),
+      sizeSpec: String(row.size_spec).trim(),
+      quantity,
+      unit: String(row.unit).trim().toUpperCase(),
+      avgDepthFt,
+      materialCostPerUnit: 0,
+      laborHoursPerUnit: 0,
+    });
+  });
+
+  return { items, errors };
+}
+
+/**
  * Parses a raw CSV file/text into normalized takeoff item objects.
  * Returns { items, errors } where errors is a list of human-readable validation issues.
  */
 export function parseTakeoffCsv(fileOrText) {
   return new Promise((resolve) => {
+    const handleResults = (results) => {
+      const parseErrors = (results.errors || []).map((e) => `Row ${e.row + 2}: ${e.message}`);
+      const { items, errors } = normalizeRows(results.data);
+      resolve({ items, errors: [...parseErrors, ...errors] });
+    };
+
     const config = {
       header: true,
       skipEmptyLines: true,
       transformHeader: (h) => h.trim().toLowerCase(),
-      complete: (results) => {
-        const errors = [];
-        (results.errors || []).forEach((e) => {
-          errors.push(`Row ${e.row + 2}: ${e.message}`);
-        });
-
-        const items = [];
-        results.data.forEach((row, idx) => {
-          const rowNum = idx + 2; // account for header row
-          const missing = CSV_COLUMNS.filter((col) => col !== 'avg_depth_ft' && !String(row[col] ?? '').trim());
-          if (missing.length) {
-            errors.push(`Row ${rowNum}: missing required field(s): ${missing.join(', ')}`);
-            return;
-          }
-
-          const quantity = Number(row.quantity);
-          if (Number.isNaN(quantity)) {
-            errors.push(`Row ${rowNum}: "quantity" is not a valid number (${row.quantity})`);
-            return;
-          }
-
-          const avgDepthRaw = row.avg_depth_ft;
-          const avgDepthFt = avgDepthRaw === undefined || avgDepthRaw === '' ? 0 : Number(avgDepthRaw);
-          if (Number.isNaN(avgDepthFt)) {
-            errors.push(`Row ${rowNum}: "avg_depth_ft" is not a valid number (${avgDepthRaw})`);
-            return;
-          }
-
-          items.push({
-            id: nextId(),
-            system: String(row.system).trim(),
-            description: String(row.item_description).trim(),
-            sizeSpec: String(row.size_spec).trim(),
-            quantity,
-            unit: String(row.unit).trim().toUpperCase(),
-            avgDepthFt,
-            materialCostPerUnit: 0,
-            laborHoursPerUnit: 0,
-          });
-        });
-
-        resolve({ items, errors });
-      },
+      complete: handleResults,
     };
 
     if (typeof fileOrText === 'string') {
-      config.complete(Papa.parse(fileOrText, { header: true, skipEmptyLines: true, transformHeader: config.transformHeader }));
+      handleResults(Papa.parse(fileOrText, { header: true, skipEmptyLines: true, transformHeader: config.transformHeader }));
     } else {
       Papa.parse(fileOrText, config);
     }
   });
 }
+
+const EXCEL_EXTENSIONS = ['.xlsx', '.xls', '.xlsm'];
+
+export function isExcelFile(file) {
+  const name = (file?.name || '').toLowerCase();
+  return EXCEL_EXTENSIONS.some((ext) => name.endsWith(ext));
+}
+
+/**
+ * Parses an uploaded Excel (.xlsx/.xls) file into normalized takeoff item objects.
+ * Reads the first worksheet. Returns { items, errors }.
+ */
+export async function parseTakeoffExcel(file) {
+  const XLSX = await import('xlsx');
+  const buffer = await file.arrayBuffer();
+  const workbook = XLSX.read(buffer, { type: 'array' });
+  const firstSheetName = workbook.SheetNames[0];
+  const worksheet = workbook.Sheets[firstSheetName];
+  const rawRows = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+  return normalizeRows(rawRows);
+}
+
+/**
+ * Parses either a CSV or Excel file into normalized takeoff item objects,
+ * automatically detecting the file type by extension.
+ */
+export async function parseTakeoffFile(file) {
+  if (isExcelFile(file)) {
+    return parseTakeoffExcel(file);
+  }
+  return parseTakeoffCsv(file);
+}
+
 
 export function createBlankItem() {
   return {

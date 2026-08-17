@@ -1,6 +1,26 @@
 # Takeoff Engine
 
-A basic React.js application (built with [Vite](https://vite.dev/)) that displays "Hello World" on the front page.
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)](https://vite.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![React Router](https://img.shields.io/badge/React_Router-7-CA4245?logo=reactrouter&logoColor=white)](https://reactrouter.com/)
+[![PapaParse](https://img.shields.io/badge/PapaParse-CSV_Parsing-8A2BE2)](https://www.papaparse.com/)
+[![jsPDF](https://img.shields.io/badge/jsPDF-PDF_Export-EC1C24)](https://github.com/parallax/jsPDF)
+[![Deployed on GitHub Pages](https://img.shields.io/badge/Deployed-GitHub_Pages-222?logo=github)](https://pattygcoding.github.io/takeoff-engine/)
+
+A lightweight, client-side web application that turns raw construction takeoff CSVs into detailed pricing estimates and client-ready proposals. The entire app runs statically in the browser — no backend or database required — and is deployed for free on GitHub Pages.
+
+**Live demo:** https://pattygcoding.github.io/takeoff-engine/
+
+## What it does
+
+Takeoff Engine walks a contractor through a simple 3-step workflow:
+
+1. **Upload Takeoff** (`/`) — Drag-and-drop a CSV **or Excel (.xlsx/.xls)** export of your construction takeoff (system, item description, size/spec, quantity, unit, average trench depth). Includes client-side validation and downloadable sample CSV and Excel templates to get started quickly.
+2. **Edit & Review** (`/edit`) — Fine-tune the imported data in an editable spreadsheet-style grid (add, edit, or delete line items inline). A slide-out **Pricing & Markup** drawer lets you set material unit costs, labor production rates, labor hourly rate, trench width, overhead %, contingency %, profit margin %, and mobilization/equipment costs. All pricing settings persist to `localStorage` so they're remembered between sessions.
+3. **Results & Proposal** (`/results`) — View a full internal cost breakdown by system (material cost, labor hours/cost, equipment cost, overhead, contingency, profit, and final bid amount), or flip on **Client-Facing Proposal Mode** to hide internal markups and labor details and show a clean lump-sum summary. Export the results as a **PDF** or **CSV/Excel** file, or print directly from the browser.
+
+Trenching and earthwork volumes are automatically calculated from quantity × average depth × trench width for linear-foot pipe items.
 
 ## Prerequisites
 
@@ -22,7 +42,7 @@ A basic React.js application (built with [Vite](https://vite.dev/)) that display
    npm run dev
    ```
 
-3. Open the URL shown in the terminal (typically `http://localhost:5173`) in your browser. You should see "Hello World".
+3. Open the URL shown in the terminal (typically `http://localhost:5173`) in your browser. Try uploading `public/sample_takeoff.csv` or `public/sample_takeoff.xlsx` (or download either sample template from within the app) to see it in action.
 
 To create an optimized production build, run:
 
@@ -47,7 +67,7 @@ If this folder is not yet connected to a GitHub repository, follow these steps:
    ```powershell
    git init
    git add .
-   git commit -m "Initial commit: React hello world app"
+   git commit -m "Initial commit: Takeoff Engine app"
    ```
 
 3. Add your GitHub repository as the remote origin (replace the URL with your own repository's URL):

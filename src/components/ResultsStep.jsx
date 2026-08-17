@@ -6,6 +6,7 @@ import Papa from 'papaparse';
 export default function ResultsStep({ items, rates, onBack }) {
   const [proposalMode, setProposalMode] = useState(false);
   const [exportingPdf, setExportingPdf] = useState(false);
+  const [exportingWord, setExportingWord] = useState(false);
   const estimate = useMemo(() => computeEstimate(items, rates), [items, rates]);
   const { totals, bySystem } = estimate;
 
@@ -38,9 +39,11 @@ export default function ResultsStep({ items, rates, onBack }) {
     try {
       // Lazily load these heavy libraries only when a PDF export is actually requested,
       // so they end up in a separate chunk instead of bloating the main bundle.
+      // Note: html2canvas-pro (rather than html2canvas) is used because it supports
+      // modern CSS color functions like oklch()/lab(), which Tailwind CSS v4 relies on.
       const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
         import('jspdf'),
-        import('html2canvas'),
+        import('html2canvas-pro'),
       ]);
       const canvas = await html2canvas(node, { scale: 2, backgroundColor: '#ffffff' });
       const imgData = canvas.toDataURL('image/png');
@@ -50,10 +53,26 @@ export default function ResultsStep({ items, rates, onBack }) {
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       pdf.addImage(imgData, 'PNG', 20, 20, imgWidth, imgHeight);
       pdf.save(proposalMode ? 'client_proposal.pdf' : 'internal_estimate.pdf');
+    } catch (err) {
+      console.error('PDF export failed:', err);
+      alert('Sorry, PDF export failed. Please try "Print / Save as PDF" instead.');
     } finally {
       setExportingPdf(false);
     }
+  };
 
+  const exportWord = async () => {
+    setExportingWord(true);
+    try {
+      // Lazily load the docx library only when a Word export is actually requested.
+      const { exportEstimateToWord } = await import('../lib/wordExport');
+      await exportEstimateToWord(estimate, proposalMode);
+    } catch (err) {
+      console.error('Word export failed:', err);
+      alert('Sorry, Word export failed. Please try again.');
+    } finally {
+      setExportingWord(false);
+    }
   };
 
   return (
@@ -114,6 +133,14 @@ export default function ResultsStep({ items, rates, onBack }) {
           className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-wait"
         >
           {exportingPdf ? 'Preparing PDF…' : 'Export PDF'}
+        </button>
+        <button
+          type="button"
+          onClick={exportWord}
+          disabled={exportingWord}
+          className="rounded-md bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800 disabled:opacity-50 disabled:cursor-wait"
+        >
+          {exportingWord ? 'Preparing Word…' : 'Export Word'}
         </button>
         <button
           type="button"
