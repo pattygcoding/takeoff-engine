@@ -4,120 +4,69 @@
 [![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)](https://vite.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![React Router](https://img.shields.io/badge/React_Router-7-CA4245?logo=reactrouter&logoColor=white)](https://reactrouter.com/)
+[![Supabase](https://img.shields.io/badge/Supabase-Auth_%26_DB-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
+[![Express.js](https://img.shields.io/badge/Express.js-Backend_API-000000?logo=express&logoColor=white)](https://expressjs.com/)
 [![PapaParse](https://img.shields.io/badge/PapaParse-CSV_Parsing-8A2BE2)](https://www.papaparse.com/)
 [![jsPDF](https://img.shields.io/badge/jsPDF-PDF_Export-EC1C24)](https://github.com/parallax/jsPDF)
-[![Deployed on GitHub Pages](https://img.shields.io/badge/Deployed-GitHub_Pages-222?logo=github)](https://pattygcoding.github.io/takeoff-engine/)
 
-A lightweight, client-side web application that turns raw construction takeoff CSVs into detailed pricing estimates and client-ready proposals. The entire app runs statically in the browser — no backend or database required — and is deployed for free on GitHub Pages.
+A fast, responsive web application and SaaS platform for contractors, estimators, and engineers. It turns raw construction takeoff spreadsheets (CSV or Excel) into itemized cost breakdowns, earthwork/trenching volume estimates, and client-ready Word/PDF bid proposals.
 
-**Live demo:** https://pattygcoding.github.io/takeoff-engine/
+---
 
-## What it does
+## ⚡ Key Features
 
-Takeoff Engine walks a contractor through a simple 3-step workflow:
+- **Multi-Step Guided Workflow**:
+  1. **Upload Takeoff** (`/:username`) — Drag-and-drop CSV or Excel (`.xlsx`/`.xls`) files with automatic column detection, trench depth parsing, and data validation.
+  2. **Interactive Spreadsheet Grid** (`/:username/edit`) — Inline cell editing, line item additions/deletions, real-time recalculations, and a slide-out **Pricing & Markup Drawer** (labor production rates, hourly wages, trench width, markups, overhead %, contingency %, profit margin %, mobilization).
+  3. **Proposal & Estimating Hub** (`/:username/results`) — Real-time cost summaries by trade/system, internal breakdown vs. client-facing lump-sum toggle, printable view, high-resolution PDF export, Word `.docx` export, and Excel export.
+- **Authentication & User Profiles**:
+  - Secure native Supabase Auth with password encryption.
+  - User profile persistence in PostgreSQL (`first_name`, `last_name`, `username`, `email`, `phone_number`).
+  - Username-namespaced workspace routes (`/:username/*`).
+- **Earthwork & Trench Volume Calculation Engine**:
+  - Automatically calculates trench excavation cubic yardage for linear foot pipe items based on quantity $\times$ trench depth $\times$ configurable trench width.
 
-1. **Upload Takeoff** (`/`) — Drag-and-drop a CSV **or Excel (.xlsx/.xls)** export of your construction takeoff (system, item description, size/spec, quantity, unit, average trench depth). Includes client-side validation and downloadable sample CSV and Excel templates to get started quickly.
-2. **Edit & Review** (`/edit`) — Fine-tune the imported data in an editable spreadsheet-style grid (add, edit, or delete line items inline). A slide-out **Pricing & Markup** drawer lets you set material unit costs, labor production rates, labor hourly rate, trench width, overhead %, contingency %, profit margin %, and mobilization/equipment costs. All pricing settings persist to `localStorage` so they're remembered between sessions.
-3. **Results & Proposal** (`/results`) — View a full internal cost breakdown by system (material cost, labor hours/cost, equipment cost, overhead, contingency, profit, and final bid amount), or flip on **Client-Facing Proposal Mode** to hide internal markups and labor details and show a clean lump-sum summary. Export the results as a **PDF** or **CSV/Excel** file, or print directly from the browser.
+> 📄 **Non-technical client instructions:** see [`public/CLIENT_GUIDE.md`](./public/CLIENT_GUIDE.md) for a plain-language guide on how to fill out takeoff files.
 
-Trenching and earthwork volumes are automatically calculated from quantity × average depth × trench width for linear-foot pipe items.
+---
 
-> 📄 **Non-technical client instructions:** see [`public/CLIENT_GUIDE.md`](./public/CLIENT_GUIDE.md) for a plain-language guide on how to fill out the CSV/Excel takeoff file, including required columns and the boundaries of what the import will and won't accept.
+## 🛠️ Architecture
 
-## Prerequisites
+```
+takeoff-engine/          # Frontend (React 19, Vite, Tailwind CSS, React Router 7)
+takeoff-engine-backend/  # Backend (Express.js, Supabase Auth/PostgreSQL, Swagger UI)
+buisness-goals/saas/     # SaaS monetization blueprint & roadmap
+```
 
+---
+
+## 🚀 Getting Started
+
+### 1. Prerequisites
 - [Node.js](https://nodejs.org/) (v18 or later recommended)
-- npm (comes bundled with Node.js)
-- A [GitHub](https://github.com/) account (for publishing the source code)
+- npm (bundled with Node.js)
+- Running instance of `takeoff-engine-backend` on port `5000`
 
-## Running the app locally
+### 2. Install & Run Frontend Locally
+```powershell
+# Navigate to frontend folder
+cd takeoff-engine
 
-1. Install dependencies:
+# Install dependencies
+npm install
 
-   ```powershell
-   npm install
-   ```
+# Start development server
+npm run dev
+```
 
-2. Start the development server:
+App will run at `http://localhost:5173`.
 
-   ```powershell
-   npm run dev
-   ```
-
-3. Open the URL shown in the terminal (typically `http://localhost:5173`) in your browser. Try uploading `public/sample_takeoff.csv` or `public/sample_takeoff.xlsx` (or download either sample template from within the app) to see it in action.
-
-To create an optimized production build, run:
-
+### 3. Production Build
 ```powershell
 npm run build
 ```
 
-The output will be generated in the `dist` folder. You can preview the production build locally with:
-
-```powershell
-npm run preview
-```
-
-## Publishing the code to GitHub
-
-If this folder is not yet connected to a GitHub repository, follow these steps:
-
-1. Create a new (empty) repository on [GitHub](https://github.com/new). Do **not** initialize it with a README, `.gitignore`, or license, since this project already has them.
-
-2. In a terminal, from the project root, initialize git (skip if already a git repo) and commit your files:
-
-   ```powershell
-   git init
-   git add .
-   git commit -m "Initial commit: Takeoff Engine app"
-   ```
-
-3. Add your GitHub repository as the remote origin (replace the URL with your own repository's URL):
-
-   ```powershell
-   git remote add origin https://github.com/<your-username>/<your-repo-name>.git
-   ```
-
-4. Push your code to GitHub:
-
-   ```powershell
-   git branch -M main
-   git push -u origin main
-   ```
-
-From now on, after making changes, you can publish updates with:
-
-```powershell
-git add .
-git commit -m "Describe your changes"
-git push
-```
-
-## Deploying the app to a website
-
-There are several free ways to deploy this Vite/React app. Three popular options are **GitHub Pages**, **Vercel**, and **Netlify**.
-
-### Option 1: Deploy with GitHub Pages
-
-1. Install the `gh-pages` package as a dev dependency:
-
-   ```powershell
-   npm install --save-dev gh-pages
-   ```
-
-2. In `vite.config.js`, set the `base` option to your repository name (required for GitHub Pages project sites):
-
-   ```js
-   export default defineConfig({
-     base: '/<your-repo-name>/',
-     // ...other config
-   })
-   ```
-
-3. Add the following scripts to your `package.json`:
-
-   ```json
-   "scripts": {
+The optimized static build is generated in the `dist/` directory.
      "predeploy": "npm run build",
      "deploy": "gh-pages -d dist"
    }
