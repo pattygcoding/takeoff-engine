@@ -1,0 +1,100 @@
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('takeoff_token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+};
+
+export const authApi = {
+  async register({ username, password, firstName, lastName, email, phoneNumber }) {
+    const res = await fetch(`${API_BASE_URL}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username,
+        password,
+        firstName,
+        lastName,
+        email,
+        phoneNumber,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Registration failed.');
+    }
+    return data;
+  },
+
+  async login({ usernameOrEmail, password }) {
+    const res = await fetch(`${API_BASE_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usernameOrEmail, password }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Login failed.');
+    }
+    return data;
+  },
+
+  async logout() {
+    try {
+      await fetch(`${API_BASE_URL}/auth/logout`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+      });
+    } catch {
+      // Ignore network errors on logout
+    }
+    localStorage.removeItem('takeoff_token');
+    localStorage.removeItem('takeoff_user');
+  },
+
+  async getMe() {
+    const token = localStorage.getItem('takeoff_token');
+    if (!token) return null;
+
+    const res = await fetch(`${API_BASE_URL}/auth/me`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+    if (!res.ok) {
+      localStorage.removeItem('takeoff_token');
+      localStorage.removeItem('takeoff_user');
+      return null;
+    }
+    const data = await res.json();
+    return data.user;
+  },
+
+  async forgotPassword(email) {
+    const res = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to request password reset.');
+    }
+    return data;
+  },
+
+  async updatePassword({ newPassword }) {
+    const res = await fetch(`${API_BASE_URL}/auth/update-password`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ newPassword }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Password update failed.');
+    }
+    return data;
+  },
+};
