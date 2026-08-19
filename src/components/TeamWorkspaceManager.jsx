@@ -154,7 +154,7 @@ export default function TeamWorkspaceManager() {
 
         {!isEnterpriseOrTeam && (
           <div className="text-xs bg-amber-50 text-amber-800 border border-amber-200 px-3 py-1.5 rounded-xl">
-            👑 Multi-user team workspaces require the <strong>Enterprise / Team ($149/mo)</strong> tier.
+            👑 Multi-user team workspaces require the <strong>Enterprise / Team ($149.99/mo + tax)</strong> tier.
           </div>
         )}
       </div>

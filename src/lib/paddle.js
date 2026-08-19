@@ -31,10 +31,14 @@ export async function getPaddleInstance() {
 /**
  * Open Paddle hosted overlay checkout
  */
-export async function openPaddleCheckout({ priceId, customerEmail, customData, onSuccess, onClose }) {
+export async function openPaddleCheckout({ priceId, items, customerEmail, customData, onSuccess, onClose }) {
   const paddle = await getPaddleInstance();
 
-  if (!paddle || !priceId) {
+  const checkoutItems = items && items.length > 0
+    ? items
+    : (priceId ? [{ priceId, quantity: 1 }] : []);
+
+  if (!paddle || checkoutItems.length === 0) {
     // If Paddle token or price is not yet configured, fall back to mock checkout notice
     return false;
   }
@@ -50,7 +54,7 @@ export async function openPaddleCheckout({ priceId, customerEmail, customData, o
   }
 
   const checkoutPayload = {
-    items: [{ priceId, quantity: 1 }],
+    items: checkoutItems,
     settings: {
       displayMode: 'overlay',
       theme: 'light',

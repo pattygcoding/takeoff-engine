@@ -428,20 +428,21 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {/* Free Trial Tier */}
-            <div className="bg-slate-900 p-8 rounded-3xl border border-slate-800 flex flex-col justify-between">
+            <div className="bg-slate-900 p-6 rounded-3xl border border-slate-800 flex flex-col justify-between">
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Free Trial</span>
                 <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-4xl font-black text-white">$0</span>
+                  <span className="text-3xl font-black text-white">$0</span>
                   <span className="text-xs text-slate-400">/ forever</span>
                 </div>
+                <div className="text-[10px] text-slate-500 font-medium mt-0.5">no credit card required</div>
                 <p className="text-xs text-slate-400 mt-2">Perfect for evaluating your first job bids.</p>
 
-                <ul className="mt-6 space-y-3 text-xs text-slate-300">
+                <ul className="mt-6 space-y-2.5 text-xs text-slate-300">
                   <li className="flex items-center gap-2">✓ <strong>5 Free Takeoff Exports</strong></li>
-                  <li className="flex items-center gap-2">✓ CSV &amp; Excel auto column mapper</li>
+                  <li className="flex items-center gap-2">✓ CSV &amp; Excel column mapper</li>
                   <li className="flex items-center gap-2">✓ Full trench &amp; production math</li>
                   <li className="flex items-center gap-2">✓ 1 Custom Rate Library</li>
                 </ul>
@@ -449,55 +450,25 @@ export default function LandingPage() {
 
               <button
                 onClick={() => navigate('/login')}
-                className="mt-8 w-full py-3 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition"
+                className="mt-6 w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition"
               >
                 Get Started Free
               </button>
             </div>
 
-            {/* Pro Tier (Popular) */}
-            <div className="bg-gradient-to-b from-indigo-950/80 to-slate-900 p-8 rounded-3xl border-2 border-indigo-500 shadow-2xl relative flex flex-col justify-between">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow">
-                Most Popular
-              </div>
-
-              <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-indigo-400">Pro Tier</span>
-                <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-4xl font-black text-white">$49</span>
-                  <span className="text-xs text-slate-400">/ month</span>
-                </div>
-                <p className="text-xs text-slate-300 mt-2">Unlimited power for active estimating contractors.</p>
-
-                <ul className="mt-6 space-y-3 text-xs text-slate-200">
-                  <li className="flex items-center gap-2">✓ <strong>Unlimited Takeoff Exports</strong></li>
-                  <li className="flex items-center gap-2">✓ <strong>Custom Company Logo &amp; Branding</strong></li>
-                  <li className="flex items-center gap-2">✓ <strong>Public Client Portal &amp; E-Signatures</strong></li>
-                  <li className="flex items-center gap-2">✓ Unlimited Custom Rate Libraries</li>
-                  <li className="flex items-center gap-2">✓ Word (.DOCX), PDF &amp; Excel Outputs</li>
-                </ul>
-              </div>
-
-              <button
-                onClick={() => navigate('/login')}
-                className="mt-8 w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition"
-              >
-                Start Pro 14-Day Trial
-              </button>
-            </div>
-
             {/* Starter Tier */}
-            <div className="bg-slate-900 p-8 rounded-3xl border border-slate-800 flex flex-col justify-between">
+            <div className="bg-slate-900 p-6 rounded-3xl border border-slate-800 flex flex-col justify-between">
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Starter Tier</span>
                 <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-4xl font-black text-white">$19</span>
-                  <span className="text-xs text-slate-400">/ month</span>
+                  <span className="text-3xl font-black text-white">$19.99</span>
+                  <span className="text-xs text-slate-400">/ mo</span>
                 </div>
+                <div className="text-[10px] text-slate-400 font-medium mt-0.5">plus applicable tax</div>
                 <p className="text-xs text-slate-400 mt-2">Great for solo estimators bidding 1-2 jobs weekly.</p>
 
-                <ul className="mt-6 space-y-3 text-xs text-slate-300">
-                  <li className="flex items-center gap-2">✓ <strong>25 Takeoffs / Month</strong></li>
+                <ul className="mt-6 space-y-2.5 text-xs text-slate-300">
+                  <li className="flex items-center gap-2">✓ <strong>Unlimited Calculations</strong></li>
                   <li className="flex items-center gap-2">✓ Word &amp; PDF Export</li>
                   <li className="flex items-center gap-2">✓ 2 Custom Rate Libraries</li>
                   <li className="flex items-center gap-2">✓ Cloud Save &amp; Project Dashboard</li>
@@ -506,9 +477,67 @@ export default function LandingPage() {
 
               <button
                 onClick={() => navigate('/login')}
-                className="mt-8 w-full py-3 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition"
+                className="mt-6 w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition"
               >
                 Choose Starter
+              </button>
+            </div>
+
+            {/* Pro Tier (Popular) */}
+            <div className="bg-gradient-to-b from-indigo-950/80 to-slate-900 p-6 rounded-3xl border-2 border-indigo-500 shadow-2xl relative flex flex-col justify-between">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-wider px-3 py-0.5 rounded-full shadow">
+                Most Popular
+              </div>
+
+              <div>
+                <span className="text-xs font-bold uppercase tracking-wider text-indigo-400">Pro Tier</span>
+                <div className="mt-4 flex items-baseline gap-1">
+                  <span className="text-3xl font-black text-white">$49.99</span>
+                  <span className="text-xs text-slate-400">/ mo</span>
+                </div>
+                <div className="text-[10px] text-indigo-300/80 font-medium mt-0.5">plus applicable tax</div>
+                <p className="text-xs text-slate-300 mt-2">Unlimited power for active contractors.</p>
+
+                <ul className="mt-6 space-y-2.5 text-xs text-slate-200">
+                  <li className="flex items-center gap-2">✓ <strong>Unlimited Takeoff Exports</strong></li>
+                  <li className="flex items-center gap-2">✓ <strong>Custom Branding &amp; Logos</strong></li>
+                  <li className="flex items-center gap-2">✓ <strong>Client Portal &amp; E-Signatures</strong></li>
+                  <li className="flex items-center gap-2">✓ Unlimited Custom Rate Libraries</li>
+                </ul>
+              </div>
+
+              <button
+                onClick={() => navigate('/login')}
+                className="mt-6 w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition"
+              >
+                Upgrade to Pro
+              </button>
+            </div>
+
+            {/* Enterprise Tier */}
+            <div className="bg-gradient-to-b from-amber-950/40 via-slate-900 to-slate-900 p-6 rounded-3xl border border-amber-500/40 shadow-xl flex flex-col justify-between">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-wider text-amber-400">Enterprise</span>
+                <div className="mt-4 flex items-baseline gap-1">
+                  <span className="text-3xl font-black text-white">$149.99</span>
+                  <span className="text-xs text-slate-400">/ mo</span>
+                </div>
+                <div className="text-[10px] text-amber-300/80 font-medium mt-0.5">plus applicable tax</div>
+                <p className="text-xs text-slate-300 mt-2">Multi-seat collaboration for teams.</p>
+
+                <ul className="mt-6 space-y-2.5 text-xs text-slate-200">
+                  <li className="flex items-center gap-2">✓ <strong>3 Base Team Seats Included</strong></li>
+                  <li className="flex items-center gap-2">✓ <strong>+$29.99/mo per extra seat (+ tax)</strong></li>
+                  <li className="flex items-center gap-2">✓ Team Workspaces &amp; Shared Libraries</li>
+                  <li className="flex items-center gap-2">✓ All Pro features + priority support</li>
+                </ul>
+              </div>
+
+              <button
+                onClick={() => navigate('/login')}
+                className="mt-6 w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-amber-600/30 transition"
+              >
+                Choose Enterprise
               </button>
             </div>
           </div>
