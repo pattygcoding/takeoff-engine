@@ -82,6 +82,37 @@ export const billingApi = {
     }
     return data;
   },
+
+  /**
+   * Get Paddle customer management portal URL
+   */
+  async getCustomerPortal() {
+    const res = await fetch(`${API_BASE_URL}/billing/customer-portal`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to get customer portal link.');
+    }
+    return data;
+  },
+
+  /**
+   * Cancel subscription at end of billing period (US-021)
+   */
+  async cancelSubscription(reason) {
+    const res = await fetch(`${API_BASE_URL}/billing/cancel-subscription`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ reason }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to cancel subscription.');
+    }
+    return data;
+  },
 };
 
 export const adminApi = {

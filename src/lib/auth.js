@@ -98,15 +98,28 @@ export const authApi = {
     return data;
   },
 
-  async updateProfile({ firstName, lastName, phoneNumber }) {
+  async updateProfile(profileData) {
     const res = await fetch(`${API_BASE_URL}/auth/profile`, {
       method: 'PUT',
       headers: getAuthHeaders(),
-      body: JSON.stringify({ firstName, lastName, phoneNumber }),
+      body: JSON.stringify(profileData),
     });
     const data = await res.json();
     if (!res.ok) {
       throw new Error(data.error || 'Profile update failed.');
+    }
+    return data;
+  },
+
+  async uploadLogo(imageBase64, fileName) {
+    const res = await fetch(`${API_BASE_URL}/users/logo`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ imageBase64, fileName }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to upload logo.');
     }
     return data;
   },

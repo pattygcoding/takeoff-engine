@@ -1,11 +1,13 @@
 import { useCallback, useRef, useState } from 'react';
 import { downloadSampleCsv, downloadSampleExcel, parseTakeoffFile } from '../lib/csv';
+import ColumnMappingModal from './ColumnMappingModal';
 
 export default function UploadStep({ onItemsParsed }) {
   const [isDragging, setIsDragging] = useState(false);
   const [errors, setErrors] = useState([]);
   const [fileName, setFileName] = useState('');
   const [isParsing, setIsParsing] = useState(false);
+  const [mappingModalData, setMappingModalData] = useState(null);
   const inputRef = useRef(null);
 
   const handleFile = useCallback(
@@ -14,9 +16,16 @@ export default function UploadStep({ onItemsParsed }) {
       setFileName(file.name);
       setIsParsing(true);
       try {
-        const { items, errors: parseErrors } = await parseTakeoffFile(file);
-        setErrors(parseErrors);
-        if (items.length > 0) {
+        const result = await parseTakeoffFile(file);
+
+        if (result.requiresMappingModal) {
+          setMappingModalData(result);
+          return;
+        }
+
+        const { items, errors: parseErrors } = result;
+        setErrors(parseErrors || []);
+        if (items && items.length > 0) {
           onItemsParsed(items);
         }
       } catch (err) {
@@ -28,6 +37,14 @@ export default function UploadStep({ onItemsParsed }) {
     },
     [onItemsParsed]
   );
+
+  const handleMappingConfirm = ({ items, errors: mappingErrors }) => {
+    setMappingModalData(null);
+    setErrors(mappingErrors || []);
+    if (items && items.length > 0) {
+      onItemsParsed(items);
+    }
+  };
 
   const onDrop = (e) => {
     e.preventDefault();
@@ -103,22 +120,41 @@ export default function UploadStep({ onItemsParsed }) {
           onClick={() => downloadSampleCsv()}
           className="font-medium text-indigo-600 hover:text-indigo-800 underline"
         >
-          Download Sample CSV Template
+          Download Standard Template
         </button>
         <span className="text-slate-300">|</span>
-        <button
-          type="button"
-          onClick={() => downloadSampleExcel()}
+        <a
+          href={`${import.meta.env.BASE_URL}sample_bluebeam_takeoff.csv`}
+          download="sample_bluebeam_takeoff.csv"
           className="font-medium text-indigo-600 hover:text-indigo-800 underline"
         >
-          Download Sample Excel Template
-        </button>
+          Bluebeam Sample
+        </a>
+        <span className="text-slate-300">|</span>
+        <a
+          href={`${import.meta.env.BASE_URL}sample_planswift_takeoff.csv`}
+          download="sample_planswift_takeoff.csv"
+          className="font-medium text-indigo-600 hover:text-indigo-800 underline"
+        >
+          PlanSwift Sample
+        </a>
+        <span className="text-slate-300">|</span>
+        <a
+          href={`${import.meta.env.BASE_URL}sample_trimble_agtek_takeoff.csv`}
+          download="sample_trimble_agtek_takeoff.csv"
+          className="font-medium text-indigo-600 hover:text-indigo-800 underline"
+        >
+          Trimble / Agtek Sample
+        </a>
       </div>
 
       <div className="mt-10 rounded-lg bg-slate-50 border border-slate-200 p-4 text-sm text-slate-600">
-        <p className="font-medium text-slate-700 mb-1">Expected columns:</p>
+        <p className="font-medium text-slate-700 mb-1">Intelligent Auto-Mapping Enabled:</p>
+        <p className="text-xs text-slate-500 mb-2">
+          Upload takeoff files from Bluebeam, PlanSwift, HeavyBid, or Trimble without renaming headers. We automatically recognize aliases like <em>Trade, Item Name, Dimension, Takeoff Qty, UOM, Cut Depth</em>, and clean formatted currency values.
+        </p>
         <code className="text-xs bg-white border border-slate-200 rounded px-2 py-1 block overflow-x-auto">
-          system, item_description, size_spec, quantity, unit, avg_depth_ft
+          Standard Fields: system, item_description, size_spec, quantity, unit, avg_depth_ft
         </code>
         <p className="mt-3">
           Need more detail on what's allowed?{' '}
@@ -133,6 +169,17 @@ export default function UploadStep({ onItemsParsed }) {
           .
         </p>
       </div>
+
+      {/* Interactive Column Mapping Modal */}
+      {mappingModalData && (
+        <ColumnMappingModal
+          headers={mappingModalData.headers}
+          rawRows={mappingModalData.rawRows}
+          initialMapping={mappingModalData.currentMapping}
+          onConfirm={handleMappingConfirm}
+          onCancel={() => setMappingModalData(null)}
+        />
+      )}
     </div>
   );
 }

@@ -23,10 +23,10 @@ export default function UserMenu() {
     ['starter', 'pro', 'enterprise'].includes(user?.subscription_tier);
 
   const getPlanLabel = () => {
-    if (user?.role === 'admin') return 'Admin';
-    if (user?.role === 'payment_exempt' || user?.role === 'user_payment_exempt') return 'VIP Unlimited';
+    if (user?.role === 'admin') return 'Super-Admin';
+    if (user?.role === 'payment_exempt' || user?.role === 'user_payment_exempt') return 'VIP Member / All Features Unlocked';
     if (user?.subscription_tier === 'starter') return 'Starter Plan';
-    if (user?.subscription_tier === 'enterprise') return 'Enterprise';
+    if (user?.subscription_tier === 'enterprise') return 'Enterprise Plan';
     return 'Pro Plan';
   };
 
@@ -123,6 +123,17 @@ export default function UserMenu() {
               </button>
             )}
 
+            {isAdmin && (
+              <a
+                href="#/admin"
+                onClick={() => setIsOpen(false)}
+                className="w-full text-left px-4 py-2 text-sm text-purple-700 font-semibold hover:bg-purple-50 transition flex items-center gap-2"
+              >
+                <span>⚡</span>
+                <span>Super-Admin Portal</span>
+              </a>
+            )}
+
             <a
               href={`#/${user.username}/settings`}
               onClick={() => setIsOpen(false)}
@@ -133,6 +144,17 @@ export default function UserMenu() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
               <span>Account Settings</span>
+            </a>
+
+            <a
+              href="#/home"
+              onClick={() => setIsOpen(false)}
+              className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition flex items-center gap-2"
+            >
+              <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+              <span>Public Site &amp; Calculator</span>
             </a>
 
             <button

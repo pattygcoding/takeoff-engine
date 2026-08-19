@@ -111,6 +111,27 @@ export default function LoginPage({ initialView = 'login' }) {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] px-4 py-8">
+      {/* Back to Home / Public site navigation banner */}
+      <div className="max-w-md w-full mb-4 flex items-center justify-between text-xs font-medium text-slate-500">
+        <button
+          type="button"
+          onClick={() => navigate('/home')}
+          className="inline-flex items-center gap-1.5 hover:text-indigo-600 transition"
+        >
+          <span>←</span>
+          <span>Back to Home</span>
+        </button>
+        <div className="flex items-center gap-3">
+          <a href="#/home#calculator" className="hover:text-indigo-600 transition">
+            Free Calculator
+          </a>
+          <span className="text-slate-300">•</span>
+          <a href="#/home#pricing" className="hover:text-indigo-600 transition">
+            Pricing
+          </a>
+        </div>
+      </div>
+
       <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 sm:p-8 border border-slate-200">
         {error && (
           <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">
@@ -202,7 +223,7 @@ export default function LoginPage({ initialView = 'login' }) {
               Don't have an account?{' '}
               <div className="mt-2 inline-flex flex-col items-center">
                 <span className="text-slate-400 font-semibold cursor-not-allowed">
-                  Create an Account
+                  {/* Create an Account */}
                 </span>
                 <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full mt-1.5 font-medium">
                   Registration disabled while in beta for testing only
@@ -330,7 +351,7 @@ export default function LoginPage({ initialView = 'login' }) {
               </div>
 
               <button
-                type="submit"
+             /*    type="submit" */
                 disabled
                 className="w-full py-2.5 px-4 bg-slate-300 text-slate-500 font-medium rounded-lg shadow-sm transition mt-2 text-sm cursor-not-allowed"
               >

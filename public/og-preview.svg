@@ -1,0 +1,57 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#0f172a"/>
+  
+  <!-- Subtle background glow -->
+  <circle cx="200" cy="150" r="300" fill="#4f46e5" fill-opacity="0.2" filter="blur(80px)"/>
+  <circle cx="1000" cy="450" r="280" fill="#06b6d4" fill-opacity="0.15" filter="blur(80px)"/>
+  
+  <!-- Brand Badge / Logo -->
+  <rect x="100" y="90" width="68" height="68" rx="20" fill="url(#brand_grad)"/>
+  <text x="134" y="137" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="38" fill="white" text-anchor="middle">T</text>
+  <text x="190" y="136" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="800" font-size="34" fill="white">Takeoff Engine</text>
+
+  <!-- Main Headline -->
+  <text x="100" y="240" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="52" fill="#ffffff">
+    Construction Takeoffs to
+  </text>
+  <text x="100" y="305" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="52" fill="url(#title_grad)">
+    Client Proposals in 60s
+  </text>
+
+  <!-- Tagline / Description -->
+  <text x="100" y="375" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="400" font-size="24" fill="#94a3b8">
+    Import Bluebeam, PlanSwift &amp; Excel sheets. Calculate trench excavation,
+  </text>
+  <text x="100" y="412" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="400" font-size="24" fill="#94a3b8">
+    labor costs, and generate e-sign proposals automatically.
+  </text>
+
+  <!-- Badges / Features -->
+  <g transform="translate(100, 480)">
+    <rect width="210" height="48" rx="14" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+    <text x="105" y="30" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="600" font-size="16" fill="#38bdf8" text-anchor="middle">⚡ Instant Trench Math</text>
+  </g>
+
+  <g transform="translate(330, 480)">
+    <rect width="210" height="48" rx="14" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+    <text x="105" y="30" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="600" font-size="16" fill="#818cf8" text-anchor="middle">📄 Word &amp; PDF Export</text>
+  </g>
+
+  <g transform="translate(560, 480)">
+    <rect width="210" height="48" rx="14" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+    <text x="105" y="30" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="600" font-size="16" fill="#34d399" text-anchor="middle">✍️ Client E-Signatures</text>
+  </g>
+
+  <!-- Gradients -->
+  <defs>
+    <linearGradient id="brand_grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <linearGradient id="title_grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#818cf8"/>
+      <stop offset="50%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+  </defs>
+</svg>

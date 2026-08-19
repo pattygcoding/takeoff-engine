@@ -11,20 +11,25 @@ import {
   AlignmentType,
   WidthType,
   BorderStyle,
+  ImageRun,
 } from 'docx';
 import { formatCurrency, formatNumber } from './calculations';
 
 const THIN_BORDER = { style: BorderStyle.SINGLE, size: 2, color: 'CBD5E1' };
 const CELL_BORDERS = { top: THIN_BORDER, bottom: THIN_BORDER, left: THIN_BORDER, right: THIN_BORDER };
 
-function headerCell(text, alignRight = false) {
+function hexColorWithoutHash(hex = '#0284c7') {
+  return (hex || '#0284c7').replace(/^#/, '').toUpperCase();
+}
+
+function headerCell(text, alignRight = false, fillColor = 'F1F5F9', textColor = '475569') {
   return new TableCell({
     borders: CELL_BORDERS,
-    shading: { fill: 'F1F5F9' },
+    shading: { fill: fillColor },
     children: [
       new Paragraph({
         alignment: alignRight ? AlignmentType.RIGHT : AlignmentType.LEFT,
-        children: [new TextRun({ text, bold: true, size: 18, color: '475569' })],
+        children: [new TextRun({ text, bold: true, size: 18, color: textColor })],
       }),
     ],
   });
@@ -42,17 +47,17 @@ function bodyCell(text, alignRight = false, bold = false) {
   });
 }
 
-function summaryRow(label, value, highlight = false) {
+function summaryRow(label, value, highlight = false, highlightColor = 'EEF2FF') {
   return new TableRow({
     children: [
       new TableCell({
         borders: CELL_BORDERS,
-        shading: highlight ? { fill: 'EEF2FF' } : undefined,
+        shading: highlight ? { fill: highlightColor } : undefined,
         children: [new Paragraph({ children: [new TextRun({ text: label, bold: highlight, size: 20 })] })],
       }),
       new TableCell({
         borders: CELL_BORDERS,
-        shading: highlight ? { fill: 'EEF2FF' } : undefined,
+        shading: highlight ? { fill: highlightColor } : undefined,
         children: [
           new Paragraph({
             alignment: AlignmentType.RIGHT,
@@ -68,12 +73,85 @@ function summaryRow(label, value, highlight = false) {
  * Builds and downloads a Word (.docx) document for the estimate.
  * @param {object} estimate - result of computeEstimate()
  * @param {boolean} proposalMode - whether to hide internal cost/markup details
+ * @param {object} branding - contractor branding options (companyName, companyLogoUrl, brandColor, etc.)
  */
-export async function exportEstimateToWord(estimate, proposalMode) {
+export async function exportEstimateToWord(estimate, proposalMode, branding = {}) {
   const { totals, bySystem } = estimate;
+  const brandColorHex = hexColorWithoutHash(branding?.brandColor || '#0284c7');
+  const hasBranding = Boolean(branding?.companyName || branding?.companyLogoUrl);
 
   const children = [];
 
+  // 1. Company Branding Header
+  if (hasBranding) {
+    const brandingHeaderChildren = [];
+
+    // Optional Logo Image
+    if (branding.companyLogoUrl) {
+      try {
+        const response = await fetch(branding.companyLogoUrl);
+        const imageBlob = await response.blob();
+        const arrayBuffer = await imageBlob.arrayBuffer();
+
+        brandingHeaderChildren.push(
+          new Paragraph({
+            children: [
+              new ImageRun({
+                data: arrayBuffer,
+                transformation: {
+                  width: 140,
+                  height: 48,
+                },
+              }),
+            ],
+            spacing: { after: 100 },
+          })
+        );
+      } catch (err) {
+        console.warn('Could not load company logo for Word export:', err.message);
+      }
+    }
+
+    // Company Text Info
+    if (branding.companyName) {
+      brandingHeaderChildren.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: branding.companyName,
+              bold: true,
+              size: 28,
+              color: brandColorHex,
+            }),
+          ],
+        })
+      );
+    }
+
+    const subDetails = [];
+    if (branding.companyAddress) subDetails.push(branding.companyAddress);
+    if (branding.companyPhone) subDetails.push(`Phone: ${branding.companyPhone}`);
+    if (branding.licenseNumber) subDetails.push(`License: ${branding.licenseNumber}`);
+
+    if (subDetails.length > 0) {
+      brandingHeaderChildren.push(
+        new Paragraph({
+          spacing: { after: 200 },
+          children: [
+            new TextRun({
+              text: subDetails.join('  |  '),
+              size: 18,
+              color: '64748B',
+            }),
+          ],
+        })
+      );
+    }
+
+    children.push(...brandingHeaderChildren);
+  }
+
+  // Document Title
   children.push(
     new Paragraph({
       heading: HeadingLevel.HEADING_1,
@@ -104,7 +182,7 @@ export async function exportEstimateToWord(estimate, proposalMode) {
       new Paragraph({
         alignment: AlignmentType.CENTER,
         spacing: { after: 300 },
-        children: [new TextRun({ text: formatCurrency(totals.finalBidAmount), bold: true, size: 44 })],
+        children: [new TextRun({ text: formatCurrency(totals.finalBidAmount), bold: true, size: 44, color: brandColorHex })],
       })
     );
   } else {
@@ -133,7 +211,7 @@ export async function exportEstimateToWord(estimate, proposalMode) {
       new Paragraph({
         heading: HeadingLevel.HEADING_2,
         spacing: { before: 300, after: 150 },
-        children: [new TextRun(sys.system)],
+        children: [new TextRun({ text: sys.system, color: brandColorHex, bold: true })],
       })
     );
 
@@ -143,7 +221,9 @@ export async function exportEstimateToWord(estimate, proposalMode) {
 
     const headerRow = new TableRow({
       tableHeader: true,
-      children: headerCells.map((h, i) => headerCell(h, i >= headerCells.length - 1)),
+      children: headerCells.map((h, i) =>
+        headerCell(h, i >= headerCells.length - 1, 'F1F5F9', '334155')
+      ),
     });
 
     const itemRows = sys.items.map(
@@ -201,6 +281,23 @@ export async function exportEstimateToWord(estimate, proposalMode) {
       })
     );
   }
+
+  // Footer: Generated by Takeoff Engine or Contractor custom signature
+  children.push(
+    new Paragraph({
+      spacing: { before: 400 },
+      children: [
+        new TextRun({
+          text: hasBranding
+            ? `Prepared by ${branding.companyName || 'Contractor'} using Takeoff Engine Pro`
+            : 'Generated with Takeoff Engine — Automated Construction Takeoffs & Estimating',
+          size: 16,
+          color: '94A3B8',
+          italics: true,
+        }),
+      ],
+    })
+  );
 
   const doc = new Document({
     sections: [{ properties: {}, children }],

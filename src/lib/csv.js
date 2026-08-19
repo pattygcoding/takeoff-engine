@@ -9,6 +9,103 @@ export const CSV_COLUMNS = [
   'avg_depth_ft',
 ];
 
+export const TARGET_FIELDS = [
+  { key: 'system', label: 'System / Trade', required: true },
+  { key: 'item_description', label: 'Item / Description', required: true },
+  { key: 'size_spec', label: 'Size / Spec', required: true },
+  { key: 'quantity', label: 'Quantity', required: true },
+  { key: 'unit', label: 'Unit of Measure', required: true },
+  { key: 'avg_depth_ft', label: 'Avg Trench Depth (FT)', required: false },
+];
+
+export const COLUMN_ALIASES = {
+  system: [
+    'system',
+    'trade',
+    'phase',
+    'division',
+    'category',
+    'discipline',
+    'work_type',
+    'work type',
+    'system / trade',
+    'utility',
+    'utility_type',
+    'spec division',
+  ],
+  item_description: [
+    'item_description',
+    'item description',
+    'description',
+    'item',
+    'name',
+    'item_name',
+    'item name',
+    'scope',
+    'detail',
+    'work detail',
+    'scope description',
+    'scope_description',
+    'material_description',
+    'line item',
+    'line_item',
+    'activity',
+  ],
+  size_spec: [
+    'size_spec',
+    'size / spec',
+    'size spec',
+    'size',
+    'spec',
+    'specification',
+    'dimension',
+    'material',
+    'class',
+    'material class',
+    'dimensions',
+    'size / specification',
+    'pipe size',
+  ],
+  quantity: [
+    'quantity',
+    'qty',
+    'amount',
+    'count',
+    'length',
+    'takeoff_qty',
+    'takeoff qty',
+    'takeoff quantity',
+    'total qty',
+    'qty.',
+    'volume',
+  ],
+  unit: [
+    'unit',
+    'uom',
+    'unit_of_measure',
+    'unit of measure',
+    'measure',
+    'units',
+    'unit type',
+  ],
+  avg_depth_ft: [
+    'avg_depth_ft',
+    'avg depth (ft)',
+    'average depth (ft)',
+    'avg depth',
+    'average depth',
+    'depth',
+    'trench_depth',
+    'trench depth',
+    'trench_depth_ft',
+    'cut_depth',
+    'cut depth',
+    'avg. depth',
+    'depth (ft)',
+    'depth_ft',
+  ],
+};
+
 export const SAMPLE_CSV_ROWS = [
   { system: 'Sanitary', item_description: 'Pipe', size_spec: '6" PVC SDR-35', quantity: 275, unit: 'LF', avg_depth_ft: 4 },
   { system: 'Sanitary', item_description: 'Pipe', size_spec: '8" PVC SDR-35', quantity: 140, unit: 'LF', avg_depth_ft: 6 },
@@ -67,47 +164,113 @@ function nextId() {
 }
 
 /**
- * Validates and normalizes an array of raw row objects (from CSV or Excel) into
- * takeoff item objects. Returns { items, errors }.
+ * Strips currency symbols ($ € £), commas, and spaces from a string to extract a clean number.
  */
-function normalizeRows(rawRows) {
+export function cleanNumericValue(val) {
+  if (val === null || val === undefined) return NaN;
+  if (typeof val === 'number') return val;
+  const cleaned = String(val).replace(/[$€£,\s]/g, '').trim();
+  if (cleaned === '') return NaN;
+  return Number(cleaned);
+}
+
+/**
+ * Detects mapping from raw spreadsheet column headers to standard target fields.
+ * Returns: { mapping: { [targetKey]: rawColumnName }, unmappedRequired: string[] }
+ */
+export function autoDetectColumnMapping(headers) {
+  const normalizedHeaders = headers.map((h) => ({
+    raw: h,
+    clean: h.trim().toLowerCase().replace(/[^a-z0-9]/g, ''),
+  }));
+
+  const mapping = {};
+  const matchedRawCols = new Set();
+
+  TARGET_FIELDS.forEach(({ key }) => {
+    const aliases = COLUMN_ALIASES[key] || [key];
+    const cleanAliases = aliases.map((a) => a.toLowerCase().replace(/[^a-z0-9]/g, ''));
+
+    // 1. Exact or cleaned alias match
+    for (const h of normalizedHeaders) {
+      if (!matchedRawCols.has(h.raw) && cleanAliases.includes(h.clean)) {
+        mapping[key] = h.raw;
+        matchedRawCols.add(h.raw);
+        return;
+      }
+    }
+
+    // 2. Partial / substring match
+    for (const h of normalizedHeaders) {
+      if (!matchedRawCols.has(h.raw)) {
+        const found = cleanAliases.some((alias) => h.clean.includes(alias) || alias.includes(h.clean));
+        if (found) {
+          mapping[key] = h.raw;
+          matchedRawCols.add(h.raw);
+          return;
+        }
+      }
+    }
+  });
+
+  const unmappedRequired = TARGET_FIELDS
+    .filter((f) => f.required && !mapping[f.key])
+    .map((f) => f.key);
+
+  return { mapping, unmappedRequired };
+}
+
+/**
+ * Validates and normalizes an array of raw row objects using a field-to-column mapping.
+ * Returns { items, errors }.
+ */
+export function normalizeRowsWithMapping(rawRows, mapping) {
   const errors = [];
   const items = [];
 
   rawRows.forEach((rawRow, idx) => {
-    const rowNum = idx + 2; // account for header row
-    // Normalize keys to lowercase/trimmed to tolerate Excel header variations.
-    const row = {};
-    Object.keys(rawRow).forEach((key) => {
-      row[key.trim().toLowerCase()] = rawRow[key];
-    });
+    const rowNum = idx + 2;
 
-    const missing = CSV_COLUMNS.filter((col) => col !== 'avg_depth_ft' && !String(row[col] ?? '').trim());
-    if (missing.length) {
-      errors.push(`Row ${rowNum}: missing required field(s): ${missing.join(', ')}`);
+    const system = String(rawRow[mapping.system] ?? '').trim();
+    const description = String(rawRow[mapping.item_description] ?? '').trim();
+    const sizeSpec = String(rawRow[mapping.size_spec] ?? '').trim();
+    const unit = String(rawRow[mapping.unit] ?? '').trim().toUpperCase();
+
+    const missingFields = [];
+    if (!system) missingFields.push('System');
+    if (!description) missingFields.push('Description');
+    if (!sizeSpec) missingFields.push('Size/Spec');
+    if (!unit) missingFields.push('Unit');
+
+    if (missingFields.length > 0) {
+      errors.push(`Row ${rowNum}: missing required value for ${missingFields.join(', ')}`);
       return;
     }
 
-    const quantity = Number(row.quantity);
+    const rawQty = rawRow[mapping.quantity];
+    const quantity = cleanNumericValue(rawQty);
     if (Number.isNaN(quantity)) {
-      errors.push(`Row ${rowNum}: "quantity" is not a valid number (${row.quantity})`);
+      errors.push(`Row ${rowNum}: "Quantity" is not a valid number (${rawQty})`);
       return;
     }
 
-    const avgDepthRaw = row.avg_depth_ft;
-    const avgDepthFt = avgDepthRaw === undefined || avgDepthRaw === '' ? 0 : Number(avgDepthRaw);
-    if (Number.isNaN(avgDepthFt)) {
-      errors.push(`Row ${rowNum}: "avg_depth_ft" is not a valid number (${avgDepthRaw})`);
-      return;
+    const rawDepth = mapping.avg_depth_ft ? rawRow[mapping.avg_depth_ft] : undefined;
+    let avgDepthFt = 0;
+    if (rawDepth !== undefined && rawDepth !== '') {
+      avgDepthFt = cleanNumericValue(rawDepth);
+      if (Number.isNaN(avgDepthFt)) {
+        errors.push(`Row ${rowNum}: "Avg Depth" is not a valid number (${rawDepth})`);
+        return;
+      }
     }
 
     items.push({
       id: nextId(),
-      system: String(row.system).trim(),
-      description: String(row.item_description).trim(),
-      sizeSpec: String(row.size_spec).trim(),
+      system,
+      description,
+      sizeSpec,
       quantity,
-      unit: String(row.unit).trim().toUpperCase(),
+      unit,
       avgDepthFt,
       materialCostPerUnit: 0,
       laborHoursPerUnit: 0,
@@ -118,30 +281,34 @@ function normalizeRows(rawRows) {
 }
 
 /**
- * Parses a raw CSV file/text into normalized takeoff item objects.
- * Returns { items, errors } where errors is a list of human-readable validation issues.
+ * Parses raw CSV text or File into raw JSON rows and headers.
  */
-export function parseTakeoffCsv(fileOrText) {
-  return new Promise((resolve) => {
-    const handleResults = (results) => {
-      const parseErrors = (results.errors || []).map((e) => `Row ${e.row + 2}: ${e.message}`);
-      const { items, errors } = normalizeRows(results.data);
-      resolve({ items, errors: [...parseErrors, ...errors] });
-    };
-
-    const config = {
+export function parseRawCsv(fileOrText) {
+  return new Promise((resolve, reject) => {
+    Papa.parse(fileOrText, {
       header: true,
       skipEmptyLines: true,
-      transformHeader: (h) => h.trim().toLowerCase(),
-      complete: handleResults,
-    };
-
-    if (typeof fileOrText === 'string') {
-      handleResults(Papa.parse(fileOrText, { header: true, skipEmptyLines: true, transformHeader: config.transformHeader }));
-    } else {
-      Papa.parse(fileOrText, config);
-    }
+      complete: (results) => {
+        const headers = results.meta?.fields || [];
+        resolve({ headers, rows: results.data, parseErrors: results.errors || [] });
+      },
+      error: (err) => reject(err),
+    });
   });
+}
+
+/**
+ * Parses raw Excel file into raw JSON rows and headers.
+ */
+export async function parseRawExcel(file) {
+  const XLSX = await import('xlsx');
+  const buffer = await file.arrayBuffer();
+  const workbook = XLSX.read(buffer, { type: 'array' });
+  const firstSheetName = workbook.SheetNames[0];
+  const worksheet = workbook.Sheets[firstSheetName];
+  const rows = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+  const headers = rows.length > 0 ? Object.keys(rows[0]) : [];
+  return { headers, rows, parseErrors: [] };
 }
 
 const EXCEL_EXTENSIONS = ['.xlsx', '.xls', '.xlsm'];
@@ -152,30 +319,40 @@ export function isExcelFile(file) {
 }
 
 /**
- * Parses an uploaded Excel (.xlsx/.xls) file into normalized takeoff item objects.
- * Reads the first worksheet. Returns { items, errors }.
- */
-export async function parseTakeoffExcel(file) {
-  const XLSX = await import('xlsx');
-  const buffer = await file.arrayBuffer();
-  const workbook = XLSX.read(buffer, { type: 'array' });
-  const firstSheetName = workbook.SheetNames[0];
-  const worksheet = workbook.Sheets[firstSheetName];
-  const rawRows = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
-  return normalizeRows(rawRows);
-}
-
-/**
- * Parses either a CSV or Excel file into normalized takeoff item objects,
- * automatically detecting the file type by extension.
+ * High-level parser that attempts smart column auto-mapping.
+ * If all required columns are auto-detected, normalizes immediately.
+ * Otherwise, returns { requiresMappingModal: true, headers, rawRows, currentMapping }.
  */
 export async function parseTakeoffFile(file) {
+  let rawData;
   if (isExcelFile(file)) {
-    return parseTakeoffExcel(file);
+    rawData = await parseRawExcel(file);
+  } else {
+    rawData = await parseRawCsv(file);
   }
-  return parseTakeoffCsv(file);
-}
 
+  const { headers, rows, parseErrors } = rawData;
+  if (!rows || rows.length === 0) {
+    return { items: [], errors: ['Uploaded file is empty or has no readable rows.'] };
+  }
+
+  const { mapping, unmappedRequired } = autoDetectColumnMapping(headers);
+
+  if (unmappedRequired.length > 0) {
+    return {
+      requiresMappingModal: true,
+      headers,
+      rawRows: rows,
+      currentMapping: mapping,
+      unmappedRequired,
+      parseErrors,
+    };
+  }
+
+  const { items, errors } = normalizeRowsWithMapping(rows, mapping);
+  const formattedParseErrors = (parseErrors || []).map((e) => `Row ${e.row + 2}: ${e.message}`);
+  return { items, errors: [...formattedParseErrors, ...errors] };
+}
 
 export function createBlankItem() {
   return {

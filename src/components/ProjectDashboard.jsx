@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { projectsApi } from '../lib/projects';
 import { useAuth } from '../context/AuthContext';
+import { useModal } from '../context/ModalContext';
 
 const STATUS_CONFIG = {
   draft: {
@@ -24,6 +25,7 @@ const STATUS_CONFIG = {
 
 export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
   const { user } = useAuth();
+  const { showAlert, showConfirm } = useModal();
   const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -85,14 +87,24 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
       const cloned = await projectsApi.clone(project.id);
       setProjects((prev) => [cloned, ...prev]);
     } catch (err) {
-      alert(err.message || 'Failed to duplicate project.');
+      await showAlert({
+        title: 'Duplicate Project Error',
+        message: err.message || 'Failed to duplicate project.',
+        variant: 'error',
+      });
     } finally {
       setIsCloningId(null);
     }
   };
 
   const handleDelete = async (project) => {
-    if (!window.confirm(`Are you sure you want to delete "${project.name}"? This action cannot be undone.`)) {
+    const confirmed = await showConfirm({
+      title: 'Delete Project',
+      message: `Are you sure you want to delete "${project.name}"? This action cannot be undone.`,
+      confirmText: 'Delete Project',
+      confirmVariant: 'danger',
+    });
+    if (!confirmed) {
       return;
     }
     try {
@@ -101,7 +113,11 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
       await projectsApi.delete(project.id);
       setProjects((prev) => prev.filter((p) => p.id !== project.id));
     } catch (err) {
-      alert(err.message || 'Failed to delete project.');
+      await showAlert({
+        title: 'Delete Error',
+        message: err.message || 'Failed to delete project.',
+        variant: 'error',
+      });
     } finally {
       setIsDeletingId(null);
     }
@@ -121,7 +137,11 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
       setRenameModalProject(null);
       setRenameInput('');
     } catch (err) {
-      alert(err.message || 'Failed to rename project.');
+      await showAlert({
+        title: 'Rename Error',
+        message: err.message || 'Failed to rename project.',
+        variant: 'error',
+      });
     }
   };
 
@@ -138,7 +158,11 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
       );
       setStatusModalProject(null);
     } catch (err) {
-      alert(err.message || 'Failed to update project status.');
+      await showAlert({
+        title: 'Status Update Error',
+        message: err.message || 'Failed to update project status.',
+        variant: 'error',
+      });
     }
   };
 

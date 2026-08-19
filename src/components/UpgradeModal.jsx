@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { billingApi } from '../lib/billing';
 import { openPaddleCheckout } from '../lib/paddle';
 import { useAuth } from '../context/AuthContext';
+import { useModal } from '../context/ModalContext';
 
 export default function UpgradeModal({ isOpen, onClose }) {
   const { user, refreshProfile } = useAuth();
+  const { showAlert } = useModal();
   const [promoCodeInput, setPromoCodeInput] = useState('');
   const [promoLoading, setPromoLoading] = useState(false);
   const [promoMsg, setPromoMsg] = useState('');
@@ -13,6 +15,35 @@ export default function UpgradeModal({ isOpen, onClose }) {
   const [activePlan, setActivePlan] = useState('pro'); // 'starter' or 'pro'
 
   if (!isOpen) return null;
+
+  if (user?.role === 'payment_exempt' || user?.has_unlimited_bypass) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-fade-in">
+        <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-md w-full p-6 sm:p-8 text-center relative">
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+            aria-label="Close"
+          >
+            ✕
+          </button>
+          <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+            ✓
+          </div>
+          <h3 className="text-xl font-bold text-slate-900 mb-2">Account Already Unlocked</h3>
+          <p className="text-sm text-slate-600 mb-6">
+            Your account has complimentary permanent VIP access with all Pro features unlocked. You do not need to upgrade or enter payment details.
+          </p>
+          <button
+            onClick={onClose}
+            className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl transition"
+          >
+            Got it, Return to App
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const handleLaunchCheckout = async (selectedPlan) => {
     setCheckoutLoading(true);
@@ -37,11 +68,19 @@ export default function UpgradeModal({ isOpen, onClose }) {
           localStorage.setItem('takeoff_user', JSON.stringify(mockRes.user));
         }
         if (refreshProfile) await refreshProfile();
-        alert(mockRes.message || 'Upgraded successfully via Sandbox Mock Mode!');
+        await showAlert({
+          title: 'Upgrade Successful',
+          message: mockRes.message || 'Upgraded successfully via Sandbox Mock Mode!',
+          variant: 'success',
+        });
         onClose();
       }
     } catch (err) {
-      alert(err.message || 'Failed to initialize checkout.');
+      await showAlert({
+        title: 'Checkout Error',
+        message: err.message || 'Failed to initialize checkout.',
+        variant: 'error',
+      });
     } finally {
       setCheckoutLoading(false);
     }

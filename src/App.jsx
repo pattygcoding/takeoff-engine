@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Navigate, Route, Routes, useNavigate, useParams, Link } from 'react-router-dom';
+import { Navigate, Route, Routes, useNavigate, useParams, Link, useLocation } from 'react-router-dom';
 import Stepper from './components/Stepper';
 import UploadStep from './components/UploadStep';
 import EditStep from './components/EditStep';
@@ -8,7 +8,11 @@ import ProjectDashboard from './components/ProjectDashboard';
 import AccountSettings from './components/AccountSettings';
 import UserMenu from './components/UserMenu';
 import LoginPage from './components/LoginPage';
+import LandingPage from './components/LandingPage';
+import ClientProposalView from './components/ClientProposalView';
+import AdminPortal from './components/AdminPortal';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ModalProvider } from './context/ModalContext';
 import { DEFAULT_RATES } from './lib/calculations';
 import { useLocalStorageState } from './lib/useLocalStorageState';
 
@@ -178,6 +182,7 @@ function AppContent() {
   const [rates, setRates] = useLocalStorageState('takeoff-engine.rates', DEFAULT_RATES);
   const { user, isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -187,52 +192,70 @@ function AppContent() {
     );
   }
 
+  const isPublicLandingOrProposal =
+    location.pathname === '/home' ||
+    (!isAuthenticated && (location.pathname === '/' || location.pathname === '')) ||
+    location.pathname.startsWith('/p/');
+
   return (
     <div className="min-h-screen bg-slate-100">
-      <header className="no-print bg-white border-b border-slate-200 py-3 sm:py-4">
-        <div className="max-w-6xl mx-auto px-4 flex items-center justify-between">
-          <div
-            className="flex items-center gap-2 cursor-pointer"
-            onClick={() => {
-              if (isAuthenticated && user?.username) {
-                navigate(`/${user.username}`);
-              } else {
-                navigate('/login');
-              }
-            }}
-          >
-            <span className="text-xl font-bold text-indigo-600">Takeoff Engine</span>
-            <span className="hidden sm:inline text-sm text-slate-400">Construction Estimating</span>
-          </div>
+      {!isPublicLandingOrProposal && (
+        <header className="no-print bg-white border-b border-slate-200 py-3 sm:py-4">
+          <div className="max-w-6xl mx-auto px-4 flex items-center justify-between">
+            <div
+              className="flex items-center gap-2 cursor-pointer"
+              onClick={() => {
+                if (isAuthenticated && user?.username) {
+                  navigate(`/${user.username}`);
+                } else {
+                  navigate('/login');
+                }
+              }}
+              title={isAuthenticated ? 'Go to Projects Dashboard' : 'Go to Login'}
+            >
+              <span className="text-xl font-bold text-indigo-600">Takeoff Engine</span>
+              <span className="hidden sm:inline text-sm text-slate-400">Construction Estimating</span>
+            </div>
 
-          <div className="flex items-center gap-3">
-            {isAuthenticated ? (
-              <UserMenu />
-            ) : (
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => navigate('/login')}
-                  className="px-3.5 py-1.5 text-sm font-medium text-slate-700 hover:text-indigo-600 transition"
-                >
-                  Log In
-                </button>
-                <div className="relative group">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => navigate('/home')}
+                className="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-indigo-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition"
+                title="View public marketing site & free trench calculator"
+              >
+                <span>🌐</span>
+                <span>Public Site &amp; Tools</span>
+              </button>
+
+              {isAuthenticated ? (
+                <UserMenu />
+              ) : (
+                <div className="flex items-center gap-2">
                   <button
-                    disabled
-                    className="px-3.5 py-1.5 text-sm font-medium bg-slate-200 text-slate-400 rounded-lg cursor-not-allowed transition"
-                    title="Registration is disabled while in beta for testing only"
+                    onClick={() => navigate('/login')}
+                    className="px-3.5 py-1.5 text-sm font-medium text-slate-700 hover:text-indigo-600 transition"
                   >
-                    Sign Up
+                    Log In
                   </button>
-                  <div className="hidden group-hover:block absolute right-0 top-full mt-1 w-48 p-2 bg-slate-800 text-white text-[11px] rounded shadow-lg z-50 text-center leading-tight">
-                    Registration is disabled while in beta for testing only.
+                  <div className="relative group">
+                    <button
+                      disabled
+                      className="px-3.5 py-1.5 text-sm font-medium bg-slate-200 text-slate-400 rounded-lg cursor-not-allowed transition"
+                      title="Registration is disabled while in beta for testing only"
+                    >
+                      Sign Up
+                    </button>
+                    <div className="hidden group-hover:block absolute right-0 top-full mt-1 w-48 p-2 bg-slate-800 text-white text-[11px] rounded shadow-lg z-50 text-center leading-tight">
+                      Registration is disabled while in beta for testing only.
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
+      )}
 
       <Routes>
         {/* Auth Routes */}
@@ -267,6 +290,30 @@ function AppContent() {
           }
         />
 
+        {/* Public Landing Page & Calculators */}
+        <Route
+          path="/home"
+          element={<LandingPage />}
+        />
+
+        {/* Super-Admin Portal (US-014) */}
+        <Route
+          path="/admin"
+          element={
+            isAuthenticated && user?.role === 'admin' ? (
+              <AdminPortal />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
+        />
+
+        {/* Public Client Proposal & E-Signature View */}
+        <Route
+          path="/p/:publicToken"
+          element={<ClientProposalView />}
+        />
+
         {/* User-Scoped Workspace Routes */}
         <Route
           path="/:username/*"
@@ -286,14 +333,14 @@ function AppContent() {
           }
         />
 
-        {/* Root Route: Redirect to user workspace or login */}
+        {/* Root Route: Public Landing Page or redirect to logged-in user dashboard */}
         <Route
           path="/"
           element={
             isAuthenticated && user?.username ? (
               <Navigate to={`/${user.username}`} replace />
             ) : (
-              <Navigate to="/login" replace />
+              <LandingPage />
             )
           }
         />
@@ -305,7 +352,7 @@ function AppContent() {
             isAuthenticated && user?.username ? (
               <Navigate to={`/${user.username}`} replace />
             ) : (
-              <Navigate to="/login" replace />
+              <LandingPage />
             )
           }
         />
@@ -317,7 +364,9 @@ function AppContent() {
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <ModalProvider>
+        <AppContent />
+      </ModalProvider>
     </AuthProvider>
   );
 }
