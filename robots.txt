@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+Allow: /home
+Allow: /login
+Allow: /pricing
+Allow: /p/
+
+# Disallow private user workspace & admin management paths
+Disallow: /admin
+Disallow: /settings
+Disallow: /upload
+Disallow: /edit
+Disallow: /results
+Disallow: /api/
+
+Sitemap: https://takeoffengine.com/sitemap.xml
