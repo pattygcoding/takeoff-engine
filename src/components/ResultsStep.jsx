@@ -1,14 +1,80 @@
 import { useMemo, useState } from 'react';
 import { computeEstimate, formatCurrency, formatNumber } from '../lib/calculations';
 import { triggerDownload } from '../lib/csv';
+import { projectsApi } from '../lib/projects';
 import Papa from 'papaparse';
 
-export default function ResultsStep({ items, rates, onBack }) {
+export default function ResultsStep({ items, rates, currentProject, onProjectSaved, onBack }) {
   const [proposalMode, setProposalMode] = useState(false);
   const [exportingPdf, setExportingPdf] = useState(false);
   const [exportingWord, setExportingWord] = useState(false);
+  const [isSavingProject, setIsSavingProject] = useState(false);
+  const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [projectNameInput, setProjectNameInput] = useState(currentProject?.name || '');
+  const [clientNameInput, setClientNameInput] = useState(currentProject?.client_name || '');
+  const [locationInput, setLocationInput] = useState(currentProject?.location || '');
+
   const estimate = useMemo(() => computeEstimate(items, rates), [items, rates]);
   const { totals, bySystem } = estimate;
+
+  const handleSaveToCloud = async (e) => {
+    if (e) e.preventDefault();
+    if (!projectNameInput.trim()) {
+      setShowSaveModal(true);
+      return;
+    }
+
+    try {
+      setIsSavingProject(true);
+      setSaveSuccessMsg('');
+
+      const summaryPayload = {
+        totalMaterialCost: totals.materialCost,
+        totalLaborCost: totals.laborCost,
+        totalDirectCost: totals.directCost,
+        overheadCost: totals.overheadCost,
+        contingencyCost: totals.contingencyCost,
+        profitAmount: totals.profitAmount,
+        equipmentCost: totals.equipmentCost,
+        finalBidAmount: totals.finalBidAmount,
+        totalItemsCount: items.length,
+      };
+
+      if (currentProject?.id) {
+        // Update existing project
+        const updated = await projectsApi.update(currentProject.id, {
+          name: projectNameInput.trim(),
+          clientName: clientNameInput.trim(),
+          location: locationInput.trim(),
+          items,
+          rates,
+          summary: summaryPayload,
+        });
+        if (onProjectSaved) onProjectSaved(updated);
+      } else {
+        // Create new cloud project
+        const created = await projectsApi.create({
+          name: projectNameInput.trim(),
+          clientName: clientNameInput.trim(),
+          location: locationInput.trim(),
+          status: 'draft',
+          items,
+          rates,
+          summary: summaryPayload,
+        });
+        if (onProjectSaved) onProjectSaved(created);
+      }
+
+      setShowSaveModal(false);
+      setSaveSuccessMsg('Estimate successfully saved to cloud!');
+      setTimeout(() => setSaveSuccessMsg(''), 4000);
+    } catch (err) {
+      alert(err.message || 'Failed to save project to cloud.');
+    } finally {
+      setIsSavingProject(false);
+    }
+  };
 
   const exportCsv = () => {
     const rows = bySystem.flatMap((sys) =>
@@ -118,38 +184,138 @@ export default function ResultsStep({ items, rates, onBack }) {
         </div>
       </div>
 
-      <div className="no-print flex flex-wrap gap-3 mb-6">
-        <button
-          type="button"
-          onClick={() => window.print()}
-          className="rounded-md bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-900"
-        >
-          Print / Save as PDF
-        </button>
-        <button
-          type="button"
-          onClick={exportPdf}
-          disabled={exportingPdf}
-          className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-wait"
-        >
-          {exportingPdf ? 'Preparing PDF…' : 'Export PDF'}
-        </button>
-        <button
-          type="button"
-          onClick={exportWord}
-          disabled={exportingWord}
-          className="rounded-md bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800 disabled:opacity-50 disabled:cursor-wait"
-        >
-          {exportingWord ? 'Preparing Word…' : 'Export Word'}
-        </button>
-        <button
-          type="button"
-          onClick={exportCsv}
-          className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-        >
-          Export CSV / Excel
-        </button>
+      <div className="no-print flex flex-wrap items-center justify-between gap-3 mb-6 bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setProjectNameInput(currentProject?.name || '');
+              setClientNameInput(currentProject?.client_name || '');
+              setLocationInput(currentProject?.location || '');
+              setShowSaveModal(true);
+            }}
+            disabled={isSavingProject}
+            className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 shadow-xs transition"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+            </svg>
+            {isSavingProject ? 'Saving...' : currentProject?.id ? 'Update Cloud Estimate' : 'Save to Projects'}
+          </button>
+
+          {saveSuccessMsg && (
+            <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg">
+              ✓ {saveSuccessMsg}
+            </span>
+          )}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => window.print()}
+            className="rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
+          >
+            Print
+          </button>
+          <button
+            type="button"
+            onClick={exportPdf}
+            disabled={exportingPdf}
+            className="rounded-xl bg-indigo-600 px-3.5 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-wait transition"
+          >
+            {exportingPdf ? 'Preparing PDF…' : 'Export PDF'}
+          </button>
+          <button
+            type="button"
+            onClick={exportWord}
+            disabled={exportingWord}
+            className="rounded-xl bg-blue-700 px-3.5 py-2 text-sm font-medium text-white hover:bg-blue-800 disabled:opacity-50 disabled:cursor-wait transition"
+          >
+            {exportingWord ? 'Preparing Word…' : 'Export Word'}
+          </button>
+          <button
+            type="button"
+            onClick={exportCsv}
+            className="rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
+          >
+            Export CSV / Excel
+          </button>
+        </div>
       </div>
+
+      {/* Save Project Modal */}
+      {showSaveModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 border border-slate-200">
+            <h3 className="text-lg font-bold text-slate-900 mb-1">
+              {currentProject?.id ? 'Update Project Details' : 'Save Project to Cloud'}
+            </h3>
+            <p className="text-xs text-slate-500 mb-4">
+              Enter details for this takeoff estimate to easily access and manage it from your Dashboard.
+            </p>
+            <form onSubmit={handleSaveToCloud}>
+              <div className="space-y-3 mb-5">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Project Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={projectNameInput}
+                    onChange={(e) => setProjectNameInput(e.target.value)}
+                    placeholder="e.g. West Main St Sewer Replacement"
+                    className="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    autoFocus
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Client / General Contractor Name
+                  </label>
+                  <input
+                    type="text"
+                    value={clientNameInput}
+                    onChange={(e) => setClientNameInput(e.target.value)}
+                    placeholder="e.g. Apex Construction LLC"
+                    className="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Location / Job Site
+                  </label>
+                  <input
+                    type="text"
+                    value={locationInput}
+                    onChange={(e) => setLocationInput(e.target.value)}
+                    placeholder="e.g. Greenville, SC"
+                    className="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowSaveModal(false)}
+                  className="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-xl"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingProject}
+                  className="px-5 py-2 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-xs disabled:opacity-50"
+                >
+                  {isSavingProject ? 'Saving...' : 'Save Estimate'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <div id="print-area" className="print-area bg-white rounded-lg border border-slate-200 p-6">
         {!proposalMode && (

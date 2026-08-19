@@ -1,16 +1,17 @@
 import { useState } from 'react';
-import { Navigate, Route, Routes, useNavigate, useParams } from 'react-router-dom';
+import { Navigate, Route, Routes, useNavigate, useParams, Link } from 'react-router-dom';
 import Stepper from './components/Stepper';
 import UploadStep from './components/UploadStep';
 import EditStep from './components/EditStep';
 import ResultsStep from './components/ResultsStep';
+import ProjectDashboard from './components/ProjectDashboard';
 import UserMenu from './components/UserMenu';
 import LoginPage from './components/LoginPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { DEFAULT_RATES } from './lib/calculations';
 import { useLocalStorageState } from './lib/useLocalStorageState';
 
-function UserWorkspace({ items, setItems, rates, setRates }) {
+function UserWorkspace({ items, setItems, rates, setRates, currentProject, setCurrentProject }) {
   const { username } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -21,12 +22,30 @@ function UserWorkspace({ items, setItems, rates, setRates }) {
   }
 
   const userStepPaths = {
-    1: `/${username}`,
+    1: `/${username}/upload`,
     2: `/${username}/edit`,
     3: `/${username}/results`,
   };
 
   const goToStep = (step) => navigate(userStepPaths[step]);
+
+  const handleOpenProject = (project) => {
+    setCurrentProject(project);
+    const est = project.latestEstimate;
+    if (est?.items_json && Array.isArray(est.items_json) && est.items_json.length > 0) {
+      setItems(est.items_json);
+    }
+    if (est?.rates_json && typeof est.rates_json === 'object' && Object.keys(est.rates_json).length > 0) {
+      setRates(est.rates_json);
+    }
+    navigate(`/${username}/edit`);
+  };
+
+  const handleNewTakeoff = () => {
+    setCurrentProject(null);
+    setItems([]);
+    navigate(`/${username}/upload`);
+  };
 
   const handleItemsParsed = (parsedItems) => {
     setItems(parsedItems);
@@ -35,15 +54,46 @@ function UserWorkspace({ items, setItems, rates, setRates }) {
 
   return (
     <Routes>
+      {/* Default User Route: Projects Dashboard */}
       <Route
         path="/"
         element={
+          <ProjectDashboard
+            onOpenProject={handleOpenProject}
+            onNewTakeoff={handleNewTakeoff}
+          />
+        }
+      />
+      <Route
+        path="/projects"
+        element={
+          <ProjectDashboard
+            onOpenProject={handleOpenProject}
+            onNewTakeoff={handleNewTakeoff}
+          />
+        }
+      />
+
+      {/* Step 1: Upload */}
+      <Route
+        path="/upload"
+        element={
           <>
+            <div className="max-w-6xl mx-auto px-4 pt-4 pb-0 flex items-center justify-between">
+              <Link
+                to={`/${username}`}
+                className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-indigo-600 transition"
+              >
+                ← Back to Projects Dashboard
+              </Link>
+            </div>
             <Stepper step={1} onStepClick={goToStep} />
             <UploadStep onItemsParsed={handleItemsParsed} />
           </>
         }
       />
+
+      {/* Step 2: Edit */}
       <Route
         path="/edit"
         element={
@@ -51,6 +101,19 @@ function UserWorkspace({ items, setItems, rates, setRates }) {
             <Navigate to={`/${username}`} replace />
           ) : (
             <>
+              <div className="max-w-6xl mx-auto px-4 pt-4 pb-0 flex items-center justify-between">
+                <Link
+                  to={`/${username}`}
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-indigo-600 transition"
+                >
+                  ← Back to Projects Dashboard
+                </Link>
+                {currentProject?.name && (
+                  <span className="text-xs font-semibold text-slate-700 bg-slate-200/70 px-2.5 py-1 rounded-lg">
+                    Project: {currentProject.name}
+                  </span>
+                )}
+              </div>
               <Stepper step={2} onStepClick={goToStep} />
               <EditStep
                 items={items}
@@ -63,6 +126,8 @@ function UserWorkspace({ items, setItems, rates, setRates }) {
           )
         }
       />
+
+      {/* Step 3: Results */}
       <Route
         path="/results"
         element={
@@ -70,10 +135,25 @@ function UserWorkspace({ items, setItems, rates, setRates }) {
             <Navigate to={`/${username}`} replace />
           ) : (
             <>
+              <div className="max-w-6xl mx-auto px-4 pt-4 pb-0 flex items-center justify-between">
+                <Link
+                  to={`/${username}`}
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-indigo-600 transition"
+                >
+                  ← Back to Projects Dashboard
+                </Link>
+                {currentProject?.name && (
+                  <span className="text-xs font-semibold text-slate-700 bg-slate-200/70 px-2.5 py-1 rounded-lg">
+                    Project: {currentProject.name}
+                  </span>
+                )}
+              </div>
               <Stepper step={3} onStepClick={goToStep} />
               <ResultsStep
                 items={items}
                 rates={rates}
+                currentProject={currentProject}
+                onProjectSaved={(savedProj) => setCurrentProject(savedProj)}
                 onBack={() => navigate(`/${username}/edit`)}
               />
             </>
@@ -87,6 +167,7 @@ function UserWorkspace({ items, setItems, rates, setRates }) {
 
 function AppContent() {
   const [items, setItems] = useState([]);
+  const [currentProject, setCurrentProject] = useState(null);
   const [rates, setRates] = useLocalStorageState('takeoff-engine.rates', DEFAULT_RATES);
   const { user, isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
@@ -185,6 +266,8 @@ function AppContent() {
                 setItems={setItems}
                 rates={rates}
                 setRates={setRates}
+                currentProject={currentProject}
+                setCurrentProject={setCurrentProject}
               />
             )
           }
