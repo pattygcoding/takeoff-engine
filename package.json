@@ -12,6 +12,7 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@paddle/paddle-js": "^1.6.4",
     "@tailwindcss/vite": "^4.3.3",
     "docx": "^9.7.1",
     "html2canvas-pro": "^2.3.8",

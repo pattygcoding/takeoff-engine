@@ -2,15 +2,20 @@ import { useMemo, useState } from 'react';
 import { computeEstimate, formatCurrency, formatNumber } from '../lib/calculations';
 import { triggerDownload } from '../lib/csv';
 import { projectsApi } from '../lib/projects';
+import { authApi } from '../lib/auth';
+import { useAuth } from '../context/AuthContext';
+import UpgradeModal from './UpgradeModal';
 import Papa from 'papaparse';
 
 export default function ResultsStep({ items, rates, currentProject, onProjectSaved, onBack }) {
+  const { refreshProfile } = useAuth();
   const [proposalMode, setProposalMode] = useState(false);
   const [exportingPdf, setExportingPdf] = useState(false);
   const [exportingWord, setExportingWord] = useState(false);
   const [isSavingProject, setIsSavingProject] = useState(false);
   const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
   const [showSaveModal, setShowSaveModal] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [projectNameInput, setProjectNameInput] = useState(currentProject?.name || '');
   const [clientNameInput, setClientNameInput] = useState(currentProject?.client_name || '');
   const [locationInput, setLocationInput] = useState(currentProject?.location || '');
@@ -76,69 +81,89 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
     }
   };
 
+  /**
+   * Records export and decrements credit count before completing file download
+   */
+  const processExportWithCreditCheck = async (exportFn) => {
+    try {
+      await authApi.recordExport();
+      if (refreshProfile) await refreshProfile();
+      await exportFn();
+    } catch (err) {
+      if (err.code === 'TRIAL_EXHAUSTED' || err.status === 403) {
+        setShowUpgradeModal(true);
+      } else {
+        // If not logged in or network issue with metering endpoint, let export continue or prompt
+        await exportFn();
+      }
+    }
+  };
+
   const exportCsv = () => {
-    const rows = bySystem.flatMap((sys) =>
-      sys.items.map((item) => ({
-        System: item.system,
-        Description: item.description,
-        'Size/Spec': item.sizeSpec,
-        Quantity: item.quantity,
-        Unit: item.unit,
-        ...(proposalMode
-          ? { 'Line Total': (item.directCost).toFixed(2) }
-          : {
-              'Material Cost': item.materialCost.toFixed(2),
-              'Labor Hours': item.laborHours.toFixed(2),
-              'Labor Cost': item.laborCost.toFixed(2),
-              'Direct Cost': item.directCost.toFixed(2),
-            }),
-      }))
-    );
-    const csv = Papa.unparse(rows);
-    triggerDownload(csv, proposalMode ? 'proposal_summary.csv' : 'internal_cost_breakdown.csv', 'text/csv');
+    processExportWithCreditCheck(async () => {
+      const rows = bySystem.flatMap((sys) =>
+        sys.items.map((item) => ({
+          System: item.system,
+          Description: item.description,
+          'Size/Spec': item.sizeSpec,
+          Quantity: item.quantity,
+          Unit: item.unit,
+          ...(proposalMode
+            ? { 'Line Total': item.directCost.toFixed(2) }
+            : {
+                'Material Cost': item.materialCost.toFixed(2),
+                'Labor Hours': item.laborHours.toFixed(2),
+                'Labor Cost': item.laborCost.toFixed(2),
+                'Direct Cost': item.directCost.toFixed(2),
+              }),
+        }))
+      );
+      const csv = Papa.unparse(rows);
+      triggerDownload(csv, proposalMode ? 'proposal_summary.csv' : 'internal_cost_breakdown.csv', 'text/csv');
+    });
   };
 
   const exportPdf = async () => {
     const node = document.getElementById('print-area');
     if (!node) return;
-    setExportingPdf(true);
-    try {
-      // Lazily load these heavy libraries only when a PDF export is actually requested,
-      // so they end up in a separate chunk instead of bloating the main bundle.
-      // Note: html2canvas-pro (rather than html2canvas) is used because it supports
-      // modern CSS color functions like oklch()/lab(), which Tailwind CSS v4 relies on.
-      const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
-        import('jspdf'),
-        import('html2canvas-pro'),
-      ]);
-      const canvas = await html2canvas(node, { scale: 2, backgroundColor: '#ffffff' });
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const imgWidth = pageWidth - 40;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      pdf.addImage(imgData, 'PNG', 20, 20, imgWidth, imgHeight);
-      pdf.save(proposalMode ? 'client_proposal.pdf' : 'internal_estimate.pdf');
-    } catch (err) {
-      console.error('PDF export failed:', err);
-      alert('Sorry, PDF export failed. Please try "Print / Save as PDF" instead.');
-    } finally {
-      setExportingPdf(false);
-    }
+
+    processExportWithCreditCheck(async () => {
+      setExportingPdf(true);
+      try {
+        const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
+          import('jspdf'),
+          import('html2canvas-pro'),
+        ]);
+        const canvas = await html2canvas(node, { scale: 2, backgroundColor: '#ffffff' });
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const imgWidth = pageWidth - 40;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        pdf.addImage(imgData, 'PNG', 20, 20, imgWidth, imgHeight);
+        pdf.save(proposalMode ? 'client_proposal.pdf' : 'internal_estimate.pdf');
+      } catch (err) {
+        console.error('PDF export failed:', err);
+        alert('Sorry, PDF export failed. Please try "Print / Save as PDF" instead.');
+      } finally {
+        setExportingPdf(false);
+      }
+    });
   };
 
   const exportWord = async () => {
-    setExportingWord(true);
-    try {
-      // Lazily load the docx library only when a Word export is actually requested.
-      const { exportEstimateToWord } = await import('../lib/wordExport');
-      await exportEstimateToWord(estimate, proposalMode);
-    } catch (err) {
-      console.error('Word export failed:', err);
-      alert('Sorry, Word export failed. Please try again.');
-    } finally {
-      setExportingWord(false);
-    }
+    processExportWithCreditCheck(async () => {
+      setExportingWord(true);
+      try {
+        const { exportEstimateToWord } = await import('../lib/wordExport');
+        await exportEstimateToWord(estimate, proposalMode);
+      } catch (err) {
+        console.error('Word export failed:', err);
+        alert('Sorry, Word export failed. Please try again.');
+      } finally {
+        setExportingWord(false);
+      }
+    });
   };
 
   return (
@@ -409,6 +434,11 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
           </div>
         )}
       </div>
+
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+      />
     </div>
   );
 }

@@ -67,16 +67,27 @@ npm run build
 ```
 
 The optimized static build is generated in the `dist/` directory.
-     "predeploy": "npm run build",
-     "deploy": "gh-pages -d dist"
-   }
-   ```
 
-4. Deploy the app:
+---
 
-   ```powershell
-   npm run deploy
-   ```
+## 💳 Paddle Sandbox & Non-Prod Payment Testing Guide (US-018)
+
+When testing upgrades in non-production (`VITE_PADDLE_ENVIRONMENT=sandbox`), use the following verified Paddle Sandbox test card credentials:
+
+| Test Scenario | Card Number | Expiry | CVV | Postal Code | Expected Result |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Standard / Visa Success** | `4242 ···· ···· 4242` | Any future date (e.g. `12/28`) | `123` | `90210` / `SW1A 1AA` | **Success** (Subscription activated) |
+| **Mastercard Success** | `5555 ···· ···· 4444` | Any future date | `123` | `10001` | **Success** (Subscription activated) |
+| **Declined (Insufficient Funds)** | `4000 ···· ···· 0002` | Any future date | `123` | `90210` | **Declined** (`insufficient_funds`) |
+| **Declined (Fraud / Risk Alert)** | `4000 ···· ···· 0005` | Any future date | `123` | `90210` | **Declined** (`risk_threshold_exceeded`) |
+| **3D Secure Challenge** | `4000 ···· ···· 0006` | Any future date | `123` | `90210` | Triggers 3DS challenge popup |
+
+### Local Webhook Testing & Forwarding
+1. Start your local backend on port `5000`.
+2. Start an `ngrok` tunnel: `ngrok http 5000`.
+3. In your **Paddle Sandbox Dashboard** $\rightarrow$ **Developer Tools** $\rightarrow$ **Notifications**, set the webhook destination to `https://<your-ngrok-subdomain>.ngrok-free.app/api/webhooks/paddle`.
+4. Alternatively, use the test endpoint `POST /api/billing/mock-webhook` with `{ "eventType": "subscription.created", "userId": "<UUID>" }` to test webhook event triggers without external network tunnels.
+
 
 5. In your GitHub repository, go to **Settings > Pages** and set the source branch to `gh-pages`. Your site will be published at:
 

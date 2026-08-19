@@ -97,4 +97,46 @@ export const authApi = {
     }
     return data;
   },
+
+  async updateProfile({ firstName, lastName, phoneNumber }) {
+    const res = await fetch(`${API_BASE_URL}/auth/profile`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ firstName, lastName, phoneNumber }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Profile update failed.');
+    }
+    return data;
+  },
+
+  async deleteAccount() {
+    const res = await fetch(`${API_BASE_URL}/auth/account`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Account deletion failed.');
+    }
+    localStorage.removeItem('takeoff_token');
+    localStorage.removeItem('takeoff_user');
+    return data;
+  },
+
+  async recordExport() {
+    const res = await fetch(`${API_BASE_URL}/takeoffs/record-export`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      const err = new Error(data.error || 'Export recording failed');
+      err.code = data.code;
+      err.trial_uses_remaining = data.trial_uses_remaining;
+      throw err;
+    }
+    return data;
+  },
 };

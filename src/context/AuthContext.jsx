@@ -61,16 +61,31 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const refreshProfile = async () => {
+    try {
+      const currentUser = await authApi.getMe();
+      if (currentUser) {
+        setUser(currentUser);
+        localStorage.setItem('takeoff_user', JSON.stringify(currentUser));
+      }
+    } catch {
+      // Ignore refresh errors
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
         user,
         isAuthenticated: Boolean(user),
+        isAdmin: user?.role === 'admin',
+        isPaymentExempt: user?.role === 'payment_exempt' || user?.role === 'user_payment_exempt',
         loading,
         login,
         register,
         logout,
         setUser,
+        refreshProfile,
       }}
     >
       {children}

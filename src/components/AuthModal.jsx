@@ -170,13 +170,14 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
 
             <div className="mt-6 text-center text-sm text-slate-500">
               Don't have an account?{' '}
-              <button
-                type="button"
-                onClick={() => switchView('register')}
-                className="text-indigo-600 font-semibold hover:underline"
-              >
-                Create an Account
-              </button>
+              <div className="mt-2 inline-flex flex-col items-center">
+                <span className="text-slate-400 font-semibold cursor-not-allowed">
+                  Create an Account
+                </span>
+                <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full mt-1.5 font-medium">
+                  Registration disabled while in beta for testing only
+                </span>
+              </div>
             </div>
           </div>
         )}
@@ -275,12 +276,16 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
                 />
               </div>
 
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800 text-center font-medium">
+                Account creation is disabled while in beta for testing only.
+              </div>
+
               <button
                 type="submit"
-                disabled={loading}
-                className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm"
+                disabled
+                className="w-full py-2.5 px-4 bg-slate-300 text-slate-500 font-medium rounded-lg shadow-sm transition mt-2 text-sm cursor-not-allowed"
               >
-                {loading ? 'Creating account...' : 'Create Account'}
+                Create Account (Disabled in Beta)
               </button>
             </form>
 
