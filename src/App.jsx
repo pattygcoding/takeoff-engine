@@ -34,16 +34,48 @@ function UserWorkspace({ items, setItems, rates, setRates, currentProject, setCu
 
   const goToStep = (step) => navigate(userStepPaths[step]);
 
-  const handleOpenProject = (project) => {
-    setCurrentProject(project);
-    const est = project.latestEstimate;
-    if (est?.items_json && Array.isArray(est.items_json) && est.items_json.length > 0) {
-      setItems(est.items_json);
+  const handleOpenProject = async (project, targetStep = 'edit') => {
+    try {
+      // Fetch full project data with items_json and rates_json
+      const fullProject = await projectsApi.getById(project.id);
+      const activeProject = fullProject || project;
+      setCurrentProject(activeProject);
+
+      const est = activeProject.latestEstimate;
+      if (est?.items_json && Array.isArray(est.items_json) && est.items_json.length > 0) {
+        setItems(est.items_json);
+      } else if (activeProject.items && Array.isArray(activeProject.items) && activeProject.items.length > 0) {
+        setItems(activeProject.items);
+      }
+
+      if (est?.rates_json && typeof est.rates_json === 'object' && Object.keys(est.rates_json).length > 0) {
+        setRates(est.rates_json);
+      } else if (activeProject.rates && typeof activeProject.rates === 'object' && Object.keys(activeProject.rates).length > 0) {
+        setRates(activeProject.rates);
+      }
+
+      if (targetStep === 'results') {
+        navigate(`/${username}/results`);
+      } else {
+        navigate(`/${username}/edit`);
+      }
+    } catch (err) {
+      console.error('Failed to load project details:', err);
+      // Fallback with provided project object
+      setCurrentProject(project);
+      const est = project.latestEstimate;
+      if (est?.items_json && Array.isArray(est.items_json) && est.items_json.length > 0) {
+        setItems(est.items_json);
+      }
+      if (est?.rates_json && typeof est.rates_json === 'object' && Object.keys(est.rates_json).length > 0) {
+        setRates(est.rates_json);
+      }
+      if (targetStep === 'results') {
+        navigate(`/${username}/results`);
+      } else {
+        navigate(`/${username}/edit`);
+      }
     }
-    if (est?.rates_json && typeof est.rates_json === 'object' && Object.keys(est.rates_json).length > 0) {
-      setRates(est.rates_json);
-    }
-    navigate(`/${username}/edit`);
   };
 
   const handleNewTakeoff = () => {
