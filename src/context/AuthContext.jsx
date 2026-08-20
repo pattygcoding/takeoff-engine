@@ -79,7 +79,7 @@ export const AuthProvider = ({ children }) => {
         user,
         isAuthenticated: Boolean(user),
         isAdmin: user?.role === 'admin',
-        isPaymentExempt: user?.role === 'payment_exempt' || user?.role === 'user_payment_exempt',
+        isPaymentExempt: user?.role === 'payment_exempt',
         loading,
         login,
         register,

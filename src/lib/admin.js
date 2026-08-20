@@ -92,6 +92,20 @@ export const adminApi = {
   },
 
   /**
+   * Update user subscription tier directly (free, starter, pro, enterprise)
+   */
+  async updateSubscriptionTier(userId, { subscription_tier, reason }) {
+    const res = await fetch(`${API_BASE_URL}/admin/users/${userId}/subscription-tier`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ subscription_tier, reason }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to update subscription tier.');
+    return data.user;
+  },
+
+  /**
    * Trigger password reset email
    */
   async resetPassword(userId, { reason } = {}) {

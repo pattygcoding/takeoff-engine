@@ -275,6 +275,35 @@ export default function AdminPortal() {
     }
   };
 
+  const handleSubscriptionTierChange = async (targetUser, newTier) => {
+    const reason = await showPrompt({
+      title: `Update Subscription to ${newTier.toUpperCase()}`,
+      message: `Enter an audit reason for updating ${targetUser.email}'s plan tier to "${newTier}":`,
+      defaultValue: `Admin manually adjusted tier to ${newTier}`,
+      confirmText: 'Update Plan Tier',
+    });
+
+    if (reason === null) return;
+
+    try {
+      const updated = await adminApi.updateSubscriptionTier(targetUser.id, { subscription_tier: newTier, reason });
+      setUsers((prev) => prev.map((item) => (item.id === targetUser.id ? { ...item, ...updated } : item)));
+      const freshLogs = await adminApi.listAuditLogs().catch(() => []);
+      setAuditLogs(freshLogs);
+      await showAlert({
+        title: 'Subscription Tier Updated',
+        message: `Subscription for ${targetUser.email} set to ${newTier.toUpperCase()}.`,
+        variant: 'info',
+      });
+    } catch (err) {
+      await showAlert({
+        title: 'Tier Update Error',
+        message: err.message || 'Failed to update subscription tier.',
+        variant: 'error',
+      });
+    }
+  };
+
   const handleCreatePromo = async (e) => {
     e.preventDefault();
     if (!newCode.trim()) return;
@@ -510,25 +539,21 @@ export default function AdminPortal() {
                             }`}
                           >
                             <option value="user">User</option>
-                            <option value="pro_user">Pro User</option>
                             <option value="payment_exempt">Payment Exempt (VIP)</option>
                             <option value="admin">Super-Admin</option>
                           </select>
                         </td>
                         <td className="py-3 px-4">
-                          <span
-                            className={`px-2 py-0.5 rounded-md font-bold text-[10px] uppercase ${
-                              u.subscription_tier === 'pro'
-                                ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
-                                : u.subscription_tier === 'enterprise' || u.subscription_tier === 'team'
-                                ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
-                                : u.subscription_tier === 'starter'
-                                ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
-                                : 'bg-slate-800 text-slate-400'
-                            }`}
+                          <select
+                            value={u.subscription_tier || 'free'}
+                            onChange={(e) => handleSubscriptionTierChange(u, e.target.value)}
+                            className="bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
                           >
-                            {u.subscription_tier || 'Free'}
-                          </span>
+                            <option value="free">Free ($0)</option>
+                            <option value="starter">Starter ($19.99)</option>
+                            <option value="pro">Pro ($49.99)</option>
+                            <option value="enterprise">Enterprise ($149.99)</option>
+                          </select>
                         </td>
                         <td className="py-3 px-4 text-center">
                           <span

@@ -129,7 +129,6 @@ export default function AccountSettings() {
   const isProOrExempt =
     user?.role === 'admin' ||
     user?.role === 'payment_exempt' ||
-    user?.role === 'user_payment_exempt' ||
     user?.has_unlimited_bypass === true ||
     user?.subscription_status === 'active' ||
     ['starter', 'pro', 'enterprise'].includes(user?.subscription_tier);
@@ -292,8 +291,10 @@ export default function AccountSettings() {
                     : 'bg-slate-100 text-slate-700 border border-slate-200'
                 }`}
               >
-                {user?.role === 'payment_exempt' || user?.role === 'user_payment_exempt' || user?.has_unlimited_bypass
+                {user?.role === 'payment_exempt' || user?.has_unlimited_bypass
                   ? '👑 VIP Unlimited Bypass'
+                  : user?.subscription_tier === 'enterprise'
+                  ? '🏢 Enterprise Plan'
                   : user?.subscription_tier === 'pro'
                   ? '⚡ Pro Plan'
                   : user?.subscription_tier === 'starter'
@@ -310,7 +311,7 @@ export default function AccountSettings() {
           )}
 
           {/* Payment Exempt / VIP Notice (US-016) */}
-          {(user?.role === 'payment_exempt' || user?.role === 'user_payment_exempt' || user?.has_unlimited_bypass) && (
+          {(user?.role === 'payment_exempt' || user?.has_unlimited_bypass) && (
             <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-start gap-3">
               <span className="text-xl">👑</span>
               <div>

@@ -17,21 +17,20 @@ export default function UserMenu() {
   const isExempt =
     user?.role === 'admin' ||
     user?.role === 'payment_exempt' ||
-    user?.role === 'user_payment_exempt' ||
     user?.has_unlimited_bypass === true ||
     user?.subscription_status === 'active' ||
     ['starter', 'pro', 'enterprise'].includes(user?.subscription_tier);
 
   const getPlanLabel = () => {
     if (user?.role === 'admin') return 'Super-Admin';
-    if (user?.role === 'payment_exempt' || user?.role === 'user_payment_exempt') return 'VIP Member / All Features Unlocked';
+    if (user?.role === 'payment_exempt') return 'VIP Member / All Features Unlocked';
     if (user?.subscription_tier === 'starter') return 'Starter Plan';
     if (user?.subscription_tier === 'enterprise') return 'Enterprise Plan';
-    return 'Pro Plan';
+    return user?.subscription_tier === 'pro' ? 'Pro Plan' : 'Free Trial';
   };
 
   const isAdmin = user?.role === 'admin';
-  const isPaymentExempt = user?.role === 'payment_exempt' || user?.role === 'user_payment_exempt';
+  const isPaymentExempt = user?.role === 'payment_exempt';
 
   const credits = typeof user?.trial_uses_remaining === 'number' ? user.trial_uses_remaining : 5;
 

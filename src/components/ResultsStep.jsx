@@ -33,7 +33,6 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
   const isProOrExempt =
     user?.role === 'admin' ||
     user?.role === 'payment_exempt' ||
-    user?.role === 'user_payment_exempt' ||
     user?.has_unlimited_bypass === true ||
     user?.subscription_status === 'active' ||
     ['starter', 'pro', 'enterprise'].includes(user?.subscription_tier);

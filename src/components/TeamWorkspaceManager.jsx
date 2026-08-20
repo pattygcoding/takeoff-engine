@@ -25,7 +25,6 @@ export default function TeamWorkspaceManager() {
   const isEnterpriseOrTeam =
     user?.role === 'admin' ||
     user?.role === 'payment_exempt' ||
-    user?.role === 'user_payment_exempt' ||
     user?.has_unlimited_bypass === true ||
     user?.subscription_tier === 'enterprise' ||
     user?.subscription_tier === 'team';
