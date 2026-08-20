@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "infisical run -- vite",
     "dev:local": "vite",
-    "build": "vite build",
+    "build": "infisical run --env=prod -- vite build",
+    "build:local": "vite build",
     "lint": "oxlint",
     "preview": "vite preview",
     "predeploy": "npm run build",
