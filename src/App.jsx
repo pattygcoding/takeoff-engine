@@ -5,6 +5,7 @@ import UploadStep from './components/UploadStep';
 import EditStep from './components/EditStep';
 import ResultsStep from './components/ResultsStep';
 import ProjectDashboard from './components/ProjectDashboard';
+import ProjectWorkspace from './components/ProjectWorkspace';
 import AccountSettings from './components/AccountSettings';
 import UserMenu from './components/UserMenu';
 import LoginPage from './components/LoginPage';
@@ -15,6 +16,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { ModalProvider } from './context/ModalContext';
 import { DEFAULT_RATES } from './lib/calculations';
 import { useLocalStorageState } from './lib/useLocalStorageState';
+import { projectsApi } from './lib/projects';
 
 function UserWorkspace({ items, setItems, rates, setRates, currentProject, setCurrentProject }) {
   const { username } = useParams();
@@ -28,8 +30,8 @@ function UserWorkspace({ items, setItems, rates, setRates, currentProject, setCu
 
   const userStepPaths = {
     1: `/${username}/upload`,
-    2: `/${username}/edit`,
-    3: `/${username}/results`,
+    2: currentProject?.id ? `/${username}/takeoff/${currentProject.id}/edit` : `/${username}/edit`,
+    3: currentProject?.id ? `/${username}/takeoff/${currentProject.id}/results` : `/${username}/results`,
   };
 
   const goToStep = (step) => navigate(userStepPaths[step]);
@@ -55,9 +57,9 @@ function UserWorkspace({ items, setItems, rates, setRates, currentProject, setCu
       }
 
       if (targetStep === 'results') {
-        navigate(`/${username}/results`);
+        navigate(`/${username}/takeoff/${project.id}/results`);
       } else {
-        navigate(`/${username}/edit`);
+        navigate(`/${username}/takeoff/${project.id}/edit`);
       }
     } catch (err) {
       console.error('Failed to load project details:', err);
@@ -71,9 +73,9 @@ function UserWorkspace({ items, setItems, rates, setRates, currentProject, setCu
         setRates(est.rates_json);
       }
       if (targetStep === 'results') {
-        navigate(`/${username}/results`);
+        navigate(`/${username}/takeoff/${project.id}/results`);
       } else {
-        navigate(`/${username}/edit`);
+        navigate(`/${username}/takeoff/${project.id}/edit`);
       }
     }
   };
@@ -136,71 +138,64 @@ function UserWorkspace({ items, setItems, rates, setRates, currentProject, setCu
         }
       />
 
-      {/* Step 2: Edit */}
+      {/* Existing Saved Takeoff Routes with Direct Project ID */}
       <Route
-        path="/edit"
+        path="/takeoff/:projectId/edit"
         element={
-          items.length === 0 ? (
-            <Navigate to={`/${username}`} replace />
-          ) : (
-            <>
-              <div className="max-w-6xl mx-auto px-4 pt-4 pb-0 flex items-center justify-between">
-                <Link
-                  to={`/${username}`}
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-indigo-600 transition"
-                >
-                  ← Back to Projects Dashboard
-                </Link>
-                {currentProject?.name && (
-                  <span className="text-xs font-semibold text-slate-700 bg-slate-200/70 px-2.5 py-1 rounded-lg">
-                    Project: {currentProject.name}
-                  </span>
-                )}
-              </div>
-              <Stepper step={2} onStepClick={goToStep} />
-              <EditStep
-                items={items}
-                onItemsChange={setItems}
-                rates={rates}
-                onRatesChange={setRates}
-                onCalculate={() => navigate(`/${username}/results`)}
-              />
-            </>
-          )
+          <ProjectWorkspace
+            step={2}
+            items={items}
+            setItems={setItems}
+            rates={rates}
+            setRates={setRates}
+            currentProject={currentProject}
+            setCurrentProject={setCurrentProject}
+          />
+        }
+      />
+      <Route
+        path="/takeoff/:projectId/results"
+        element={
+          <ProjectWorkspace
+            step={3}
+            items={items}
+            setItems={setItems}
+            rates={rates}
+            setRates={setRates}
+            currentProject={currentProject}
+            setCurrentProject={setCurrentProject}
+          />
         }
       />
 
-      {/* Step 3: Results */}
+      {/* Draft / Unsaved Takeoff Routes */}
+      <Route
+        path="/edit"
+        element={
+          <ProjectWorkspace
+            step={2}
+            items={items}
+            setItems={setItems}
+            rates={rates}
+            setRates={setRates}
+            currentProject={currentProject}
+            setCurrentProject={setCurrentProject}
+          />
+        }
+      />
+
       <Route
         path="/results"
         element={
-          items.length === 0 ? (
-            <Navigate to={`/${username}`} replace />
-          ) : (
-            <>
-              <div className="max-w-6xl mx-auto px-4 pt-4 pb-0 flex items-center justify-between">
-                <Link
-                  to={`/${username}`}
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-indigo-600 transition"
-                >
-                  ← Back to Projects Dashboard
-                </Link>
-                {currentProject?.name && (
-                  <span className="text-xs font-semibold text-slate-700 bg-slate-200/70 px-2.5 py-1 rounded-lg">
-                    Project: {currentProject.name}
-                  </span>
-                )}
-              </div>
-              <Stepper step={3} onStepClick={goToStep} />
-              <ResultsStep
-                items={items}
-                rates={rates}
-                currentProject={currentProject}
-                onProjectSaved={(savedProj) => setCurrentProject(savedProj)}
-                onBack={() => navigate(`/${username}/edit`)}
-              />
-            </>
-          )
+          <ProjectWorkspace
+            step={3}
+            items={items}
+            setItems={setItems}
+            rates={rates}
+            setRates={setRates}
+            currentProject={currentProject}
+            setCurrentProject={setCurrentProject}
+          />
         }
       />
       <Route path="*" element={<Navigate to={`/${username}`} replace />} />
@@ -209,8 +204,8 @@ function UserWorkspace({ items, setItems, rates, setRates, currentProject, setCu
 }
 
 function AppContent() {
-  const [items, setItems] = useState([]);
-  const [currentProject, setCurrentProject] = useState(null);
+  const [items, setItems] = useLocalStorageState('takeoff-engine.items', []);
+  const [currentProject, setCurrentProject] = useLocalStorageState('takeoff-engine.currentProject', null);
   const [rates, setRates] = useLocalStorageState('takeoff-engine.rates', DEFAULT_RATES);
   const { user, isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();

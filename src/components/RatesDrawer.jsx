@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useModal } from '../context/ModalContext';
 import UpgradeModal from './UpgradeModal';
 
-export default function RatesDrawer({ open, onClose, rates, onChange }) {
+export default function RatesDrawer({ open, onClose, rates, onChange, readOnly = false }) {
   const { user } = useAuth();
   const { showAlert, showConfirm } = useModal();
   const [libraries, setLibraries] = useState({ systemDefaults: [], userLibraries: [] });
@@ -135,13 +135,22 @@ export default function RatesDrawer({ open, onClose, rates, onChange }) {
         </div>
 
         <div className="p-5 space-y-6">
+          {readOnly && (
+            <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs font-medium flex items-center gap-2">
+              <svg className="w-4 h-4 shrink-0 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <span>Rates are locked for this awarded project.</span>
+            </div>
+          )}
+
           {/* Rate Template Switcher */}
           <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
                 Rate Library Template
               </span>
-              {user && (
+              {user && !readOnly && (
                 <button
                   type="button"
                   onClick={() => setShowSaveModal(true)}
@@ -161,7 +170,8 @@ export default function RatesDrawer({ open, onClose, rates, onChange }) {
             <select
               value={selectedTemplateId}
               onChange={(e) => handleApplyTemplate(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              disabled={readOnly}
+              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none disabled:opacity-80 disabled:cursor-not-allowed"
             >
               <option value="">-- Choose a Rate Template --</option>
               {libraries.userLibraries?.length > 0 && (
@@ -189,14 +199,16 @@ export default function RatesDrawer({ open, onClose, rates, onChange }) {
                 {libraries.userLibraries.map((lib) => (
                   <div key={lib.id} className="flex items-center justify-between text-xs py-1 px-2 rounded bg-white border border-slate-200">
                     <span className="truncate font-medium text-slate-700 max-w-[220px]">{lib.name}</span>
-                    <button
-                      type="button"
-                      onClick={(e) => handleDeleteTemplate(lib.id, e)}
-                      className="text-slate-400 hover:text-red-600 transition ml-2"
-                      title="Delete library"
-                    >
-                      🗑️
-                    </button>
+                    {!readOnly && (
+                      <button
+                        type="button"
+                        onClick={(e) => handleDeleteTemplate(lib.id, e)}
+                        className="text-slate-400 hover:text-red-600 transition ml-2"
+                        title="Delete library"
+                      >
+                        🗑️
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>
@@ -205,12 +217,12 @@ export default function RatesDrawer({ open, onClose, rates, onChange }) {
 
           <section>
             <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-3">Base Labor Rate</h3>
-            <Field label="Base Labor Hourly Rate ($/hr)" value={rates.laborHourlyRate} onChange={update('laborHourlyRate')} />
+            <Field label="Base Labor Hourly Rate ($/hr)" value={rates.laborHourlyRate} onChange={update('laborHourlyRate')} disabled={readOnly} />
           </section>
 
           <section>
             <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-3">Trenching & Earthwork</h3>
-            <Field label="Trench Width (ft)" value={rates.trenchWidthFt} onChange={update('trenchWidthFt')} />
+            <Field label="Trench Width (ft)" value={rates.trenchWidthFt} onChange={update('trenchWidthFt')} disabled={readOnly} />
             <p className="text-xs text-slate-400 mt-1">
               Trench volume = quantity (LF) × avg depth (ft) × trench width (ft), for LF items only.
             </p>
@@ -218,14 +230,15 @@ export default function RatesDrawer({ open, onClose, rates, onChange }) {
 
           <section>
             <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-3">Markup & Business Constants</h3>
-            <Field label="Overhead %" value={rates.overheadPct} onChange={update('overheadPct')} suffix="%" />
-            <Field label="Contingency / Risk %" value={rates.contingencyPct} onChange={update('contingencyPct')} suffix="%" />
-            <Field label="Profit Margin %" value={rates.profitPct} onChange={update('profitPct')} suffix="%" />
+            <Field label="Overhead %" value={rates.overheadPct} onChange={update('overheadPct')} suffix="%" disabled={readOnly} />
+            <Field label="Contingency / Risk %" value={rates.contingencyPct} onChange={update('contingencyPct')} suffix="%" disabled={readOnly} />
+            <Field label="Profit Margin %" value={rates.profitPct} onChange={update('profitPct')} suffix="%" disabled={readOnly} />
             <Field
               label="Mobilization / Equipment ($)"
               value={rates.equipmentLumpSum}
               onChange={update('equipmentLumpSum')}
               prefix="$"
+              disabled={readOnly}
             />
           </section>
         </div>
@@ -304,17 +317,18 @@ export default function RatesDrawer({ open, onClose, rates, onChange }) {
   );
 }
 
-function Field({ label, value, onChange, prefix, suffix }) {
+function Field({ label, value, onChange, prefix, suffix, disabled = false }) {
   return (
     <label className="block mb-4">
       <span className="text-sm text-slate-600">{label}</span>
-      <div className="mt-1 flex items-center rounded-md border border-slate-300 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-indigo-500 overflow-hidden">
+      <div className={`mt-1 flex items-center rounded-md border border-slate-300 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-indigo-500 overflow-hidden ${disabled ? 'bg-slate-50 opacity-80' : ''}`}>
         {prefix && <span className="pl-3 text-slate-400 text-sm">{prefix}</span>}
         <input
           type="number"
           value={value}
           onChange={onChange}
-          className="w-full px-3 py-2 text-sm outline-none"
+          disabled={disabled}
+          className="w-full px-3 py-2 text-sm outline-none disabled:cursor-not-allowed"
           step="any"
         />
         {suffix && <span className="pr-3 text-slate-400 text-sm">{suffix}</span>}

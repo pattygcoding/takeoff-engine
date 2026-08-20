@@ -3,25 +3,30 @@ import { createBlankItem } from '../lib/csv';
 const SYSTEMS = ['Sanitary', 'Storm', 'Domestic Water'];
 const UNITS = ['LF', 'EA'];
 
-export default function TakeoffGrid({ items, onChange }) {
+export default function TakeoffGrid({ items, onChange, readOnly = false }) {
   const updateItem = (id, field, value) => {
+    if (readOnly) return;
     onChange(items.map((it) => (it.id === id ? { ...it, [field]: value } : it)));
   };
 
   const removeItem = (id) => {
+    if (readOnly) return;
     onChange(items.filter((it) => it.id !== id));
   };
 
   const addRow = () => {
+    if (readOnly) return;
     onChange([...items, createBlankItem()]);
   };
 
   const numberField = (item, field) => (e) => {
+    if (readOnly) return;
     const v = e.target.value;
     updateItem(item.id, field, v === '' ? '' : Number(v));
   };
 
   const textField = (item, field) => (e) => {
+    if (readOnly) return;
     updateItem(item.id, field, e.target.value);
   };
 
@@ -48,7 +53,8 @@ export default function TakeoffGrid({ items, onChange }) {
                 <select
                   value={item.system}
                   onChange={textField(item, 'system')}
-                  className="w-full bg-transparent outline-none text-slate-700"
+                  disabled={readOnly}
+                  className="w-full bg-transparent outline-none text-slate-700 disabled:opacity-80 disabled:cursor-not-allowed"
                 >
                   {SYSTEMS.map((s) => (
                     <option key={s} value={s}>
@@ -61,14 +67,16 @@ export default function TakeoffGrid({ items, onChange }) {
                 <input
                   value={item.description}
                   onChange={textField(item, 'description')}
-                  className="w-full bg-transparent outline-none min-w-[120px]"
+                  disabled={readOnly}
+                  className="w-full bg-transparent outline-none min-w-[120px] disabled:opacity-80 disabled:cursor-not-allowed"
                 />
               </Td>
               <Td>
                 <input
                   value={item.sizeSpec}
                   onChange={textField(item, 'sizeSpec')}
-                  className="w-full bg-transparent outline-none min-w-[120px]"
+                  disabled={readOnly}
+                  className="w-full bg-transparent outline-none min-w-[120px] disabled:opacity-80 disabled:cursor-not-allowed"
                 />
               </Td>
               <Td align="right">
@@ -76,14 +84,16 @@ export default function TakeoffGrid({ items, onChange }) {
                   type="number"
                   value={item.quantity}
                   onChange={numberField(item, 'quantity')}
-                  className="w-20 bg-transparent outline-none text-right"
+                  disabled={readOnly}
+                  className="w-20 bg-transparent outline-none text-right disabled:opacity-80 disabled:cursor-not-allowed"
                 />
               </Td>
               <Td>
                 <select
                   value={item.unit}
                   onChange={textField(item, 'unit')}
-                  className="w-full bg-transparent outline-none"
+                  disabled={readOnly}
+                  className="w-full bg-transparent outline-none disabled:opacity-80 disabled:cursor-not-allowed"
                 >
                   {UNITS.map((u) => (
                     <option key={u} value={u}>
@@ -97,8 +107,8 @@ export default function TakeoffGrid({ items, onChange }) {
                   type="number"
                   value={item.avgDepthFt}
                   onChange={numberField(item, 'avgDepthFt')}
-                  className="w-16 bg-transparent outline-none text-right"
-                  disabled={item.unit !== 'LF'}
+                  className="w-16 bg-transparent outline-none text-right disabled:opacity-80 disabled:cursor-not-allowed"
+                  disabled={readOnly || item.unit !== 'LF'}
                 />
               </Td>
               <Td align="right">
@@ -107,7 +117,8 @@ export default function TakeoffGrid({ items, onChange }) {
                   step="any"
                   value={item.materialCostPerUnit}
                   onChange={numberField(item, 'materialCostPerUnit')}
-                  className="w-20 bg-transparent outline-none text-right"
+                  disabled={readOnly}
+                  className="w-20 bg-transparent outline-none text-right disabled:opacity-80 disabled:cursor-not-allowed"
                 />
               </Td>
               <Td align="right">
@@ -116,40 +127,45 @@ export default function TakeoffGrid({ items, onChange }) {
                   step="any"
                   value={item.laborHoursPerUnit}
                   onChange={numberField(item, 'laborHoursPerUnit')}
-                  className="w-20 bg-transparent outline-none text-right"
+                  disabled={readOnly}
+                  className="w-20 bg-transparent outline-none text-right disabled:opacity-80 disabled:cursor-not-allowed"
                 />
               </Td>
               <Td>
-                <button
-                  type="button"
-                  onClick={() => removeItem(item.id)}
-                  className="text-slate-400 hover:text-red-600"
-                  title="Delete row"
-                >
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
+                {!readOnly && (
+                  <button
+                    type="button"
+                    onClick={() => removeItem(item.id)}
+                    className="text-slate-400 hover:text-red-600"
+                    title="Delete row"
+                  >
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                )}
               </Td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      <div className="p-3 border-t border-slate-200">
-        <button
-          type="button"
-          onClick={addRow}
-          className="text-sm font-medium text-indigo-600 hover:text-indigo-800"
-        >
-          + Add Row
-        </button>
-      </div>
+      {!readOnly && (
+        <div className="p-3 border-t border-slate-200">
+          <button
+            type="button"
+            onClick={addRow}
+            className="text-sm font-medium text-indigo-600 hover:text-indigo-800"
+          >
+            + Add Row
+          </button>
+        </div>
+      )}
     </div>
   );
 }

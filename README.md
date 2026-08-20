@@ -1,13 +1,24 @@
 # Takeoff Engine
 
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![Node.js](https://img.shields.io/badge/Node.js-20-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![Express.js](https://img.shields.io/badge/Express.js-Backend_API-000000?logo=express&logoColor=white)](https://expressjs.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-Auth_%26_DB-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
+[![Paddle](https://img.shields.io/badge/Paddle-Billing_%26_SaaS-FFD836?logo=paddle&logoColor=black)](https://www.paddle.com/)
+[![Infisical](https://img.shields.io/badge/Infisical-Secrets_Management-10B981?logo=infisical&logoColor=white)](https://infisical.com/)
+[![Render](https://img.shields.io/badge/Render-Cloud_Hosting-46E3B7?logo=render&logoColor=black)](https://render.com/)
+[![Resend](https://img.shields.io/badge/Resend-Transactional_Email-000000?logo=resend&logoColor=white)](https://resend.com/)
 [![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)](https://vite.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![React Router](https://img.shields.io/badge/React_Router-7-CA4245?logo=reactrouter&logoColor=white)](https://reactrouter.com/)
-[![Supabase](https://img.shields.io/badge/Supabase-Auth_%26_DB-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
-[![Express.js](https://img.shields.io/badge/Express.js-Backend_API-000000?logo=express&logoColor=white)](https://expressjs.com/)
+[![Swagger](https://img.shields.io/badge/Swagger-OpenAPI_Docs-85EA2D?logo=swagger&logoColor=black)](https://swagger.io/)
+[![JWT](https://img.shields.io/badge/JWT-Tokens-000000?logo=jsonwebtokens&logoColor=white)](https://jwt.io/)
+[![SheetJS](https://img.shields.io/badge/SheetJS-Excel_Parsing-339933?logo=microsoftexcel&logoColor=white)](https://sheetjs.com/)
 [![PapaParse](https://img.shields.io/badge/PapaParse-CSV_Parsing-8A2BE2)](https://www.papaparse.com/)
 [![jsPDF](https://img.shields.io/badge/jsPDF-PDF_Export-EC1C24)](https://github.com/parallax/jsPDF)
+[![docx](https://img.shields.io/badge/docx-Word_Export-2B579A?logo=microsoftword&logoColor=white)](https://docx.js.org/)
+[![HTML2Canvas](https://img.shields.io/badge/html2canvas-DOM_Rasterization-E34F26)](https://html2canvas.hertzen.com/)
 
 A fast, responsive web application and SaaS platform for contractors, estimators, and engineers. It turns raw construction takeoff spreadsheets (CSV or Excel) into itemized cost breakdowns, earthwork/trenching volume estimates, and client-ready Word/PDF bid proposals.
 
