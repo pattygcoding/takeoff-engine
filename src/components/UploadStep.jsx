@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { downloadSampleCsv, downloadSampleExcel, parseTakeoffFile } from '../lib/csv';
 import ColumnMappingModal from './ColumnMappingModal';
 
@@ -8,23 +9,33 @@ export default function UploadStep({ onItemsParsed }) {
   const [fileName, setFileName] = useState('');
   const [isParsing, setIsParsing] = useState(false);
   const [mappingModalData, setMappingModalData] = useState(null);
+  const [currentUploadedFile, setCurrentUploadedFile] = useState(null);
+  const [checksumSummary, setChecksumSummary] = useState(null);
   const inputRef = useRef(null);
 
   const handleFile = useCallback(
-    async (file) => {
+    async (file, explicitSheetName = null) => {
       if (!file) return;
       setFileName(file.name);
+      setCurrentUploadedFile(file);
       setIsParsing(true);
+      setErrors([]);
+      setChecksumSummary(null);
+
       try {
-        const result = await parseTakeoffFile(file);
+        const result = await parseTakeoffFile(file, explicitSheetName);
 
         if (result.requiresMappingModal) {
           setMappingModalData(result);
           return;
         }
 
-        const { items, errors: parseErrors } = result;
+        const { items, errors: parseErrors, checksum } = result;
         setErrors(parseErrors || []);
+        if (checksum?.hasSubtotals) {
+          setChecksumSummary(checksum);
+        }
+
         if (items && items.length > 0) {
           onItemsParsed(items);
         }
@@ -38,9 +49,18 @@ export default function UploadStep({ onItemsParsed }) {
     [onItemsParsed]
   );
 
-  const handleMappingConfirm = ({ items, errors: mappingErrors }) => {
+  const handleSheetChange = (sheetName) => {
+    if (currentUploadedFile) {
+      handleFile(currentUploadedFile, sheetName);
+    }
+  };
+
+  const handleMappingConfirm = ({ items, errors: mappingErrors, checksum }) => {
     setMappingModalData(null);
     setErrors(mappingErrors || []);
+    if (checksum?.hasSubtotals) {
+      setChecksumSummary(checksum);
+    }
     if (items && items.length > 0) {
       onItemsParsed(items);
     }
@@ -76,7 +96,7 @@ export default function UploadStep({ onItemsParsed }) {
         <input
           ref={inputRef}
           type="file"
-          accept=".csv,text/csv,.xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+          accept=".csv,text/csv,.xlsx,.xls,.xlsm,.xlsb,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
           className="hidden"
           onChange={(e) => handleFile(e.target.files?.[0])}
         />
@@ -90,15 +110,31 @@ export default function UploadStep({ onItemsParsed }) {
         </svg>
         <p className="mt-4 font-medium text-slate-700">
           {isParsing ? (
-            'Reading file…'
+            'Parsing spreadsheet and sniffing headers…'
           ) : (
             <>
               Drag &amp; drop your CSV or Excel file here, or <span className="text-indigo-600 underline">browse</span>
             </>
           )}
         </p>
-        <p className="mt-1 text-sm text-slate-400">{fileName || 'Accepts .csv, .xlsx, and .xls files'}</p>
+        <p className="mt-1 text-sm text-slate-400">{fileName || 'Accepts .csv, .xlsx, .xls, and .xlsm files'}</p>
       </div>
+
+      {checksumSummary && (
+        <div className={`mt-6 rounded-xl border p-4 text-xs ${
+          checksumSummary.checksumMatches
+            ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+            : 'border-amber-200 bg-amber-50 text-amber-800'
+        }`}>
+          <div className="flex items-center gap-2 font-bold mb-1">
+            <span>{checksumSummary.checksumMatches ? '✓ Subtotal Checksum Verified' : '⚠️ Subtotal Checksum Note'}</span>
+          </div>
+          <p>
+            Detected Spreadsheet Subtotal: <strong>{checksumSummary.detectedSubtotals.toLocaleString()}</strong> |
+            Parsed Items Total: <strong>{checksumSummary.parsedSum.toLocaleString()}</strong>
+          </p>
+        </div>
+      )}
 
       {errors.length > 0 && (
         <div className="mt-6 rounded-lg border border-red-200 bg-red-50 p-4">
@@ -120,7 +156,15 @@ export default function UploadStep({ onItemsParsed }) {
           onClick={() => downloadSampleCsv()}
           className="font-medium text-indigo-600 hover:text-indigo-800 underline"
         >
-          Download Standard Template
+          CSV Template
+        </button>
+        <span className="text-slate-300">|</span>
+        <button
+          type="button"
+          onClick={() => downloadSampleExcel()}
+          className="font-medium text-indigo-600 hover:text-indigo-800 underline"
+        >
+          Excel Template (.xlsx)
         </button>
         <span className="text-slate-300">|</span>
         <a
@@ -149,23 +193,21 @@ export default function UploadStep({ onItemsParsed }) {
       </div>
 
       <div className="mt-10 rounded-lg bg-slate-50 border border-slate-200 p-4 text-sm text-slate-600">
-        <p className="font-medium text-slate-700 mb-1">Intelligent Auto-Mapping Enabled:</p>
+        <p className="font-medium text-slate-700 mb-1">Mega-Resilient Takeoff Engine Ingestion:</p>
         <p className="text-xs text-slate-500 mb-2">
-          Upload takeoff files from Bluebeam, PlanSwift, HeavyBid, or Trimble without renaming headers. We automatically recognize aliases like <em>Trade, Item Name, Dimension, Takeoff Qty, UOM, Cut Depth</em>, and clean formatted currency values.
+          Drop complex takeoff spreadsheets directly without manual cleanup. Our engine features automatic 2D header boundary sniffing, merged cell forward-filling, subtotal row exclusion, composite size deconstruction, trade unit normalization, and vendor mapping presets.
         </p>
         <code className="text-xs bg-white border border-slate-200 rounded px-2 py-1 block overflow-x-auto">
           Standard Fields: system, item_description, size_spec, quantity, unit, avg_depth_ft
         </code>
         <p className="mt-3">
           Need more detail on what's allowed?{' '}
-          <a
-            href={`${import.meta.env.BASE_URL}CLIENT_GUIDE.md`}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            to="/guide"
             className="font-medium text-indigo-600 hover:text-indigo-800 underline"
           >
             Read the full client guide
-          </a>
+          </Link>
           .
         </p>
       </div>
@@ -176,6 +218,11 @@ export default function UploadStep({ onItemsParsed }) {
           headers={mappingModalData.headers}
           rawRows={mappingModalData.rawRows}
           initialMapping={mappingModalData.currentMapping}
+          matchConfidences={mappingModalData.matchConfidences}
+          overallConfidence={mappingModalData.overallConfidence}
+          sheetNames={mappingModalData.sheetNames}
+          activeSheetName={mappingModalData.activeSheetName}
+          onSheetChange={handleSheetChange}
           onConfirm={handleMappingConfirm}
           onCancel={() => setMappingModalData(null)}
         />

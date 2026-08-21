@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { authApi } from '../lib/auth';
 import { billingApi } from '../lib/billing';
 import { useModal } from '../context/ModalContext';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import TeamWorkspaceManager from './TeamWorkspaceManager';
 import UpgradeModal from './UpgradeModal';
 
@@ -131,6 +131,12 @@ export default function AccountSettings() {
     user?.role === 'payment_exempt' ||
     user?.has_unlimited_bypass === true ||
     (user?.subscription_status === 'active' && ['starter', 'pro', 'enterprise'].includes(user?.subscription_tier));
+
+  const isProOrExempt =
+    user?.role === 'admin' ||
+    user?.role === 'payment_exempt' ||
+    user?.has_unlimited_bypass === true ||
+    (user?.subscription_status === 'active' && ['pro', 'enterprise'].includes(user?.subscription_tier));
 
   const handleLogoFileChange = async (e) => {
     const file = e.target.files?.[0];

@@ -43,6 +43,7 @@ export default function AdminPortal() {
     role: 'user',
     subscriptionTier: 'free',
     hasUnlimitedBypass: false,
+    isTestUser: false,
     trialUsesRemaining: 5,
     reason: 'Admin created account',
   });
@@ -204,6 +205,47 @@ export default function AdminPortal() {
       await showAlert({
         title: 'Status Update Error',
         message: err.message || 'Failed to update user status.',
+        variant: 'error',
+      });
+    }
+  };
+
+  const handleToggleTestUser = async (targetUser) => {
+    const isNowTest = !targetUser.is_test_user;
+    const actionLabel = isNowTest ? 'Mark as Test User' : 'Unmark as Test User';
+
+    const confirmed = await showConfirm({
+      title: actionLabel,
+      message: isNowTest
+        ? `Mark ${targetUser.email} as a test user? This will EXCLUDE their subscription from estimated active MRR and paying metrics.`
+        : `Unmark ${targetUser.email} as a test user? This will INCLUDE their subscription in active MRR and paying metrics.`,
+      confirmText: isNowTest ? 'Mark as Test' : 'Unmark Test',
+      confirmVariant: 'primary',
+    });
+
+    if (!confirmed) return;
+
+    try {
+      const updated = await adminApi.updateUser(targetUser.id, {
+        is_test_user: isNowTest,
+        reason: `Toggled test user status to ${isNowTest}`,
+      });
+      setUsers((prev) => prev.map((item) => (item.id === targetUser.id ? { ...item, ...updated } : item)));
+      const [freshStats, freshLogs] = await Promise.all([
+        adminApi.getStats(),
+        adminApi.listAuditLogs().catch(() => []),
+      ]);
+      setStats(freshStats);
+      setAuditLogs(freshLogs);
+      await showAlert({
+        title: 'Test Status Updated',
+        message: `${targetUser.email} is now ${isNowTest ? 'marked as a test user' : 'marked as a live user'}.`,
+        variant: 'info',
+      });
+    } catch (err) {
+      await showAlert({
+        title: 'Update Error',
+        message: err.message || 'Failed to update test user status.',
         variant: 'error',
       });
     }
@@ -380,6 +422,7 @@ export default function AdminPortal() {
         role: userFormData.role,
         subscriptionTier: userFormData.subscriptionTier,
         hasUnlimitedBypass: userFormData.hasUnlimitedBypass,
+        isTestUser: userFormData.isTestUser,
         trialUsesRemaining: parseInt(userFormData.trialUsesRemaining, 10) || 0,
         reason: userFormData.reason || 'Admin created account from portal',
       });
@@ -396,6 +439,7 @@ export default function AdminPortal() {
         role: 'user',
         subscriptionTier: 'free',
         hasUnlimitedBypass: false,
+        isTestUser: false,
         trialUsesRemaining: 5,
         reason: 'Admin created account',
       });
@@ -614,6 +658,7 @@ export default function AdminPortal() {
                 <tbody className="divide-y divide-slate-800">
                   {filteredUsers.map((u) => {
                     const isSuspended = u.is_disabled || u.status === 'suspended' || u.status === 'disabled';
+                    const isTest = u.is_test_user || ['free_user', 'standard_user', 'pro_user', 'enterprise_user'].includes(u.username);
                     return (
                       <tr key={u.id} className={`hover:bg-slate-800/30 ${isSuspended ? 'bg-red-950/20' : ''}`}>
                         <td className="py-3 px-4 font-medium text-slate-200">
@@ -624,6 +669,11 @@ export default function AdminPortal() {
                             {u.id === user?.id && (
                               <span className="px-1.5 py-0.2 bg-indigo-500/20 text-indigo-300 text-[10px] rounded font-bold border border-indigo-500/30">
                                 YOU
+                              </span>
+                            )}
+                            {isTest && (
+                              <span className="px-1.5 py-0.2 bg-cyan-500/20 text-cyan-300 text-[10px] rounded font-bold border border-cyan-500/30" title="Test user - excluded from estimated MRR">
+                                TEST USER
                               </span>
                             )}
                           </div>
@@ -704,6 +754,18 @@ export default function AdminPortal() {
                         </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-1.5 flex-wrap">
+                            <button
+                              type="button"
+                              title={isTest ? 'Unmark Test User' : 'Mark as Test User (exclude from MRR)'}
+                              onClick={() => handleToggleTestUser(u)}
+                              className={`px-2 py-1 rounded-lg text-xs font-semibold border transition ${
+                                isTest
+                                  ? 'bg-cyan-950/40 hover:bg-cyan-900/60 text-cyan-300 border-cyan-500/40'
+                                  : 'bg-slate-800 hover:bg-slate-700 text-slate-400 border-slate-700'
+                              }`}
+                            >
+                              {isTest ? '🧪 Test' : 'Live'}
+                            </button>
                             <button
                               type="button"
                               title="Dispatch Password Reset Link"
@@ -1082,6 +1144,19 @@ export default function AdminPortal() {
                 />
                 <label htmlFor="hasUnlimitedBypass" className="text-xs text-slate-300 cursor-pointer select-none">
                   <span className="font-semibold text-amber-400">Grant VIP Unlimited Bypass</span> — exempts user from all trial meter deductions and subscription checks.
+                </label>
+              </div>
+
+              <div className="flex items-center gap-3 p-3 bg-slate-800/50 rounded-xl border border-slate-800">
+                <input
+                  type="checkbox"
+                  id="isTestUser"
+                  checked={userFormData.isTestUser}
+                  onChange={(e) => setUserFormData({ ...userFormData, isTestUser: e.target.checked })}
+                  className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-800 border-slate-700"
+                />
+                <label htmlFor="isTestUser" className="text-xs text-slate-300 cursor-pointer select-none">
+                  <span className="font-semibold text-cyan-400">Mark as Test User</span> — excludes account from Estimated Active MRR & subscription metrics.
                 </label>
               </div>
 

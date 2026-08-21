@@ -202,7 +202,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
             <div className="text-xs font-bold uppercase tracking-wider text-amber-700 mb-0.5">Enterprise</div>
             <div className="text-sm font-extrabold text-slate-900">$149.99<span className="text-[10px] font-normal text-slate-500">/mo</span></div>
             <div className="text-[9px] text-slate-400 font-medium">plus tax</div>
-            <p className="text-[10px] text-slate-500 leading-snug mt-1">3 seats included + $29.99/add'l seat.</p>
+            <p className="text-[10px] text-slate-500 leading-snug mt-1">20 seats included + $29.99/add'l seat.</p>
           </button>
         </div>
 
@@ -212,7 +212,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
             <div className="flex justify-between items-center mb-2">
               <span className="font-bold text-amber-950">Enterprise Team Size:</span>
               <span className="font-extrabold text-amber-900 text-sm">
-                {3 + additionalSeats} seats total ({3} base + {additionalSeats} extra)
+                {20 + additionalSeats} seats total ({20} base + {additionalSeats} extra)
               </span>
             </div>
             <div className="flex items-center gap-3">
@@ -246,7 +246,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
               <span className="text-xs font-semibold uppercase tracking-wider text-indigo-300">
                 {activePlan === 'starter' && 'Starter Contractor'}
                 {activePlan === 'pro' && 'Pro Contractor Plan'}
-                {activePlan === 'enterprise' && `Enterprise Team Plan (${3 + additionalSeats} Seats)`}
+                {activePlan === 'enterprise' && `Enterprise Team Plan (${20 + additionalSeats} Seats)`}
               </span>
               <h3 className="text-xl font-bold text-white flex items-baseline gap-1.5">
                 {activePlan === 'starter' && '$19.99 / month'}

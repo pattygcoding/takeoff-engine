@@ -526,7 +526,7 @@ export default function LandingPage() {
                 <p className="text-xs text-slate-300 mt-2">Multi-seat collaboration for teams.</p>
 
                 <ul className="mt-6 space-y-2.5 text-xs text-slate-200">
-                  <li className="flex items-center gap-2">✓ <strong>3 Base Team Seats Included</strong></li>
+                  <li className="flex items-center gap-2">✓ <strong>20 Base Team Seats Included</strong></li>
                   <li className="flex items-center gap-2">✓ <strong>+$29.99/mo per extra seat (+ tax)</strong></li>
                   <li className="flex items-center gap-2">✓ Team Workspaces &amp; Shared Libraries</li>
                   <li className="flex items-center gap-2">✓ All Pro features + priority support</li>

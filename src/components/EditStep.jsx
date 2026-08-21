@@ -2,8 +2,22 @@ import { useState } from 'react';
 import TakeoffGrid from './TakeoffGrid';
 import RatesDrawer from './RatesDrawer';
 
-export default function EditStep({ items, onItemsChange, rates, onRatesChange, onCalculate, readOnly = false, onDuplicate }) {
+export default function EditStep({ items, onItemsChange, rates, onRatesChange, onCalculate, readOnly = false, projectStatus = 'awarded', onDuplicate }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const statusLabel =
+    projectStatus === 'submitted'
+      ? 'Submitted'
+      : projectStatus === 'archived'
+      ? 'Archived'
+      : 'Awarded';
+
+  const statusDescription =
+    projectStatus === 'submitted'
+      ? 'This project has been submitted to the client for review & signature. Figures are locked to maintain proposal integrity.'
+      : projectStatus === 'archived'
+      ? 'This project has been archived and is locked in read-only mode.'
+      : 'This project has been marked as Awarded and is locked to protect the signed contract baseline.';
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -16,9 +30,9 @@ export default function EditStep({ items, onItemsChange, rates, onRatesChange, o
               </svg>
             </div>
             <div>
-              <h4 className="text-sm font-bold text-amber-900">Awarded Project (Locked - Read Only)</h4>
+              <h4 className="text-sm font-bold text-amber-900">{statusLabel} Project (Locked - Read Only)</h4>
               <p className="text-xs text-amber-700 mt-0.5">
-                This project has been marked as Awarded and is locked to protect the signed contract baseline.
+                {statusDescription}
               </p>
             </div>
           </div>
@@ -40,11 +54,11 @@ export default function EditStep({ items, onItemsChange, rates, onRatesChange, o
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">
-            {readOnly ? 'View Takeoff (Awarded)' : 'Edit & Review Takeoff'}
+            {readOnly ? `View Takeoff (${statusLabel})` : 'Edit & Review Takeoff'}
           </h1>
           <p className="text-slate-500 text-sm mt-1">
             {readOnly
-              ? 'Review quantities and unit pricing for this awarded project.'
+              ? `Review quantities and unit pricing for this ${statusLabel.toLowerCase()} project.`
               : 'Adjust quantities, add missing items, and set unit pricing before generating your proposal.'}
           </p>
         </div>

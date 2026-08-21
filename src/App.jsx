@@ -12,6 +12,7 @@ import LoginPage from './components/LoginPage';
 import LandingPage from './components/LandingPage';
 import ClientProposalView from './components/ClientProposalView';
 import AdminPortal from './components/AdminPortal';
+import ClientGuidePage from './components/ClientGuidePage';
 import UpgradeModal from './components/UpgradeModal';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ModalProvider } from './context/ModalContext';
@@ -382,6 +383,12 @@ function AppContent() {
           }
         />
 
+        {/* Documentation / Client Guide Page */}
+        <Route
+          path="/guide"
+          element={<ClientGuidePage />}
+        />
+
         {/* Public Client Proposal & E-Signature View */}
         <Route
           path="/p/:publicToken"
@@ -389,6 +396,20 @@ function AppContent() {
         />
 
         {/* User-Scoped Workspace Routes */}
+        <Route
+          path="/:username/guide"
+          element={<ClientGuidePage />}
+        />
+        <Route
+          path="/:username/settings"
+          element={
+            !isAuthenticated ? (
+              <Navigate to="/login" replace />
+            ) : (
+              <AccountSettings />
+            )
+          }
+        />
         <Route
           path="/:username/*"
           element={

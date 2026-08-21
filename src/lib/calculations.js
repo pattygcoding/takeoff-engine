@@ -108,9 +108,38 @@ export function computeEstimate(items, rates = DEFAULT_RATES) {
   const profitAmount = subtotalWithMarkups * (profitPct / 100);
   const finalBidAmount = subtotalWithMarkups + profitAmount;
 
+  // Compute factored / fully-burdened bid amount for each system and item
+  // so client-facing proposals and contracts always sum up to finalBidAmount (100% balance).
+  const rawItemsDirectSum = totalMaterialCost + totalLaborCost;
+  const markupFactor = rawItemsDirectSum > 0 ? finalBidAmount / rawItemsDirectSum : (items.length > 0 ? 1 : 0);
+
+  const bySystemFactored = Object.values(bySystem).map((sys) => {
+    const sysFactoredBid = rawItemsDirectSum > 0
+      ? (sys.directCost / rawItemsDirectSum) * finalBidAmount
+      : (items.length > 0 ? finalBidAmount / Object.keys(bySystem).length : 0);
+
+    const itemsFactored = sys.items.map((it) => {
+      const itemFactoredPrice = rawItemsDirectSum > 0
+        ? (it.directCost / rawItemsDirectSum) * finalBidAmount
+        : (items.length > 0 ? finalBidAmount / items.length : 0);
+      const unitPriceFactored = it.quantity > 0 ? itemFactoredPrice / it.quantity : 0;
+      return {
+        ...it,
+        factoredPrice: itemFactoredPrice,
+        unitPriceFactored,
+      };
+    });
+
+    return {
+      ...sys,
+      factoredBid: sysFactoredBid,
+      items: itemsFactored,
+    };
+  });
+
   return {
     items: itemBreakdowns,
-    bySystem: Object.values(bySystem).sort((a, b) => a.system.localeCompare(b.system)),
+    bySystem: bySystemFactored.sort((a, b) => a.system.localeCompare(b.system)),
     totals: {
       totalMaterialCost,
       totalLaborHours,
@@ -120,11 +149,14 @@ export function computeEstimate(items, rates = DEFAULT_RATES) {
       totalDirectCost,
       overheadPct,
       overheadAmount,
+      overheadCost: overheadAmount,
       contingencyPct,
       contingencyAmount,
+      contingencyCost: contingencyAmount,
       profitPct,
       profitAmount,
       finalBidAmount,
+      markupFactor,
     },
   };
 }

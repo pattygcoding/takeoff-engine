@@ -97,6 +97,37 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
     }
   };
 
+  const handleArchiveToggle = async (project) => {
+    const rawStatus = (project.status || 'draft').toLowerCase().trim();
+    const isArchived = rawStatus === 'archived';
+    const nextStatus = isArchived ? 'draft' : 'archived';
+    try {
+      setActionMenuOpenId(null);
+      const updated = await projectsApi.update(project.id, {
+        status: nextStatus,
+      });
+      setProjects((prev) =>
+        prev.map((p) => (p.id === project.id ? { ...p, status: updated.status } : p))
+      );
+      if (!isArchived) {
+        setStatusFilter('archived');
+      }
+      await showAlert({
+        title: isArchived ? 'Project Restored' : 'Project Archived',
+        message: isArchived
+          ? `"${project.name}" has been unarchived and restored to Drafts.`
+          : `"${project.name}" has been moved to the Archived section.`,
+        variant: 'success',
+      });
+    } catch (err) {
+      await showAlert({
+        title: 'Archive Error',
+        message: err.message || 'Failed to update project status.',
+        variant: 'error',
+      });
+    }
+  };
+
   const handleDelete = async (project) => {
     const confirmed = await showConfirm({
       title: 'Delete Project',
@@ -299,7 +330,11 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredProjects.map((project) => {
-            const statusStyle = STATUS_CONFIG[project.status] || STATUS_CONFIG.draft;
+            const rawStatus = (project.status || 'draft').toLowerCase().trim();
+            const statusStyle = STATUS_CONFIG[rawStatus] || STATUS_CONFIG.draft;
+            const isDraft = rawStatus === 'draft';
+            const isArchived = rawStatus === 'archived';
+            const isSubmittedOrAwarded = rawStatus === 'submitted' || rawStatus === 'awarded';
             const summary = project.latestEstimate?.summary_json || {};
             const bidTotal = summary.finalBidAmount || 0;
             const isCloning = isCloningId === project.id;
@@ -389,18 +424,61 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
                               {isCloning ? 'Duplicating...' : 'Duplicate (Copy)'}
                             </button>
 
-                            <div className="border-t border-slate-100 my-1" />
+                            {/* Draft projects: Show Archive and Delete */}
+                            {isDraft && (
+                              <>
+                                <button
+                                  onClick={() => handleArchiveToggle(project)}
+                                  className="w-full text-left px-4 py-2 text-slate-700 hover:bg-slate-50 flex items-center gap-2 font-medium"
+                                >
+                                  <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                                  </svg>
+                                  Archive Project
+                                </button>
 
-                            <button
-                              onClick={() => handleDelete(project)}
-                              disabled={isDeleting}
-                              className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 flex items-center gap-2 font-medium"
-                            >
-                              <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                              </svg>
-                              {isDeleting ? 'Deleting...' : 'Delete'}
-                            </button>
+                                <div className="border-t border-slate-100 my-1" />
+
+                                <button
+                                  onClick={() => handleDelete(project)}
+                                  disabled={isDeleting}
+                                  className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 flex items-center gap-2 font-medium"
+                                >
+                                  <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                  </svg>
+                                  {isDeleting ? 'Deleting...' : 'Delete'}
+                                </button>
+                              </>
+                            )}
+
+                            {/* Archived projects: Show Restore and Delete */}
+                            {isArchived && (
+                              <>
+                                <button
+                                  onClick={() => handleArchiveToggle(project)}
+                                  className="w-full text-left px-4 py-2 text-slate-700 hover:bg-slate-50 flex items-center gap-2 font-medium"
+                                >
+                                  <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                  </svg>
+                                  Restore to Draft
+                                </button>
+
+                                <div className="border-t border-slate-100 my-1" />
+
+                                <button
+                                  onClick={() => handleDelete(project)}
+                                  disabled={isDeleting}
+                                  className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 flex items-center gap-2 font-medium"
+                                >
+                                  <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                  </svg>
+                                  {isDeleting ? 'Deleting...' : 'Delete'}
+                                </button>
+                              </>
+                            )}
                           </div>
                         </>
                       )}

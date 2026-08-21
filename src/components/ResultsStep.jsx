@@ -10,10 +10,10 @@ import { useModal } from '../context/ModalContext';
 import UpgradeModal from './UpgradeModal';
 import Papa from 'papaparse';
 
-export default function ResultsStep({ items, rates, currentProject, onProjectSaved, onBack, readOnly = false, onDuplicate }) {
+export default function ResultsStep({ items, rates, currentProject, onProjectSaved, onBack, readOnly = false, projectStatus = 'awarded', onDuplicate }) {
   const { username, projectId } = useParams();
   const navigate = useNavigate();
-  const { user, refreshProfile } = useAuth();
+  const { user, setUser, refreshProfile } = useAuth();
   const { showAlert } = useModal();
   const [proposalMode, setProposalMode] = useState(false);
   const [isSavingProject, setIsSavingProject] = useState(false);
@@ -30,6 +30,10 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
   const [publicShareUrl, setPublicShareUrl] = useState('');
   const [shareCopied, setShareCopied] = useState(false);
   const [shareProposalData, setShareProposalData] = useState(null);
+  const [clientRecipientEmail, setClientRecipientEmail] = useState('');
+  const [clientRecipientName, setClientRecipientName] = useState(currentProject?.client_name || '');
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [emailSentSuccess, setEmailSentSuccess] = useState('');
 
   const isExempt =
     user?.role === 'admin' ||
@@ -168,6 +172,8 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
       const url = `${window.location.origin}/p/${res.proposal.public_token}`;
       setPublicShareUrl(url);
       setShareProposalData(res.proposal);
+      setClientRecipientName(currentProject?.client_name || clientNameInput || '');
+      setEmailSentSuccess('');
       setShareProposalModalOpen(true);
     } catch (err) {
       await showAlert({
@@ -180,19 +186,65 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
     }
   };
 
+  const handleSendProposalEmail = async (e) => {
+    e.preventDefault();
+    if (!clientRecipientEmail || !clientRecipientEmail.trim()) {
+      await showAlert({
+        title: 'Missing Recipient Email',
+        message: 'Please provide a valid client email address.',
+        variant: 'warning',
+      });
+      return;
+    }
+
+    try {
+      setIsSendingEmail(true);
+      setEmailSentSuccess('');
+      const res = await proposalsApi.sendProposalEmail({
+        projectId: currentProject?.id || shareProposalData?.project_id,
+        recipientEmail: clientRecipientEmail.trim(),
+        recipientName: clientRecipientName.trim(),
+      });
+
+      setEmailSentSuccess(`Proposal invitation successfully sent to ${clientRecipientEmail.trim()}! Project has been moved to Submitted status.`);
+      if (res.trial_uses_remaining !== undefined) {
+        if (setUser) {
+          setUser((prev) => (prev ? { ...prev, trial_uses_remaining: res.trial_uses_remaining } : prev));
+        }
+      }
+      if (refreshProfile) await refreshProfile();
+      if (res.project && onProjectSaved) {
+        onProjectSaved(res.project);
+      }
+    } catch (err) {
+      await showAlert({
+        title: 'Email Delivery Error',
+        message: err.message || 'Failed to send proposal email.',
+        variant: 'error',
+      });
+    } finally {
+      setIsSendingEmail(false);
+    }
+  };
+
   /**
    * Records export and decrements credit count before completing file download
    */
   const processExportWithCreditCheck = async (exportFn) => {
     try {
-      await authApi.recordExport();
+      const recordResult = await authApi.recordExport();
+      if (recordResult?.trial_uses_remaining !== undefined) {
+        if (setUser) {
+          setUser((prev) => (prev ? { ...prev, trial_uses_remaining: recordResult.trial_uses_remaining } : prev));
+        }
+      }
       if (refreshProfile) await refreshProfile();
       await exportFn();
     } catch (err) {
       if (err.code === 'TRIAL_EXHAUSTED' || err.status === 403) {
         setShowUpgradeModal(true);
       } else {
-        // If not logged in or network issue with metering endpoint, let export continue or prompt
+        console.error('[Export Metering Error]', err);
         await exportFn();
       }
     }
@@ -231,6 +283,21 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
     }
   };
 
+  const activeStatus = currentProject?.status || projectStatus;
+  const statusLabel =
+    activeStatus === 'submitted'
+      ? 'Submitted'
+      : activeStatus === 'archived'
+      ? 'Archived'
+      : 'Awarded';
+
+  const statusDescription =
+    activeStatus === 'submitted'
+      ? 'This project has been submitted to the client. Figures are locked to maintain proposal integrity. You can export or print anytime.'
+      : activeStatus === 'archived'
+      ? 'This project has been archived. Figures are locked in read-only mode. You can export or print anytime.'
+      : 'This project has been awarded. Figures are locked to maintain historical and contract integrity. You can export or print anytime.';
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       {readOnly && (
@@ -242,9 +309,9 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
               </svg>
             </div>
             <div>
-              <h4 className="text-sm font-bold text-amber-900">Awarded Project (Locked - Read Only)</h4>
+              <h4 className="text-sm font-bold text-amber-900">{statusLabel} Project (Locked - Read Only)</h4>
               <p className="text-xs text-amber-700 mt-0.5">
-                This project has been awarded. Figures are locked to maintain historical and contract integrity. You can export or print anytime.
+                {statusDescription}
               </p>
             </div>
           </div>
@@ -462,9 +529,71 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
             </div>
 
             <div className="space-y-4 my-6">
+              {/* Direct Email Submission Section */}
+              <form onSubmit={handleSendProposalEmail} className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-sm font-bold text-slate-800">✉️ Email Directly to Client</span>
+                </div>
+                <p className="text-xs text-slate-500 mb-3">
+                  Delivers a direct branded proposal review &amp; e-signature invitation to your client. Automatically locks project into <strong>Submitted</strong> status.
+                </p>
+
+                {emailSentSuccess && (
+                  <div className="mb-3 p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-800">
+                    ✓ {emailSentSuccess}
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[11px] font-medium text-slate-600 mb-1">Client Name / Attention</label>
+                      <input
+                        type="text"
+                        value={clientRecipientName}
+                        onChange={(e) => setClientRecipientName(e.target.value)}
+                        placeholder="e.g. John Doe"
+                        className="w-full bg-white px-3 py-1.5 border border-slate-300 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-medium text-slate-600 mb-1">Client Email Address *</label>
+                      <input
+                        type="email"
+                        required
+                        value={clientRecipientEmail}
+                        onChange={(e) => setClientRecipientEmail(e.target.value)}
+                        placeholder="client@company.com"
+                        className="w-full bg-white px-3 py-1.5 border border-slate-300 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isSendingEmail}
+                    className="w-full mt-2 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center justify-center gap-1.5 disabled:opacity-50"
+                  >
+                    {isSendingEmail ? (
+                      <>
+                        <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>Sending Invitation Email...</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                        </svg>
+                        <span>Send Proposal &amp; Lock Project</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+
               <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
                 <div className="flex items-center justify-between text-xs text-slate-600 mb-2">
-                  <span className="font-semibold text-slate-700">Proposal Public URL</span>
+                  <span className="font-semibold text-slate-700">Or Copy Public Link</span>
                   <span className="text-[10px] bg-indigo-100 text-indigo-700 font-bold px-2 py-0.5 rounded-full">
                     Status: {shareProposalData?.client_status || 'sent'}
                   </span>
@@ -484,7 +613,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
                       setShareCopied(true);
                       setTimeout(() => setShareCopied(false), 3000);
                     }}
-                    className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold whitespace-nowrap shadow-xs transition"
+                    className="px-3.5 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold whitespace-nowrap shadow-xs transition"
                   >
                     {shareCopied ? 'Copied!' : 'Copy Link'}
                   </button>

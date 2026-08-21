@@ -57,11 +57,11 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
     };
   }, [projectId, step]);
 
-  const isAwarded = currentProject?.status === 'awarded';
+  const isLocked = ['awarded', 'submitted', 'archived'].includes(currentProject?.status);
 
   const goToStep = (targetStep) => {
-    // If project is awarded, step 1 (upload) and step 2 (edit) are locked and not navigable
-    if (isAwarded && (targetStep === 1 || targetStep === 2)) {
+    // If project is locked (awarded, submitted, or archived), step 1 (upload) and step 2 (edit) are locked and not navigable
+    if (isLocked && (targetStep === 1 || targetStep === 2)) {
       return;
     }
 
@@ -88,7 +88,7 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
   };
 
   const handleBackToEdit = () => {
-    if (isAwarded) return;
+    if (isLocked) return;
     if (projectId || currentProject?.id) {
       const activeId = projectId || currentProject.id;
       navigate(`/${username}/takeoff/${activeId}/edit`);
@@ -184,10 +184,22 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
             <span className="text-xs font-semibold text-slate-700 bg-slate-200/70 px-2.5 py-1 rounded-lg">
               Project: {currentProject.name}
             </span>
-            {isAwarded && (
+            {currentProject?.status === 'awarded' && (
               <span className="text-xs font-bold text-emerald-800 bg-emerald-100 border border-emerald-300 px-2.5 py-0.5 rounded-full flex items-center gap-1">
                 <span>🔒</span>
                 <span>Awarded</span>
+              </span>
+            )}
+            {currentProject?.status === 'submitted' && (
+              <span className="text-xs font-bold text-blue-800 bg-blue-100 border border-blue-300 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                <span>🔒</span>
+                <span>Submitted</span>
+              </span>
+            )}
+            {currentProject?.status === 'archived' && (
+              <span className="text-xs font-bold text-amber-800 bg-amber-100 border border-amber-300 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                <span>🔒</span>
+                <span>Archived</span>
               </span>
             )}
             {projectId && (
@@ -199,7 +211,7 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
         )}
       </div>
 
-      <Stepper step={step} onStepClick={goToStep} isAwarded={isAwarded} />
+      <Stepper step={step} onStepClick={goToStep} isAwarded={isLocked} />
 
       {step === 2 && (
         <EditStep
@@ -208,8 +220,9 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
           rates={rates}
           onRatesChange={setRates}
           onCalculate={handleCalculate}
-          readOnly={isAwarded}
-          onDuplicate={isAwarded ? handleDuplicate : undefined}
+          readOnly={isLocked}
+          projectStatus={currentProject?.status}
+          onDuplicate={isLocked ? handleDuplicate : undefined}
         />
       )}
 
@@ -220,8 +233,9 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
           currentProject={currentProject}
           onProjectSaved={handleProjectSaved}
           onBack={handleBackToEdit}
-          readOnly={isAwarded}
-          onDuplicate={isAwarded ? handleDuplicate : undefined}
+          readOnly={isLocked}
+          projectStatus={currentProject?.status}
+          onDuplicate={isLocked ? handleDuplicate : undefined}
         />
       )}
 

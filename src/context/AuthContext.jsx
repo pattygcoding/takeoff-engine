@@ -65,8 +65,9 @@ export const AuthProvider = ({ children }) => {
     try {
       const currentUser = await authApi.getMe();
       if (currentUser) {
-        setUser(currentUser);
+        setUser({ ...currentUser });
         localStorage.setItem('takeoff_user', JSON.stringify(currentUser));
+        return currentUser;
       }
     } catch {
       // Ignore refresh errors

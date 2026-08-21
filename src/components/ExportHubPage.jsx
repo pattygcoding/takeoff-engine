@@ -214,7 +214,7 @@ export const EXPORT_FORMATS = [
 export default function ExportHubPage({ items, rates, currentProject }) {
   const { username, projectId } = useParams();
   const navigate = useNavigate();
-  const { user, refreshProfile } = useAuth();
+  const { user, setUser, refreshProfile } = useAuth();
   const { showAlert } = useModal();
 
   const [selectedFormatId, setSelectedFormatId] = useState('standard_estimate');
@@ -257,25 +257,29 @@ export default function ExportHubPage({ items, rates, currentProject }) {
     }
 
     try {
-      await authApi.recordExport();
+      const recordResult = await authApi.recordExport();
+      if (recordResult?.trial_uses_remaining !== undefined) {
+        if (setUser) {
+          setUser((prev) => (prev ? { ...prev, trial_uses_remaining: recordResult.trial_uses_remaining } : prev));
+        }
+      }
       if (refreshProfile) await refreshProfile();
       await actionFn();
     } catch (err) {
       if (err.code === 'TRIAL_EXHAUSTED' || err.status === 403) {
         setShowUpgradeModal(true);
       } else {
+        console.error('[Export Metering Error]', err);
         await actionFn();
       }
     }
   };
 
   // 1. Browser Print Handler
-  const handlePrint = () => {
-    if (isCurrentFormatLocked) {
-      setShowUpgradeModal(true);
-      return;
-    }
-    window.print();
+  const handlePrint = async () => {
+    await runExportAction(() => {
+      window.print();
+    });
   };
 
   // 2. PDF Generator
@@ -341,6 +345,20 @@ export default function ExportHubPage({ items, rates, currentProject }) {
   const backUrl = projectId
     ? `/${username}/takeoff/${projectId}/results`
     : `/${username}/results`;
+
+  const scrollToPreview = () => {
+    const previewEl = document.getElementById('export-preview-section');
+    if (previewEl) {
+      previewEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const scrollToFormatSelection = () => {
+    const selectorEl = document.getElementById('format-selection-grid');
+    if (selectorEl) {
+      selectorEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-100 pb-16">
@@ -409,7 +427,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
 
       <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
         {/* Template Chooser Grid (4 Rows of 5) */}
-        <div className="no-print bg-white rounded-3xl p-5 border border-slate-200 shadow-xs">
+        <div id="format-selection-grid" className="no-print bg-white rounded-3xl p-5 border border-slate-200 shadow-xs scroll-mt-20">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
             <div>
               <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800">
@@ -440,6 +458,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
                   format={fmt}
                   isSelected={selectedFormatId === fmt.id}
                   isPro={isProOrExempt}
+                  onScrollToPreview={scrollToPreview}
                   onClick={() => {
                     if (fmt.isProOnly && !isProOrExempt) {
                       setShowUpgradeModal(true);
@@ -464,6 +483,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
                   format={fmt}
                   isSelected={selectedFormatId === fmt.id}
                   isPro={isProOrExempt}
+                  onScrollToPreview={scrollToPreview}
                   onClick={() => {
                     if (fmt.isProOnly && !isProOrExempt) {
                       setShowUpgradeModal(true);
@@ -488,6 +508,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
                   format={fmt}
                   isSelected={selectedFormatId === fmt.id}
                   isPro={isProOrExempt}
+                  onScrollToPreview={scrollToPreview}
                   onClick={() => {
                     if (fmt.isProOnly && !isProOrExempt) {
                       setShowUpgradeModal(true);
@@ -512,6 +533,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
                   format={fmt}
                   isSelected={selectedFormatId === fmt.id}
                   isPro={isProOrExempt}
+                  onScrollToPreview={scrollToPreview}
                   onClick={() => {
                     if (fmt.isProOnly && !isProOrExempt) {
                       setShowUpgradeModal(true);
@@ -551,13 +573,42 @@ export default function ExportHubPage({ items, rates, currentProject }) {
           </div>
         )}
 
-        {/* Live Document Canvas Preview */}
-        <div className="bg-slate-300/40 p-2 sm:p-6 rounded-3xl border border-slate-200/80 flex justify-center">
-          <div
-            id="export-document-canvas"
-            ref={printAreaRef}
-            className="w-full max-w-[850px] bg-white text-slate-800 shadow-xl rounded-2xl border border-slate-200 p-6 sm:p-10 transition print:shadow-none print:border-none print:p-0 print:max-w-none print:w-full"
-          >
+        {/* Live Document Canvas Preview Section */}
+        <div id="export-preview-section" className="scroll-mt-20 space-y-3">
+          {/* Preview Section Header with Title & Back Button */}
+          <div className="no-print flex flex-wrap items-center justify-between gap-3 px-2">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs text-sm">
+                📄
+              </div>
+              <div>
+                <h2 className="text-base sm:text-lg font-bold text-slate-900 leading-tight">
+                  Document Preview: <span className="text-indigo-600">{currentFormat.name}</span>
+                </h2>
+                <p className="text-xs text-slate-500">
+                  Live rendering of the document as it will appear when printed, converted to PDF, or exported to Word.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={scrollToFormatSelection}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 hover:text-indigo-600 border border-slate-200 hover:border-indigo-200 rounded-xl text-xs font-bold transition shadow-2xs cursor-pointer"
+            >
+              <svg className="w-4 h-4 text-slate-400 group-hover:text-indigo-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+              </svg>
+              <span>Back to Document Selection</span>
+            </button>
+          </div>
+
+          <div className="bg-slate-300/40 p-2 sm:p-6 rounded-3xl border border-slate-200/80 flex justify-center">
+            <div
+              id="export-document-canvas"
+              ref={printAreaRef}
+              className="w-full max-w-[850px] bg-white text-slate-800 shadow-xl rounded-2xl border border-slate-200 p-6 sm:p-10 transition print:shadow-none print:border-none print:p-0 print:max-w-none print:w-full"
+            >
             {/* 1-7 Previous Formats */}
             {selectedFormatId === 'standard_estimate' && (
               <StandardEstimateDocument estimate={estimate} branding={branding} currentProject={currentProject} />
@@ -612,6 +663,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
             {selectedFormatId === 'warranty_closeout_cert' && (
               <WarrantyCloseoutCertDocument estimate={estimate} branding={branding} currentProject={currentProject} />
             )}
+            </div>
           </div>
         </div>
       </div>
@@ -627,8 +679,18 @@ export default function ExportHubPage({ items, rates, currentProject }) {
 /**
  * Format Card Component with Word-style document thumbnail
  */
-function FormatCard({ format, isSelected, isPro, onClick }) {
+function FormatCard({ format, isSelected, isPro, onScrollToPreview, onClick }) {
   const isLocked = format.isProOnly && !isPro;
+
+  const handlePreviewClick = (e) => {
+    e.stopPropagation();
+    onClick();
+    if (onScrollToPreview) {
+      setTimeout(() => {
+        onScrollToPreview();
+      }, 50);
+    }
+  };
 
   return (
     <div
@@ -663,15 +725,32 @@ function FormatCard({ format, isSelected, isPro, onClick }) {
       </div>
 
       <div>
-        <div className="flex items-center justify-between gap-1">
-          <h4 className="text-xs font-bold text-slate-900 line-clamp-1">{format.name}</h4>
-          {isSelected && (
-            <span className="w-4 h-4 rounded-full bg-indigo-600 text-white flex items-center justify-center shrink-0">
-              <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-              </svg>
-            </span>
-          )}
+        <div className="flex items-center justify-between gap-1.5">
+          <h4 className="text-xs font-bold text-slate-900 line-clamp-1 flex-1">{format.name}</h4>
+          
+          <div className="flex items-center gap-1 shrink-0">
+            {isSelected && (
+              <button
+                type="button"
+                onClick={handlePreviewClick}
+                className="px-1.5 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 hover:text-indigo-900 border border-indigo-200 rounded-md text-[9px] font-extrabold tracking-tight transition cursor-pointer shadow-2xs flex items-center gap-0.5"
+                title="Jump down to live document preview"
+              >
+                <span>SEE PREVIEW</span>
+                <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+              </button>
+            )}
+
+            {isSelected && (
+              <span className="w-4 h-4 rounded-full bg-indigo-600 text-white flex items-center justify-center shrink-0">
+                <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                </svg>
+              </span>
+            )}
+          </div>
         </div>
         <p className="text-[10px] text-slate-500 line-clamp-2 mt-1 leading-tight">{format.description}</p>
       </div>
@@ -1033,7 +1112,7 @@ function ClientProposalDocument({ estimate, branding, currentProject }) {
       <DocumentBrandingHeader branding={branding} title="Bid Proposal &amp; Scope of Work" project={currentProject} />
 
       <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs text-slate-600 leading-relaxed">
-        We are pleased to submit our formal proposal for utility and civil construction scope outlined below. All pricing reflects complete materials, certified labor, equipment installation, and testing per project specifications.
+        We are pleased to submit our formal proposal for utility and civil construction scope outlined below. All pricing reflects complete materials, certified labor, equipment installation, site mobilization, and quality testing per project specifications.
       </div>
 
       <div className="space-y-4">
@@ -1041,7 +1120,7 @@ function ClientProposalDocument({ estimate, branding, currentProject }) {
           <div key={sys.system} className="border border-slate-200 rounded-xl overflow-hidden">
             <div className="bg-slate-800 text-white px-4 py-2 flex justify-between items-center">
               <h3 className="text-xs font-bold uppercase tracking-wider">{sys.system} Scope</h3>
-              <span className="text-xs font-bold">{formatCurrency(sys.directCost)}</span>
+              <span className="text-xs font-bold font-mono">{formatCurrency(sys.factoredBid ?? sys.directCost)}</span>
             </div>
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 text-slate-500 border-b border-slate-200">
@@ -1061,7 +1140,7 @@ function ClientProposalDocument({ estimate, branding, currentProject }) {
                     <td className="p-2.5 text-right font-mono">{formatNumber(it.quantity, 0)}</td>
                     <td className="p-2.5 text-slate-500">{it.unit}</td>
                     <td className="p-2.5 text-right font-mono font-bold text-slate-900">
-                      {formatCurrency(it.directCost)}
+                      {formatCurrency(it.factoredPrice ?? it.directCost)}
                     </td>
                   </tr>
                 ))}
@@ -1132,7 +1211,7 @@ function ExecutiveProposalDocument({ estimate, branding, currentProject }) {
                 </td>
                 <td className="p-3 text-right font-mono">{sys.items.length}</td>
                 <td className="p-3 text-right font-mono font-bold text-slate-900">
-                  {formatCurrency(sys.directCost)}
+                  {formatCurrency(sys.factoredBid ?? sys.directCost)}
                 </td>
               </tr>
             ))}
@@ -1238,7 +1317,7 @@ function AiaBidScheduleDocument({ estimate, branding, currentProject }) {
           </thead>
           <tbody className="divide-y divide-slate-300 font-mono">
             {bySystem.flatMap((s) => s.items).map((it, idx) => {
-              const unitPrice = it.quantity > 0 ? it.directCost / it.quantity : 0;
+              const unitPrice = it.quantity > 0 ? (it.factoredPrice ?? it.directCost) / it.quantity : 0;
               return (
                 <tr key={idx} className="hover:bg-slate-50">
                   <td className="p-2.5 font-bold text-slate-600">{String(idx + 1).padStart(2, '0')}</td>
@@ -1248,7 +1327,7 @@ function AiaBidScheduleDocument({ estimate, branding, currentProject }) {
                   <td className="p-2.5 text-right">{formatNumber(it.quantity, 0)}</td>
                   <td className="p-2.5 font-sans text-slate-600">{it.unit}</td>
                   <td className="p-2.5 text-right">{formatCurrency(unitPrice)}</td>
-                  <td className="p-2.5 text-right font-bold text-slate-900">{formatCurrency(it.directCost)}</td>
+                  <td className="p-2.5 text-right font-bold text-slate-900">{formatCurrency(it.factoredPrice ?? it.directCost)}</td>
                 </tr>
               );
             })}
@@ -1336,7 +1415,7 @@ function ScopeMatrixDocument({ estimate, branding, currentProject }) {
           <div key={sys.system} className="border border-slate-200 rounded-2xl p-4 bg-slate-50 space-y-2">
             <div className="flex justify-between items-center pb-2 border-b border-slate-200">
               <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900">{sys.system}</h4>
-              <span className="text-xs font-bold text-indigo-600 font-mono">{formatCurrency(sys.directCost)}</span>
+              <span className="text-xs font-bold text-indigo-600 font-mono">{formatCurrency(sys.factoredBid ?? sys.directCost)}</span>
             </div>
             <ul className="space-y-1 text-xs text-slate-600">
               {sys.items.map((it, i) => (
@@ -1623,17 +1702,20 @@ function AiaSovBillingDocument({ estimate, branding, currentProject }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-300">
-            {bySystem.map((sys, idx) => (
-              <tr key={sys.system} className="hover:bg-slate-50">
-                <td className="p-2 font-bold">{String(idx + 1).padStart(2, '0')}</td>
-                <td className="p-2 font-sans font-medium text-slate-900">{sys.system} Package</td>
-                <td className="p-2 text-right font-bold">{formatCurrency(sys.directCost)}</td>
-                <td className="p-2 text-right text-slate-500">$0.00</td>
-                <td className="p-2 text-right text-slate-500">$0.00</td>
-                <td className="p-2 text-right text-slate-500">0.0%</td>
-                <td className="p-2 text-right font-bold">{formatCurrency(sys.directCost)}</td>
-              </tr>
-            ))}
+            {bySystem.map((sys, idx) => {
+              const sysVal = sys.factoredBid ?? sys.directCost;
+              return (
+                <tr key={sys.system} className="hover:bg-slate-50">
+                  <td className="p-2 font-bold">{String(idx + 1).padStart(2, '0')}</td>
+                  <td className="p-2 font-sans font-medium text-slate-900">{sys.system} Package</td>
+                  <td className="p-2 text-right font-bold">{formatCurrency(sysVal)}</td>
+                  <td className="p-2 text-right text-slate-500">$0.00</td>
+                  <td className="p-2 text-right text-slate-500">$0.00</td>
+                  <td className="p-2 text-right text-slate-500">0.0%</td>
+                  <td className="p-2 text-right font-bold">{formatCurrency(sysVal)}</td>
+                </tr>
+              );
+            })}
           </tbody>
           <tfoot className="bg-slate-100 font-bold border-t-2 border-slate-900">
             <tr>
@@ -1692,10 +1774,16 @@ function FormalContractAgreementDocument({ estimate, branding, currentProject, r
               <tr key={s.system}>
                 <td className="p-2.5 font-bold text-slate-800">{s.system}</td>
                 <td className="p-2.5 text-slate-500">{s.items.length} Work Items</td>
-                <td className="p-2.5 text-right font-mono font-bold">{formatCurrency(s.directCost)}</td>
+                <td className="p-2.5 text-right font-mono font-bold">{formatCurrency(s.factoredBid ?? s.directCost)}</td>
               </tr>
             ))}
           </tbody>
+          <tfoot className="bg-slate-50 font-bold border-t border-slate-300">
+            <tr>
+              <td colSpan={2} className="p-2.5 text-slate-700 uppercase tracking-wider text-[11px]">Total Lump Sum Contract:</td>
+              <td className="p-2.5 text-right font-mono text-emerald-800 text-sm">{formatCurrency(totals.finalBidAmount)}</td>
+            </tr>
+          </tfoot>
         </table>
       </div>
 

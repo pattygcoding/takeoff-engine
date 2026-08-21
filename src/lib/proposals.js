@@ -37,6 +37,24 @@ export const proposalsApi = {
   },
 
   /**
+   * Send direct email to client with signing link
+   */
+  async sendProposalEmail({ projectId, recipientEmail, recipientName, message }) {
+    const res = await fetch(`${API_BASE_URL}/proposals/send-email`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ projectId, recipientEmail, recipientName, message }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      const err = new Error(data.error || 'Failed to send proposal email.');
+      err.code = data.code;
+      throw err;
+    }
+    return data;
+  },
+
+  /**
    * Alias for backward compatibility
    */
   async generateLink(projectId, proposalData) {

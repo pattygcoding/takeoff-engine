@@ -1,73 +1,89 @@
 # How to Use Takeoff Engine — Client Guide
 
-This guide explains how to prepare your takeoff file and what you can and can't do with it in the app. It's written for people filling out the spreadsheet — no coding knowledge required.
+This guide explains how to prepare your takeoff file and how Takeoff Engine's ingestion pipeline processes your spreadsheets.
 
 ---
 
 ## 1. What file types are accepted?
 
-You can upload either format:
+Takeoff Engine accepts files from all major takeoff software (Bluebeam Revu, PlanSwift, HeavyBid, Trimble/Agtek, Excel, etc.):
 
-- **CSV** (`.csv`) — a plain comma-separated file. Works with any spreadsheet program.
-- **Excel** (`.xlsx` or `.xls`) — a normal Excel workbook.
+- **CSV** (`.csv`) — Plain comma-separated files.
+- **Excel** (`.xlsx`, `.xls`, `.xlsm`, `.xlsb`) — Standard and macro-enabled Excel workbooks.
 
-If your file is an Excel workbook with **multiple tabs/sheets**, only the **first sheet** is read. Make sure your takeoff data is on the first tab.
+### Multi-Tab Excel Support
+If your Excel workbook contains multiple worksheet tabs, the engine automatically scores and selects the active takeoff tab (e.g. `Takeoff`, `Civil Estimate`, `Quantities`). You can also switch between worksheet tabs directly inside the column mapping view if you have multiple sheets to inspect.
 
-Two ready-to-use templates are available for download directly from the app's upload screen ("Download Sample CSV Template" / "Download Sample Excel Template"), or you can find them in this `public` folder as `sample_takeoff.csv` and `sample_takeoff.xlsx`.
+Ready-to-use templates and vendor samples are available for download on the upload screen:
+- **CSV Template** (`takeoff_sample_template.csv`)
+- **Excel Template** (`takeoff_sample_template.xlsx`)
+- **Bluebeam Revu Export Sample**
+- **PlanSwift Export Sample**
+- **Trimble / Agtek Export Sample**
 
 ---
 
-## 2. Required columns
+## 2. Standard Estimating Fields & Intelligent Auto-Mapping
 
-Your file's **first row must be a header row** with these exact column names (lowercase, with underscores instead of spaces):
+Takeoff Engine uses **fuzzy alias matching (Levenshtein distance)**. You **do not** need to rename headers to fit rigid names.
 
-| Column | Required? | Description | Example |
+| Standard Field | Required? | Canonical Examples / Software Aliases | Description |
 |---|---|---|---|
-| `system` | Yes | The utility system this item belongs to | `Sanitary`, `Storm`, `Domestic Water` |
-| `item_description` | Yes | What the item is | `Pipe`, `Manhole`, `Gate Valve` |
-| `size_spec` | Yes | Size and/or material spec | `6" PVC SDR-35`, `48" Precast` |
-| `quantity` | Yes | Numeric amount — no letters or units mixed in | `275`, `3` |
-| `unit` | Yes | Unit of measure — `LF` (linear feet) or `EA` (each) | `LF` |
-| `avg_depth_ft` | No | Average trench depth in feet, **only used for `LF` pipe items** | `4` (leave blank for `EA` items) |
+| `system` | Yes | `Trade`, `Phase`, `Division`, `Category`, `Discipline`, `Utility Type`, `Section`, `Classification` | The trade or grouping (e.g. `Sanitary`, `Storm`, `Domestic Water`, `Earthwork`) |
+| `item_description` | Yes | `Item Description`, `Item Name`, `Description`, `Scope`, `Takeoff Item`, `Line Item`, `Activity` | What the line item is (e.g. `Mainline Pipe`, `Precast Manhole`, `Gate Valve`) |
+| `size_spec` | Yes | `Size / Spec`, `Pipe Size`, `Dimension`, `Material Class`, `Specification`, `Diameter`, `Rating` | Pipe diameter or material spec (e.g. `8" PVC SDR-35`, `48" Precast`, `6" C900`) |
+| `quantity` | Yes | `Quantity`, `Qty`, `Takeoff Qty`, `Total Qty`, `Linear Feet`, `Amount`, `Count`, `Volume`, `Footage` | Numeric quantity or measurement (e.g. `275`, `1,250`, `45.5`) |
+| `unit` | Yes | `Unit`, `UOM`, `Unit of Measure`, `Measure`, `Units`, `Unit Type` | Trade unit of measure (`LF`, `EA`, `CY`, `SF`, `TON`, `LS`, `HR`) |
+| `avg_depth_ft` | No | `Avg Trench Depth`, `Avg Depth (FT)`, `Depth (ft)`, `Trench Depth`, `Cut Depth`, `Invert Depth` | Optional average trench depth in feet (for trench earthwork & backfill math) |
 
-**Column order does not matter** — the app matches by column name, not position. Extra columns beyond these six are ignored (they won't cause an error, but they also won't be imported).
-
----
-
-## 3. Rules & boundaries
-
-✅ **What the app CAN do:**
-- Import any number of rows.
-- Accept `system` as any text value — you're not limited to Sanitary/Storm/Domestic Water, though those are the defaults shown once imported.
-- Accept decimal quantities and depths (e.g., `3.5`).
-- Leave `avg_depth_ft` blank for `EA` items (it's ignored for anything that isn't `LF`).
-- Let you edit, add, or delete rows after import, right inside the app.
-
-🚫 **What the app CANNOT do / will reject:**
-- **Missing required fields** — if `system`, `item_description`, `size_spec`, `quantity`, or `unit` is blank in any row, that row is rejected and listed as an error (the rest of the file still imports).
-- **Non-numeric quantity or depth** — `quantity` and `avg_depth_ft` must be numbers only. A value like `"275 LF"` or `"approx. 6"` will cause that row to be rejected.
-- **Unrecognized units in the grid editor** — once imported, the in-app editor only offers `LF` and `EA` as unit choices. If your source file uses other units (e.g., `CY`, `TON`, `SF`), they will still import, but you may need to manually adjust them (or the unit dropdown) after import.
-- **Merged cells / multiple header rows** — the first row of the sheet must be a single, plain header row. Merged cells, titles, or blank rows above the headers will break the import.
-- **Formulas as the only cell content without a computed value** — Excel formula cells are read using their last-calculated value. If a cell has never been calculated (e.g., pasted as a formula in a text editor), it may import as blank or an error.
-- **Pricing data** — this file format does **not** include cost, labor, or markup information. All pricing (material $/unit, labor hours/unit) and markup percentages (overhead, contingency, profit) are entered separately inside the app after import, not in the CSV/Excel file.
+*Note: Column ordering and case sensitivity do not matter.*
 
 ---
 
-## 4. What happens after you upload
+## 3. Resilient Parsing Capabilities
 
-1. The app validates every row and shows a list of any errors (with row numbers) so you can fix your source file if needed.
-2. Any valid rows are loaded into an editable grid where you can review, correct, add, or remove line items.
-3. From there, you (or your estimator) will add pricing and markup details and generate the final cost breakdown or client proposal.
+The ingestion pipeline handles raw exports without manual cleanup:
+
+✅ **2D Header Sniffing & Offset Tolerance:**
+- If your spreadsheet has company titles, project names, or empty rows at the top (rows 1–30), the engine locates the real column header row.
+- Handles stacked 2-row headers (e.g. Top: `Trench Dimensions`, Bottom: `Depth (FT)` $\rightarrow$ `Trench Dimensions - Depth (FT)`).
+
+✅ **Merged Cell Unmerging & Forward-Fill:**
+- When an Excel sheet uses merged cells across categories or section headers, the parent system/phase label is forward-filled down into all child items.
+
+✅ **Subtotal & Section Banner Filtering:**
+- Formulas (`=SUM(...)`, `SUBTOTAL`), summary rows (`Sub-Total`, `Grand Total`), metadata, and decorative phase banner dividers (`--- PHASE 1 ---`) are identified and filtered out so they do not duplicate your quantities.
+- Checksums are calculated to verify that the parsed line items match your spreadsheet's original summary subtotal.
+
+✅ **Composite Unit & Quantity Sanitization:**
+- Values with formatting like `$1,250.00`, accounting negatives `(150.00)`, or embedded unit strings like `"275 LF"` or `"12 EA"` are parsed into their clean numeric value and unit.
+
+✅ **Trade Unit Normalization:**
+- Messy unit strings are normalized:
+  - `lin ft`, `linear feet`, `l.f.`, `ft` $\rightarrow$ `LF`
+  - `each`, `pcs`, `e.a.`, `item` $\rightarrow$ `EA`
+  - `cu yd`, `c.y.`, `cubic yard`, `m3` $\rightarrow$ `CY`
+  - `sq ft`, `s.f.`, `sqft`, `m2` $\rightarrow$ `SF`
+  - `tn`, `tons`, `tonne` $\rightarrow$ `TON`
+  - `ls`, `lump`, `global` $\rightarrow$ `LS`
+
+✅ **Composite Size Deconstruction:**
+- If a takeoff software merges description and size (e.g. `"8\" PVC SDR-35 Mainline"` in the description column), the engine separates the pipe dimension from the line item name.
 
 ---
 
-## 5. Quick checklist before uploading
+## 4. Interactive Column Mapping & Vendor Presets
 
-- [ ] Header row uses exactly: `system, item_description, size_spec, quantity, unit, avg_depth_ft`
-- [ ] No merged cells or extra title rows above the header
-- [ ] `quantity` and `avg_depth_ft` contain numbers only (no units or text)
-- [ ] `unit` is `LF` or `EA` (other values will need manual correction after import)
-- [ ] Takeoff data is on the **first sheet/tab** if using Excel
-- [ ] No completely blank required fields
+If a file has ambiguous columns or custom formatting (confidence score < 90%):
 
-If you run into an error message after uploading, it will tell you the exact row number and what's wrong — fix that row in your spreadsheet and re-upload.
+- **Interactive Column Mapping Modal:** A confirmation dialog appears with confidence ratings for each detected field.
+- **Live 5-Row Preview:** View how your data transforms in real-time as you select columns.
+- **Save Vendor / Subcontractor Presets:** Save custom column configurations under a vendor preset name (e.g. `ABC Earthwork Subcontractor`). The engine will remember this mapping and re-apply it when files from that vendor are uploaded.
+
+---
+
+## 5. What Happens After You Upload
+
+- The file is parsed and validated in milliseconds with deterministic rules.
+- If any invalid quantities exist, detailed error messages are listed with row numbers so you can review them.
+- Valid items populate the interactive estimating grid where you can adjust quantities, apply rate libraries, configure trench cross-sections, and generate client proposals or Word/PDF bid packages.
