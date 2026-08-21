@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authApi } from '../lib/auth';
 import UpgradeModal from './UpgradeModal';
 
 export default function UserMenu() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -115,7 +117,7 @@ export default function UserMenu() {
                   setIsOpen(false);
                   setShowUpgradeModal(true);
                 }}
-                className="w-full text-left px-4 py-2 text-sm text-indigo-600 font-medium hover:bg-indigo-50 transition flex items-center justify-between"
+                className="w-full text-left px-4 py-2 text-sm text-indigo-600 font-medium hover:bg-indigo-50 transition flex items-center justify-between cursor-pointer"
               >
                 <span>Upgrade Plan</span>
                 <span className="text-xs bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded">Pro</span>
@@ -123,45 +125,51 @@ export default function UserMenu() {
             )}
 
             {isAdmin && (
-              <a
-                href="#/admin"
-                onClick={() => setIsOpen(false)}
-                className="w-full text-left px-4 py-2 text-sm text-purple-700 font-semibold hover:bg-purple-50 transition flex items-center gap-2"
+              <button
+                onClick={() => {
+                  setIsOpen(false);
+                  navigate('/admin');
+                }}
+                className="w-full text-left px-4 py-2 text-sm text-purple-700 font-semibold hover:bg-purple-50 transition flex items-center gap-2 cursor-pointer"
               >
                 <span>⚡</span>
                 <span>Super-Admin Portal</span>
-              </a>
+              </button>
             )}
 
-            <a
-              href={`#/${user.username}/settings`}
-              onClick={() => setIsOpen(false)}
-              className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition flex items-center gap-2"
+            <button
+              onClick={() => {
+                setIsOpen(false);
+                navigate(`/${user.username}/settings`);
+              }}
+              className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition flex items-center gap-2 cursor-pointer"
             >
               <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
               <span>Account Settings</span>
-            </a>
+            </button>
 
-            <a
-              href="#/home"
-              onClick={() => setIsOpen(false)}
-              className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition flex items-center gap-2"
+            <button
+              onClick={() => {
+                setIsOpen(false);
+                navigate('/home');
+              }}
+              className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition flex items-center gap-2 cursor-pointer"
             >
               <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
               <span>Public Site &amp; Calculator</span>
-            </a>
+            </button>
 
             <button
               onClick={() => {
                 setIsOpen(false);
                 setShowPasswordModal(true);
               }}
-              className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition"
+              className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition cursor-pointer"
             >
               Change Password
             </button>
@@ -171,7 +179,7 @@ export default function UserMenu() {
                 setIsOpen(false);
                 logout();
               }}
-              className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition"
+              className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition cursor-pointer"
             >
               Log Out
             </button>

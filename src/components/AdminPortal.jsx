@@ -28,6 +28,25 @@ export default function AdminPortal() {
   const [creatingPromo, setCreatingPromo] = useState(false);
   const [promoSuccessMsg, setPromoSuccessMsg] = useState('');
 
+  // Create User Modal Form
+  const [showCreateUserModal, setShowCreateUserModal] = useState(false);
+  const [creatingUser, setCreatingUser] = useState(false);
+  const [createUserError, setCreateUserError] = useState('');
+  const [userFormData, setUserFormData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    firstName: '',
+    lastName: '',
+    phoneNumber: '',
+    companyName: '',
+    role: 'user',
+    subscriptionTier: 'free',
+    hasUnlimitedBypass: false,
+    trialUsesRemaining: 5,
+    reason: 'Admin created account',
+  });
+
   useEffect(() => {
     if (user?.role !== 'admin') {
       navigate('/');
@@ -87,48 +106,48 @@ export default function AdminPortal() {
     }
   };
 
-  const handleAdjustCredits = async (targetUser) => {
+  const handleSetCredits = async (targetUser) => {
     const input = await showPrompt({
-      title: 'Adjust Takeoff Credits',
-      message: `Enter the number of credits to add (e.g. 5, 20) or deduct (e.g. -5) for ${targetUser.email} (current: ${targetUser.trial_uses_remaining ?? 5}):`,
-      defaultValue: '5',
-      confirmText: 'Adjust Credits',
+      title: 'Set Takeoff Credits',
+      message: `Enter the exact number of takeoff credits to set for ${targetUser.email} (current: ${targetUser.trial_uses_remaining ?? 0}):`,
+      defaultValue: String(targetUser.trial_uses_remaining ?? 5),
+      confirmText: 'Set Credits',
     });
 
     if (input === null) return;
     const num = Number(input);
-    if (isNaN(num) || num === 0) {
+    if (isNaN(num) || num < 0) {
       await showAlert({
         title: 'Invalid Input',
-        message: 'Please provide a valid non-zero number of credits.',
+        message: 'Please provide a valid non-negative number of credits.',
         variant: 'error',
       });
       return;
     }
 
     const reason = await showPrompt({
-      title: 'Adjustment Note',
-      message: `Enter an audit note / reason for this credit adjustment:`,
-      defaultValue: num > 0 ? 'Customer support courtesy bonus' : 'Admin manual deduction',
-      confirmText: 'Confirm & Apply',
+      title: 'Credit Update Reason',
+      message: `Enter an audit note / reason for setting credits to ${num}:`,
+      defaultValue: `Set credits to ${num}`,
+      confirmText: 'Confirm & Save',
     });
 
     if (reason === null) return;
 
     try {
-      const updated = await adminApi.addCredits(targetUser.id, num, reason);
+      const updated = await adminApi.setCredits(targetUser.id, num, reason);
       setUsers((prev) => prev.map((item) => (item.id === targetUser.id ? { ...item, ...updated } : item)));
       const freshLogs = await adminApi.listAuditLogs().catch(() => []);
       setAuditLogs(freshLogs);
       await showAlert({
         title: 'Credits Updated',
-        message: `Successfully adjusted credits by ${num > 0 ? `+${num}` : num} for ${targetUser.email}. New balance: ${updated.trial_uses_remaining}`,
+        message: `Successfully set credits for ${targetUser.email} to ${updated.trial_uses_remaining}.`,
         variant: 'info',
       });
     } catch (err) {
       await showAlert({
         title: 'Credits Error',
-        message: err.message || 'Failed to adjust credits.',
+        message: err.message || 'Failed to set credits.',
         variant: 'error',
       });
     }
@@ -337,16 +356,89 @@ export default function AdminPortal() {
     }
   };
 
-  const filteredUsers = users.filter((u) => {
-    const q = searchTerm.toLowerCase();
-    return (
-      (u.username && u.username.toLowerCase().includes(q)) ||
-      (u.email && u.email.toLowerCase().includes(q)) ||
-      (u.first_name && u.first_name.toLowerCase().includes(q)) ||
-      (u.last_name && u.last_name.toLowerCase().includes(q)) ||
-      (u.company_name && u.company_name.toLowerCase().includes(q))
-    );
-  });
+  const handleCreateUser = async (e) => {
+    e.preventDefault();
+    setCreateUserError('');
+    setCreatingUser(true);
+
+    try {
+      if (!userFormData.email || !userFormData.password || !userFormData.username) {
+        throw new Error('Email, username, and password are required.');
+      }
+      if (userFormData.password.length < 6) {
+        throw new Error('Password must be at least 6 characters.');
+      }
+
+      const res = await adminApi.createUser({
+        email: userFormData.email.trim(),
+        password: userFormData.password,
+        username: userFormData.username.trim(),
+        firstName: userFormData.firstName.trim(),
+        lastName: userFormData.lastName.trim(),
+        phoneNumber: userFormData.phoneNumber.trim(),
+        companyName: userFormData.companyName.trim(),
+        role: userFormData.role,
+        subscriptionTier: userFormData.subscriptionTier,
+        hasUnlimitedBypass: userFormData.hasUnlimitedBypass,
+        trialUsesRemaining: parseInt(userFormData.trialUsesRemaining, 10) || 0,
+        reason: userFormData.reason || 'Admin created account from portal',
+      });
+
+      setShowCreateUserModal(false);
+      setUserFormData({
+        username: '',
+        email: '',
+        password: '',
+        firstName: '',
+        lastName: '',
+        phoneNumber: '',
+        companyName: '',
+        role: 'user',
+        subscriptionTier: 'free',
+        hasUnlimitedBypass: false,
+        trialUsesRemaining: 5,
+        reason: 'Admin created account',
+      });
+
+      await showAlert({
+        title: 'Account Created Successfully',
+        message: `User "${res.user?.username || res.user?.email}" has been created with role "${res.user?.role || 'user'}" and subscription tier "${(res.user?.subscription_tier || 'free').toUpperCase()}".`,
+        variant: 'info',
+      });
+
+      // Refresh data
+      fetchData();
+    } catch (err) {
+      setCreateUserError(err.message || 'Failed to create user account');
+    } finally {
+      setCreatingUser(false);
+    }
+  };
+
+  const filteredUsers = users
+    .filter((u) => {
+      const q = searchTerm.toLowerCase();
+      return (
+        (u.username && u.username.toLowerCase().includes(q)) ||
+        (u.email && u.email.toLowerCase().includes(q)) ||
+        (u.first_name && u.first_name.toLowerCase().includes(q)) ||
+        (u.last_name && u.last_name.toLowerCase().includes(q)) ||
+        (u.company_name && u.company_name.toLowerCase().includes(q))
+      );
+    })
+    .sort((a, b) => {
+      const aIsPatty =
+        (a.username && a.username.toLowerCase() === 'patty_g7') ||
+        (a.email && a.email.toLowerCase().includes('patty_g7')) ||
+        (a.email && a.email.toLowerCase().includes('pattygsocials@gmail.com'));
+      const bIsPatty =
+        (b.username && b.username.toLowerCase() === 'patty_g7') ||
+        (b.email && b.email.toLowerCase().includes('patty_g7')) ||
+        (b.email && b.email.toLowerCase().includes('pattygsocials@gmail.com'));
+      if (aIsPatty && !bIsPatty) return -1;
+      if (!aIsPatty && bIsPatty) return 1;
+      return 0;
+    });
 
   if (loading) {
     return (
@@ -480,17 +572,28 @@ export default function AdminPortal() {
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h2 className="text-lg font-bold text-white">Registered Users ({users.length})</h2>
-                <p className="text-xs text-slate-400">Search users, elevate roles, grant VIP bypasses, or add export credits.</p>
+                <p className="text-xs text-slate-400">Search users, elevate roles, grant VIP bypasses, create new accounts, or add export credits.</p>
               </div>
 
-              <div className="w-full sm:w-72">
-                <input
-                  type="text"
-                  placeholder="Search by name, email, or username..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
+              <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                <div className="w-full sm:w-72">
+                  <input
+                    type="text"
+                    placeholder="Search by name, email, or username..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full px-3.5 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+                <button
+                  onClick={() => {
+                    setCreateUserError('');
+                    setShowCreateUserModal(true);
+                  }}
+                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-lg shadow-indigo-600/20 whitespace-nowrap cursor-pointer"
+                >
+                  <span>+</span> Create User Account
+                </button>
               </div>
             </div>
 
@@ -567,10 +670,20 @@ export default function AdminPortal() {
                           </span>
                         </td>
                         <td className="py-3 px-4 text-center font-bold text-slate-200">
-                          {u.has_unlimited_bypass ? (
-                            <span className="text-emerald-400 font-mono text-sm">∞</span>
+                          {u.has_unlimited_bypass || (u.subscription_tier && u.subscription_tier !== 'free') ? (
+                            <span className="text-emerald-400 font-mono text-base font-black cursor-default" title="Unlimited access (paid tier or VIP bypass)">
+                              ∞
+                            </span>
                           ) : (
-                            u.trial_uses_remaining ?? 5
+                            <button
+                              type="button"
+                              title="Click to edit free trial credits"
+                              onClick={() => handleSetCredits(u)}
+                              className="inline-flex items-center justify-center gap-1 px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-indigo-300 hover:text-white border border-slate-700 hover:border-indigo-500/50 rounded-lg text-xs font-bold transition cursor-pointer"
+                            >
+                              <span>{u.trial_uses_remaining ?? 5}</span>
+                              <span className="text-[10px] text-slate-400">✎</span>
+                            </button>
                           )}
                         </td>
                         <td className="py-3 px-4 text-center">
@@ -591,14 +704,6 @@ export default function AdminPortal() {
                         </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-1.5 flex-wrap">
-                            <button
-                              type="button"
-                              title="Add or Deduct Takeoff Credits"
-                              onClick={() => handleAdjustCredits(u)}
-                              className="px-2 py-1 bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 border border-indigo-500/40 rounded-lg text-xs font-semibold transition"
-                            >
-                              ± Credits
-                            </button>
                             <button
                               type="button"
                               title="Dispatch Password Reset Link"
@@ -808,6 +913,216 @@ export default function AdminPortal() {
           </div>
         )}
       </div>
+
+      {/* Create User Account Modal */}
+      {showCreateUserModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
+          <div className="relative w-full max-w-xl bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl my-8">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-800 mb-6">
+              <div>
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <span className="text-indigo-400">👤</span> Create New User Account
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Provision a new user account with custom credentials, role, and subscription tier.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowCreateUserModal(false)}
+                className="text-slate-400 hover:text-white text-lg px-2.5 py-1 rounded-lg hover:bg-slate-800 transition"
+              >
+                ✕
+              </button>
+            </div>
+
+            {createUserError && (
+              <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
+                <span>⚠️</span> {createUserError}
+              </div>
+            )}
+
+            <form onSubmit={handleCreateUser} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                    Username <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. john_doe"
+                    value={userFormData.username}
+                    onChange={(e) => setUserFormData({ ...userFormData, username: e.target.value })}
+                    className="w-full px-3.5 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                    Email Address <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="e.g. john@company.com"
+                    value={userFormData.email}
+                    onChange={(e) => setUserFormData({ ...userFormData, email: e.target.value })}
+                    className="w-full px-3.5 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  Password <span className="text-red-400">*</span> (min. 6 characters)
+                </label>
+                <input
+                  type="password"
+                  required
+                  placeholder="••••••••"
+                  value={userFormData.password}
+                  onChange={(e) => setUserFormData({ ...userFormData, password: e.target.value })}
+                  className="w-full px-3.5 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">First Name</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. John"
+                    value={userFormData.firstName}
+                    onChange={(e) => setUserFormData({ ...userFormData, firstName: e.target.value })}
+                    className="w-full px-3.5 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Last Name</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Doe"
+                    value={userFormData.lastName}
+                    onChange={(e) => setUserFormData({ ...userFormData, lastName: e.target.value })}
+                    className="w-full px-3.5 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Company Name</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Acme Construction"
+                    value={userFormData.companyName}
+                    onChange={(e) => setUserFormData({ ...userFormData, companyName: e.target.value })}
+                    className="w-full px-3.5 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Phone Number</label>
+                  <input
+                    type="tel"
+                    placeholder="e.g. (555) 000-0000"
+                    value={userFormData.phoneNumber}
+                    onChange={(e) => setUserFormData({ ...userFormData, phoneNumber: e.target.value })}
+                    className="w-full px-3.5 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-slate-800">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Account Role</label>
+                  <select
+                    value={userFormData.role}
+                    onChange={(e) => setUserFormData({ ...userFormData, role: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="user">User (Standard)</option>
+                    <option value="admin">Super-Admin</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Subscription Tier</label>
+                  <select
+                    value={userFormData.subscriptionTier}
+                    onChange={(e) => setUserFormData({ ...userFormData, subscriptionTier: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="free">Free ($0/mo)</option>
+                    <option value="starter">Starter ($19.99/mo)</option>
+                    <option value="pro">Pro ($49.99/mo)</option>
+                    <option value="enterprise">Enterprise ($149.99/mo)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Trial Credits</label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="999"
+                    value={userFormData.trialUsesRemaining}
+                    onChange={(e) => setUserFormData({ ...userFormData, trialUsesRemaining: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 p-3 bg-slate-800/50 rounded-xl border border-slate-800">
+                <input
+                  type="checkbox"
+                  id="hasUnlimitedBypass"
+                  checked={userFormData.hasUnlimitedBypass}
+                  onChange={(e) => setUserFormData({ ...userFormData, hasUnlimitedBypass: e.target.checked })}
+                  className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-800 border-slate-700"
+                />
+                <label htmlFor="hasUnlimitedBypass" className="text-xs text-slate-300 cursor-pointer select-none">
+                  <span className="font-semibold text-amber-400">Grant VIP Unlimited Bypass</span> — exempts user from all trial meter deductions and subscription checks.
+                </label>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Audit Log Reason</label>
+                <input
+                  type="text"
+                  placeholder="Reason for creating this account"
+                  value={userFormData.reason}
+                  onChange={(e) => setUserFormData({ ...userFormData, reason: e.target.value })}
+                  className="w-full px-3.5 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateUserModal(false)}
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-xl transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={creatingUser}
+                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition shadow-lg shadow-indigo-600/20 flex items-center gap-2 cursor-pointer"
+                >
+                  {creatingUser ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Creating Account...
+                    </>
+                  ) : (
+                    'Create Account'
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

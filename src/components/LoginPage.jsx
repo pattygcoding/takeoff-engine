@@ -116,19 +116,39 @@ export default function LoginPage({ initialView = 'login' }) {
         <button
           type="button"
           onClick={() => navigate('/home')}
-          className="inline-flex items-center gap-1.5 hover:text-indigo-600 transition"
+          className="inline-flex items-center gap-1.5 hover:text-indigo-600 transition cursor-pointer"
         >
           <span>←</span>
           <span>Back to Home</span>
         </button>
         <div className="flex items-center gap-3">
-          <a href="#/home#calculator" className="hover:text-indigo-600 transition">
+          <button
+            type="button"
+            onClick={() => {
+              navigate('/home');
+              setTimeout(() => {
+                const el = document.getElementById('calculator');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }, 100);
+            }}
+            className="hover:text-indigo-600 transition cursor-pointer"
+          >
             Free Calculator
-          </a>
+          </button>
           <span className="text-slate-300">•</span>
-          <a href="#/home#pricing" className="hover:text-indigo-600 transition">
+          <button
+            type="button"
+            onClick={() => {
+              navigate('/home');
+              setTimeout(() => {
+                const el = document.getElementById('pricing');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }, 100);
+            }}
+            className="hover:text-indigo-600 transition cursor-pointer"
+          >
             Pricing
-          </a>
+          </button>
         </div>
       </div>
 

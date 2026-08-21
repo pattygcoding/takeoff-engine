@@ -36,6 +36,20 @@ export const adminApi = {
   },
 
   /**
+   * Create a new user account directly from Super-Admin portal
+   */
+  async createUser(payload) {
+    const res = await fetch(`${API_BASE_URL}/admin/users/create`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to create user.');
+    return data;
+  },
+
+  /**
    * Grant / revoke unlimited VIP bypass
    */
   async grantBypass(userId, { hasUnlimitedBypass, bypassReason, role, tier }) {
@@ -50,7 +64,21 @@ export const adminApi = {
   },
 
   /**
-   * Add bonus or adjust credits on a user account
+   * Set exact takeoff credits (or adjust credits) on a user account
+   */
+  async setCredits(userId, exactCredits = 5, reason = '') {
+    const res = await fetch(`${API_BASE_URL}/admin/users/${userId}/add-credits`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ exactCredits: Number(exactCredits), reason }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to update credits.');
+    return data.user;
+  },
+
+  /**
+   * Add bonus or adjust credits on a user account (legacy helper)
    */
   async addCredits(userId, credits = 5, reason = '') {
     const res = await fetch(`${API_BASE_URL}/admin/users/${userId}/add-credits`, {
