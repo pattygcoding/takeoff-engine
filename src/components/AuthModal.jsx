@@ -16,6 +16,7 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
   const [registerLastName, setRegisterLastName] = useState('');
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPhone, setRegisterPhone] = useState('');
+  const [honeypot, setHoneypot] = useState('');
 
   const [forgotEmail, setForgotEmail] = useState('');
   const [resetToken, setResetToken] = useState('');
@@ -66,6 +67,7 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
         lastName: registerLastName,
         email: registerEmail,
         phoneNumber: registerPhone,
+        _gotcha: honeypot,
       });
       onClose();
     } catch (err) {
@@ -231,6 +233,18 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
                   onChange={(e) => setRegisterUsername(e.target.value)}
                   placeholder="johndoe"
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                />
+              </div>
+
+              {/* Anti-bot Honeypot field (hidden from real users) */}
+              <div style={{ display: 'none', position: 'absolute', left: '-9999px' }} aria-hidden="true">
+                <input
+                  type="text"
+                  name="_gotcha"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={honeypot}
+                  onChange={(e) => setHoneypot(e.target.value)}
                 />
               </div>
 
