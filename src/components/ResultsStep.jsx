@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { computeEstimate, formatCurrency, formatNumber } from '../lib/calculations';
 import { triggerDownload } from '../lib/csv';
 import { projectsApi } from '../lib/projects';
@@ -10,11 +11,11 @@ import UpgradeModal from './UpgradeModal';
 import Papa from 'papaparse';
 
 export default function ResultsStep({ items, rates, currentProject, onProjectSaved, onBack, readOnly = false, onDuplicate }) {
+  const { username, projectId } = useParams();
+  const navigate = useNavigate();
   const { user, refreshProfile } = useAuth();
   const { showAlert } = useModal();
   const [proposalMode, setProposalMode] = useState(false);
-  const [exportingPdf, setExportingPdf] = useState(false);
-  const [exportingWord, setExportingWord] = useState(false);
   const [isSavingProject, setIsSavingProject] = useState(false);
   const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
   const [showSaveModal, setShowSaveModal] = useState(false);
@@ -152,7 +153,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
         summary: summaryPayload,
       });
 
-      const url = `${window.location.origin}${window.location.pathname}#/p/${res.proposal.public_token}`;
+      const url = `${window.location.origin}/p/${res.proposal.public_token}`;
       setPublicShareUrl(url);
       setShareProposalData(res.proposal);
       setShareProposalModalOpen(true);
@@ -209,55 +210,13 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
     });
   };
 
-  const exportPdf = async () => {
-    const node = document.getElementById('print-area');
-    if (!node) return;
-
-    processExportWithCreditCheck(async () => {
-      setExportingPdf(true);
-      try {
-        const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
-          import('jspdf'),
-          import('html2canvas-pro'),
-        ]);
-        const canvas = await html2canvas(node, { scale: 2, backgroundColor: '#ffffff' });
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
-        const pageWidth = pdf.internal.pageSize.getWidth();
-        const imgWidth = pageWidth - 40;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        pdf.addImage(imgData, 'PNG', 20, 20, imgWidth, imgHeight);
-        pdf.save(proposalMode ? 'client_proposal.pdf' : 'internal_estimate.pdf');
-      } catch (err) {
-        console.error('PDF export failed:', err);
-        await showAlert({
-          title: 'Export Failed',
-          message: 'Sorry, PDF export failed. Please try "Print / Save as PDF" instead.',
-          variant: 'error',
-        });
-      } finally {
-        setExportingPdf(false);
-      }
-    });
-  };
-
-  const exportWord = async () => {
-    processExportWithCreditCheck(async () => {
-      setExportingWord(true);
-      try {
-        const { exportEstimateToWord } = await import('../lib/wordExport');
-        await exportEstimateToWord(estimate, proposalMode, branding || {});
-      } catch (err) {
-        console.error('Word export failed:', err);
-        await showAlert({
-          title: 'Export Failed',
-          message: 'Sorry, Word export failed. Please try again.',
-          variant: 'error',
-        });
-      } finally {
-        setExportingWord(false);
-      }
-    });
+  const navigateToExportHub = () => {
+    if (projectId || currentProject?.id) {
+      const activeId = projectId || currentProject.id;
+      navigate(`/${username}/takeoff/${activeId}/export`);
+    } else {
+      navigate(`/${username}/export`);
+    }
   };
 
   return (
@@ -376,31 +335,18 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            onClick={() => window.print()}
-            className="rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
+            onClick={navigateToExportHub}
+            className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 shadow-xs transition cursor-pointer"
           >
-            Print
-          </button>
-          <button
-            type="button"
-            onClick={exportPdf}
-            disabled={exportingPdf}
-            className="rounded-xl bg-indigo-600 px-3.5 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-wait transition"
-          >
-            {exportingPdf ? 'Preparing PDF…' : 'Export PDF'}
-          </button>
-          <button
-            type="button"
-            onClick={exportWord}
-            disabled={exportingWord}
-            className="rounded-xl bg-blue-700 px-3.5 py-2 text-sm font-medium text-white hover:bg-blue-800 disabled:opacity-50 disabled:cursor-wait transition"
-          >
-            {exportingWord ? 'Preparing Word…' : 'Export Word'}
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+            <span>Print &amp; Export Formats</span>
           </button>
           <button
             type="button"
             onClick={exportCsv}
-            className="rounded-xl border border-emerald-600 bg-white px-3.5 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50 transition"
+            className="rounded-xl border border-emerald-600 bg-white px-3.5 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50 transition cursor-pointer"
           >
             Export CSV / Excel
           </button>

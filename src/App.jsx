@@ -167,6 +167,20 @@ function UserWorkspace({ items, setItems, rates, setRates, currentProject, setCu
           />
         }
       />
+      <Route
+        path="/takeoff/:projectId/export"
+        element={
+          <ProjectWorkspace
+            step={4}
+            items={items}
+            setItems={setItems}
+            rates={rates}
+            setRates={setRates}
+            currentProject={currentProject}
+            setCurrentProject={setCurrentProject}
+          />
+        }
+      />
 
       {/* Draft / Unsaved Takeoff Routes */}
       <Route
@@ -189,6 +203,21 @@ function UserWorkspace({ items, setItems, rates, setRates, currentProject, setCu
         element={
           <ProjectWorkspace
             step={3}
+            items={items}
+            setItems={setItems}
+            rates={rates}
+            setRates={setRates}
+            currentProject={currentProject}
+            setCurrentProject={setCurrentProject}
+          />
+        }
+      />
+
+      <Route
+        path="/export"
+        element={
+          <ProjectWorkspace
+            step={4}
             items={items}
             setItems={setItems}
             rates={rates}

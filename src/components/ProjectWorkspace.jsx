@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import Stepper from './Stepper';
 import EditStep from './EditStep';
 import ResultsStep from './ResultsStep';
+import ExportHubPage from './ExportHubPage';
 import { projectsApi } from '../lib/projects';
 
 export default function ProjectWorkspace({ step = 2, items, setItems, rates, setRates, currentProject, setCurrentProject }) {
@@ -33,6 +34,10 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
             } else if (fullProject.rates && typeof fullProject.rates === 'object' && Object.keys(fullProject.rates).length > 0) {
               setRates(fullProject.rates);
             }
+            // If project is awarded and user navigated directly to step 2 (edit) or step 1, redirect to results (step 3)
+            if (fullProject?.status === 'awarded' && step === 2) {
+              navigate(`/${username}/takeoff/${projectId}/results`, { replace: true });
+            }
           })
           .catch((err) => {
             if (!isMounted) return;
@@ -42,22 +47,34 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
           .finally(() => {
             if (isMounted) setLoading(false);
           });
+      } else if (currentProject?.status === 'awarded' && step === 2) {
+        // If already loaded and user tried navigating to /edit via URL
+        navigate(`/${username}/takeoff/${projectId}/results`, { replace: true });
       }
     }
     return () => {
       isMounted = false;
     };
-  }, [projectId]);
+  }, [projectId, step]);
+
+  const isAwarded = currentProject?.status === 'awarded';
 
   const goToStep = (targetStep) => {
+    // If project is awarded, step 1 (upload) and step 2 (edit) are locked and not navigable
+    if (isAwarded && (targetStep === 1 || targetStep === 2)) {
+      return;
+    }
+
     if (projectId) {
       if (targetStep === 1) navigate(`/${username}/upload`);
       else if (targetStep === 2) navigate(`/${username}/takeoff/${projectId}/edit`);
       else if (targetStep === 3) navigate(`/${username}/takeoff/${projectId}/results`);
+      else if (targetStep === 4) navigate(`/${username}/takeoff/${projectId}/export`);
     } else {
       if (targetStep === 1) navigate(`/${username}/upload`);
       else if (targetStep === 2) navigate(`/${username}/edit`);
       else if (targetStep === 3) navigate(`/${username}/results`);
+      else if (targetStep === 4) navigate(`/${username}/export`);
     }
   };
 
@@ -71,6 +88,7 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
   };
 
   const handleBackToEdit = () => {
+    if (isAwarded) return;
     if (projectId || currentProject?.id) {
       const activeId = projectId || currentProject.id;
       navigate(`/${username}/takeoff/${activeId}/edit`);
@@ -124,8 +142,6 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
     return null;
   }
 
-  const isAwarded = currentProject?.status === 'awarded';
-
   const handleDuplicate = async () => {
     if (!currentProject?.id) return;
     try {
@@ -171,7 +187,7 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
         )}
       </div>
 
-      <Stepper step={step} onStepClick={goToStep} />
+      <Stepper step={step} onStepClick={goToStep} isAwarded={isAwarded} />
 
       {step === 2 && (
         <EditStep
@@ -194,6 +210,14 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
           onBack={handleBackToEdit}
           readOnly={isAwarded}
           onDuplicate={isAwarded ? handleDuplicate : undefined}
+        />
+      )}
+
+      {step === 4 && (
+        <ExportHubPage
+          items={items}
+          rates={rates}
+          currentProject={currentProject}
         />
       )}
     </>
