@@ -20,8 +20,7 @@ export default function UserMenu() {
     user?.role === 'admin' ||
     user?.role === 'payment_exempt' ||
     user?.has_unlimited_bypass === true ||
-    user?.subscription_status === 'active' ||
-    ['starter', 'pro', 'enterprise'].includes(user?.subscription_tier);
+    (user?.subscription_status === 'active' && ['starter', 'pro', 'enterprise'].includes(user?.subscription_tier));
 
   const getPlanLabel = () => {
     if (user?.role === 'admin') return 'Super-Admin';

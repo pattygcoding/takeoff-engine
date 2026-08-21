@@ -70,7 +70,10 @@ export const projectsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to create project.');
+      const err = new Error(data.error || 'Failed to create project.');
+      err.code = data.code;
+      err.trial_uses_remaining = data.trial_uses_remaining;
+      throw err;
     }
     return data.project;
   },

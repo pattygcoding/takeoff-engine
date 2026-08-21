@@ -126,12 +126,11 @@ export default function AccountSettings() {
     }
   };
 
-  const isProOrExempt =
+  const isPaidOrExempt =
     user?.role === 'admin' ||
     user?.role === 'payment_exempt' ||
     user?.has_unlimited_bypass === true ||
-    user?.subscription_status === 'active' ||
-    ['starter', 'pro', 'enterprise'].includes(user?.subscription_tier);
+    (user?.subscription_status === 'active' && ['starter', 'pro', 'enterprise'].includes(user?.subscription_tier));
 
   const handleLogoFileChange = async (e) => {
     const file = e.target.files?.[0];

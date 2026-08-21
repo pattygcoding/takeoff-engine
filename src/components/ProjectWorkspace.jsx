@@ -136,10 +136,22 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
     );
   }
 
-  // If new takeoff (no items and no projectId)
-  if (!projectId && items.length === 0) {
-    navigate(`/${username}`);
-    return null;
+  // If new draft takeoff without items and without a projectId, redirect to projects dashboard
+  useEffect(() => {
+    if (!loading && !projectId && (!items || items.length === 0)) {
+      navigate(`/${username}`, { replace: true });
+    }
+  }, [loading, projectId, items, username, navigate]);
+
+  if (!projectId && (!items || items.length === 0)) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm font-semibold text-slate-600">Redirecting to Projects Dashboard...</p>
+        </div>
+      </div>
+    );
   }
 
   const handleDuplicate = async () => {

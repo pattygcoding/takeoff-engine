@@ -226,8 +226,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
     user?.role === 'admin' ||
     user?.role === 'payment_exempt' ||
     user?.has_unlimited_bypass === true ||
-    user?.subscription_status === 'active' ||
-    ['starter', 'pro', 'enterprise'].includes(user?.subscription_tier);
+    (user?.subscription_status === 'active' && ['pro', 'enterprise'].includes(user?.subscription_tier));
 
   const branding = isProOrExempt
     ? {

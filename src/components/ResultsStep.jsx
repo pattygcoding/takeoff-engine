@@ -31,12 +31,17 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
   const [shareCopied, setShareCopied] = useState(false);
   const [shareProposalData, setShareProposalData] = useState(null);
 
+  const isExempt =
+    user?.role === 'admin' ||
+    user?.role === 'payment_exempt' ||
+    user?.has_unlimited_bypass === true ||
+    (user?.subscription_status === 'active' && ['starter', 'pro', 'enterprise'].includes(user?.subscription_tier));
+
   const isProOrExempt =
     user?.role === 'admin' ||
     user?.role === 'payment_exempt' ||
     user?.has_unlimited_bypass === true ||
-    user?.subscription_status === 'active' ||
-    ['starter', 'pro', 'enterprise'].includes(user?.subscription_tier);
+    (user?.subscription_status === 'active' && ['pro', 'enterprise'].includes(user?.subscription_tier));
 
   const branding = isProOrExempt
     ? {
@@ -100,6 +105,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
           summary: summaryPayload,
         });
         if (onProjectSaved) onProjectSaved(savedProject);
+        if (refreshProfile) refreshProfile();
       }
 
       setShowSaveModal(false);
@@ -107,6 +113,12 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
       setTimeout(() => setSaveSuccessMsg(''), 4000);
       return savedProject;
     } catch (err) {
+      if (err.code === 'TRIAL_EXHAUSTED') {
+        setShowSaveModal(false);
+        if (refreshProfile) refreshProfile();
+        setShowUpgradeModal(true);
+        return null;
+      }
       await showAlert({
         title: 'Save Failed',
         message: err.message || 'Failed to save project to cloud.',

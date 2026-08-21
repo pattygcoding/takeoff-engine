@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { billingApi } from '../lib/billing';
 import { openPaddleCheckout } from '../lib/paddle';
 import { useAuth } from '../context/AuthContext';
 import { useModal } from '../context/ModalContext';
 
 export default function UpgradeModal({ isOpen, onClose }) {
-  const { user, refreshProfile } = useAuth();
+  const { user, logout, refreshProfile } = useAuth();
   const { showAlert } = useModal();
+  const navigate = useNavigate();
   const [promoCodeInput, setPromoCodeInput] = useState('');
   const [promoLoading, setPromoLoading] = useState(false);
   const [promoMsg, setPromoMsg] = useState('');
@@ -114,18 +116,29 @@ export default function UpgradeModal({ isOpen, onClose }) {
 
   const enterpriseTotalPrice = 149.99 + additionalSeats * 29.99;
 
+  const isExempt =
+    user?.role === 'admin' ||
+    user?.role === 'payment_exempt' ||
+    user?.has_unlimited_bypass === true ||
+    (user?.subscription_status === 'active' && ['starter', 'pro', 'enterprise'].includes(user?.subscription_tier));
+
+  const remainingCredits = typeof user?.trial_uses_remaining === 'number' ? user.trial_uses_remaining : 5;
+  const isOutOfCredits = !isExempt && remainingCredits <= 0;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-fade-in overflow-y-auto">
       <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-xl w-full overflow-hidden p-6 sm:p-8 relative my-8">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
-          aria-label="Close"
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+        {!isOutOfCredits && (
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+            aria-label="Close"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        )}
 
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-600 mb-3 border border-amber-200 shadow-inner">
@@ -324,12 +337,25 @@ export default function UpgradeModal({ isOpen, onClose }) {
         </div>
 
         <div className="flex justify-center">
-          <button
-            onClick={onClose}
-            className="text-xs text-slate-500 hover:text-slate-800 font-medium transition-colors"
-          >
-            Continue in preview mode (view-only)
-          </button>
+          {isOutOfCredits ? (
+            <button
+              onClick={async () => {
+                if (logout) await logout();
+                onClose();
+                navigate('/login');
+              }}
+              className="text-xs text-slate-500 hover:text-indigo-600 font-semibold transition-colors flex items-center gap-1.5"
+            >
+              <span>← Return to Login</span>
+            </button>
+          ) : (
+            <button
+              onClick={onClose}
+              className="text-xs text-slate-500 hover:text-slate-800 font-medium transition-colors"
+            >
+              Continue in preview mode (view-only)
+            </button>
+          )}
         </div>
       </div>
     </div>

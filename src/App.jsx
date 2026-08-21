@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Navigate, Route, Routes, useNavigate, useParams, Link, useLocation } from 'react-router-dom';
 import Stepper from './components/Stepper';
 import UploadStep from './components/UploadStep';
@@ -12,6 +12,7 @@ import LoginPage from './components/LoginPage';
 import LandingPage from './components/LandingPage';
 import ClientProposalView from './components/ClientProposalView';
 import AdminPortal from './components/AdminPortal';
+import UpgradeModal from './components/UpgradeModal';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ModalProvider } from './context/ModalContext';
 import { DEFAULT_RATES } from './lib/calculations';
@@ -237,8 +238,25 @@ function AppContent() {
   const [currentProject, setCurrentProject] = useLocalStorageState('takeoff-engine.currentProject', null);
   const [rates, setRates] = useLocalStorageState('takeoff-engine.rates', DEFAULT_RATES);
   const { user, isAuthenticated, loading } = useAuth();
+  const [showAutoUpgradeModal, setShowAutoUpgradeModal] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  const isExempt =
+    user?.role === 'admin' ||
+    user?.role === 'payment_exempt' ||
+    user?.has_unlimited_bypass === true ||
+    (user?.subscription_status === 'active' && ['starter', 'pro', 'enterprise'].includes(user?.subscription_tier));
+
+  // Automatically prompt free users with 0 credits to upgrade when they log in / view the app
+  useEffect(() => {
+    if (!loading && isAuthenticated && user && !isExempt) {
+      const remainingCredits = typeof user.trial_uses_remaining === 'number' ? user.trial_uses_remaining : 5;
+      if (remainingCredits <= 0) {
+        setShowAutoUpgradeModal(true);
+      }
+    }
+  }, [loading, isAuthenticated, user?.id, user?.trial_uses_remaining, isExempt]);
 
   if (loading) {
     return (
@@ -413,6 +431,12 @@ function AppContent() {
           }
         />
       </Routes>
+
+      {/* Global Out of Credits Upgrade Modal Prompt on Login */}
+      <UpgradeModal
+        isOpen={showAutoUpgradeModal}
+        onClose={() => setShowAutoUpgradeModal(false)}
+      />
     </div>
   );
 }
