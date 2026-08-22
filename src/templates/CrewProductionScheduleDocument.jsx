@@ -1,29 +1,37 @@
 import React from 'react';
 import { formatCurrency, formatNumber } from '@/lib/calculations';
 import { DocumentBrandingHeader, DocumentSignOff } from './DocumentHeaderSignoff';
+import { useTranslation } from '@/context/I18nContext';
 
 /**
  * 9. Crew & Equipment Production Schedule Layout
  */
 export default function CrewProductionScheduleDocument({ estimate, branding, currentProject }) {
   const { totals, bySystem } = estimate;
+  const { t } = useTranslation();
 
   return (
     <div className="space-y-6">
-      <DocumentBrandingHeader branding={branding} title="Crew &amp; Equipment Production Schedule" project={currentProject} />
+      <DocumentBrandingHeader branding={branding} title={t('templates.crewProduction.title')} project={currentProject} />
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div className="p-3.5 bg-orange-50 border border-orange-200 rounded-xl">
-          <span className="text-[10px] font-bold uppercase text-orange-600">Total Field Hours</span>
-          <p className="text-base font-bold text-orange-950">{formatNumber(totals.totalLaborHours)} Man-Hours</p>
+          <span className="text-[10px] font-bold uppercase text-orange-600">{t('templates.crewProduction.totalFieldHours')}</span>
+          <p className="text-base font-bold text-orange-950">
+            {t('templates.crewProduction.manHoursUnit', { hours: formatNumber(totals.totalLaborHours) })}
+          </p>
         </div>
         <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
-          <span className="text-[10px] font-bold uppercase text-slate-500">Est. 4-Man Crew Days</span>
-          <p className="text-base font-bold text-slate-900">{formatNumber(totals.totalLaborHours / 32, 1)} Days</p>
+          <span className="text-[10px] font-bold uppercase text-slate-500">{t('templates.crewProduction.estCrewDays')}</span>
+          <p className="text-base font-bold text-slate-900">
+            {t('templates.crewProduction.crewDaysUnit', { days: formatNumber(totals.totalLaborHours / 32, 1) })}
+          </p>
         </div>
         <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
-          <span className="text-[10px] font-bold uppercase text-slate-500">Heavy Machine Hours</span>
-          <p className="text-base font-bold text-slate-900">{formatNumber(totals.totalLaborHours * 0.5, 1)} Mach-Hrs</p>
+          <span className="text-[10px] font-bold uppercase text-slate-500">{t('templates.crewProduction.heavyMachineHours')}</span>
+          <p className="text-base font-bold text-slate-900">
+            {t('templates.crewProduction.machHrsUnit', { hours: formatNumber(totals.totalLaborHours * 0.5, 1) })}
+          </p>
         </div>
       </div>
 
@@ -31,11 +39,11 @@ export default function CrewProductionScheduleDocument({ estimate, branding, cur
         <table className="w-full text-left text-xs">
           <thead className="bg-slate-800 text-white">
             <tr>
-              <th className="p-2.5">Phase / System</th>
-              <th className="p-2.5 text-right">Production Hrs</th>
-              <th className="p-2.5 text-right">Crew Days (4-Man)</th>
-              <th className="p-2.5 text-right">Excavator Util.</th>
-              <th className="p-2.5 text-right">Labor Budget</th>
+              <th className="p-2.5">{t('templates.crewProduction.colPhaseSystem')}</th>
+              <th className="p-2.5 text-right">{t('templates.crewProduction.colProductionHrs')}</th>
+              <th className="p-2.5 text-right">{t('templates.crewProduction.colCrewDays')}</th>
+              <th className="p-2.5 text-right">{t('templates.crewProduction.colExcavatorUtil')}</th>
+              <th className="p-2.5 text-right">{t('templates.crewProduction.colLaborBudget')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200">
@@ -45,9 +53,9 @@ export default function CrewProductionScheduleDocument({ estimate, branding, cur
               return (
                 <tr key={sys.system} className="hover:bg-slate-50 font-mono">
                   <td className="p-2.5 font-sans font-bold text-slate-900">{sys.system}</td>
-                  <td className="p-2.5 text-right">{formatNumber(sysHrs)} hrs</td>
-                  <td className="p-2.5 text-right">{formatNumber(sysHrs / 32, 1)} d</td>
-                  <td className="p-2.5 text-right">{formatNumber(sysHrs * 0.4, 1)} hrs</td>
+                  <td className="p-2.5 text-right">{t('templates.crewProduction.hrsUnit', { count: formatNumber(sysHrs) })}</td>
+                  <td className="p-2.5 text-right">{t('templates.crewProduction.dUnit', { count: formatNumber(sysHrs / 32, 1) })}</td>
+                  <td className="p-2.5 text-right">{t('templates.crewProduction.hrsUnit', { count: formatNumber(sysHrs * 0.4, 1) })}</td>
                   <td className="p-2.5 text-right font-bold text-slate-900">{formatCurrency(sysLabor)}</td>
                 </tr>
               );
@@ -55,10 +63,10 @@ export default function CrewProductionScheduleDocument({ estimate, branding, cur
           </tbody>
           <tfoot className="bg-slate-100 font-bold border-t border-slate-300">
             <tr>
-              <td className="p-2.5 text-slate-700 font-sans">Total Field Labor:</td>
-              <td className="p-2.5 text-right font-mono">{formatNumber(totals.totalLaborHours)} hrs</td>
-              <td className="p-2.5 text-right font-mono">{formatNumber(totals.totalLaborHours / 32, 1)} days</td>
-              <td className="p-2.5 text-right font-mono">{formatNumber(totals.totalLaborHours * 0.4, 1)} hrs</td>
+              <td className="p-2.5 text-slate-700 font-sans">{t('templates.crewProduction.totalFieldLabor')}</td>
+              <td className="p-2.5 text-right font-mono">{t('templates.crewProduction.hrsUnit', { count: formatNumber(totals.totalLaborHours) })}</td>
+              <td className="p-2.5 text-right font-mono">{t('templates.crewProduction.daysUnit', { count: formatNumber(totals.totalLaborHours / 32, 1) })}</td>
+              <td className="p-2.5 text-right font-mono">{t('templates.crewProduction.hrsUnit', { count: formatNumber(totals.totalLaborHours * 0.4, 1) })}</td>
               <td className="p-2.5 text-right font-mono text-orange-800">{formatCurrency(totals.totalLaborCost)}</td>
             </tr>
           </tfoot>

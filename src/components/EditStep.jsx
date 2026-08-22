@@ -1,23 +1,25 @@
 import { useState } from 'react';
+import { useTranslation } from '@/context/I18nContext';
 import TakeoffGrid from './TakeoffGrid';
 import RatesDrawer from './RatesDrawer';
 
 export default function EditStep({ items, onItemsChange, rates, onRatesChange, onCalculate, readOnly = false, projectStatus = 'awarded', onDuplicate }) {
+  const { t } = useTranslation();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const statusLabel =
     projectStatus === 'submitted'
-      ? 'Submitted'
+      ? t('editStep.statusSubmitted')
       : projectStatus === 'archived'
-      ? 'Archived'
-      : 'Awarded';
+      ? t('editStep.statusArchived')
+      : t('editStep.statusAwarded');
 
   const statusDescription =
     projectStatus === 'submitted'
-      ? 'This project has been submitted to the client for review & signature. Figures are locked to maintain proposal integrity.'
+      ? t('editStep.submittedDesc')
       : projectStatus === 'archived'
-      ? 'This project has been archived and is locked in read-only mode.'
-      : 'This project has been marked as Awarded and is locked to protect the signed contract baseline.';
+      ? t('editStep.archivedDesc')
+      : t('editStep.awardedDesc');
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -30,7 +32,9 @@ export default function EditStep({ items, onItemsChange, rates, onRatesChange, o
               </svg>
             </div>
             <div>
-              <h4 className="text-sm font-bold text-amber-900">{statusLabel} Project (Locked - Read Only)</h4>
+              <h4 className="text-sm font-bold text-amber-900">
+                {t('editStep.projectLockedTitle', { status: statusLabel })}
+              </h4>
               <p className="text-xs text-amber-700 mt-0.5">
                 {statusDescription}
               </p>
@@ -45,7 +49,7 @@ export default function EditStep({ items, onItemsChange, rates, onRatesChange, o
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
               </svg>
-              Duplicate as New Revision
+              {t('editStep.duplicateRevisionBtn')}
             </button>
           )}
         </div>
@@ -54,12 +58,14 @@ export default function EditStep({ items, onItemsChange, rates, onRatesChange, o
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">
-            {readOnly ? `View Takeoff (${statusLabel})` : 'Edit & Review Takeoff'}
+            {readOnly
+              ? t('editStep.viewTakeoffTitle', { status: statusLabel })
+              : t('editStep.editTitle')}
           </h1>
           <p className="text-slate-500 text-sm mt-1">
             {readOnly
-              ? `Review quantities and unit pricing for this ${statusLabel.toLowerCase()} project.`
-              : 'Adjust quantities, add missing items, and set unit pricing before generating your proposal.'}
+              ? t('editStep.viewTakeoffDesc', { status: statusLabel.toLowerCase() })
+              : t('editStep.editDesc')}
           </p>
         </div>
         <button
@@ -75,7 +81,7 @@ export default function EditStep({ items, onItemsChange, rates, onRatesChange, o
               d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"
             />
           </svg>
-          {readOnly ? 'View Pricing & Markup' : 'Pricing & Markup'}
+          {readOnly ? t('editStep.viewPricingBtn') : t('editStep.pricingBtn')}
         </button>
       </div>
 
@@ -88,7 +94,7 @@ export default function EditStep({ items, onItemsChange, rates, onRatesChange, o
           disabled={items.length === 0}
           className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-6 py-3 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm cursor-pointer"
         >
-          {readOnly ? 'View Estimate & Proposal' : 'Calculate & Generate Proposal'}
+          {readOnly ? t('editStep.viewEstimateBtn') : t('editStep.calculateBtn')}
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
           </svg>

@@ -1,12 +1,14 @@
 import React from 'react';
 import { formatCurrency } from '@/lib/calculations';
 import { DocumentSignOff } from './DocumentHeaderSignoff';
+import { useTranslation } from '@/context/I18nContext';
 
 /**
  * 17. Substantial Completion & Warranty Certificate Layout
  */
 export default function WarrantyCloseoutCertDocument({ estimate, branding, currentProject }) {
   const { totals } = estimate;
+  const { t } = useTranslation();
 
   return (
     <div className="space-y-6 font-serif text-center py-4">
@@ -15,22 +17,35 @@ export default function WarrantyCloseoutCertDocument({ estimate, branding, curre
           ★
         </div>
         <h2 className="text-2xl font-bold uppercase tracking-widest text-amber-950">
-          Certificate of Substantial Completion &amp; Warranty
+          {t('templates.warrantyCloseout.title')}
         </h2>
         <p className="text-xs text-slate-600 font-sans max-w-lg mx-auto leading-relaxed">
-          This document certifies that the utility and civil construction work on{' '}
-          <strong>{currentProject?.name || 'Utility Project'}</strong> has been inspected, tested, and substantially completed in accordance with contract standards.
+          {t('templates.warrantyCloseout.certIntro', {
+            projectName: currentProject?.name || t('templates.warrantyCloseout.defaultProjectName')
+          })}
         </p>
 
         <div className="grid grid-cols-2 gap-4 max-w-md mx-auto text-xs font-sans text-left bg-white p-4 rounded-xl border border-amber-200 shadow-2xs">
-          <div><span className="text-slate-400 font-bold">Contractor:</span><p className="font-bold text-slate-900">{branding?.companyName || 'Takeoff Contractor'}</p></div>
-          <div><span className="text-slate-400 font-bold">Client:</span><p className="font-bold text-slate-900">{currentProject?.client_name || 'Project Owner'}</p></div>
-          <div><span className="text-slate-400 font-bold">Warranty Period:</span><p className="font-bold text-emerald-700">1-Year Full Coverage</p></div>
-          <div><span className="text-slate-400 font-bold">Certified Value:</span><p className="font-bold font-mono text-slate-900">{formatCurrency(totals.finalBidAmount)}</p></div>
+          <div>
+            <span className="text-slate-400 font-bold">{t('templates.warrantyCloseout.contractorLabel')}</span>
+            <p className="font-bold text-slate-900">{branding?.companyName || t('templates.warrantyCloseout.defaultContractor')}</p>
+          </div>
+          <div>
+            <span className="text-slate-400 font-bold">{t('templates.warrantyCloseout.clientLabel')}</span>
+            <p className="font-bold text-slate-900">{currentProject?.client_name || t('templates.warrantyCloseout.defaultClient')}</p>
+          </div>
+          <div>
+            <span className="text-slate-400 font-bold">{t('templates.warrantyCloseout.warrantyPeriodLabel')}</span>
+            <p className="font-bold text-emerald-700">{t('templates.warrantyCloseout.warrantyPeriodValue')}</p>
+          </div>
+          <div>
+            <span className="text-slate-400 font-bold">{t('templates.warrantyCloseout.certifiedValueLabel')}</span>
+            <p className="font-bold font-mono text-slate-900">{formatCurrency(totals.finalBidAmount)}</p>
+          </div>
         </div>
 
         <p className="text-[11px] text-slate-500 font-sans italic max-w-md mx-auto">
-          Warranty covers pipe joint integrity, structural backfill compaction, and valve operations against defects in workmanship for 365 calendar days from issuance.
+          {t('templates.warrantyCloseout.warrantyTerms')}
         </p>
 
         <div className="pt-6 border-t border-amber-300/80 font-sans">

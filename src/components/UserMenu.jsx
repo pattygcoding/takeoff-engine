@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { useTranslation } from '@/context/I18nContext';
 import { authApi } from '@/lib/auth';
 import UpgradeModal from './UpgradeModal';
 
 export default function UserMenu() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -102,10 +104,10 @@ export default function UserMenu() {
               {user.email && <p className="text-xs text-slate-400 truncate">{user.email}</p>}
               <div className="mt-2 pt-2 border-t border-slate-100">
                 <span className="text-[11px] uppercase tracking-wider font-semibold text-slate-400 block mb-0.5">
-                  Plan Quota
+                  {t('userMenu.signInName')}
                 </span>
                 <p className="text-xs font-medium text-slate-700">
-                  {isExempt ? 'Unlimited Exports' : `${credits} of 5 free trial exports remaining`}
+                  {isExempt ? t('userMenu.unlimitedExports') : t('userMenu.freeTrialExports', { credits })}
                 </p>
               </div>
             </div>
@@ -132,7 +134,7 @@ export default function UserMenu() {
                 className="w-full text-left px-4 py-2 text-sm text-purple-700 font-semibold hover:bg-purple-50 transition flex items-center gap-2 cursor-pointer"
               >
                 <span>⚡</span>
-                <span>Super-Admin Portal</span>
+                <span>{t('userMenu.superAdminPortal')}</span>
               </button>
             )}
 
@@ -147,7 +149,7 @@ export default function UserMenu() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              <span>Account Settings</span>
+              <span>{t('userMenu.accountSettings')}</span>
             </button>
 
             <button
@@ -160,7 +162,7 @@ export default function UserMenu() {
               <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
-              <span>Public Site &amp; Calculator</span>
+              <span>{t('userMenu.publicSite')}</span>
             </button>
 
             <button
@@ -170,7 +172,7 @@ export default function UserMenu() {
               }}
               className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition cursor-pointer"
             >
-              Change Password
+              {t('userMenu.changePassword')}
             </button>
 
             <button
@@ -180,7 +182,7 @@ export default function UserMenu() {
               }}
               className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition cursor-pointer"
             >
-              Log Out
+              {t('userMenu.logOut')}
             </button>
           </div>
         )}
@@ -201,7 +203,7 @@ export default function UserMenu() {
             >
               ✕
             </button>
-            <h3 className="text-lg font-bold text-slate-800 mb-4">Update Password</h3>
+            <h3 className="text-lg font-bold text-slate-800 mb-4">{t('userMenu.updatePasswordTitle')}</h3>
 
             {err && (
               <div className="mb-3 p-2 text-xs rounded bg-red-50 text-red-700 border border-red-200">
@@ -217,7 +219,7 @@ export default function UserMenu() {
             <form onSubmit={handleUpdatePassword} className="space-y-3">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
-                  New Password (min 6 chars)
+                  {t('userMenu.newPassword')}
                 </label>
                 <input
                   type="password"
@@ -233,7 +235,7 @@ export default function UserMenu() {
                 disabled={loading}
                 className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition mt-2"
               >
-                {loading ? 'Saving...' : 'Update Password'}
+                {loading ? t('userMenu.saving') : t('userMenu.updatePassword')}
               </button>
             </form>
           </div>

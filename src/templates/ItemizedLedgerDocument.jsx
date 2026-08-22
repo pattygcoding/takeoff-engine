@@ -1,30 +1,32 @@
 import React from 'react';
 import { formatCurrency, formatNumber } from '@/lib/calculations';
 import { DocumentBrandingHeader, DocumentSignOff } from './DocumentHeaderSignoff';
+import { useTranslation } from '@/context/I18nContext';
 
 /**
  * 4. Itemized Job-Cost Ledger Document Layout
  */
 export default function ItemizedLedgerDocument({ estimate, branding, currentProject, rates }) {
   const { totals, bySystem } = estimate;
+  const { t } = useTranslation();
 
   return (
     <div className="space-y-6">
-      <DocumentBrandingHeader branding={branding} title="Granular Job-Cost Ledger" project={currentProject} />
+      <DocumentBrandingHeader branding={branding} title={t('templates.itemizedLedger.title')} project={currentProject} />
 
       <div className="overflow-x-auto border border-slate-200 rounded-xl">
         <table className="w-full text-left text-[11px]">
           <thead className="bg-slate-800 text-white">
             <tr>
-              <th className="p-2">Item</th>
-              <th className="p-2">Spec</th>
-              <th className="p-2 text-right">Qty</th>
-              <th className="p-2">Unit</th>
-              <th className="p-2 text-right">Mat $</th>
-              <th className="p-2 text-right">Hrs</th>
-              <th className="p-2 text-right">Labor $</th>
-              <th className="p-2 text-right">Equip $</th>
-              <th className="p-2 text-right">Total $</th>
+              <th className="p-2">{t('templates.itemizedLedger.colItem')}</th>
+              <th className="p-2">{t('templates.itemizedLedger.colSpec')}</th>
+              <th className="p-2 text-right">{t('templates.itemizedLedger.colQty')}</th>
+              <th className="p-2">{t('templates.itemizedLedger.colUnit')}</th>
+              <th className="p-2 text-right">{t('templates.itemizedLedger.colMat')}</th>
+              <th className="p-2 text-right">{t('templates.itemizedLedger.colHrs')}</th>
+              <th className="p-2 text-right">{t('templates.itemizedLedger.colLabor')}</th>
+              <th className="p-2 text-right">{t('templates.itemizedLedger.colEquip')}</th>
+              <th className="p-2 text-right">{t('templates.itemizedLedger.colTotal')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 font-mono">
@@ -47,19 +49,27 @@ export default function ItemizedLedgerDocument({ estimate, branding, currentProj
 
       <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
         <div>
-          <span className="text-slate-400 font-bold uppercase text-[10px]">Overhead ({rates?.overheadPercent || 10}%)</span>
+          <span className="text-slate-400 font-bold uppercase text-[10px]">
+            {t('templates.itemizedLedger.overheadLabel', { percent: rates?.overheadPercent || 10 })}
+          </span>
           <p className="font-bold text-slate-900">{formatCurrency(totals.overheadCost)}</p>
         </div>
         <div>
-          <span className="text-slate-400 font-bold uppercase text-[10px]">Profit Margin ({rates?.profitMarginPercent || 15}%)</span>
+          <span className="text-slate-400 font-bold uppercase text-[10px]">
+            {t('templates.itemizedLedger.profitMarginLabel', { percent: rates?.profitMarginPercent || 15 })}
+          </span>
           <p className="font-bold text-slate-900">{formatCurrency(totals.profitAmount)}</p>
         </div>
         <div>
-          <span className="text-slate-400 font-bold uppercase text-[10px]">Contingency ({rates?.contingencyPercent || 5}%)</span>
+          <span className="text-slate-400 font-bold uppercase text-[10px]">
+            {t('templates.itemizedLedger.contingencyLabel', { percent: rates?.contingencyPercent || 5 })}
+          </span>
           <p className="font-bold text-slate-900">{formatCurrency(totals.contingencyCost)}</p>
         </div>
         <div>
-          <span className="text-indigo-600 font-bold uppercase text-[10px]">Final Bid Amount</span>
+          <span className="text-indigo-600 font-bold uppercase text-[10px]">
+            {t('templates.itemizedLedger.finalBidAmount')}
+          </span>
           <p className="font-bold text-indigo-700 text-sm">{formatCurrency(totals.finalBidAmount)}</p>
         </div>
       </div>

@@ -3,6 +3,7 @@ import { useAuth } from '@/context/AuthContext';
 import { authApi } from '@/lib/auth';
 import { billingApi } from '@/lib/billing';
 import { useModal } from '@/context/ModalContext';
+import { useTranslation } from '@/context/I18nContext';
 import { useNavigate } from 'react-router-dom';
 import TeamWorkspaceManager from './TeamWorkspaceManager';
 import UpgradeModal from './UpgradeModal';
@@ -10,6 +11,7 @@ import UpgradeModal from './UpgradeModal';
 export default function AccountSettings() {
   const { user, setUser, logout, refreshProfile } = useAuth();
   const { showAlert } = useModal();
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [firstName, setFirstName] = useState(user?.first_name || '');
@@ -78,15 +80,15 @@ export default function AccountSettings() {
         window.open(res.portalUrl, '_blank', 'noopener,noreferrer');
       } else {
         await showAlert({
-          title: 'Portal Unavailable',
-          message: 'Unable to locate customer billing portal link. Please contact support.',
+          title: t('accountSettings.portalUnavailableTitle'),
+          message: t('accountSettings.portalUnavailableMessage'),
           variant: 'error',
         });
       }
     } catch (err) {
       await showAlert({
-        title: 'Billing Portal Error',
-        message: err.message || 'Failed to open customer portal.',
+        title: t('accountSettings.billingPortalErrorTitle'),
+        message: err.message || t('accountSettings.billingPortalErrorMessage'),
         variant: 'error',
       });
     } finally {
@@ -115,8 +117,8 @@ export default function AccountSettings() {
       await loadSubscriptionDetails();
       setShowCancelModal(false);
       await showAlert({
-        title: 'Subscription Cancelled',
-        message: res.message || 'Your subscription cancellation has been scheduled.',
+        title: t('accountSettings.subscriptionCancelledTitle'),
+        message: res.message || t('accountSettings.subscriptionCancelledMessage'),
         variant: 'info',
       });
     } catch (err) {
@@ -257,16 +259,16 @@ export default function AccountSettings() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-200">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Account Settings</h1>
+          <h1 className="text-2xl font-bold text-slate-900">{t('accountSettings.title')}</h1>
           <p className="text-sm text-slate-500 mt-1">
-            Manage your personal profile, security credentials, and account lifecycle.
+            {t('accountSettings.subtitle')}
           </p>
         </div>
         <button
           onClick={() => navigate(`/${user?.username}`)}
           className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition"
         >
-          ← Back to Dashboard
+          {t('accountSettings.backButton')}
         </button>
       </div>
 
@@ -281,8 +283,8 @@ export default function AccountSettings() {
                 </svg>
               </div>
               <div>
-                <h2 className="text-lg font-bold text-slate-900">Subscription & Billing</h2>
-                <p className="text-xs text-slate-500">Manage your recurring plan, invoice portal, and billing cycle.</p>
+                <h2 className="text-lg font-bold text-slate-900">{t('accountSettings.subscriptionBillingTitle')}</h2>
+                <p className="text-xs text-slate-500">{t('accountSettings.subscriptionBillingSubtitle')}</p>
               </div>
             </div>
 
@@ -297,14 +299,14 @@ export default function AccountSettings() {
                 }`}
               >
                 {user?.role === 'payment_exempt' || user?.has_unlimited_bypass
-                  ? '👑 VIP Unlimited Bypass'
+                  ? t('accountSettings.vipUnlimitedBypass')
                   : user?.subscription_tier === 'enterprise'
-                  ? '🏢 Enterprise Plan'
+                  ? t('accountSettings.enterprisePlan')
                   : user?.subscription_tier === 'pro'
-                  ? '⚡ Pro Plan'
+                  ? t('accountSettings.proPlan')
                   : user?.subscription_tier === 'starter'
-                  ? '🚀 Starter Plan'
-                  : '🆓 Free Tier'}
+                  ? t('accountSettings.starterPlan')
+                  : t('accountSettings.freeTier')}
               </span>
             </div>
           </div>
@@ -320,12 +322,12 @@ export default function AccountSettings() {
             <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-start gap-3">
               <span className="text-xl">👑</span>
               <div>
-                <h3 className="text-sm font-bold text-emerald-900">Complimentary Permanent Access Granted</h3>
+                <h3 className="text-sm font-bold text-emerald-900">{t('accountSettings.vipAccessTitle')}</h3>
                 <p className="text-xs text-emerald-700 mt-1">
-                  Your account has complimentary permanent access to all Pro features.
+                  {t('accountSettings.vipAccessMessage')}
                   {subDetails?.exemptionReason && (
                     <span className="block mt-0.5 text-emerald-800 font-medium">
-                      Reason: {subDetails.exemptionReason}
+                      {t('accountSettings.reason')}: {subDetails.exemptionReason}
                     </span>
                   )}
                 </p>
@@ -338,19 +340,17 @@ export default function AccountSettings() {
             <div className="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-3">
               <span className="text-xl">⚠️</span>
               <div>
-                <h3 className="text-sm font-bold text-amber-900">Subscription Scheduled for Cancellation</h3>
+                <h3 className="text-sm font-bold text-amber-900">{t('accountSettings.cancellationScheduledTitle')}</h3>
                 <p className="text-xs text-amber-700 mt-1">
-                  Your plan is scheduled to cancel at the end of your billing cycle. You retain full access to all Pro features, proposals, and unlimited exports until{' '}
-                  <strong>
-                    {subDetails?.subscriptionRenewsAt
+                  {t('accountSettings.cancellationScheduledMessage', {
+                    date: subDetails?.subscriptionRenewsAt
                       ? new Date(subDetails.subscriptionRenewsAt).toLocaleDateString('en-US', {
                           month: 'long',
                           day: 'numeric',
                           year: 'numeric',
                         })
-                      : 'the end of your current period'}
-                  </strong>
-                  . All your saved takeoff templates and projects will be safely preserved.
+                      : t('accountSettings.endOfBillingCycle'),
+                  })}
                 </p>
               </div>
             </div>
@@ -358,19 +358,19 @@ export default function AccountSettings() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-1.5">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Current Status</span>
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t('accountSettings.currentStatusLabel')}</span>
               <p className="text-sm font-bold text-slate-800 capitalize">
                 {subDetails?.cancelsAtPeriodEnd
-                  ? 'Active (Canceling at Period End)'
+                  ? t('accountSettings.activeCancelingAtPeriodEnd')
                   : subDetails?.subscriptionStatus === 'active'
-                  ? 'Active Recurring'
+                  ? t('accountSettings.activeRecurring')
                   : user?.role === 'payment_exempt'
-                  ? 'VIP Lifetime Access'
-                  : 'Free Access'}
+                  ? t('accountSettings.vipLifetimeAccess')
+                  : t('accountSettings.freeAccess')}
               </p>
               <p className="text-xs text-slate-500">
                 {subDetails?.subscriptionRenewsAt
-                  ? `${subDetails?.cancelsAtPeriodEnd ? 'Access ends on' : 'Renews on'} ${new Date(
+                  ? `${subDetails?.cancelsAtPeriodEnd ? t('accountSettings.accessEndsOn') : t('accountSettings.renewsOn')} ${new Date(
                       subDetails.subscriptionRenewsAt
                     ).toLocaleDateString('en-US', {
                       month: 'long',
@@ -378,18 +378,18 @@ export default function AccountSettings() {
                       year: 'numeric',
                     })}`
                   : user?.has_unlimited_bypass
-                  ? 'Unlimited proposals and exports enabled'
-                  : `${user?.trial_uses_remaining ?? 5} free trial exports remaining`}
+                  ? t('accountSettings.unlimitedProposalsAndExports')
+                  : t('accountSettings.freeTrialExportsRemaining', { count: user?.trial_uses_remaining ?? 5 })}
               </p>
             </div>
 
             <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-1.5">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Billing Provider</span>
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t('accountSettings.billingProviderLabel')}</span>
               <p className="text-sm font-bold text-slate-800">
-                Paddle Merchant of Record
+                {t('accountSettings.paddleMerchantOfRecord')}
               </p>
               <p className="text-xs text-slate-500">
-                Secure PCI-DSS compliant subscription billing and automated tax handling.
+                {t('accountSettings.billingProviderDescription')}
               </p>
             </div>
           </div>
@@ -402,7 +402,7 @@ export default function AccountSettings() {
                   onClick={() => setShowUpgradeModal(true)}
                   className="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition shadow-xs"
                 >
-                  Upgrade to Pro
+                  {t('accountSettings.upgradeToPro')}
                 </button>
               )}
               {isProOrExempt && !subDetails?.cancelsAtPeriodEnd && (
@@ -411,7 +411,7 @@ export default function AccountSettings() {
                   onClick={() => setShowUpgradeModal(true)}
                   className="px-4 py-2 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition"
                 >
-                  Change Plan / Redeem Code
+                  {t('accountSettings.changePlanOrRedeemCode')}
                 </button>
               )}
             </div>
@@ -425,7 +425,7 @@ export default function AccountSettings() {
                   onClick={handleOpenCustomerPortal}
                   className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition"
                 >
-                  {portalLoading ? 'Opening Portal...' : 'Manage Invoices & Payment'}
+                  {portalLoading ? t('accountSettings.openingPortal') : t('accountSettings.manageInvoicesAndPayment')}
                 </button>
               )}
 
@@ -441,7 +441,7 @@ export default function AccountSettings() {
                   }}
                   className="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200 rounded-xl transition"
                 >
-                  Cancel Subscription
+                  {t('accountSettings.cancelSubscription')}
                 </button>
               )}
             </div>
@@ -457,8 +457,8 @@ export default function AccountSettings() {
               </svg>
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900">Contact Information</h2>
-              <p className="text-xs text-slate-500">Update your name and primary phone number.</p>
+              <h2 className="text-lg font-bold text-slate-900">{t('accountSettings.contactInfoTitle')}</h2>
+              <p className="text-xs text-slate-500">{t('accountSettings.contactInfoSubtitle')}</p>
             </div>
           </div>
 
@@ -477,7 +477,7 @@ export default function AccountSettings() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                  First Name
+                  {t('accountSettings.firstNameLabel')}
                 </label>
                 <input
                   type="text"
@@ -490,7 +490,7 @@ export default function AccountSettings() {
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Last Name
+                  {t('accountSettings.lastNameLabel')}
                 </label>
                 <input
                   type="text"
@@ -505,7 +505,7 @@ export default function AccountSettings() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Username
+                  {t('accountSettings.usernameLabel')}
                 </label>
                 <input
                   type="text"
@@ -513,12 +513,12 @@ export default function AccountSettings() {
                   value={user?.username || ''}
                   className="w-full px-3.5 py-2.5 text-sm border border-slate-200 bg-slate-50 text-slate-500 rounded-xl cursor-not-allowed"
                 />
-                <span className="text-[11px] text-slate-400 mt-1 block">Username cannot be changed.</span>
+                <span className="text-[11px] text-slate-400 mt-1 block">{t('accountSettings.usernameCannotChange')}</span>
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Email Address
+                  {t('accountSettings.emailAddressLabel')}
                 </label>
                 <input
                   type="email"
@@ -526,17 +526,17 @@ export default function AccountSettings() {
                   value={user?.email || ''}
                   className="w-full px-3.5 py-2.5 text-sm border border-slate-200 bg-slate-50 text-slate-500 rounded-xl cursor-not-allowed"
                 />
-                <span className="text-[11px] text-slate-400 mt-1 block">Managed by Supabase Auth security.</span>
+                <span className="text-[11px] text-slate-400 mt-1 block">{t('accountSettings.emailManagedBySupabase')}</span>
               </div>
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                Phone Number
+                {t('accountSettings.phoneNumberLabel')}
               </label>
               <input
                 type="tel"
-                placeholder="(555) 000-0000"
+                placeholder={t('accountSettings.phoneNumberPlaceholder')}
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 className="w-full sm:w-1/2 px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -549,7 +549,7 @@ export default function AccountSettings() {
                 disabled={profileLoading}
                 className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-sm font-semibold shadow-xs transition"
               >
-                {profileLoading ? 'Saving Changes...' : 'Save Profile Changes'}
+                {profileLoading ? t('accountSettings.savingChanges') : t('accountSettings.saveProfileChanges')}
               </button>
             </div>
           </form>
@@ -572,16 +572,16 @@ export default function AccountSettings() {
               </svg>
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900">Company Branding & Proposal Header</h2>
+              <h2 className="text-lg font-bold text-slate-900">{t('accountSettings.brandingTitle')}</h2>
               <p className="text-xs text-slate-500">
-                Upload your company logo and license info to render on client-facing proposals and exports.
+                {t('accountSettings.brandingSubtitle')}
               </p>
             </div>
           </div>
 
           {!isProOrExempt && (
             <div className="mb-5 p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600">
-              Contractor branding, custom colors, and logo headers are available to <strong>Pro & Enterprise</strong> subscribers. You can preview your settings below.
+              {t('accountSettings.brandingProFeatureMessage')}
             </div>
           )}
 
@@ -589,28 +589,28 @@ export default function AccountSettings() {
             {/* Logo Upload */}
             <div>
               <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
-                Company Logo (PNG, JPG, SVG - Max 2MB)
+                {t('accountSettings.companyLogoLabel')}
               </label>
               <div className="flex items-center gap-4">
                 {companyLogoUrl ? (
                   <div className="relative group">
                     <img
                       src={companyLogoUrl}
-                      alt="Company Logo Preview"
+                      alt={t('accountSettings.companyLogoPreview')}
                       className="w-24 h-16 object-contain border border-slate-200 rounded-xl p-1 bg-slate-50"
                     />
                     <button
                       type="button"
                       onClick={() => setCompanyLogoUrl('')}
                       className="absolute -top-2 -right-2 bg-red-600 text-white p-1 rounded-full text-xs opacity-0 group-hover:opacity-100 transition shadow"
-                      title="Remove Logo"
+                      title={t('accountSettings.removeLogoTitle')}
                     >
                       ✕
                     </button>
                   </div>
                 ) : (
                   <div className="w-24 h-16 border-2 border-dashed border-slate-300 rounded-xl flex items-center justify-center text-xs text-slate-400">
-                    No Logo
+                    {t('accountSettings.noLogo')}
                   </div>
                 )}
 
@@ -619,7 +619,7 @@ export default function AccountSettings() {
                     <svg className="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                     </svg>
-                    <span>{logoUploading ? 'Uploading Logo...' : 'Upload Image'}</span>
+                    <span>{logoUploading ? t('accountSettings.uploadingLogo') : t('accountSettings.uploadImageButton')}</span>
                     <input
                       type="file"
                       accept="image/png, image/jpeg, image/jpg, image/svg+xml, image/webp"
@@ -638,11 +638,11 @@ export default function AccountSettings() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Company / DBA Name
+                  {t('accountSettings.companyNameLabel')}
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. Apex Civil & Utility LLC"
+                  placeholder={t('accountSettings.companyNamePlaceholder')}
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
                   className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -651,11 +651,11 @@ export default function AccountSettings() {
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Contractor License #
+                  {t('accountSettings.licenseNumberLabel')}
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. SC-G123456"
+                  placeholder={t('accountSettings.licenseNumberPlaceholder')}
                   value={licenseNumber}
                   onChange={(e) => setLicenseNumber(e.target.value)}
                   className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -666,11 +666,11 @@ export default function AccountSettings() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="sm:col-span-2">
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Company Address / Headquarters
+                  {t('accountSettings.companyAddressLabel')}
                 </label>
                 <input
                   type="text"
-                  placeholder="123 Industrial Parkway, Suite 400, Greenville SC 29601"
+                  placeholder={t('accountSettings.companyAddressPlaceholder')}
                   value={companyAddress}
                   onChange={(e) => setCompanyAddress(e.target.value)}
                   className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -679,7 +679,7 @@ export default function AccountSettings() {
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Brand Color Accent
+                  {t('accountSettings.brandColorLabel')}
                 </label>
                 <div className="flex items-center gap-2">
                   <input
@@ -704,7 +704,7 @@ export default function AccountSettings() {
                 disabled={profileLoading}
                 className="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 disabled:opacity-50 text-white text-sm font-semibold shadow-xs transition"
               >
-                {profileLoading ? 'Saving Branding...' : 'Save Branding Settings'}
+                {profileLoading ? t('accountSettings.savingBranding') : t('accountSettings.saveBrandingSettings')}
               </button>
             </div>
           </form>
@@ -719,8 +719,8 @@ export default function AccountSettings() {
               </svg>
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900">Change Password</h2>
-              <p className="text-xs text-slate-500">Ensure your account is using a secure password.</p>
+              <h2 className="text-lg font-bold text-slate-900">{t('accountSettings.changePasswordTitle')}</h2>
+              <p className="text-xs text-slate-500">{t('accountSettings.changePasswordSubtitle')}</p>
             </div>
           </div>
 
@@ -739,7 +739,7 @@ export default function AccountSettings() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                  New Password (min 6 characters)
+                  {t('accountSettings.newPasswordLabel')}
                 </label>
                 <input
                   type="password"
@@ -753,7 +753,7 @@ export default function AccountSettings() {
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Confirm New Password
+                  {t('accountSettings.confirmPasswordLabel')}
                 </label>
                 <input
                   type="password"
@@ -772,7 +772,7 @@ export default function AccountSettings() {
                 disabled={passwordLoading || !newPassword}
                 className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 disabled:opacity-50 text-white text-sm font-semibold shadow-xs transition"
               >
-                {passwordLoading ? 'Updating Password...' : 'Update Password'}
+                {passwordLoading ? t('accountSettings.updatingPassword') : t('accountSettings.updatePasswordButton')}
               </button>
             </div>
           </form>
@@ -785,9 +785,9 @@ export default function AccountSettings() {
         <div className="bg-red-50/50 rounded-2xl border border-red-200 p-6">
           <div className="flex items-start justify-between flex-wrap gap-4">
             <div>
-              <h2 className="text-lg font-bold text-red-900">Delete Account & Cloud Data</h2>
+              <h2 className="text-lg font-bold text-red-900">{t('accountSettings.deleteAccountTitle')}</h2>
               <p className="text-xs text-red-700 mt-1 max-w-xl">
-                Permanently delete your account, saved cloud estimates, project version history, and subscription access. This action cannot be undone.
+                {t('accountSettings.deleteAccountDescription')}
               </p>
             </div>
             <button
@@ -799,7 +799,7 @@ export default function AccountSettings() {
               }}
               className="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl shadow-xs transition"
             >
-              Delete Account
+              {t('accountSettings.deleteAccountButton')}
             </button>
           </div>
         </div>
@@ -825,17 +825,17 @@ export default function AccountSettings() {
                 ⚠️
               </div>
               <div>
-                <h3 className="text-lg font-bold text-slate-900">Cancel Subscription</h3>
-                <p className="text-xs text-slate-500">We're sorry to see you go. Help us improve Takeoff Engine.</p>
+                <h3 className="text-lg font-bold text-slate-900">{t('accountSettings.cancelSubscriptionTitle')}</h3>
+                <p className="text-xs text-slate-500">{t('accountSettings.cancelSubscriptionSubtitle')}</p>
               </div>
             </div>
 
             <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 mb-4 leading-relaxed">
-              <p className="font-semibold text-slate-800 mb-1">What happens when you cancel:</p>
+              <p className="font-semibold text-slate-800 mb-1">{t('accountSettings.whatHappensWhenCancelLabel')}:</p>
               <ul className="list-disc list-inside space-y-1 text-slate-600">
-                <li>You will keep full Pro access until the end of your billing cycle.</li>
-                <li>Your saved takeoff projects and rate templates will <strong>never</strong> be deleted.</li>
-                <li>You will not be charged again on your next renewal date.</li>
+                <li>{t('accountSettings.keepAccessUntilEnd')}</li>
+                <li>{t('accountSettings.projectsWillNeverDelete')}</li>
+                <li>{t('accountSettings.notChargedAgain')}</li>
               </ul>
             </div>
 
@@ -848,29 +848,29 @@ export default function AccountSettings() {
             <form onSubmit={handleCancelSubscription} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Reason for Cancellation
+                  {t('accountSettings.cancellationReasonLabel')}
                 </label>
                 <select
                   value={cancelReason}
                   onChange={(e) => setCancelReason(e.target.value)}
                   className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white"
                 >
-                  <option value="Project completed">Current project / estimating cycle finished</option>
-                  <option value="Too expensive">Too expensive / switching budgets</option>
-                  <option value="Missing a feature">Missing a specific feature or takeoff format</option>
-                  <option value="Found alternative software">Using another estimating software</option>
-                  <option value="Temporary pause">Temporary pause / seasonal work</option>
-                  <option value="Other">Other</option>
+                  <option value="Project completed">{t('accountSettings.reasonProjectCompleted')}</option>
+                  <option value="Too expensive">{t('accountSettings.reasonTooExpensive')}</option>
+                  <option value="Missing a feature">{t('accountSettings.reasonMissingFeature')}</option>
+                  <option value="Found alternative software">{t('accountSettings.reasonAlternativeSoftware')}</option>
+                  <option value="Temporary pause">{t('accountSettings.reasonTemporaryPause')}</option>
+                  <option value="Other">{t('accountSettings.reasonOther')}</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Additional Feedback (Optional)
+                  {t('accountSettings.feedbackLabel')}
                 </label>
                 <textarea
                   rows={2}
-                  placeholder="What could we have done better?"
+                  placeholder={t('accountSettings.feedbackPlaceholder')}
                   value={cancelReasonDetails}
                   onChange={(e) => setCancelReasonDetails(e.target.value)}
                   className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -883,14 +883,14 @@ export default function AccountSettings() {
                   onClick={() => setShowCancelModal(false)}
                   className="px-4 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition"
                 >
-                  Keep My Subscription
+                  {t('accountSettings.keepSubscriptionButton')}
                 </button>
                 <button
                   type="submit"
                   disabled={cancelLoading}
                   className="px-4 py-2 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 rounded-xl transition shadow-xs"
                 >
-                  {cancelLoading ? 'Canceling...' : 'Confirm Cancellation'}
+                  {cancelLoading ? t('accountSettings.cancelingSubscription') : t('accountSettings.confirmCancellation')}
                 </button>
               </div>
             </form>
@@ -902,9 +902,9 @@ export default function AccountSettings() {
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/75 backdrop-blur-sm animate-fade-in">
           <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-md w-full p-6 relative">
-            <h3 className="text-xl font-bold text-slate-900 mb-2">Are you absolutely sure?</h3>
+            <h3 className="text-xl font-bold text-slate-900 mb-2">{t('accountSettings.deleteConfirmTitle')}</h3>
             <p className="text-xs text-slate-600 mb-4 leading-relaxed">
-              This will permanently delete your user account <strong>@{user?.username}</strong> and all associated cloud estimates and projects.
+              {t('accountSettings.deleteConfirmMessage', { username: user?.username })}
             </p>
 
             {deleteErr && (
@@ -915,7 +915,7 @@ export default function AccountSettings() {
 
             <div className="mb-4">
               <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Type your username <strong className="text-slate-900">{user?.username}</strong> to confirm:
+                {t('accountSettings.typeUsernameToConfirm', { username: user?.username })}
               </label>
               <input
                 type="text"
@@ -932,7 +932,7 @@ export default function AccountSettings() {
                 onClick={() => setShowDeleteModal(false)}
                 className="px-4 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition"
               >
-                Cancel
+                {t('accountSettings.cancelButton')}
               </button>
               <button
                 type="button"
@@ -940,7 +940,7 @@ export default function AccountSettings() {
                 onClick={handleDeleteAccount}
                 className="px-4 py-2 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 rounded-xl transition"
               >
-                {deleteLoading ? 'Deleting Account...' : 'Permanently Delete'}
+                {deleteLoading ? t('accountSettings.deletingAccount') : t('accountSettings.permanentlyDeleteButton')}
               </button>
             </div>
           </div>

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { projectsApi } from '@/lib/projects';
 import { useAuth } from '@/context/AuthContext';
 import { useModal } from '@/context/ModalContext';
+import { useTranslation } from '@/context/I18nContext';
 
 const STATUS_CONFIG = {
   draft: {
@@ -26,6 +27,7 @@ const STATUS_CONFIG = {
 export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
   const { user } = useAuth();
   const { showAlert, showConfirm } = useModal();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -52,7 +54,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
       console.warn('Could not retrieve remote projects:', err);
       // Only show error message for non-404 network errors, otherwise gracefully default to empty project list
       if (err.message && !err.message.includes('404') && !err.message.includes('Not Found')) {
-        setError(err.message || 'Failed to load projects.');
+        setError(err.message || t('projectDashboard.errLoadFailed'));
       } else {
         setProjects([]);
       }
@@ -88,8 +90,8 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
       setProjects((prev) => [cloned, ...prev]);
     } catch (err) {
       await showAlert({
-        title: 'Duplicate Project Error',
-        message: err.message || 'Failed to duplicate project.',
+        title: t('projectDashboard.errDuplicateTitle'),
+        message: err.message || t('projectDashboard.errDuplicateMessage'),
         variant: 'error',
       });
     } finally {
@@ -113,16 +115,16 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
         setStatusFilter('archived');
       }
       await showAlert({
-        title: isArchived ? 'Project Restored' : 'Project Archived',
+        title: isArchived ? t('projectDashboard.unarchivedTitle') : t('projectDashboard.archivedTitle'),
         message: isArchived
-          ? `"${project.name}" has been unarchived and restored to Drafts.`
-          : `"${project.name}" has been moved to the Archived section.`,
+          ? t('projectDashboard.unarchivedMessage', { name: project.name })
+          : t('projectDashboard.archivedMessage', { name: project.name }),
         variant: 'success',
       });
     } catch (err) {
       await showAlert({
-        title: 'Archive Error',
-        message: err.message || 'Failed to update project status.',
+        title: t('projectDashboard.errArchiveTitle'),
+        message: err.message || t('projectDashboard.errArchiveMessage'),
         variant: 'error',
       });
     }
@@ -130,9 +132,9 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
 
   const handleDelete = async (project) => {
     const confirmed = await showConfirm({
-      title: 'Delete Project',
-      message: `Are you sure you want to delete "${project.name}"? This action cannot be undone.`,
-      confirmText: 'Delete Project',
+      title: t('projectDashboard.deleteConfirmTitle'),
+      message: t('projectDashboard.deleteConfirmMessage', { name: project.name }),
+      confirmText: t('projectDashboard.deleteConfirmButton'),
       confirmVariant: 'danger',
     });
     if (!confirmed) {
@@ -145,8 +147,8 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
       setProjects((prev) => prev.filter((p) => p.id !== project.id));
     } catch (err) {
       await showAlert({
-        title: 'Delete Error',
-        message: err.message || 'Failed to delete project.',
+        title: t('projectDashboard.errDeleteTitle'),
+        message: err.message || t('projectDashboard.errDeleteMessage'),
         variant: 'error',
       });
     } finally {
@@ -169,8 +171,8 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
       setRenameInput('');
     } catch (err) {
       await showAlert({
-        title: 'Rename Error',
-        message: err.message || 'Failed to rename project.',
+        title: t('projectDashboard.errRenameTitle'),
+        message: err.message || t('projectDashboard.errRenameMessage'),
         variant: 'error',
       });
     }
@@ -190,8 +192,8 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
       setStatusModalProject(null);
     } catch (err) {
       await showAlert({
-        title: 'Status Update Error',
-        message: err.message || 'Failed to update project status.',
+        title: t('projectDashboard.errStatusUpdateTitle'),
+        message: err.message || t('projectDashboard.errStatusUpdateMessage'),
         variant: 'error',
       });
     }
@@ -217,10 +219,10 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-            Estimates & Projects
+            {t('projectDashboard.title')}
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Manage your takeoff spreadsheets, client proposals, and saved bid estimates.
+            {t('projectDashboard.subtitle')}
           </p>
         </div>
 
@@ -231,7 +233,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
-          New Takeoff
+          {t('projectDashboard.newTakeoff')}
         </button>
       </div>
 
@@ -253,7 +255,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
           </svg>
           <input
             type="text"
-            placeholder="Search projects, clients, or locations..."
+            placeholder={t('projectDashboard.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
@@ -282,17 +284,17 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
       {loading ? (
         <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center shadow-sm">
           <div className="inline-block animate-spin w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full mb-3" />
-          <p className="text-slate-500 font-medium">Loading saved estimates...</p>
+          <p className="text-slate-500 font-medium">{t('projectDashboard.loading')}</p>
         </div>
       ) : error ? (
         <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-center text-red-700 shadow-sm">
-          <p className="font-semibold mb-2">Error loading projects</p>
+          <p className="font-semibold mb-2">{t('projectDashboard.errorLoading')}</p>
           <p className="text-sm mb-4">{error}</p>
           <button
             onClick={fetchProjects}
             className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg"
           >
-            Try Again
+            {t('projectDashboard.tryAgain')}
           </button>
         </div>
       ) : filteredProjects.length === 0 ? (
@@ -309,13 +311,13 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
           </div>
           <h3 className="text-lg font-bold text-slate-800 mb-1">
             {searchQuery || statusFilter !== 'all'
-              ? 'No matching projects found'
-              : 'No takeoff projects yet'}
+              ? t('projectDashboard.noMatchesFound')
+              : t('projectDashboard.noProjectsYet')}
           </h3>
           <p className="text-sm text-slate-500 max-w-md mx-auto mb-6">
             {searchQuery || statusFilter !== 'all'
-              ? 'Try adjusting your search terms or status filter to find what you are looking for.'
-              : 'Upload your first civil or utility takeoff spreadsheet to auto-calculate trench excavation, apply markups, and save estimates in the cloud.'}
+              ? t('projectDashboard.noMatchesHelp')
+              : t('projectDashboard.noProjectsHelp')}
           </p>
           <button
             onClick={onNewTakeoff}
@@ -324,7 +326,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            Upload Takeoff File
+            {t('projectDashboard.uploadTakeoffFile')}
           </button>
         </div>
       ) : (
@@ -354,7 +356,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
                         setNewStatusInput(project.status || 'draft');
                       }}
                       className={`cursor-pointer inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${statusStyle.badgeClass} hover:opacity-80 transition`}
-                      title="Click to change status"
+                      title={t('projectDashboard.clickToChangeStatus')}
                     >
                       {statusStyle.label}
                     </span>
@@ -396,7 +398,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                               </svg>
-                              Open Takeoff
+                              {t('projectDashboard.openTakeoff')}
                             </button>
 
                             <button
@@ -410,7 +412,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
                               <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                               </svg>
-                              Rename
+                              {t('projectDashboard.rename')}
                             </button>
 
                             <button
@@ -421,7 +423,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
                               <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                               </svg>
-                              {isCloning ? 'Duplicating...' : 'Duplicate (Copy)'}
+                              {isCloning ? t('projectDashboard.duplicating') : t('projectDashboard.duplicate')}
                             </button>
 
                             {/* Draft projects: Show Archive and Delete */}
@@ -434,7 +436,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
                                   <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                                   </svg>
-                                  Archive Project
+                                  {t('projectDashboard.archiveProject')}
                                 </button>
 
                                 <div className="border-t border-slate-100 my-1" />
@@ -447,7 +449,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
                                   <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                   </svg>
-                                  {isDeleting ? 'Deleting...' : 'Delete'}
+                                  {isDeleting ? t('projectDashboard.deleting') : t('projectDashboard.delete')}
                                 </button>
                               </>
                             )}
@@ -462,7 +464,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
                                   <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                   </svg>
-                                  Restore to Draft
+                                  {t('projectDashboard.restoreToDraft')}
                                 </button>
 
                                 <div className="border-t border-slate-100 my-1" />
@@ -475,7 +477,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
                                   <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                   </svg>
-                                  {isDeleting ? 'Deleting...' : 'Delete'}
+                                  {isDeleting ? t('projectDashboard.deleting') : t('projectDashboard.delete')}
                                 </button>
                               </>
                             )}
@@ -505,7 +507,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
                 <div className="px-5 py-3 bg-slate-50/70 border-t border-slate-100 mt-2">
                   <div className="flex items-end justify-between">
                     <div>
-                      <span className="text-xs text-slate-400 font-medium block">Total Bid Amount</span>
+                      <span className="text-xs text-slate-400 font-medium block">{t('projectDashboard.totalBidAmount')}</span>
                       <span className="text-xl font-extrabold text-slate-900 tracking-tight">
                         {formatCurrency(bidTotal)}
                       </span>
@@ -522,7 +524,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
                     onClick={() => handleOpen(project, 'results')}
                     className="w-full py-2 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer"
                   >
-                    Open Estimate
+                    {t('projectDashboard.openEstimate')}
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
@@ -538,8 +540,8 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
       {renameModalProject && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
           <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 border border-slate-200">
-            <h3 className="text-lg font-bold text-slate-900 mb-2">Rename Project</h3>
-            <p className="text-xs text-slate-500 mb-4">Enter a new name for this takeoff estimate.</p>
+            <h3 className="text-lg font-bold text-slate-900 mb-2">{t('projectDashboard.renameModalTitle')}</h3>
+            <p className="text-xs text-slate-500 mb-4">{t('projectDashboard.renameModalSubtitle')}</p>
             <form onSubmit={handleRenameSubmit}>
               <input
                 type="text"
@@ -547,7 +549,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
                 value={renameInput}
                 onChange={(e) => setRenameInput(e.target.value)}
                 className="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4"
-                placeholder="Project name"
+                placeholder={t('projectDashboard.projectNamePlaceholder')}
                 autoFocus
               />
               <div className="flex items-center justify-end gap-2">
@@ -556,13 +558,13 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
                   onClick={() => setRenameModalProject(null)}
                   className="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-xl"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
                   className="px-5 py-2 text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-xs"
                 >
-                  Save Name
+                  {t('projectDashboard.saveName')}
                 </button>
               </div>
             </form>
@@ -574,9 +576,9 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
       {statusModalProject && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
           <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 border border-slate-200">
-            <h3 className="text-lg font-bold text-slate-900 mb-2">Change Status</h3>
+            <h3 className="text-lg font-bold text-slate-900 mb-2">{t('projectDashboard.changeStatusTitle')}</h3>
             <p className="text-xs text-slate-500 mb-4">
-              Update bid tracking status for <strong>{statusModalProject.name}</strong>.
+              {t('projectDashboard.changeStatusSubtitle', { name: statusModalProject.name })}
             </p>
             <form onSubmit={handleStatusSubmit}>
               <div className="space-y-2 mb-6">
@@ -612,13 +614,13 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
                   onClick={() => setStatusModalProject(null)}
                   className="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-xl"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
                   className="px-5 py-2 text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-xs"
                 >
-                  Update Status
+                  {t('projectDashboard.updateStatus')}
                 </button>
               </div>
             </form>

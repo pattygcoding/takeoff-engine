@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { TARGET_FIELDS, normalizeRowsWithMapping, saveVendorPreset, getSavedVendorPresets } from '@/lib/csv';
+import { useTranslation } from '@/context/I18nContext';
 
 export default function ColumnMappingModal({
   headers,
@@ -13,6 +14,7 @@ export default function ColumnMappingModal({
   onConfirm,
   onCancel,
 }) {
+  const { t } = useTranslation();
   const [mapping, setMapping] = useState({ ...initialMapping });
   const [validationError, setValidationError] = useState('');
   const [presetName, setPresetName] = useState('');
@@ -48,14 +50,14 @@ export default function ColumnMappingModal({
     const missing = TARGET_FIELDS.filter((f) => f.required && !mapping[f.key]);
     if (missing.length > 0) {
       setValidationError(
-        `Please select a column for required field(s): ${missing.map((m) => m.label).join(', ')}`
+        t('columnMappingModal.validationErrorRequired', { fields: missing.map((m) => m.label).join(', ') })
       );
       return;
     }
 
     const { items, errors, checksum } = normalizeRowsWithMapping(rawRows, mapping);
     if (items.length === 0 && errors.length > 0) {
-      setValidationError(`Could not parse rows with this mapping: ${errors[0]}`);
+      setValidationError(t('columnMappingModal.validationErrorParsing', { error: errors[0] }));
       return;
     }
 
@@ -74,9 +76,9 @@ export default function ColumnMappingModal({
               🔀
             </div>
             <div>
-              <h3 className="text-lg font-bold text-slate-900">Match Spreadsheet Columns</h3>
+              <h3 className="text-lg font-bold text-slate-900">{t('columnMappingModal.title')}</h3>
               <p className="text-xs text-slate-500">
-                Auto-detection confidence: <strong className="text-indigo-600">{Math.round(overallConfidence * 100)}%</strong>. Confirm or remap columns:
+                {t('columnMappingModal.confidenceLabel')} <strong className="text-indigo-600">{Math.round(overallConfidence * 100)}%</strong>. {t('columnMappingModal.confirmOrRemap')}
               </p>
             </div>
           </div>
@@ -84,7 +86,7 @@ export default function ColumnMappingModal({
           {/* Multi-tab sheet selector if Excel workbook */}
           {sheetNames.length > 1 && onSheetChange && (
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-500 font-medium">Sheet Tab:</span>
+              <span className="text-xs text-slate-500 font-medium">{t('columnMappingModal.sheetTab')}</span>
               <select
                 value={activeSheetName}
                 onChange={(e) => onSheetChange(e.target.value)}
@@ -110,7 +112,7 @@ export default function ColumnMappingModal({
           {/* Presets Bar */}
           {Object.keys(savedPresets).length > 0 && (
             <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-2 flex-wrap text-xs">
-              <span className="font-semibold text-slate-700">Saved Presets:</span>
+              <span className="font-semibold text-slate-700">{t('columnMappingModal.savedPresets')}</span>
               {Object.keys(savedPresets).map((presetKey) => (
                 <button
                   key={presetKey}
@@ -148,7 +150,7 @@ export default function ColumnMappingModal({
                               : 'bg-amber-50 text-amber-700 border border-amber-200'
                           }`}
                         >
-                          {Math.round(confidence * 100)}% match
+                          {t('columnMappingModal.matchConfidence', { confidence: Math.round(confidence * 100) })}
                         </span>
                       )}
                     </div>
@@ -169,7 +171,7 @@ export default function ColumnMappingModal({
                           : 'border-slate-300 text-slate-500'
                       }`}
                     >
-                      <option value="">-- Select File Column --</option>
+                      <option value="">{t('columnMappingModal.selectFileColumn')}</option>
                       {headers.map((h, i) => (
                         <option key={i} value={h}>
                           {h}
@@ -185,17 +187,17 @@ export default function ColumnMappingModal({
           {/* Live Data Preview Table (5 rows) */}
           {previewRows.length > 0 && (
             <div>
-              <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Live 5-Row Preview</h4>
+              <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">{t('columnMappingModal.livePreviewHeader')}</h4>
               <div className="border border-slate-200 rounded-xl overflow-x-auto bg-slate-50 text-xs">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b border-slate-200 bg-slate-100/80">
-                      <th className="p-2 text-slate-600 font-semibold">System</th>
-                      <th className="p-2 text-slate-600 font-semibold">Description</th>
-                      <th className="p-2 text-slate-600 font-semibold">Size / Spec</th>
-                      <th className="p-2 text-slate-600 font-semibold">Quantity</th>
-                      <th className="p-2 text-slate-600 font-semibold">Unit</th>
-                      <th className="p-2 text-slate-600 font-semibold">Depth (FT)</th>
+                      <th className="p-2 text-slate-600 font-semibold">{t('columnMappingModal.tableHeaderSystem')}</th>
+                      <th className="p-2 text-slate-600 font-semibold">{t('columnMappingModal.tableHeaderDescription')}</th>
+                      <th className="p-2 text-slate-600 font-semibold">{t('columnMappingModal.tableHeaderSizeSpec')}</th>
+                      <th className="p-2 text-slate-600 font-semibold">{t('columnMappingModal.tableHeaderQuantity')}</th>
+                      <th className="p-2 text-slate-600 font-semibold">{t('columnMappingModal.tableHeaderUnit')}</th>
+                      <th className="p-2 text-slate-600 font-semibold">{t('columnMappingModal.tableHeaderDepth')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200/60 bg-white">
@@ -229,10 +231,10 @@ export default function ColumnMappingModal({
 
           {/* Preset Save Section */}
           <div className="flex items-center gap-2 pt-2 text-xs">
-            <span className="text-slate-500 font-medium">Save as vendor preset:</span>
+            <span className="text-slate-500 font-medium">{t('columnMappingModal.saveAsVendorPreset')}</span>
             <input
               type="text"
-              placeholder="e.g. Subcontractor ABC"
+              placeholder={t('columnMappingModal.presetPlaceholder')}
               value={presetName}
               onChange={(e) => setPresetName(e.target.value)}
               className="px-2.5 py-1 text-xs border border-slate-300 rounded-lg focus:ring-1 focus:ring-indigo-500 outline-none w-44"
@@ -242,10 +244,10 @@ export default function ColumnMappingModal({
               onClick={handleSavePreset}
               className="px-2.5 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg transition"
             >
-              Save Preset
+              {t('columnMappingModal.savePreset')}
             </button>
             {showPresetSaved && (
-              <span className="text-emerald-600 font-medium text-[11px]">✓ Saved!</span>
+              <span className="text-emerald-600 font-medium text-[11px]">{t('columnMappingModal.presetSaved')}</span>
             )}
           </div>
         </div>
@@ -256,7 +258,7 @@ export default function ColumnMappingModal({
             onClick={onCancel}
             className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition"
           >
-            Cancel
+            {t('common.cancel')}
           </button>
 
           <button
@@ -264,7 +266,7 @@ export default function ColumnMappingModal({
             onClick={handleApply}
             className="px-6 py-2.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-xs transition"
           >
-            Confirm &amp; Import Takeoff
+            {t('columnMappingModal.confirmImportTakeoff')}
           </button>
         </div>
       </div>

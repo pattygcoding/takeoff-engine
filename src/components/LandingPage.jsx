@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { formatCurrency, formatNumber } from '@/lib/calculations';
+import { useTranslation } from '@/context/I18nContext';
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [showDevDisclaimer, setShowDevDisclaimer] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -52,10 +54,10 @@ export default function LandingPage() {
           </div>
 
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
-            <a href="#calculator" className="hover:text-white transition">Free Calculator</a>
-            <a href="#features" className="hover:text-white transition">Features</a>
-            <a href="#comparison" className="hover:text-white transition">Why Us</a>
-            <a href="#pricing" className="hover:text-white transition">Pricing</a>
+            <a href="#calculator" className="hover:text-white transition">{t('landing.nav.freeCalculator')}</a>
+            <a href="#features" className="hover:text-white transition">{t('landing.nav.features')}</a>
+            <a href="#comparison" className="hover:text-white transition">{t('landing.nav.whyUs')}</a>
+            <a href="#pricing" className="hover:text-white transition">{t('landing.nav.pricing')}</a>
           </div>
 
           <div className="hidden md:flex items-center gap-3">
@@ -63,13 +65,13 @@ export default function LandingPage() {
               onClick={() => navigate('/login')}
               className="px-4 py-2 text-sm font-semibold text-slate-300 hover:text-white transition"
             >
-              Sign In
+              {t('landing.nav.signIn')}
             </button>
             <button
               onClick={() => navigate('/register')}
               className="px-4 py-2 text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl shadow-lg shadow-indigo-600/30 transition transform active:scale-95"
             >
-              Get Started Free
+              {t('landing.nav.getStartedFree')}
             </button>
           </div>
 
@@ -100,28 +102,28 @@ export default function LandingPage() {
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800"
             >
-              Free Calculator
+              {t('landing.nav.freeCalculator')}
             </a>
             <a
               href="#features"
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800"
             >
-              Features
+              {t('landing.nav.features')}
             </a>
             <a
               href="#comparison"
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800"
             >
-              Why Us
+              {t('landing.nav.whyUs')}
             </a>
             <a
               href="#pricing"
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800"
             >
-              Pricing
+              {t('landing.nav.pricing')}
             </a>
             <div className="pt-2 border-t border-slate-800 flex flex-col gap-2">
               <button
@@ -131,7 +133,7 @@ export default function LandingPage() {
                 }}
                 className="w-full text-center px-4 py-2 text-sm font-semibold text-slate-300 hover:text-white bg-slate-800 rounded-xl"
               >
-                Sign In
+                {t('landing.nav.signIn')}
               </button>
               <button
                 onClick={() => {
@@ -140,7 +142,7 @@ export default function LandingPage() {
                 }}
                 className="w-full text-center px-4 py-2 text-sm font-bold bg-indigo-600 text-white rounded-xl"
               >
-                Get Started Free
+                {t('landing.nav.getStartedFree')}
               </button>
             </div>
           </div>
@@ -156,18 +158,18 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-semibold mb-8">
             <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
-            Designed for Utility, Civil &amp; Earthwork Subcontractors
+            {t('landing.hero.badge')}
           </div>
 
           <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-white max-w-4xl mx-auto leading-[1.1]">
-            Turn Construction Takeoffs Into Professional Proposals in{' '}
+            {t('landing.hero.title')}{' '}
             <span className="bg-gradient-to-r from-indigo-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
-              60 Seconds
+              {t('landing.hero.titleHighlight')}
             </span>
           </h1>
 
           <p className="mt-6 text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
-            Import CSV &amp; Excel sheets directly from Bluebeam, PlanSwift, or Trimble. Auto-calculate trench volumes, production labor hours, and client proposals with digital signatures.
+            {t('landing.hero.subtitle')}
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -175,20 +177,20 @@ export default function LandingPage() {
               onClick={() => navigate('/login')}
               className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold rounded-2xl shadow-xl shadow-indigo-500/25 transition transform hover:-translate-y-0.5"
             >
-              Start Free Trial (5 Free Takeoffs)
+              {t('landing.hero.ctaTrial')}
             </button>
             <a
               href="#calculator"
               className="w-full sm:w-auto px-8 py-4 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-2xl border border-slate-700 transition"
             >
-              Test Live Calculator ↓
+              {t('landing.hero.ctaCalculator')}
             </a>
           </div>
 
           <div className="mt-6 text-xs text-slate-500 flex items-center justify-center gap-6">
-            <span>✓ No credit card required</span>
-            <span>✓ Instant PDF &amp; Word exports</span>
-            <span>✓ Auto column alias mapper</span>
+            <span>{t('landing.hero.badgeNoCard')}</span>
+            <span>{t('landing.hero.badgeInstantExports')}</span>
+            <span>{t('landing.hero.badgeColumnMapper')}</span>
           </div>
         </div>
       </section>
@@ -198,13 +200,13 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <span className="text-xs font-bold uppercase tracking-widest text-indigo-400">
-              Interactive Free Tool
+              {t('landing.calculator.tag')}
             </span>
             <h2 className="text-3xl font-extrabold text-white mt-2">
-              Instant Trench Excavation &amp; Earthwork Calculator
+              {t('landing.calculator.title')}
             </h2>
             <p className="text-sm text-slate-400 mt-2 max-w-xl mx-auto">
-              Test our estimation engine right now without signing up. Adjust pipe dimensions and see instant cubic yardage, backfill volume, and crew labor projections.
+              {t('landing.calculator.description')}
             </p>
           </div>
 
@@ -212,13 +214,13 @@ export default function LandingPage() {
             {/* Calculator Inputs */}
             <div className="lg:col-span-6 bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-800 shadow-xl space-y-5">
               <h3 className="text-base font-bold text-slate-200 border-b border-slate-800 pb-3 flex items-center gap-2">
-                <span>📐</span> Trench &amp; Utility Parameters
+                <span>📐</span> {t('landing.calculator.parametersTitle')}
               </h3>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-400 mb-1">
-                    Pipe Run Length (LF)
+                    {t('landing.calculator.pipeLength')}
                   </label>
                   <input
                     type="number"
@@ -229,7 +231,7 @@ export default function LandingPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-400 mb-1">
-                    Average Cut Depth (FT)
+                    {t('landing.calculator.cutDepth')}
                   </label>
                   <input
                     type="number"
@@ -244,7 +246,7 @@ export default function LandingPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-400 mb-1">
-                    Trench Width (FT)
+                    {t('landing.calculator.trenchWidth')}
                   </label>
                   <input
                     type="number"
@@ -256,7 +258,7 @@ export default function LandingPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-400 mb-1">
-                    Pipe Diameter (Inches)
+                    {t('landing.calculator.pipeDiameter')}
                   </label>
                   <input
                     type="number"
@@ -270,7 +272,7 @@ export default function LandingPage() {
               <div className="grid grid-cols-2 gap-4 pt-2 border-t border-slate-800">
                 <div>
                   <label className="block text-xs font-semibold text-slate-400 mb-1">
-                    Excavation Unit Cost ($/CY)
+                    {t('landing.calculator.excavationCost')}
                   </label>
                   <input
                     type="number"
@@ -281,7 +283,7 @@ export default function LandingPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-400 mb-1">
-                    Crew Labor Rate ($/HR)
+                    {t('landing.calculator.crewLaborRate')}
                   </label>
                   <input
                     type="number"
@@ -297,23 +299,23 @@ export default function LandingPage() {
             <div className="lg:col-span-6 bg-gradient-to-b from-indigo-950/60 to-slate-900 p-6 sm:p-8 rounded-3xl border border-indigo-500/30 shadow-2xl relative">
               <div className="flex items-center justify-between mb-6">
                 <span className="text-xs font-bold uppercase tracking-wider text-indigo-400">
-                  Calculated Output
+                  {t('landing.calculator.outputHeader')}
                 </span>
                 <span className="text-[10px] bg-emerald-500/20 text-emerald-400 font-bold px-2.5 py-1 rounded-full border border-emerald-500/30">
-                  Live Sync
+                  {t('landing.calculator.liveSync')}
                 </span>
               </div>
 
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className="bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
-                  <span className="text-xs text-slate-400 block mb-1">Total Excavation Volume</span>
+                  <span className="text-xs text-slate-400 block mb-1">{t('landing.calculator.totalExcavation')}</span>
                   <div className="text-2xl font-black text-white">
                     {formatNumber(totalExcavationCuYd, 1)} <span className="text-sm font-normal text-slate-400">CY</span>
                   </div>
                 </div>
 
                 <div className="bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
-                  <span className="text-xs text-slate-400 block mb-1">Net Backfill Volume</span>
+                  <span className="text-xs text-slate-400 block mb-1">{t('landing.calculator.netBackfill')}</span>
                   <div className="text-2xl font-black text-cyan-400">
                     {formatNumber(backfillCuYd, 1)} <span className="text-sm font-normal text-slate-400">CY</span>
                   </div>
@@ -322,15 +324,17 @@ export default function LandingPage() {
 
               <div className="bg-indigo-900/30 p-5 rounded-2xl border border-indigo-500/20 mb-6">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs text-slate-300">Excavation Machine Cost</span>
+                  <span className="text-xs text-slate-300">{t('landing.calculator.machineCost')}</span>
                   <span className="text-sm font-bold text-white">{formatCurrency(estimatedExcavationCost)}</span>
                 </div>
                 <div className="flex justify-between items-center mb-3">
-                  <span className="text-xs text-slate-300">Crew Production Labor ({formatNumber(estimatedCrewHours, 1)} hrs)</span>
+                  <span className="text-xs text-slate-300">
+                    {t('landing.calculator.crewProduction', { hours: formatNumber(estimatedCrewHours, 1) })}
+                  </span>
                   <span className="text-sm font-bold text-white">{formatCurrency(estimatedLaborCost)}</span>
                 </div>
                 <div className="pt-3 border-t border-indigo-500/30 flex justify-between items-center">
-                  <span className="text-sm font-bold text-indigo-200">Estimated Direct Trench Bid</span>
+                  <span className="text-sm font-bold text-indigo-200">{t('landing.calculator.directBid')}</span>
                   <span className="text-2xl font-black text-emerald-400">{formatCurrency(estimatedTotalTrenchBid)}</span>
                 </div>
               </div>
@@ -340,15 +344,15 @@ export default function LandingPage() {
                   onClick={() => navigate('/register')}
                   className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition text-center block mb-2"
                 >
-                  Import Complete Multi-Line Takeoff Sheet →
+                  {t('landing.calculator.importCta')}
                 </button>
                 <p className="text-xs text-slate-400">
-                  Want to export this as a Word / PDF bid proposal?{' '}
+                  {t('landing.calculator.exportPrompt')}{' '}
                   <button
                     onClick={() => navigate('/register')}
                     className="text-indigo-400 hover:text-indigo-300 font-semibold underline"
                   >
-                    Create Free Account →
+                    {t('landing.calculator.createAccount')}
                   </button>
                 </p>
               </div>
@@ -360,12 +364,12 @@ export default function LandingPage() {
       {/* Feature Comparison Table */}
       <section id="comparison" className="py-20 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <span className="text-xs font-bold uppercase tracking-widest text-indigo-400">Comparison</span>
+          <span className="text-xs font-bold uppercase tracking-widest text-indigo-400">{t('landing.comparison.tag')}</span>
           <h2 className="text-3xl font-extrabold text-white mt-2">
-            Why Contractors Choose Takeoff Engine
+            {t('landing.comparison.title')}
           </h2>
           <p className="text-sm text-slate-400 mt-2">
-            Stop building fragile Excel macros or overpaying $3,000/yr for bloated desktop software.
+            {t('landing.comparison.subtitle')}
           </p>
         </div>
 
@@ -373,42 +377,42 @@ export default function LandingPage() {
           <table className="w-full text-left text-sm border-collapse">
             <thead>
               <tr className="border-b border-slate-800 text-xs font-bold uppercase tracking-wider text-slate-400">
-                <th className="py-4 px-6 bg-slate-900/40">Capability</th>
-                <th className="py-4 px-6 bg-indigo-950/60 text-indigo-300 border-x border-indigo-500/30">Takeoff Engine</th>
-                <th className="py-4 px-6 bg-slate-900/40">Manual Excel Spreadsheets</th>
-                <th className="py-4 px-6 bg-slate-900/40">Enterprise Heavy Estimators</th>
+                <th className="py-4 px-6 bg-slate-900/40">{t('landing.comparison.thCapability')}</th>
+                <th className="py-4 px-6 bg-indigo-950/60 text-indigo-300 border-x border-indigo-500/30">{t('landing.comparison.thTakeoffEngine')}</th>
+                <th className="py-4 px-6 bg-slate-900/40">{t('landing.comparison.thExcel')}</th>
+                <th className="py-4 px-6 bg-slate-900/40">{t('landing.comparison.thEnterprise')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800">
               <tr>
-                <td className="py-4 px-6 font-medium text-slate-200">Pricing / Commitment</td>
-                <td className="py-4 px-6 font-bold text-emerald-400 bg-indigo-950/30 border-x border-indigo-500/20">Free to start / $19-$49/mo</td>
-                <td className="py-4 px-6 text-slate-400">Free (High time cost)</td>
-                <td className="py-4 px-6 text-red-400">$3,000 - $10,000/year upfront</td>
+                <td className="py-4 px-6 font-medium text-slate-200">{t('landing.comparison.row1Label')}</td>
+                <td className="py-4 px-6 font-bold text-emerald-400 bg-indigo-950/30 border-x border-indigo-500/20">{t('landing.comparison.row1Te')}</td>
+                <td className="py-4 px-6 text-slate-400">{t('landing.comparison.row1Excel')}</td>
+                <td className="py-4 px-6 text-red-400">{t('landing.comparison.row1Ent')}</td>
               </tr>
               <tr>
-                <td className="py-4 px-6 font-medium text-slate-200">Auto Column Header Mapping</td>
-                <td className="py-4 px-6 font-bold text-emerald-400 bg-indigo-950/30 border-x border-indigo-500/20">✓ Intelligent Aliases</td>
-                <td className="py-4 px-6 text-slate-500">✕ Manual copy-pasting</td>
-                <td className="py-4 px-6 text-slate-400">⚠️ Complex setup required</td>
+                <td className="py-4 px-6 font-medium text-slate-200">{t('landing.comparison.row2Label')}</td>
+                <td className="py-4 px-6 font-bold text-emerald-400 bg-indigo-950/30 border-x border-indigo-500/20">{t('landing.comparison.row2Te')}</td>
+                <td className="py-4 px-6 text-slate-500">{t('landing.comparison.row2Excel')}</td>
+                <td className="py-4 px-6 text-slate-400">{t('landing.comparison.row2Ent')}</td>
               </tr>
               <tr>
-                <td className="py-4 px-6 font-medium text-slate-200">One-Click Client Proposal &amp; Word Export</td>
-                <td className="py-4 px-6 font-bold text-emerald-400 bg-indigo-950/30 border-x border-indigo-500/20">✓ Branded PDF &amp; .DOCX</td>
-                <td className="py-4 px-6 text-slate-500">✕ Manual document formatting</td>
-                <td className="py-4 px-6 text-slate-400">⚠️ Clunky reports</td>
+                <td className="py-4 px-6 font-medium text-slate-200">{t('landing.comparison.row3Label')}</td>
+                <td className="py-4 px-6 font-bold text-emerald-400 bg-indigo-950/30 border-x border-indigo-500/20">{t('landing.comparison.row3Te')}</td>
+                <td className="py-4 px-6 text-slate-500">{t('landing.comparison.row3Excel')}</td>
+                <td className="py-4 px-6 text-slate-400">{t('landing.comparison.row3Ent')}</td>
               </tr>
               <tr>
-                <td className="py-4 px-6 font-medium text-slate-200">Public Portal &amp; Client E-Signature</td>
-                <td className="py-4 px-6 font-bold text-emerald-400 bg-indigo-950/30 border-x border-indigo-500/20">✓ Included (US-010)</td>
-                <td className="py-4 px-6 text-slate-500">✕ None (Requires DocuSign)</td>
-                <td className="py-4 px-6 text-slate-500">✕ None</td>
+                <td className="py-4 px-6 font-medium text-slate-200">{t('landing.comparison.row4Label')}</td>
+                <td className="py-4 px-6 font-bold text-emerald-400 bg-indigo-950/30 border-x border-indigo-500/20">{t('landing.comparison.row4Te')}</td>
+                <td className="py-4 px-6 text-slate-500">{t('landing.comparison.row4Excel')}</td>
+                <td className="py-4 px-6 text-slate-500">{t('landing.comparison.row4Ent')}</td>
               </tr>
               <tr>
-                <td className="py-4 px-6 font-medium text-slate-200">Reusable Rate &amp; Material Libraries</td>
-                <td className="py-4 px-6 font-bold text-emerald-400 bg-indigo-950/30 border-x border-indigo-500/20">✓ 1-Click Library Switcher</td>
-                <td className="py-4 px-6 text-slate-500">✕ Broken formula links</td>
-                <td className="py-4 px-6 text-emerald-400">✓ Database included</td>
+                <td className="py-4 px-6 font-medium text-slate-200">{t('landing.comparison.row5Label')}</td>
+                <td className="py-4 px-6 font-bold text-emerald-400 bg-indigo-950/30 border-x border-indigo-500/20">{t('landing.comparison.row5Te')}</td>
+                <td className="py-4 px-6 text-slate-500">{t('landing.comparison.row5Excel')}</td>
+                <td className="py-4 px-6 text-emerald-400">{t('landing.comparison.row5Ent')}</td>
               </tr>
             </tbody>
           </table>
@@ -419,12 +423,12 @@ export default function LandingPage() {
       <section id="pricing" className="py-20 bg-slate-800/40 border-t border-slate-800">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <span className="text-xs font-bold uppercase tracking-widest text-indigo-400">Simple Transparent Pricing</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-indigo-400">{t('landing.pricing.tag')}</span>
             <h2 className="text-3xl font-extrabold text-white mt-2">
-              Start Free, Upgrade When You Win Bids
+              {t('landing.pricing.title')}
             </h2>
             <p className="text-sm text-slate-400 mt-2">
-              Every plan includes full calculating features, exports, and instant cloud saves.
+              {t('landing.pricing.subtitle')}
             </p>
           </div>
 
@@ -432,19 +436,19 @@ export default function LandingPage() {
             {/* Free Trial Tier */}
             <div className="bg-slate-900 p-6 rounded-3xl border border-slate-800 flex flex-col justify-between">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Free Trial</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">{t('landing.pricing.freeTrial.tier')}</span>
                 <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-3xl font-black text-white">$0</span>
-                  <span className="text-xs text-slate-400">/ forever</span>
+                  <span className="text-3xl font-black text-white">{t('landing.pricing.freeTrial.price')}</span>
+                  <span className="text-xs text-slate-400">{t('landing.pricing.freeTrial.cadence')}</span>
                 </div>
-                <div className="text-[10px] text-slate-500 font-medium mt-0.5">no credit card required</div>
-                <p className="text-xs text-slate-400 mt-2">Perfect for evaluating your first job bids.</p>
+                <div className="text-[10px] text-slate-500 font-medium mt-0.5">{t('landing.pricing.freeTrial.noCard')}</div>
+                <p className="text-xs text-slate-400 mt-2">{t('landing.pricing.freeTrial.description')}</p>
 
                 <ul className="mt-6 space-y-2.5 text-xs text-slate-300">
-                  <li className="flex items-center gap-2">✓ <strong>5 Free Takeoff Exports</strong></li>
-                  <li className="flex items-center gap-2">✓ CSV &amp; Excel column mapper</li>
-                  <li className="flex items-center gap-2">✓ Full trench &amp; production math</li>
-                  <li className="flex items-center gap-2">✓ 1 Custom Rate Library</li>
+                  <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.freeTrial.f1')}</strong></li>
+                  <li className="flex items-center gap-2">✓ {t('landing.pricing.freeTrial.f2')}</li>
+                  <li className="flex items-center gap-2">✓ {t('landing.pricing.freeTrial.f3')}</li>
+                  <li className="flex items-center gap-2">✓ {t('landing.pricing.freeTrial.f4')}</li>
                 </ul>
               </div>
 
@@ -452,27 +456,27 @@ export default function LandingPage() {
                 onClick={() => navigate('/login')}
                 className="mt-6 w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition"
               >
-                Get Started Free
+                {t('landing.pricing.freeTrial.cta')}
               </button>
             </div>
 
             {/* Starter Tier */}
             <div className="bg-slate-900 p-6 rounded-3xl border border-slate-800 flex flex-col justify-between">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Starter Tier</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">{t('landing.pricing.starter.tier')}</span>
                 <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-3xl font-black text-white">$29.99</span>
-                  <span className="text-xs text-slate-400">/ mo</span>
+                  <span className="text-3xl font-black text-white">{t('landing.pricing.starter.price')}</span>
+                  <span className="text-xs text-slate-400">{t('landing.pricing.starter.cadence')}</span>
                 </div>
-                <div className="text-[10px] text-slate-400 font-medium mt-0.5">or $299.99/yr • plus tax</div>
-                <p className="text-xs text-slate-400 mt-2">Great for solo estimators bidding jobs weekly.</p>
+                <div className="text-[10px] text-slate-400 font-medium mt-0.5">{t('landing.pricing.starter.yearly')}</div>
+                <p className="text-xs text-slate-400 mt-2">{t('landing.pricing.starter.description')}</p>
 
                 <ul className="mt-6 space-y-2.5 text-xs text-slate-300">
-                  <li className="flex items-center gap-2">✓ <strong>Single Estimator Seat</strong></li>
-                  <li className="flex items-center gap-2">✓ <strong>Unlimited Calculations</strong></li>
-                  <li className="flex items-center gap-2">✓ Standard Word &amp; PDF Export</li>
-                  <li className="flex items-center gap-2">✓ 2 Custom Rate Libraries</li>
-                  <li className="flex items-center gap-2">✓ Cloud Save &amp; Project Dashboard</li>
+                  <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.starter.f1')}</strong></li>
+                  <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.starter.f2')}</strong></li>
+                  <li className="flex items-center gap-2">✓ {t('landing.pricing.starter.f3')}</li>
+                  <li className="flex items-center gap-2">✓ {t('landing.pricing.starter.f4')}</li>
+                  <li className="flex items-center gap-2">✓ {t('landing.pricing.starter.f5')}</li>
                 </ul>
               </div>
 
@@ -480,31 +484,31 @@ export default function LandingPage() {
                 onClick={() => navigate('/login')}
                 className="mt-6 w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition"
               >
-                Choose Starter
+                {t('landing.pricing.starter.cta')}
               </button>
             </div>
 
             {/* Pro Tier (Popular) */}
             <div className="bg-gradient-to-b from-indigo-950/80 to-slate-900 p-6 rounded-3xl border-2 border-indigo-500 shadow-2xl relative flex flex-col justify-between">
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-wider px-3 py-0.5 rounded-full shadow">
-                Most Popular
+                {t('landing.pricing.pro.mostPopular')}
               </div>
 
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-indigo-400">Pro Tier</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-indigo-400">{t('landing.pricing.pro.tier')}</span>
                 <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-3xl font-black text-white">$79.99</span>
-                  <span className="text-xs text-slate-400">/ mo</span>
+                  <span className="text-3xl font-black text-white">{t('landing.pricing.pro.price')}</span>
+                  <span className="text-xs text-slate-400">{t('landing.pricing.pro.cadence')}</span>
                 </div>
-                <div className="text-[10px] text-indigo-300/80 font-medium mt-0.5">or $799.99/yr • plus tax</div>
-                <p className="text-xs text-slate-300 mt-2">Unlimited power & full PDF report layouts.</p>
+                <div className="text-[10px] text-indigo-300/80 font-medium mt-0.5">{t('landing.pricing.pro.yearly')}</div>
+                <p className="text-xs text-slate-300 mt-2">{t('landing.pricing.pro.description')}</p>
 
                 <ul className="mt-6 space-y-2.5 text-xs text-slate-200">
-                  <li className="flex items-center gap-2">✓ <strong>3 Team Seats Included</strong></li>
-                  <li className="flex items-center gap-2">✓ <strong>All 17+ Advanced PDF Formats</strong></li>
-                  <li className="flex items-center gap-2">✓ <strong>Custom Branding &amp; Logos</strong></li>
-                  <li className="flex items-center gap-2">✓ <strong>Client Portal &amp; E-Signatures</strong></li>
-                  <li className="flex items-center gap-2">✓ Unlimited Custom Rate Libraries</li>
+                  <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.pro.f1')}</strong></li>
+                  <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.pro.f2')}</strong></li>
+                  <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.pro.f3')}</strong></li>
+                  <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.pro.f4')}</strong></li>
+                  <li className="flex items-center gap-2">✓ {t('landing.pricing.pro.f5')}</li>
                 </ul>
               </div>
 
@@ -512,27 +516,27 @@ export default function LandingPage() {
                 onClick={() => navigate('/login')}
                 className="mt-6 w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition"
               >
-                Upgrade to Pro
+                {t('landing.pricing.pro.cta')}
               </button>
             </div>
 
             {/* Enterprise Tier */}
             <div className="bg-gradient-to-b from-amber-950/40 via-slate-900 to-slate-900 p-6 rounded-3xl border border-amber-500/40 shadow-xl flex flex-col justify-between">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-amber-400">Enterprise</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-amber-400">{t('landing.pricing.enterprise.tier')}</span>
                 <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-3xl font-black text-white">$199.99</span>
-                  <span className="text-xs text-slate-400">/ mo</span>
+                  <span className="text-3xl font-black text-white">{t('landing.pricing.enterprise.price')}</span>
+                  <span className="text-xs text-slate-400">{t('landing.pricing.enterprise.cadence')}</span>
                 </div>
-                <div className="text-[10px] text-amber-300/80 font-medium mt-0.5">or $1999.99/yr • plus tax</div>
-                <p className="text-xs text-slate-300 mt-2">Multi-seat collaboration for growing teams.</p>
+                <div className="text-[10px] text-amber-300/80 font-medium mt-0.5">{t('landing.pricing.enterprise.yearly')}</div>
+                <p className="text-xs text-slate-300 mt-2">{t('landing.pricing.enterprise.description')}</p>
 
                 <ul className="mt-6 space-y-2.5 text-xs text-slate-200">
-                  <li className="flex items-center gap-2">✓ <strong>8 Base Team Seats Included</strong></li>
-                  <li className="flex items-center gap-2">✓ <strong>+$29.99/mo per extra seat (+ tax)</strong></li>
-                  <li className="flex items-center gap-2">✓ <strong>All 17+ Advanced PDF Formats</strong></li>
-                  <li className="flex items-center gap-2">✓ Team Workspaces &amp; Shared Libraries</li>
-                  <li className="flex items-center gap-2">✓ All Pro features + priority support</li>
+                  <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.enterprise.f1')}</strong></li>
+                  <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.enterprise.f2')}</strong></li>
+                  <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.enterprise.f3')}</strong></li>
+                  <li className="flex items-center gap-2">✓ {t('landing.pricing.enterprise.f4')}</li>
+                  <li className="flex items-center gap-2">✓ {t('landing.pricing.enterprise.f5')}</li>
                 </ul>
               </div>
 
@@ -540,7 +544,7 @@ export default function LandingPage() {
                 onClick={() => navigate('/login')}
                 className="mt-6 w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-amber-600/30 transition"
               >
-                Choose Enterprise
+                {t('landing.pricing.enterprise.cta')}
               </button>
             </div>
           </div>
@@ -552,23 +556,23 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-4 space-y-4">
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-slate-400">
             <button onClick={() => navigate('/home')} className="hover:text-white transition">
-              Home
+              {t('landing.footer.home')}
             </button>
             <a href="#calculator" className="hover:text-white transition">
-              Trench Calculator
+              {t('landing.footer.trenchCalculator')}
             </a>
             <a href="#pricing" className="hover:text-white transition">
-              Pricing Plans
+              {t('landing.footer.pricingPlans')}
             </a>
             <button onClick={() => navigate('/login')} className="hover:text-white transition">
-              Sign In
+              {t('landing.footer.signIn')}
             </button>
             <button onClick={() => navigate('/register')} className="hover:text-white transition">
-              Create Account
+              {t('landing.footer.createAccount')}
             </button>
           </div>
-          <p className="font-semibold text-slate-400">Takeoff Engine — Civil &amp; Utility Estimating Platform</p>
-          <p>© {new Date().getFullYear()} Takeoff Engine. All rights reserved.</p>
+          <p className="font-semibold text-slate-400">{t('landing.footer.tagline')}</p>
+          <p>{t('landing.footer.copyright', { year: new Date().getFullYear() })}</p>
         </div>
       </footer>
 
@@ -582,26 +586,26 @@ export default function LandingPage() {
               </div>
               <div>
                 <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-amber-400/10 text-amber-300 border border-amber-400/20 mb-1.5">
-                  Development Preview
+                  {t('landing.disclaimer.tag')}
                 </span>
                 <h2 className="text-xl font-bold text-white tracking-tight">
-                  Work in Progress Notice
+                  {t('landing.disclaimer.title')}
                 </h2>
               </div>
             </div>
 
             <p className="text-sm text-slate-300 leading-relaxed mb-4">
-              Welcome to <strong>Takeoff Engine</strong>! This application is currently under active development.
+              {t('landing.disclaimer.welcome')}
             </p>
 
             <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800 text-xs text-slate-400 space-y-2 mb-6 leading-relaxed">
               <p className="flex items-start gap-2">
                 <span className="text-amber-400 font-bold">•</span>
-                <span>Some listed features, pricing plans, and integrations may not be fully functional or ready for production use yet.</span>
+                <span>{t('landing.disclaimer.p1')}</span>
               </p>
               <p className="flex items-start gap-2">
                 <span className="text-amber-400 font-bold">•</span>
-                <span>Calculations, exports, and mock sandbox flows are provided for testing and demonstration purposes.</span>
+                <span>{t('landing.disclaimer.p2')}</span>
               </p>
             </div>
 
@@ -611,7 +615,7 @@ export default function LandingPage() {
                 onClick={handleDismissDisclaimer}
                 className="w-full sm:w-auto px-6 py-2.5 text-xs font-bold text-slate-900 bg-amber-400 hover:bg-amber-300 rounded-xl transition shadow-lg shadow-amber-400/20"
               >
-                I Understand, Continue to Site
+                {t('landing.disclaimer.confirm')}
               </button>
             </div>
           </div>

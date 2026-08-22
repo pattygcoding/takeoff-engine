@@ -1,9 +1,11 @@
 import { createBlankItem } from '@/lib/csv';
+import { useTranslation } from '@/context/I18nContext';
 
 const SYSTEMS = ['Sanitary', 'Storm', 'Domestic Water'];
 const UNITS = ['LF', 'EA'];
 
 export default function TakeoffGrid({ items, onChange, readOnly = false }) {
+  const { t } = useTranslation();
   const updateItem = (id, field, value) => {
     if (readOnly) return;
     onChange(items.map((it) => (it.id === id ? { ...it, [field]: value } : it)));
@@ -35,14 +37,14 @@ export default function TakeoffGrid({ items, onChange, readOnly = false }) {
       <table className="min-w-full text-sm">
         <thead className="bg-slate-50 border-b border-slate-200">
           <tr>
-            <Th>System</Th>
-            <Th>Description</Th>
-            <Th>Size / Spec</Th>
-            <Th align="right">Qty</Th>
-            <Th>Unit</Th>
-            <Th align="right">Avg Depth (ft)</Th>
-            <Th align="right">Material $/Unit</Th>
-            <Th align="right">Labor Hrs/Unit</Th>
+            <Th>{t('takeoffGrid.system')}</Th>
+            <Th>{t('takeoffGrid.description')}</Th>
+            <Th>{t('takeoffGrid.sizeSpec')}</Th>
+            <Th align="right">{t('takeoffGrid.quantity')}</Th>
+            <Th>{t('takeoffGrid.unit')}</Th>
+            <Th align="right">{t('takeoffGrid.avgDepth')}</Th>
+            <Th align="right">{t('takeoffGrid.materialCostPerUnit')}</Th>
+            <Th align="right">{t('takeoffGrid.laborHoursPerUnit')}</Th>
             <Th></Th>
           </tr>
         </thead>
@@ -137,7 +139,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false }) {
                     type="button"
                     onClick={() => removeItem(item.id)}
                     className="text-slate-400 hover:text-red-600"
-                    title="Delete row"
+                    title={t('takeoffGrid.deleteRow')}
                   >
                     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path
@@ -162,7 +164,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false }) {
             onClick={addRow}
             className="text-sm font-medium text-indigo-600 hover:text-indigo-800"
           >
-            + Add Row
+            + {t('takeoffGrid.addRow')}
           </button>
         </div>
       )}

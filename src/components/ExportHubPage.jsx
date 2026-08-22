@@ -5,6 +5,7 @@ import { triggerDownload } from '@/lib/csv';
 import { authApi } from '@/lib/auth';
 import { useAuth } from '@/context/AuthContext';
 import { useModal } from '@/context/ModalContext';
+import { useTranslation } from '@/context/I18nContext';
 import UpgradeModal from './UpgradeModal';
 import {
   StandardEstimateDocument,
@@ -231,6 +232,7 @@ export const EXPORT_FORMATS = [
 ];
 
 export default function ExportHubPage({ items, rates, currentProject }) {
+  const { t } = useTranslation();
   const { username, projectId } = useParams();
   const navigate = useNavigate();
   const { user, setUser, refreshProfile } = useAuth();
@@ -323,8 +325,8 @@ export default function ExportHubPage({ items, rates, currentProject }) {
       } catch (err) {
         console.error('PDF export failed:', err);
         await showAlert({
-          title: 'Export Failed',
-          message: 'PDF export failed. You can also choose "Print / Save as PDF" from your browser.',
+          title: t('exportHub.exportFailedTitle'),
+          message: t('exportHub.pdfExportFailedMsg'),
           variant: 'error',
         });
       } finally {
@@ -350,8 +352,8 @@ export default function ExportHubPage({ items, rates, currentProject }) {
       } catch (err) {
         console.error('Word export failed:', err);
         await showAlert({
-          title: 'Export Failed',
-          message: 'Word export failed. Please try again.',
+          title: t('exportHub.exportFailedTitle'),
+          message: t('exportHub.wordExportFailedMsg'),
           variant: 'error',
         });
       } finally {
@@ -389,11 +391,11 @@ export default function ExportHubPage({ items, rates, currentProject }) {
               to={backUrl}
               className="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-indigo-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl transition"
             >
-              ← Back to Results
+              {t('exportHub.backToResults')}
             </Link>
             <div>
               <h1 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
-                <span>Export &amp; Print Center</span>
+                <span>{t('exportHub.exportPrintCenter')}</span>
                 {currentProject?.name && (
                   <span className="text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 rounded-md">
                     {currentProject.name}
@@ -414,7 +416,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
               <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
               </svg>
-              <span>Print</span>
+              <span>{t('exportHub.printBtn')}</span>
             </button>
 
             <button
@@ -426,7 +428,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
               </svg>
-              <span>{exportingType === 'pdf' ? 'Generating PDF...' : 'Export PDF'}</span>
+              <span>{exportingType === 'pdf' ? t('exportHub.generatingPdf') : t('exportHub.exportPdfBtn')}</span>
             </button>
 
             <button
@@ -438,7 +440,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              <span>{exportingType === 'word' ? 'Generating Word...' : 'Export Word'}</span>
+              <span>{exportingType === 'word' ? t('exportHub.generatingWord') : t('exportHub.exportWordBtn')}</span>
             </button>
           </div>
         </div>
@@ -450,25 +452,25 @@ export default function ExportHubPage({ items, rates, currentProject }) {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
             <div>
               <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800">
-                Choose Document Format &amp; Layout Template
+                {t('exportHub.chooseDocFormatTitle')}
               </h2>
               <p className="text-xs text-slate-500">
-                Select from 17 specialized construction layouts. All formats can be printed, exported as high-res PDF, or generated as editable Word DOCX.
+                {t('exportHub.chooseDocFormatDesc')}
               </p>
             </div>
             <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 shrink-0">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-              <span>3 Standard Formats</span>
+              <span>{t('exportHub.standardFormatsBadge')}</span>
               <span className="text-slate-300">•</span>
               <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-              <span>14 Pro Formats</span>
+              <span>{t('exportHub.proFormatsBadge')}</span>
             </div>
           </div>
 
           {/* Row 1 (5 items) */}
           <div className="mb-4">
             <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 px-1">
-              Row 1 • Standard Estimates &amp; Bid Schedules (5)
+              {t('exportHub.row1Title')}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
               {EXPORT_FORMATS.slice(0, 5).map((fmt) => (
@@ -493,7 +495,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
           {/* Row 2 (5 items) */}
           <div className="mb-4">
             <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 px-1">
-              Row 2 • Procurement, Crews &amp; Subcontracts (5)
+              {t('exportHub.row2Title')}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
               {EXPORT_FORMATS.slice(5, 10).map((fmt) => (
@@ -518,7 +520,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
           {/* Row 3 (5 items) */}
           <div className="mb-4">
             <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 px-1">
-              Row 3 • Earthwork, Billing &amp; Contract Forms (5)
+              {t('exportHub.row3Title')}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
               {EXPORT_FORMATS.slice(10, 15).map((fmt) => (
@@ -543,7 +545,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
           {/* Row 4 (2 items) */}
           <div>
             <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 px-1">
-              Row 4 • Jobsite QA &amp; Project Handover (2)
+              {t('exportHub.row4Title')}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
               {EXPORT_FORMATS.slice(15).map((fmt) => (
@@ -575,10 +577,10 @@ export default function ExportHubPage({ items, rates, currentProject }) {
               </div>
               <div>
                 <h4 className="text-sm font-bold text-amber-900">
-                  {currentFormat.name} is a Pro Feature
+                  {t('exportHub.isAProFeature', { name: currentFormat.name })}
                 </h4>
                 <p className="text-xs text-amber-700">
-                  Upgrade to Takeoff Engine Pro to unlock this layout format across Print, PDF, and Word exports.
+                  {t('exportHub.isAProFeatureDesc')}
                 </p>
               </div>
             </div>
@@ -587,7 +589,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
               onClick={() => setShowUpgradeModal(true)}
               className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold text-xs rounded-xl shadow-xs transition cursor-pointer shrink-0"
             >
-              Upgrade to Unlock
+              {t('exportHub.upgradeToUnlockBtn')}
             </button>
           </div>
         )}
@@ -602,10 +604,10 @@ export default function ExportHubPage({ items, rates, currentProject }) {
               </div>
               <div>
                 <h2 className="text-base sm:text-lg font-bold text-slate-900 leading-tight">
-                  Document Preview: <span className="text-indigo-600">{currentFormat.name}</span>
+                  {t('exportHub.documentPreview')}: <span className="text-indigo-600">{currentFormat.name}</span>
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Live rendering of the document as it will appear when printed, converted to PDF, or exported to Word.
+                  {t('exportHub.previewDesc')}
                 </p>
               </div>
             </div>
@@ -618,7 +620,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
               <svg className="w-4 h-4 text-slate-400 group-hover:text-indigo-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 10l7-7m0 0l7 7m-7-7v18" />
               </svg>
-              <span>Back to Document Selection</span>
+              <span>{t('exportHub.backToDocSelection')}</span>
             </button>
           </div>
 
@@ -699,6 +701,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
  * Format Card Component with Word-style document thumbnail
  */
 function FormatCard({ format, isSelected, isPro, onScrollToPreview, onClick }) {
+  const { t } = useTranslation();
   const isLocked = format.isProOnly && !isPro;
 
   const handlePreviewClick = (e) => {
@@ -738,7 +741,7 @@ function FormatCard({ format, isSelected, isPro, onScrollToPreview, onClick }) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
-            <span className="text-[10px] font-bold text-amber-300">Unlock with Pro</span>
+            <span className="text-[10px] font-bold text-amber-300">{t('exportHub.unlockWithPro')}</span>
           </div>
         )}
       </div>
@@ -753,9 +756,9 @@ function FormatCard({ format, isSelected, isPro, onScrollToPreview, onClick }) {
                 type="button"
                 onClick={handlePreviewClick}
                 className="px-1.5 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 hover:text-indigo-900 border border-indigo-200 rounded-md text-[9px] font-extrabold tracking-tight transition cursor-pointer shadow-2xs flex items-center gap-0.5"
-                title="Jump down to live document preview"
+                title={t('exportHub.jumpToPreviewTitle')}
               >
-                <span>SEE PREVIEW</span>
+                <span>{t('exportHub.seePreviewBtn')}</span>
                 <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                 </svg>

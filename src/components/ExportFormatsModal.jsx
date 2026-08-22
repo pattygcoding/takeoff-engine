@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from '@/context/I18nContext';
 
 /**
  * ExportFormatsModal
@@ -14,6 +15,7 @@ export default function ExportFormatsModal({
   isPro,
   onUpgrade,
 }) {
+  const { t } = useTranslation();
   const [selectedFormatId, setSelectedFormatId] = useState('pdf');
 
   if (!isOpen) return null;
@@ -22,56 +24,56 @@ export default function ExportFormatsModal({
     // --- ROW 1 (5 items) ---
     {
       id: 'print',
-      title: 'Standard Print',
+      title: t('exportFormatsModal.standardPrintTitle'),
       formatType: 'Browser / Printer',
       extension: 'Print',
       tag: 'Standard',
       isLocked: false,
-      description: 'Clean paper-ready layout formatted for standard letter/A4 printing or Save as PDF.',
+      description: t('exportFormatsModal.standardPrintDesc'),
       previewType: 'print',
       accentColor: 'indigo',
     },
     {
       id: 'pdf',
-      title: 'PDF Document',
+      title: t('exportFormatsModal.pdfDocTitle'),
       formatType: 'Vector PDF',
       extension: '.pdf',
       tag: 'Standard',
       isLocked: false,
-      description: 'High-resolution PDF document with clean headers, itemized breakdowns, and totals.',
+      description: t('exportFormatsModal.pdfDocDesc'),
       previewType: 'pdf',
       accentColor: 'rose',
     },
     {
       id: 'word',
-      title: 'Word Document',
+      title: t('exportFormatsModal.wordDocTitle'),
       formatType: 'Editable DOCX',
       extension: '.docx',
       tag: 'Standard',
       isLocked: false,
-      description: 'Fully editable Microsoft Word document with styled tables and formatted summaries.',
+      description: t('exportFormatsModal.wordDocDesc'),
       previewType: 'word',
       accentColor: 'blue',
     },
     {
       id: 'executive_proposal',
-      title: 'Executive Proposal',
+      title: t('exportFormatsModal.executiveProposalTitle'),
       formatType: 'Client Presentation',
       extension: '.pdf',
       tag: 'Pro',
       isLocked: !isPro,
-      description: 'Premium client-facing proposal with branded header banner, terms, scope, and signature block.',
+      description: t('exportFormatsModal.executiveProposalDesc'),
       previewType: 'executive',
       accentColor: 'purple',
     },
     {
       id: 'itemized_ledger',
-      title: 'Cost Breakdown Ledger',
+      title: t('exportFormatsModal.costBreakdownLedgerTitle'),
       formatType: 'Audit Report',
       extension: '.pdf / .docx',
       tag: 'Pro',
       isLocked: !isPro,
-      description: 'Granular job-cost breakdown showing separate labor rates, crew hours, materials, and markups.',
+      description: t('exportFormatsModal.costBreakdownLedgerDesc'),
       previewType: 'ledger',
       accentColor: 'emerald',
     },
@@ -79,23 +81,23 @@ export default function ExportFormatsModal({
     // --- ROW 2 (2 items) ---
     {
       id: 'bid_schedule',
-      title: 'AIA Bid Schedule',
+      title: t('exportFormatsModal.aiaBidScheduleTitle'),
       formatType: 'Contractor Submittal',
       extension: '.pdf / .docx',
       tag: 'Pro',
       isLocked: !isPro,
-      description: 'Standardized unit price bid schedule matching public work and commercial submittal standards.',
+      description: t('exportFormatsModal.aiaBidScheduleDesc'),
       previewType: 'schedule',
       accentColor: 'amber',
     },
     {
       id: 'executive_summary',
-      title: 'Executive KPI Summary',
+      title: t('exportFormatsModal.executiveKpiSummaryTitle'),
       formatType: 'Management Deck',
       extension: '.pdf',
       tag: 'Pro',
       isLocked: !isPro,
-      description: 'High-level dashboard overview featuring margin percentages, major system graphs, and risk margins.',
+      description: t('exportFormatsModal.executiveKpiSummaryDesc'),
       previewType: 'summary',
       accentColor: 'cyan',
     },
@@ -130,8 +132,8 @@ export default function ExportFormatsModal({
               </svg>
             </div>
             <div>
-              <h3 className="text-lg font-bold text-slate-900">Choose Export &amp; Print Format</h3>
-              <p className="text-xs text-slate-500">Select an export template or formatted layout for your estimate</p>
+              <h3 className="text-lg font-bold text-slate-900">{t('exportFormatsModal.title')}</h3>
+              <p className="text-xs text-slate-500">{t('exportFormatsModal.subtitle')}</p>
             </div>
           </div>
           <button
@@ -148,7 +150,7 @@ export default function ExportFormatsModal({
           {/* Row 1: 5 Formats */}
           <div>
             <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 px-1">
-              Standard &amp; Executive Formats
+              {t('exportFormatsModal.standardAndExecutive')}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
               {formats.slice(0, 5).map((format) => (
@@ -166,7 +168,7 @@ export default function ExportFormatsModal({
           {/* Row 2: 2 Formats */}
           <div>
             <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 px-1">
-              Advanced Contractor Submittals
+              {t('exportFormatsModal.advancedContractorSubmittals')}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
               {formats.slice(5).map((format) => (
@@ -186,7 +188,7 @@ export default function ExportFormatsModal({
         <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-xs text-slate-500">
             <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <span>All exports include current markup, labor &amp; contingency calculations.</span>
+            <span>{t('exportFormatsModal.allExportsIncludeNote')}</span>
           </div>
           <div className="flex items-center gap-2.5 w-full sm:w-auto">
             <button
@@ -194,14 +196,18 @@ export default function ExportFormatsModal({
               onClick={onClose}
               className="flex-1 sm:flex-none px-4 py-2 text-sm font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-200/60 rounded-xl transition cursor-pointer"
             >
-              Cancel
+              {t('exportFormatsModal.cancel')}
             </button>
             <button
               type="button"
               onClick={handleConfirm}
               className="flex-1 sm:flex-none px-5 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs transition inline-flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>Continue with {formats.find((f) => f.id === selectedFormatId)?.title || 'Selected'}</span>
+              <span>
+                {t('exportFormatsModal.continueWith', {
+                  title: formats.find((f) => f.id === selectedFormatId)?.title || 'Selected',
+                })}
+              </span>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>
@@ -217,6 +223,7 @@ export default function ExportFormatsModal({
  * Miniature Document Preview mimicking Microsoft Word template selector
  */
 function FormatCard({ format, isSelected, onClick, onUpgrade }) {
+  const { t } = useTranslation();
   const isLocked = format.isLocked;
 
   return (
@@ -254,8 +261,8 @@ function FormatCard({ format, isSelected, onClick, onUpgrade }) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
-            <span className="text-[11px] font-bold text-amber-300">Unlock with Pro</span>
-            <span className="text-[9px] text-slate-200 opacity-90 line-clamp-1 mt-0.5">Click to upgrade</span>
+            <span className="text-[11px] font-bold text-amber-300">{t('exportFormatsModal.unlockWithPro')}</span>
+            <span className="text-[9px] text-slate-200 opacity-90 line-clamp-1 mt-0.5">{t('exportFormatsModal.clickToUpgrade')}</span>
           </div>
         )}
       </div>

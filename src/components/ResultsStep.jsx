@@ -7,6 +7,7 @@ import { proposalsApi } from '@/lib/proposals';
 import { authApi } from '@/lib/auth';
 import { useAuth } from '@/context/AuthContext';
 import { useModal } from '@/context/ModalContext';
+import { useTranslation } from '@/context/I18nContext';
 import UpgradeModal from './UpgradeModal';
 import Papa from 'papaparse';
 
@@ -15,6 +16,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
   const navigate = useNavigate();
   const { user, setUser, refreshProfile } = useAuth();
   const { showAlert } = useModal();
+  const { t } = useTranslation();
   const [proposalMode, setProposalMode] = useState(false);
   const [isSavingProject, setIsSavingProject] = useState(false);
   const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
@@ -113,7 +115,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
       }
 
       setShowSaveModal(false);
-      setSaveSuccessMsg('Estimate successfully saved to cloud!');
+      setSaveSuccessMsg(t('resultsStep.estimateSavedSuccess'));
       setTimeout(() => setSaveSuccessMsg(''), 4000);
       return savedProject;
     } catch (err) {
@@ -124,8 +126,8 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
         return null;
       }
       await showAlert({
-        title: 'Save Failed',
-        message: err.message || 'Failed to save project to cloud.',
+        title: t('resultsStep.saveFailed'),
+        message: err.message || t('resultsStep.savingProject'),
         variant: 'error',
       });
       return null;
@@ -137,8 +139,8 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
   const handleGenerateShareableProposal = async () => {
     if (!user) {
       await showAlert({
-        title: 'Authentication Required',
-        message: 'Please sign in to generate a shareable client proposal link.',
+        title: t('resultsStep.authRequired'),
+        message: t('resultsStep.authRequiredMessage'),
         variant: 'warning',
       });
       return;
@@ -177,8 +179,8 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
       setShareProposalModalOpen(true);
     } catch (err) {
       await showAlert({
-        title: 'Proposal Link Error',
-        message: err.message || 'Failed to generate proposal link.',
+        title: t('resultsStep.proposalLinkError'),
+        message: err.message || t('resultsStep.proposalLinkErrorMessage'),
         variant: 'error',
       });
     } finally {
@@ -190,8 +192,8 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
     e.preventDefault();
     if (!clientRecipientEmail || !clientRecipientEmail.trim()) {
       await showAlert({
-        title: 'Missing Recipient Email',
-        message: 'Please provide a valid client email address.',
+        title: t('resultsStep.missingRecipientEmail'),
+        message: t('resultsStep.missingRecipientEmailMessage'),
         variant: 'warning',
       });
       return;
@@ -206,7 +208,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
         recipientName: clientRecipientName.trim(),
       });
 
-      setEmailSentSuccess(`Proposal invitation successfully sent to ${clientRecipientEmail.trim()}! Project has been moved to Submitted status.`);
+      setEmailSentSuccess(t('resultsStep.proposalSentSuccess', { email: clientRecipientEmail.trim() }));
       if (res.trial_uses_remaining !== undefined) {
         if (setUser) {
           setUser((prev) => (prev ? { ...prev, trial_uses_remaining: res.trial_uses_remaining } : prev));
@@ -218,8 +220,8 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
       }
     } catch (err) {
       await showAlert({
-        title: 'Email Delivery Error',
-        message: err.message || 'Failed to send proposal email.',
+        title: t('resultsStep.emailDeliveryError'),
+        message: err.message || t('resultsStep.emailDeliveryErrorMessage'),
         variant: 'error',
       });
     } finally {
@@ -286,17 +288,17 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
   const activeStatus = currentProject?.status || projectStatus;
   const statusLabel =
     activeStatus === 'submitted'
-      ? 'Submitted'
+      ? t('resultsStep.statusSubmitted')
       : activeStatus === 'archived'
-      ? 'Archived'
-      : 'Awarded';
+      ? t('resultsStep.statusArchived')
+      : t('resultsStep.statusAwarded');
 
   const statusDescription =
     activeStatus === 'submitted'
-      ? 'This project has been submitted to the client. Figures are locked to maintain proposal integrity. You can export or print anytime.'
+      ? t('resultsStep.statusDescSubmitted')
       : activeStatus === 'archived'
-      ? 'This project has been archived. Figures are locked in read-only mode. You can export or print anytime.'
-      : 'This project has been awarded. Figures are locked to maintain historical and contract integrity. You can export or print anytime.';
+      ? t('resultsStep.statusDescArchived')
+      : t('resultsStep.statusDescAwarded');
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">

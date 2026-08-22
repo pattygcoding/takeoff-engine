@@ -1,9 +1,11 @@
 import { useCallback, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { downloadSampleCsv, downloadSampleExcel, parseTakeoffFile } from '@/lib/csv';
+import { useTranslation } from '@/context/I18nContext';
 import ColumnMappingModal from './ColumnMappingModal';
 
 export default function UploadStep({ onItemsParsed }) {
+  const { t } = useTranslation();
   const [isDragging, setIsDragging] = useState(false);
   const [errors, setErrors] = useState([]);
   const [fileName, setFileName] = useState('');
@@ -41,7 +43,7 @@ export default function UploadStep({ onItemsParsed }) {
         }
       } catch (err) {
         console.error('Failed to parse takeoff file:', err);
-        setErrors([`Could not read this file. Make sure it's a valid CSV or Excel (.xlsx) file.`]);
+        setErrors([t('uploadStep.parseError')]);
       } finally {
         setIsParsing(false);
       }
@@ -76,9 +78,9 @@ export default function UploadStep({ onItemsParsed }) {
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-slate-900">Import Your Takeoff</h1>
+        <h1 className="text-3xl font-bold text-slate-900">{t('uploadStep.title')}</h1>
         <p className="mt-2 text-slate-500">
-          Upload a CSV or Excel export of your construction takeoff to begin building a pricing estimate.
+          {t('uploadStep.subtitle')}
         </p>
       </div>
 
@@ -110,14 +112,14 @@ export default function UploadStep({ onItemsParsed }) {
         </svg>
         <p className="mt-4 font-medium text-slate-700">
           {isParsing ? (
-            'Parsing spreadsheet and sniffing headers…'
+            t('uploadStep.parsingMessage')
           ) : (
             <>
-              Drag &amp; drop your CSV or Excel file here, or <span className="text-indigo-600 underline">browse</span>
+              {t('uploadStep.dragDropMessage')} <span className="text-indigo-600 underline">{t('uploadStep.browseLink')}</span>
             </>
           )}
         </p>
-        <p className="mt-1 text-sm text-slate-400">{fileName || 'Accepts .csv, .xlsx, .xls, and .xlsm files'}</p>
+        <p className="mt-1 text-sm text-slate-400">{fileName || t('uploadStep.fileTypeHint')}</p>
       </div>
 
       {checksumSummary && (
@@ -127,11 +129,11 @@ export default function UploadStep({ onItemsParsed }) {
             : 'border-amber-200 bg-amber-50 text-amber-800'
         }`}>
           <div className="flex items-center gap-2 font-bold mb-1">
-            <span>{checksumSummary.checksumMatches ? '✓ Subtotal Checksum Verified' : '⚠️ Subtotal Checksum Note'}</span>
+            <span>{checksumSummary.checksumMatches ? t('uploadStep.checksumVerified') : t('uploadStep.checksumNote')}</span>
           </div>
           <p>
-            Detected Spreadsheet Subtotal: <strong>{checksumSummary.detectedSubtotals.toLocaleString()}</strong> |
-            Parsed Items Total: <strong>{checksumSummary.parsedSum.toLocaleString()}</strong>
+            {t('uploadStep.checksumPrefix')} <strong>{checksumSummary.detectedSubtotals.toLocaleString()}</strong> |
+            {t('uploadStep.checksumParsedPrefix')} <strong>{checksumSummary.parsedSum.toLocaleString()}</strong>
           </p>
         </div>
       )}
@@ -139,7 +141,7 @@ export default function UploadStep({ onItemsParsed }) {
       {errors.length > 0 && (
         <div className="mt-6 rounded-lg border border-red-200 bg-red-50 p-4">
           <p className="font-medium text-red-700 mb-2">
-            {errors.length} issue{errors.length > 1 ? 's' : ''} found in your file:
+            {t('uploadStep.issuesFound', { count: errors.length, plural: errors.length > 1 ? 's' : '' })}
           </p>
           <ul className="list-disc list-inside text-sm text-red-600 space-y-1 max-h-40 overflow-y-auto">
             {errors.map((err, i) => (
@@ -150,13 +152,13 @@ export default function UploadStep({ onItemsParsed }) {
       )}
 
       <div className="mt-8 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm text-slate-500">
-        <span>Need a starting point?</span>
+        <span>{t('uploadStep.needStartingPoint')}</span>
         <button
           type="button"
           onClick={() => downloadSampleCsv()}
           className="font-medium text-indigo-600 hover:text-indigo-800 underline"
         >
-          CSV Template
+          {t('uploadStep.csvTemplate')}
         </button>
         <span className="text-slate-300">|</span>
         <button
@@ -164,7 +166,7 @@ export default function UploadStep({ onItemsParsed }) {
           onClick={() => downloadSampleExcel()}
           className="font-medium text-indigo-600 hover:text-indigo-800 underline"
         >
-          Excel Template (.xlsx)
+          {t('uploadStep.excelTemplate')}
         </button>
         <span className="text-slate-300">|</span>
         <a
@@ -172,7 +174,7 @@ export default function UploadStep({ onItemsParsed }) {
           download="sample_bluebeam_takeoff.csv"
           className="font-medium text-indigo-600 hover:text-indigo-800 underline"
         >
-          Bluebeam Sample
+          {t('uploadStep.bluebeamSample')}
         </a>
         <span className="text-slate-300">|</span>
         <a
@@ -180,7 +182,7 @@ export default function UploadStep({ onItemsParsed }) {
           download="sample_planswift_takeoff.csv"
           className="font-medium text-indigo-600 hover:text-indigo-800 underline"
         >
-          PlanSwift Sample
+          {t('uploadStep.planswiftSample')}
         </a>
         <span className="text-slate-300">|</span>
         <a
@@ -188,25 +190,25 @@ export default function UploadStep({ onItemsParsed }) {
           download="sample_trimble_agtek_takeoff.csv"
           className="font-medium text-indigo-600 hover:text-indigo-800 underline"
         >
-          Trimble / Agtek Sample
+          {t('uploadStep.trimbleSample')}
         </a>
       </div>
 
       <div className="mt-10 rounded-lg bg-slate-50 border border-slate-200 p-4 text-sm text-slate-600">
-        <p className="font-medium text-slate-700 mb-1">Mega-Resilient Takeoff Engine Ingestion:</p>
+        <p className="font-medium text-slate-700 mb-1">{t('uploadStep.ingestionTitle')}</p>
         <p className="text-xs text-slate-500 mb-2">
-          Drop complex takeoff spreadsheets directly without manual cleanup. Our engine features automatic 2D header boundary sniffing, merged cell forward-filling, subtotal row exclusion, composite size deconstruction, trade unit normalization, and vendor mapping presets.
+          {t('uploadStep.ingestionDescription')}
         </p>
         <code className="text-xs bg-white border border-slate-200 rounded px-2 py-1 block overflow-x-auto">
-          Standard Fields: system, item_description, size_spec, quantity, unit, avg_depth_ft
+          {t('uploadStep.standardFields')}
         </code>
         <p className="mt-3">
-          Need more detail on what's allowed?{' '}
+          {t('uploadStep.needMoreDetail')}{' '}
           <Link
             to="/guide"
             className="font-medium text-indigo-600 hover:text-indigo-800 underline"
           >
-            Read the full client guide
+            {t('uploadStep.readFullGuide')}
           </Link>
           .
         </p>

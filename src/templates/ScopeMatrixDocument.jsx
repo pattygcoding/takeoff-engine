@@ -1,16 +1,18 @@
 import React from 'react';
 import { formatCurrency, formatNumber } from '@/lib/calculations';
 import { DocumentBrandingHeader, DocumentSignOff } from './DocumentHeaderSignoff';
+import { useTranslation } from '@/context/I18nContext';
 
 /**
  * 7. Commercial Scope & Spec Matrix Document Layout
  */
 export default function ScopeMatrixDocument({ estimate, branding, currentProject }) {
   const { totals, bySystem } = estimate;
+  const { t } = useTranslation();
 
   return (
     <div className="space-y-6">
-      <DocumentBrandingHeader branding={branding} title="Commercial Scope &amp; Spec Matrix" project={currentProject} />
+      <DocumentBrandingHeader branding={branding} title={t('templates.scopeMatrix.title')} project={currentProject} />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {bySystem.map((sys) => (
@@ -32,7 +34,7 @@ export default function ScopeMatrixDocument({ estimate, branding, currentProject
       </div>
 
       <div className="p-4 bg-slate-900 text-white rounded-2xl flex justify-between items-center">
-        <span className="text-xs font-bold uppercase tracking-wider">Total Combined Matrix Bid</span>
+        <span className="text-xs font-bold uppercase tracking-wider">{t('templates.scopeMatrix.totalCombinedBid')}</span>
         <span className="text-lg font-bold font-mono text-emerald-400">{formatCurrency(totals.finalBidAmount)}</span>
       </div>
 

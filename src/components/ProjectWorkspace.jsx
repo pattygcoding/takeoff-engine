@@ -5,9 +5,11 @@ import EditStep from './EditStep';
 import ResultsStep from './ResultsStep';
 import ExportHubPage from './ExportHubPage';
 import { projectsApi } from '@/lib/projects';
+import { useTranslation } from '@/context/I18nContext';
 
 export default function ProjectWorkspace({ step = 2, items, setItems, rates, setRates, currentProject, setCurrentProject }) {
   const { username, projectId } = useParams();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState(null);
@@ -42,7 +44,7 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
           .catch((err) => {
             if (!isMounted) return;
             console.error('Failed to load project by URL ID:', err);
-            setLoadError(err.message || 'Failed to load takeoff project.');
+            setLoadError(err.message || t('projectWorkspace.errLoadFailed'));
           })
           .finally(() => {
             if (isMounted) setLoading(false);
@@ -110,7 +112,9 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm font-semibold text-slate-600">Loading Takeoff #{projectId}...</p>
+          <p className="text-sm font-semibold text-slate-600">
+            {t('projectWorkspace.loadingTakeoff', { id: projectId || '' })}
+          </p>
         </div>
       </div>
     );
@@ -124,13 +128,13 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
         </div>
-        <h3 className="text-lg font-bold text-slate-900 mb-1">Could Not Load Takeoff</h3>
+        <h3 className="text-lg font-bold text-slate-900 mb-1">{t('projectWorkspace.couldNotLoadTitle')}</h3>
         <p className="text-sm text-slate-500 mb-5">{loadError}</p>
         <Link
           to={`/${username}`}
           className="inline-flex items-center gap-1 px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl hover:bg-indigo-700 transition"
         >
-          ← Back to Projects Dashboard
+          {t('projectWorkspace.backToProjects')}
         </Link>
       </div>
     );
@@ -148,7 +152,7 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm font-semibold text-slate-600">Redirecting to Projects Dashboard...</p>
+          <p className="text-sm font-semibold text-slate-600">{t('projectWorkspace.redirecting')}</p>
         </div>
       </div>
     );
@@ -164,7 +168,7 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
       }
     } catch (err) {
       console.error('Failed to duplicate awarded project:', err);
-      setLoadError(err.message || 'Failed to duplicate project.');
+      setLoadError(err.message || t('projectWorkspace.errDuplicateFailed'));
     } finally {
       setLoading(false);
     }
@@ -177,34 +181,34 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
           to={`/${username}`}
           className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-indigo-600 transition"
         >
-          ← Back to Projects Dashboard
+          {t('projectWorkspace.backToProjects')}
         </Link>
         {currentProject?.name && (
           <div className="flex items-center gap-2">
             <span className="text-xs font-semibold text-slate-700 bg-slate-200/70 px-2.5 py-1 rounded-lg">
-              Project: {currentProject.name}
+              {t('projectWorkspace.projectPrefix', { name: currentProject.name })}
             </span>
             {currentProject?.status === 'awarded' && (
               <span className="text-xs font-bold text-emerald-800 bg-emerald-100 border border-emerald-300 px-2.5 py-0.5 rounded-full flex items-center gap-1">
                 <span>🔒</span>
-                <span>Awarded</span>
+                <span>{t('projectWorkspace.statusAwarded')}</span>
               </span>
             )}
             {currentProject?.status === 'submitted' && (
               <span className="text-xs font-bold text-blue-800 bg-blue-100 border border-blue-300 px-2.5 py-0.5 rounded-full flex items-center gap-1">
                 <span>🔒</span>
-                <span>Submitted</span>
+                <span>{t('projectWorkspace.statusSubmitted')}</span>
               </span>
             )}
             {currentProject?.status === 'archived' && (
               <span className="text-xs font-bold text-amber-800 bg-amber-100 border border-amber-300 px-2.5 py-0.5 rounded-full flex items-center gap-1">
                 <span>🔒</span>
-                <span>Archived</span>
+                <span>{t('projectWorkspace.statusArchived')}</span>
               </span>
             )}
             {projectId && (
               <span className="text-[11px] font-mono font-medium text-indigo-700 bg-indigo-50 border border-indigo-200/60 px-2 py-0.5 rounded-md">
-                ID: {projectId.slice(0, 8)}
+                {t('projectWorkspace.idPrefix', { id: projectId.slice(0, 8) })}
               </span>
             )}
           </div>

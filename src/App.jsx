@@ -15,6 +15,7 @@ import AcceptInvitePage from '@/components/AcceptInvitePage';
 import UpgradeModal from '@/components/UpgradeModal';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { ModalProvider } from '@/context/ModalContext';
+import { I18nProvider } from '@/context/I18nContext';
 import { DEFAULT_RATES } from '@/lib/calculations';
 import { useLocalStorageState } from '@/lib/useLocalStorageState';
 import { projectsApi } from '@/lib/projects';
@@ -469,11 +470,13 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <ModalProvider>
-        <AppContent />
-      </ModalProvider>
-    </AuthProvider>
+    <I18nProvider>
+      <AuthProvider>
+        <ModalProvider>
+          <AppContent />
+        </ModalProvider>
+      </AuthProvider>
+    </I18nProvider>
   );
 }
 

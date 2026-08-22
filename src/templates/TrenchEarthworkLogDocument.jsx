@@ -1,33 +1,35 @@
 import React from 'react';
 import { formatCurrency, formatNumber } from '@/lib/calculations';
 import { DocumentBrandingHeader, DocumentSignOff } from './DocumentHeaderSignoff';
+import { useTranslation } from '@/context/I18nContext';
 
 /**
  * 11. Trench & Earthwork Engineering Log Layout
  */
 export default function TrenchEarthworkLogDocument({ estimate, branding, currentProject }) {
   const { bySystem } = estimate;
+  const { t } = useTranslation();
 
   return (
     <div className="space-y-6">
-      <DocumentBrandingHeader branding={branding} title="Earthwork &amp; Trench Log" project={currentProject} />
+      <DocumentBrandingHeader branding={branding} title={t('templates.trenchEarthwork.title')} project={currentProject} />
 
       <div className="p-4 bg-amber-50/70 border border-amber-200 rounded-2xl grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
         <div>
-          <span className="text-[10px] uppercase font-bold text-amber-700">Trench Width Assumption</span>
-          <p className="font-bold text-slate-900">3.0 LF Standard</p>
+          <span className="text-[10px] uppercase font-bold text-amber-700">{t('templates.trenchEarthwork.trenchWidthAssumption')}</span>
+          <p className="font-bold text-slate-900">{t('templates.trenchEarthwork.trenchWidthValue')}</p>
         </div>
         <div>
-          <span className="text-[10px] uppercase font-bold text-amber-700">Average Cover Depth</span>
-          <p className="font-bold text-slate-900">6.0 LF Invert</p>
+          <span className="text-[10px] uppercase font-bold text-amber-700">{t('templates.trenchEarthwork.averageCoverDepth')}</span>
+          <p className="font-bold text-slate-900">{t('templates.trenchEarthwork.averageCoverDepthValue')}</p>
         </div>
         <div>
-          <span className="text-[10px] uppercase font-bold text-amber-700">Native Swell Factor</span>
-          <p className="font-bold text-slate-900">1.25x Loose</p>
+          <span className="text-[10px] uppercase font-bold text-amber-700">{t('templates.trenchEarthwork.nativeSwellFactor')}</span>
+          <p className="font-bold text-slate-900">{t('templates.trenchEarthwork.nativeSwellFactorValue')}</p>
         </div>
         <div>
-          <span className="text-[10px] uppercase font-bold text-amber-700">Trench Safety</span>
-          <p className="font-bold text-slate-900">OSHA Type B Box</p>
+          <span className="text-[10px] uppercase font-bold text-amber-700">{t('templates.trenchEarthwork.trenchSafety')}</span>
+          <p className="font-bold text-slate-900">{t('templates.trenchEarthwork.trenchSafetyValue')}</p>
         </div>
       </div>
 
@@ -35,12 +37,12 @@ export default function TrenchEarthworkLogDocument({ estimate, branding, current
         <table className="w-full text-left text-xs">
           <thead className="bg-amber-950 text-white">
             <tr>
-              <th className="p-2.5">Trench Line</th>
-              <th className="p-2.5 text-right">Length (LF)</th>
-              <th className="p-2.5 text-right">Trench Vol (CY)</th>
-              <th className="p-2.5 text-right">Bedding Stone (TN)</th>
-              <th className="p-2.5 text-right">Backfill &amp; Haul</th>
-              <th className="p-2.5 text-right">Direct Cost</th>
+              <th className="p-2.5">{t('templates.trenchEarthwork.colTrenchLine')}</th>
+              <th className="p-2.5 text-right">{t('templates.trenchEarthwork.colLength')}</th>
+              <th className="p-2.5 text-right">{t('templates.trenchEarthwork.colTrenchVol')}</th>
+              <th className="p-2.5 text-right">{t('templates.trenchEarthwork.colBeddingStone')}</th>
+              <th className="p-2.5 text-right">{t('templates.trenchEarthwork.colBackfillHaul')}</th>
+              <th className="p-2.5 text-right">{t('templates.trenchEarthwork.colDirectCost')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 font-mono">
@@ -52,9 +54,9 @@ export default function TrenchEarthworkLogDocument({ estimate, branding, current
                 <tr key={idx} className="hover:bg-slate-50">
                   <td className="p-2.5 font-sans font-medium text-slate-900">{it.description} ({it.sizeSpec})</td>
                   <td className="p-2.5 text-right">{formatNumber(lf, 0)}</td>
-                  <td className="p-2.5 text-right text-amber-900 font-bold">{formatNumber(cy, 1)} CY</td>
-                  <td className="p-2.5 text-right">{formatNumber(stone, 1)} TN</td>
-                  <td className="p-2.5 text-right">{formatNumber(cy * 0.65, 1)} CY</td>
+                  <td className="p-2.5 text-right text-amber-900 font-bold">{t('templates.trenchEarthwork.cyUnit', { count: formatNumber(cy, 1) })}</td>
+                  <td className="p-2.5 text-right">{t('templates.trenchEarthwork.tnUnit', { count: formatNumber(stone, 1) })}</td>
+                  <td className="p-2.5 text-right">{t('templates.trenchEarthwork.cyUnit', { count: formatNumber(cy * 0.65, 1) })}</td>
                   <td className="p-2.5 text-right font-bold text-slate-900">{formatCurrency(it.directCost)}</td>
                 </tr>
               );

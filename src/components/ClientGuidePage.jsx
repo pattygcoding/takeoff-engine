@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { useTranslation } from '@/context/I18nContext';
 import { downloadSampleCsv, downloadSampleExcel } from '@/lib/csv';
 
 function MarkdownRenderer({ content }) {
@@ -245,6 +246,7 @@ function renderInlineMarkdown(text) {
 export default function ClientGuidePage() {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
+  const { t } = useTranslation();
   const [markdown, setMarkdown] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -256,13 +258,13 @@ export default function ClientGuidePage() {
         const text = await res.text();
         setMarkdown(text);
       } catch (err) {
-        setMarkdown('# Client Guide\n\nCould not load `CLIENT_GUIDE.md` dynamically.');
+        setMarkdown(`# ${t('clientGuide.title')}\n\n${t('clientGuide.errorLoading')}`);
       } finally {
         setLoading(false);
       }
     };
     loadGuide();
-  }, []);
+  }, [t]);
 
   const handleBack = () => {
     if (isAuthenticated && user?.username) {
@@ -282,16 +284,18 @@ export default function ClientGuidePage() {
               type="button"
               onClick={handleBack}
               className="p-2 hover:bg-slate-100 text-slate-600 rounded-xl transition cursor-pointer"
-              title="Go Back"
+              title={t('common.goBack')}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
             </button>
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600">Documentation</span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600">
+                {t('clientGuide.documentation')}
+              </span>
               <h1 className="text-base sm:text-lg font-black text-slate-900 leading-tight">
-                Client Guide
+                {t('clientGuide.title')}
               </h1>
             </div>
           </div>
@@ -302,14 +306,14 @@ export default function ClientGuidePage() {
               onClick={() => downloadSampleCsv()}
               className="px-3 py-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl transition cursor-pointer"
             >
-              CSV Template
+              {t('clientGuide.csvTemplate')}
             </button>
             <button
               type="button"
               onClick={() => downloadSampleExcel()}
               className="px-3 py-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl transition cursor-pointer"
             >
-              Excel Template
+              {t('clientGuide.excelTemplate')}
             </button>
           </div>
         </div>
@@ -321,7 +325,7 @@ export default function ClientGuidePage() {
           {loading ? (
             <div className="flex items-center justify-center py-20 text-slate-400">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-              <span className="ml-3 text-sm">Loading guide...</span>
+              <span className="ml-3 text-sm">{t('clientGuide.loadingGuide')}</span>
             </div>
           ) : (
             <MarkdownRenderer content={markdown} />
