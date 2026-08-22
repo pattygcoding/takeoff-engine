@@ -15,6 +15,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
   const [promoErr, setPromoErr] = useState('');
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [activePlan, setActivePlan] = useState('pro'); // 'starter', 'pro', or 'enterprise'
+  const [billingInterval, setBillingInterval] = useState('monthly'); // 'monthly' | 'annually'
   const [additionalSeats, setAdditionalSeats] = useState(0);
 
   if (!isOpen) return null;
@@ -51,8 +52,8 @@ export default function UpgradeModal({ isOpen, onClose }) {
   const handleLaunchCheckout = async (selectedPlan) => {
     setCheckoutLoading(true);
     try {
-      const seatsToAdd = selectedPlan === 'enterprise' ? additionalSeats : 0;
-      const checkoutParams = await billingApi.createCheckout(selectedPlan, seatsToAdd);
+      const seatsToAdd = (selectedPlan === 'enterprise' || selectedPlan === 'pro') ? additionalSeats : 0;
+      const checkoutParams = await billingApi.createCheckout(selectedPlan, billingInterval, seatsToAdd);
 
       // Attempt real Paddle.js overlay
       const launched = await openPaddleCheckout({
@@ -68,7 +69,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
 
       // If Paddle keys aren't configured yet in .env, perform instant sandbox mock activation
       if (!launched) {
-        const mockRes = await billingApi.mockActivate(selectedPlan, seatsToAdd);
+        const mockRes = await billingApi.mockActivate(selectedPlan, billingInterval, seatsToAdd);
         if (mockRes.user) {
           localStorage.setItem('takeoff_user', JSON.stringify(mockRes.user));
         }
@@ -114,7 +115,23 @@ export default function UpgradeModal({ isOpen, onClose }) {
     }
   };
 
-  const enterpriseTotalPrice = 149.99 + additionalSeats * 29.99;
+  const isAnnual = billingInterval === 'annually';
+
+  // Base and display pricing
+  const starterPrice = isAnnual ? 299.99 : 29.99;
+  const proPrice = isAnnual ? 799.99 : 79.99;
+  const enterpriseBasePrice = isAnnual ? 1999.99 : 199.99;
+  const extraSeatPrice = isAnnual ? 299.99 : 29.99;
+
+  const baseSeatsForPlan = activePlan === 'enterprise' ? 8 : (activePlan === 'pro' ? 3 : 1);
+  const totalSeats = baseSeatsForPlan + (activePlan === 'enterprise' || activePlan === 'pro' ? additionalSeats : 0);
+
+  const activeTotalPrice =
+    activePlan === 'starter'
+      ? starterPrice
+      : activePlan === 'pro'
+      ? proPrice + additionalSeats * extraSeatPrice
+      : enterpriseBasePrice + additionalSeats * extraSeatPrice;
 
   const isExempt =
     user?.role === 'admin' ||
@@ -140,23 +157,57 @@ export default function UpgradeModal({ isOpen, onClose }) {
           </button>
         )}
 
-        <div className="text-center mb-6">
+        <div className="text-center mb-5">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-600 mb-3 border border-amber-200 shadow-inner">
             <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
           <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Upgrade Your Plan</h2>
-          <p className="text-sm text-slate-500 mt-2 max-w-sm mx-auto">
-            Choose a plan to get unlimited PDF proposals, Excel takeoff sheets, and cloud project versioning.
+          <p className="text-sm text-slate-500 mt-1 max-w-sm mx-auto">
+            Scale your estimates with full PDF report layouts, cloud persistence, and team seats.
           </p>
+
+          {/* Monthly vs Annual Toggle */}
+          <div className="mt-4 inline-flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200">
+            <button
+              type="button"
+              onClick={() => setBillingInterval('monthly')}
+              className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                billingInterval === 'monthly'
+                  ? 'bg-white text-slate-900 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Monthly Billing
+            </button>
+            <button
+              type="button"
+              onClick={() => setBillingInterval('annually')}
+              className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 ${
+                billingInterval === 'annually'
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <span>Annual Billing</span>
+              <span className={`text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded ${
+                billingInterval === 'annually' ? 'bg-indigo-800 text-amber-300' : 'bg-emerald-100 text-emerald-800'
+              }`}>
+                2 Months Free
+              </span>
+            </button>
+          </div>
         </div>
 
         {/* Plan Switcher - 3 Tiers */}
-        <div className="grid grid-cols-3 gap-2.5 mb-5">
+        <div className="grid grid-cols-3 gap-2.5 mb-4">
           <button
             type="button"
-            onClick={() => setActivePlan('starter')}
+            onClick={() => {
+              setActivePlan('starter');
+              setAdditionalSeats(0);
+            }}
             className={`p-3 rounded-xl border text-left transition-all ${
               activePlan === 'starter'
                 ? 'border-indigo-600 bg-indigo-50/50 ring-2 ring-indigo-500/20'
@@ -164,9 +215,12 @@ export default function UpgradeModal({ isOpen, onClose }) {
             }`}
           >
             <div className="text-xs font-bold uppercase tracking-wider text-slate-600 mb-0.5">Starter</div>
-            <div className="text-sm font-extrabold text-slate-900">$19.99<span className="text-[10px] font-normal text-slate-500">/mo</span></div>
-            <div className="text-[9px] text-slate-400 font-medium">plus tax</div>
-            <p className="text-[10px] text-slate-500 leading-snug mt-1">Single user, essential takeoff exports.</p>
+            <div className="text-sm font-extrabold text-slate-900">
+              ${isAnnual ? '299.99' : '29.99'}
+              <span className="text-[10px] font-normal text-slate-500">{isAnnual ? '/yr' : '/mo'}</span>
+            </div>
+            <div className="text-[9px] text-slate-400 font-medium">plus tax • 1 Seat</div>
+            <p className="text-[10px] text-slate-500 leading-snug mt-1">Standard takeoff math & basic PDF summary.</p>
           </button>
 
           <button
@@ -182,9 +236,12 @@ export default function UpgradeModal({ isOpen, onClose }) {
               Popular
             </span>
             <div className="text-xs font-bold uppercase tracking-wider text-indigo-700 mb-0.5">Pro</div>
-            <div className="text-sm font-extrabold text-slate-900">$49.99<span className="text-[10px] font-normal text-slate-500">/mo</span></div>
-            <div className="text-[9px] text-slate-400 font-medium">plus tax</div>
-            <p className="text-[10px] text-slate-500 leading-snug mt-1">Branding, rate libraries & e-signatures.</p>
+            <div className="text-sm font-extrabold text-slate-900">
+              ${isAnnual ? '799.99' : '79.99'}
+              <span className="text-[10px] font-normal text-slate-500">{isAnnual ? '/yr' : '/mo'}</span>
+            </div>
+            <div className="text-[9px] text-indigo-600 font-bold">plus tax • 3 Seats incl.</div>
+            <p className="text-[10px] text-slate-500 leading-snug mt-1">Full 17+ PDF templates, branding & portal.</p>
           </button>
 
           <button
@@ -200,23 +257,28 @@ export default function UpgradeModal({ isOpen, onClose }) {
               Multi-Seat
             </span>
             <div className="text-xs font-bold uppercase tracking-wider text-amber-700 mb-0.5">Enterprise</div>
-            <div className="text-sm font-extrabold text-slate-900">$149.99<span className="text-[10px] font-normal text-slate-500">/mo</span></div>
-            <div className="text-[9px] text-slate-400 font-medium">plus tax</div>
-            <p className="text-[10px] text-slate-500 leading-snug mt-1">20 seats included + $29.99/add'l seat.</p>
+            <div className="text-sm font-extrabold text-slate-900">
+              ${isAnnual ? '1999.99' : '199.99'}
+              <span className="text-[10px] font-normal text-slate-500">{isAnnual ? '/yr' : '/mo'}</span>
+            </div>
+            <div className="text-[9px] text-amber-700 font-bold">plus tax • 8 Seats incl.</div>
+            <p className="text-[10px] text-slate-500 leading-snug mt-1">Full PDF suite + team collaboration.</p>
           </button>
         </div>
 
-        {/* Enterprise Seat Selector */}
-        {activePlan === 'enterprise' && (
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3.5 mb-4 text-xs">
-            <div className="flex justify-between items-center mb-2">
-              <span className="font-bold text-amber-950">Enterprise Team Size:</span>
-              <span className="font-extrabold text-amber-900 text-sm">
-                {20 + additionalSeats} seats total ({20} base + {additionalSeats} extra)
+        {/* Additional Seat Selector for Pro & Enterprise */}
+        {(activePlan === 'enterprise' || activePlan === 'pro') && (
+          <div className="bg-amber-50/80 border border-amber-200 rounded-xl p-3 mb-4 text-xs">
+            <div className="flex justify-between items-center mb-1.5">
+              <span className="font-bold text-amber-950">Team Seats:</span>
+              <span className="font-extrabold text-amber-900 text-xs">
+                {totalSeats} seats total ({baseSeatsForPlan} base + {additionalSeats} extra)
               </span>
             </div>
-            <div className="flex items-center gap-3">
-              <span className="text-slate-600 text-[11px]">Additional Seats ($29.99/mo each + tax):</span>
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-slate-600 text-[11px]">
+                Add extra seats (+${isAnnual ? '299.99/yr' : '29.99/mo'} each + tax):
+              </span>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
@@ -240,18 +302,16 @@ export default function UpgradeModal({ isOpen, onClose }) {
         )}
 
         {/* Plan Feature Card */}
-        <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-xl p-5 mb-5 border border-indigo-800/40 shadow-lg">
+        <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-xl p-4 sm:p-5 mb-4 border border-indigo-800/40 shadow-lg">
           <div className="flex justify-between items-baseline mb-3">
             <div>
               <span className="text-xs font-semibold uppercase tracking-wider text-indigo-300">
-                {activePlan === 'starter' && 'Starter Contractor'}
-                {activePlan === 'pro' && 'Pro Contractor Plan'}
-                {activePlan === 'enterprise' && `Enterprise Team Plan (${20 + additionalSeats} Seats)`}
+                {activePlan === 'starter' && 'Starter Contractor (1 Seat)'}
+                {activePlan === 'pro' && `Pro Contractor Plan (${totalSeats} Seats)`}
+                {activePlan === 'enterprise' && `Enterprise Team Plan (${totalSeats} Seats)`}
               </span>
               <h3 className="text-xl font-bold text-white flex items-baseline gap-1.5">
-                {activePlan === 'starter' && '$19.99 / month'}
-                {activePlan === 'pro' && '$49.99 / month'}
-                {activePlan === 'enterprise' && `$${enterpriseTotalPrice.toFixed(2)} / month`}
+                ${activeTotalPrice.toFixed(2)} {isAnnual ? '/ year' : '/ month'}
                 <span className="text-[11px] font-normal text-slate-400">(plus applicable tax)</span>
               </h3>
             </div>
@@ -260,31 +320,45 @@ export default function UpgradeModal({ isOpen, onClose }) {
             </span>
           </div>
 
-          <ul className="space-y-2 text-xs text-indigo-100 mb-4">
+          {/* PDF Benefit Banner for Pro & Enterprise */}
+          {(activePlan === 'pro' || activePlan === 'enterprise') && (
+            <div className="bg-indigo-900/60 border border-indigo-400/40 rounded-lg p-2.5 mb-3 text-[11px] text-indigo-100 flex items-start gap-2">
+              <span className="text-base">📄</span>
+              <div>
+                <strong className="text-amber-300">Advanced PDF &amp; Document Engine:</strong> Includes all 17+ specialized proposal & takeoff PDF formats (Formal Owner Proposals, Subcontractor Bid Packages, AIA Document Styles, Itemized Schedules).
+              </div>
+            </div>
+          )}
+
+          <ul className="space-y-1.5 text-xs text-indigo-100 mb-4">
             <li className="flex items-center gap-2">
               <svg className="w-4 h-4 text-emerald-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
-              <span>Unlimited Client Proposals (PDF, Word DOCX)</span>
+              <span>Unlimited Takeoff Exports &amp; Calculation Math</span>
             </li>
             <li className="flex items-center gap-2">
               <svg className="w-4 h-4 text-emerald-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
-              <span>Unlimited Excel / CSV Takeoff Data Exports</span>
+              <span>
+                {activePlan === 'starter'
+                  ? 'Standard PDF & Word Proposal Formats'
+                  : 'All 17+ Advanced PDF, Word DOCX & Excel Formats'}
+              </span>
             </li>
             <li className="flex items-center gap-2">
               <svg className="w-4 h-4 text-emerald-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
-              <span>Unlimited Cloud Project & Estimate Versioning</span>
+              <span>Cloud Project Versioning &amp; Real-Time Dashboard</span>
             </li>
             {(activePlan === 'pro' || activePlan === 'enterprise') && (
               <li className="flex items-center gap-2 font-medium text-emerald-300">
                 <svg className="w-4 h-4 text-emerald-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
-                <span>Custom Brand Letterhead, Rate Libraries & E-Signatures</span>
+                <span>Custom Letterheads, Unlimited Rate Libraries &amp; E-Signatures</span>
               </li>
             )}
             {activePlan === 'enterprise' && (
@@ -292,7 +366,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
                 <svg className="w-4 h-4 text-amber-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
-                <span>Multi-User Organization Collaboration & Team Workspaces</span>
+                <span>Team Workspaces, Role Management &amp; Central Billing</span>
               </li>
             )}
           </ul>
@@ -302,12 +376,14 @@ export default function UpgradeModal({ isOpen, onClose }) {
             disabled={checkoutLoading}
             className="w-full py-2.5 px-4 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 font-semibold text-sm text-white shadow-md hover:shadow-indigo-500/25 transition-all text-center"
           >
-            {checkoutLoading ? 'Opening Checkout...' : `Upgrade to ${activePlan === 'starter' ? 'Starter ($19.99/mo)' : activePlan === 'pro' ? 'Pro ($49.99/mo)' : `Enterprise ($${enterpriseTotalPrice.toFixed(2)}/mo)`} + tax`}
+            {checkoutLoading
+              ? 'Opening Checkout...'
+              : `Upgrade to ${activePlan === 'starter' ? 'Starter' : activePlan === 'pro' ? 'Pro' : 'Enterprise'} ($${activeTotalPrice.toFixed(2)}${isAnnual ? '/yr' : '/mo'}) + tax`}
           </button>
         </div>
 
         {/* Promo Code Redemption Section */}
-        <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-4">
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 mb-3">
           <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
             Have a VIP Pass or Promo Code?
           </label>

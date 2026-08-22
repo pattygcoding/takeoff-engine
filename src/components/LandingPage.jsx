@@ -461,15 +461,16 @@ export default function LandingPage() {
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Starter Tier</span>
                 <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-3xl font-black text-white">$19.99</span>
+                  <span className="text-3xl font-black text-white">$29.99</span>
                   <span className="text-xs text-slate-400">/ mo</span>
                 </div>
-                <div className="text-[10px] text-slate-400 font-medium mt-0.5">plus applicable tax</div>
-                <p className="text-xs text-slate-400 mt-2">Great for solo estimators bidding 1-2 jobs weekly.</p>
+                <div className="text-[10px] text-slate-400 font-medium mt-0.5">or $299.99/yr • plus tax</div>
+                <p className="text-xs text-slate-400 mt-2">Great for solo estimators bidding jobs weekly.</p>
 
                 <ul className="mt-6 space-y-2.5 text-xs text-slate-300">
+                  <li className="flex items-center gap-2">✓ <strong>Single Estimator Seat</strong></li>
                   <li className="flex items-center gap-2">✓ <strong>Unlimited Calculations</strong></li>
-                  <li className="flex items-center gap-2">✓ Word &amp; PDF Export</li>
+                  <li className="flex items-center gap-2">✓ Standard Word &amp; PDF Export</li>
                   <li className="flex items-center gap-2">✓ 2 Custom Rate Libraries</li>
                   <li className="flex items-center gap-2">✓ Cloud Save &amp; Project Dashboard</li>
                 </ul>
@@ -492,14 +493,15 @@ export default function LandingPage() {
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-indigo-400">Pro Tier</span>
                 <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-3xl font-black text-white">$49.99</span>
+                  <span className="text-3xl font-black text-white">$79.99</span>
                   <span className="text-xs text-slate-400">/ mo</span>
                 </div>
-                <div className="text-[10px] text-indigo-300/80 font-medium mt-0.5">plus applicable tax</div>
-                <p className="text-xs text-slate-300 mt-2">Unlimited power for active contractors.</p>
+                <div className="text-[10px] text-indigo-300/80 font-medium mt-0.5">or $799.99/yr • plus tax</div>
+                <p className="text-xs text-slate-300 mt-2">Unlimited power & full PDF report layouts.</p>
 
                 <ul className="mt-6 space-y-2.5 text-xs text-slate-200">
-                  <li className="flex items-center gap-2">✓ <strong>Unlimited Takeoff Exports</strong></li>
+                  <li className="flex items-center gap-2">✓ <strong>3 Team Seats Included</strong></li>
+                  <li className="flex items-center gap-2">✓ <strong>All 17+ Advanced PDF Formats</strong></li>
                   <li className="flex items-center gap-2">✓ <strong>Custom Branding &amp; Logos</strong></li>
                   <li className="flex items-center gap-2">✓ <strong>Client Portal &amp; E-Signatures</strong></li>
                   <li className="flex items-center gap-2">✓ Unlimited Custom Rate Libraries</li>
@@ -519,15 +521,16 @@ export default function LandingPage() {
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-amber-400">Enterprise</span>
                 <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-3xl font-black text-white">$149.99</span>
+                  <span className="text-3xl font-black text-white">$199.99</span>
                   <span className="text-xs text-slate-400">/ mo</span>
                 </div>
-                <div className="text-[10px] text-amber-300/80 font-medium mt-0.5">plus applicable tax</div>
-                <p className="text-xs text-slate-300 mt-2">Multi-seat collaboration for teams.</p>
+                <div className="text-[10px] text-amber-300/80 font-medium mt-0.5">or $1999.99/yr • plus tax</div>
+                <p className="text-xs text-slate-300 mt-2">Multi-seat collaboration for growing teams.</p>
 
                 <ul className="mt-6 space-y-2.5 text-xs text-slate-200">
-                  <li className="flex items-center gap-2">✓ <strong>20 Base Team Seats Included</strong></li>
+                  <li className="flex items-center gap-2">✓ <strong>8 Base Team Seats Included</strong></li>
                   <li className="flex items-center gap-2">✓ <strong>+$29.99/mo per extra seat (+ tax)</strong></li>
+                  <li className="flex items-center gap-2">✓ <strong>All 17+ Advanced PDF Formats</strong></li>
                   <li className="flex items-center gap-2">✓ Team Workspaces &amp; Shared Libraries</li>
                   <li className="flex items-center gap-2">✓ All Pro features + priority support</li>
                 </ul>

@@ -38,11 +38,11 @@ export const billingApi = {
   /**
    * Create Paddle checkout parameters
    */
-  async createCheckout(plan = 'pro', additionalSeats = 0) {
+  async createCheckout(plan = 'pro', interval = 'monthly', additionalSeats = 0) {
     const res = await fetch(`${API_BASE_URL}/billing/create-checkout`, {
       method: 'POST',
       headers: getAuthHeaders(),
-      body: JSON.stringify({ plan, additionalSeats }),
+      body: JSON.stringify({ plan, interval, additionalSeats }),
     });
     const data = await res.json();
     if (!res.ok) {
@@ -54,11 +54,11 @@ export const billingApi = {
   /**
    * Mock upgrade in non-prod sandbox mode
    */
-  async mockActivate(plan = 'pro', additionalSeats = 0) {
+  async mockActivate(plan = 'pro', interval = 'monthly', additionalSeats = 0) {
     const res = await fetch(`${API_BASE_URL}/billing/mock-activate`, {
       method: 'POST',
       headers: getAuthHeaders(),
-      body: JSON.stringify({ plan, additionalSeats }),
+      body: JSON.stringify({ plan, interval, additionalSeats }),
     });
     const data = await res.json();
     if (!res.ok) {

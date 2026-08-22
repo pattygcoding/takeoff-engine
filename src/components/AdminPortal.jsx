@@ -703,9 +703,9 @@ export default function AdminPortal() {
                             className="bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
                           >
                             <option value="free">Free ($0)</option>
-                            <option value="starter">Starter ($19.99)</option>
-                            <option value="pro">Pro ($49.99)</option>
-                            <option value="enterprise">Enterprise ($149.99)</option>
+                            <option value="starter">Starter ($29.99)</option>
+                            <option value="pro">Pro ($79.99)</option>
+                            <option value="enterprise">Enterprise ($199.99)</option>
                           </select>
                         </td>
                         <td className="py-3 px-4 text-center">
@@ -1115,9 +1115,9 @@ export default function AdminPortal() {
                     className="w-full px-3 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   >
                     <option value="free">Free ($0/mo)</option>
-                    <option value="starter">Starter ($19.99/mo)</option>
-                    <option value="pro">Pro ($49.99/mo)</option>
-                    <option value="enterprise">Enterprise ($149.99/mo)</option>
+                    <option value="starter">Starter ($29.99/mo)</option>
+                    <option value="pro">Pro ($79.99/mo)</option>
+                    <option value="enterprise">Enterprise ($199.99/mo)</option>
                   </select>
                 </div>
 
