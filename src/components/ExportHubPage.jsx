@@ -1,10 +1,10 @@
 import React, { useMemo, useState, useRef } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { computeEstimate, formatCurrency, formatNumber } from '../lib/calculations';
-import { triggerDownload } from '../lib/csv';
-import { authApi } from '../lib/auth';
-import { useAuth } from '../context/AuthContext';
-import { useModal } from '../context/ModalContext';
+import { computeEstimate, formatCurrency, formatNumber } from '@/lib/calculations';
+import { triggerDownload } from '@/lib/csv';
+import { authApi } from '@/lib/auth';
+import { useAuth } from '@/context/AuthContext';
+import { useModal } from '@/context/ModalContext';
 import UpgradeModal from './UpgradeModal';
 import {
   StandardEstimateDocument,
@@ -345,7 +345,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
           'formal_contract_agreement',
           'warranty_closeout_cert',
         ].includes(currentFormat.id);
-        const { exportEstimateToWord } = await import('../lib/wordExport');
+        const { exportEstimateToWord } = await import('@/lib/wordExport');
         await exportEstimateToWord(estimate, isProposalMode, branding || {});
       } catch (err) {
         console.error('Word export failed:', err);

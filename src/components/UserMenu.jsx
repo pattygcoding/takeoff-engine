@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { authApi } from '../lib/auth';
+import { useAuth } from '@/context/AuthContext';
+import { authApi } from '@/lib/auth';
 import UpgradeModal from './UpgradeModal';
 
 export default function UserMenu() {

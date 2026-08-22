@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { authApi } from '../lib/auth';
-import { billingApi } from '../lib/billing';
-import { useModal } from '../context/ModalContext';
+import { useAuth } from '@/context/AuthContext';
+import { authApi } from '@/lib/auth';
+import { billingApi } from '@/lib/billing';
+import { useModal } from '@/context/ModalContext';
 import { useNavigate } from 'react-router-dom';
 import TeamWorkspaceManager from './TeamWorkspaceManager';
 import UpgradeModal from './UpgradeModal';

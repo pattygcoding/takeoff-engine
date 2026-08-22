@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { authApi } from '../lib/auth';
+import { useAuth } from '@/context/AuthContext';
+import { authApi } from '@/lib/auth';
 
 export default function LoginPage({ initialView = 'login' }) {
   const { login, register } = useAuth();
@@ -154,8 +154,23 @@ export default function LoginPage({ initialView = 'login' }) {
 
       <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 sm:p-8 border border-slate-200">
         {error && (
-          <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">
-            {error}
+          <div className="mb-4 p-3.5 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700 space-y-2">
+            <div className="flex items-start gap-2">
+              <span className="text-base shrink-0">⚠️</span>
+              <p className="flex-1 font-medium">{error}</p>
+            </div>
+            {error.toLowerCase().includes('locked') && (
+              <div className="pt-2 border-t border-red-200 flex items-center justify-between">
+                <span className="text-xs text-red-600 font-semibold">Forgot your password?</span>
+                <button
+                  type="button"
+                  onClick={() => switchView('forgot')}
+                  className="text-xs font-bold text-indigo-600 hover:text-indigo-800 underline cursor-pointer"
+                >
+                  Reset Password Now →
+                </button>
+              </div>
+            )}
           </div>
         )}
 

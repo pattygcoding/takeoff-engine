@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ratesApi } from '../lib/rates';
-import { useAuth } from '../context/AuthContext';
-import { useModal } from '../context/ModalContext';
+import { ratesApi } from '@/lib/rates';
+import { useAuth } from '@/context/AuthContext';
+import { useModal } from '@/context/ModalContext';
 import UpgradeModal from './UpgradeModal';
 
 export default function RatesDrawer({ open, onClose, rates, onChange, readOnly = false }) {

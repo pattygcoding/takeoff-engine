@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { downloadSampleCsv, downloadSampleExcel } from '../lib/csv';
+import { useAuth } from '@/context/AuthContext';
+import { downloadSampleCsv, downloadSampleExcel } from '@/lib/csv';
 
 function MarkdownRenderer({ content }) {
   if (!content) return null;

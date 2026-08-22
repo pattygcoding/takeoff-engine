@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { formatCurrency, formatNumber } from '../lib/calculations';
+import { formatCurrency, formatNumber } from '@/lib/calculations';
 
 export default function LandingPage() {
   const navigate = useNavigate();

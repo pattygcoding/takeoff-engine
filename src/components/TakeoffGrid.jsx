@@ -1,4 +1,4 @@
-import { createBlankItem } from '../lib/csv';
+import { createBlankItem } from '@/lib/csv';
 
 const SYSTEMS = ['Sanitary', 'Storm', 'Domestic Water'];
 const UNITS = ['LF', 'EA'];

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TARGET_FIELDS, normalizeRowsWithMapping, saveVendorPreset, getSavedVendorPresets } from '../lib/csv';
+import { TARGET_FIELDS, normalizeRowsWithMapping, saveVendorPreset, getSavedVendorPresets } from '@/lib/csv';
 
 export default function ColumnMappingModal({
   headers,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatCurrency } from '../lib/calculations';
+import { formatCurrency } from '@/lib/calculations';
 import { DocumentBrandingHeader, DocumentSignOff } from './DocumentHeaderSignoff';
 
 /**

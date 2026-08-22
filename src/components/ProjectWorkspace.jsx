@@ -4,7 +4,7 @@ import Stepper from './Stepper';
 import EditStep from './EditStep';
 import ResultsStep from './ResultsStep';
 import ExportHubPage from './ExportHubPage';
-import { projectsApi } from '../lib/projects';
+import { projectsApi } from '@/lib/projects';
 
 export default function ProjectWorkspace({ step = 2, items, setItems, rates, setRates, currentProject, setCurrentProject }) {
   const { username, projectId } = useParams();

@@ -1,12 +1,12 @@
 import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { computeEstimate, formatCurrency, formatNumber } from '../lib/calculations';
-import { triggerDownload } from '../lib/csv';
-import { projectsApi } from '../lib/projects';
-import { proposalsApi } from '../lib/proposals';
-import { authApi } from '../lib/auth';
-import { useAuth } from '../context/AuthContext';
-import { useModal } from '../context/ModalContext';
+import { computeEstimate, formatCurrency, formatNumber } from '@/lib/calculations';
+import { triggerDownload } from '@/lib/csv';
+import { projectsApi } from '@/lib/projects';
+import { proposalsApi } from '@/lib/proposals';
+import { authApi } from '@/lib/auth';
+import { useAuth } from '@/context/AuthContext';
+import { useModal } from '@/context/ModalContext';
 import UpgradeModal from './UpgradeModal';
 import Papa from 'papaparse';
 

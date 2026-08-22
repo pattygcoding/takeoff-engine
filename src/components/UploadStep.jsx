@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { downloadSampleCsv, downloadSampleExcel, parseTakeoffFile } from '../lib/csv';
+import { downloadSampleCsv, downloadSampleExcel, parseTakeoffFile } from '@/lib/csv';
 import ColumnMappingModal from './ColumnMappingModal';
 
 export default function UploadStep({ onItemsParsed }) {

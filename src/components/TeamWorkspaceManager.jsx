@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { organizationsApi } from '../lib/organizations';
-import { billingApi } from '../lib/billing';
-import { useAuth } from '../context/AuthContext';
-import { useModal } from '../context/ModalContext';
+import { organizationsApi } from '@/lib/organizations';
+import { billingApi } from '@/lib/billing';
+import { useAuth } from '@/context/AuthContext';
+import { useModal } from '@/context/ModalContext';
 
 export default function TeamWorkspaceManager() {
   const { user, refreshProfile } = useAuth();

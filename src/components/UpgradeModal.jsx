@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { billingApi } from '../lib/billing';
-import { openPaddleCheckout } from '../lib/paddle';
-import { useAuth } from '../context/AuthContext';
-import { useModal } from '../context/ModalContext';
+import { billingApi } from '@/lib/billing';
+import { openPaddleCheckout } from '@/lib/paddle';
+import { useAuth } from '@/context/AuthContext';
+import { useModal } from '@/context/ModalContext';
 
 export default function UpgradeModal({ isOpen, onClose }) {
   const { user, logout, refreshProfile } = useAuth();

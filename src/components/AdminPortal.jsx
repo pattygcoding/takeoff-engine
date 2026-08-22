@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { adminApi } from '../lib/admin';
-import { formatCurrency, formatNumber } from '../lib/calculations';
-import { useAuth } from '../context/AuthContext';
-import { useModal } from '../context/ModalContext';
+import { adminApi } from '@/lib/admin';
+import { formatCurrency, formatNumber } from '@/lib/calculations';
+import { useAuth } from '@/context/AuthContext';
+import { useModal } from '@/context/ModalContext';
 import { useNavigate } from 'react-router-dom';
 
 export default function AdminPortal() {
@@ -205,6 +205,35 @@ export default function AdminPortal() {
       await showAlert({
         title: 'Status Update Error',
         message: err.message || 'Failed to update user status.',
+        variant: 'error',
+      });
+    }
+  };
+
+  const handleUnlockAccount = async (targetUser) => {
+    const confirmed = await showConfirm({
+      title: 'Unlock Account',
+      message: `Unlock ${targetUser.email} and reset their failed password attempt counter immediately?`,
+      confirmText: 'Unlock Account',
+      confirmVariant: 'primary',
+    });
+
+    if (!confirmed) return;
+
+    try {
+      const updated = await adminApi.unlockAccount(targetUser.id, { reason: 'Admin manual unlock' });
+      setUsers((prev) => prev.map((item) => (item.id === targetUser.id ? { ...item, ...updated } : item)));
+      const freshLogs = await adminApi.listAuditLogs().catch(() => []);
+      setAuditLogs(freshLogs);
+      await showAlert({
+        title: 'Account Unlocked',
+        message: `Account for ${targetUser.email} has been unlocked and failed login attempts reset to 0.`,
+        variant: 'info',
+      });
+    } catch (err) {
+      await showAlert({
+        title: 'Unlock Failed',
+        message: err.message || 'Failed to unlock user account.',
         variant: 'error',
       });
     }
@@ -658,9 +687,10 @@ export default function AdminPortal() {
                 <tbody className="divide-y divide-slate-800">
                   {filteredUsers.map((u) => {
                     const isSuspended = u.is_disabled || u.status === 'suspended' || u.status === 'disabled';
+                    const isLocked = u.locked_until && new Date(u.locked_until).getTime() > Date.now();
                     const isTest = u.is_test_user || ['free_user', 'standard_user', 'pro_user', 'enterprise_user'].includes(u.username);
                     return (
-                      <tr key={u.id} className={`hover:bg-slate-800/30 ${isSuspended ? 'bg-red-950/20' : ''}`}>
+                      <tr key={u.id} className={`hover:bg-slate-800/30 ${isSuspended ? 'bg-red-950/20' : isLocked ? 'bg-amber-950/20' : ''}`}>
                         <td className="py-3 px-4 font-medium text-slate-200">
                           <div className="flex items-center gap-2">
                             <span className={isSuspended ? 'line-through text-slate-400' : ''}>
@@ -669,6 +699,11 @@ export default function AdminPortal() {
                             {u.id === user?.id && (
                               <span className="px-1.5 py-0.2 bg-indigo-500/20 text-indigo-300 text-[10px] rounded font-bold border border-indigo-500/30">
                                 YOU
+                              </span>
+                            )}
+                            {isLocked && (
+                              <span className="px-1.5 py-0.2 bg-amber-500/20 text-amber-300 text-[10px] rounded font-bold border border-amber-500/30" title={`Locked until ${new Date(u.locked_until).toLocaleTimeString()} (5 failed attempts)`}>
+                                🔒 LOCKED
                               </span>
                             )}
                             {isTest && (
@@ -713,10 +748,12 @@ export default function AdminPortal() {
                             className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                               isSuspended
                                 ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                                : isLocked
+                                ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
                                 : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                             }`}
                           >
-                            {isSuspended ? 'Suspended' : 'Active'}
+                            {isSuspended ? 'Suspended' : isLocked ? 'Locked' : 'Active'}
                           </span>
                         </td>
                         <td className="py-3 px-4 text-center font-bold text-slate-200">
@@ -774,6 +811,16 @@ export default function AdminPortal() {
                             >
                               🔑 Reset
                             </button>
+                            {isLocked && (
+                              <button
+                                type="button"
+                                title="Unlock account & clear failed attempts"
+                                onClick={() => handleUnlockAccount(u)}
+                                className="px-2 py-1 bg-amber-900/40 hover:bg-amber-900/60 text-amber-300 border border-amber-500/50 rounded-lg text-xs font-semibold transition"
+                              >
+                                🔓 Unlock
+                              </button>
+                            )}
                             <button
                               type="button"
                               title={isSuspended ? 'Reactivate Account' : 'Suspend Account'}
@@ -785,7 +832,7 @@ export default function AdminPortal() {
                                   : 'bg-red-900/30 hover:bg-red-900/50 text-red-300 border-red-500/40'
                               } ${u.id === user?.id ? 'opacity-40 cursor-not-allowed' : ''}`}
                             >
-                              {isSuspended ? 'Unlock' : 'Suspend'}
+                              {isSuspended ? 'Activate' : 'Suspend'}
                             </button>
                           </div>
                         </td>

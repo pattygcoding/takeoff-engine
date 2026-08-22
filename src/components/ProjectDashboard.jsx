@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { projectsApi } from '../lib/projects';
-import { useAuth } from '../context/AuthContext';
-import { useModal } from '../context/ModalContext';
+import { projectsApi } from '@/lib/projects';
+import { useAuth } from '@/context/AuthContext';
+import { useModal } from '@/context/ModalContext';
 
 const STATUS_CONFIG = {
   draft: {

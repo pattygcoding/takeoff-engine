@@ -106,6 +106,20 @@ export const adminApi = {
   },
 
   /**
+   * Unlock a temporarily locked account (US-034)
+   */
+  async unlockAccount(userId, { reason } = {}) {
+    const res = await fetch(`${API_BASE_URL}/admin/users/${userId}/unlock`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ reason }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to unlock user account.');
+    return data.user;
+  },
+
+  /**
    * Update user role with reason
    */
   async updateRole(userId, { role, reason }) {

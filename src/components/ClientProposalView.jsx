@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { proposalsApi } from '../lib/proposals';
-import { formatCurrency, formatNumber } from '../lib/calculations';
-import { useModal } from '../context/ModalContext';
+import { proposalsApi } from '@/lib/proposals';
+import { formatCurrency, formatNumber } from '@/lib/calculations';
+import { useModal } from '@/context/ModalContext';
 
 export default function ClientProposalView() {
   const { publicToken } = useParams();
