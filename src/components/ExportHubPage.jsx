@@ -303,7 +303,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
     });
   };
 
-  // 2. PDF Generator
+  // 2. PDF Generator (Generates standard Letter 8.5" x 11" with 1:1 Print Preview fidelity & multi-page support)
   const handleExportPdf = async () => {
     await runExportAction(async () => {
       const node = document.getElementById('export-document-canvas');
@@ -314,13 +314,88 @@ export default function ExportHubPage({ items, rates, currentProject }) {
           import('jspdf'),
           import('html2canvas-pro'),
         ]);
-        const canvas = await html2canvas(node, { scale: 2, backgroundColor: '#ffffff' });
-        const imgData = canvas.toDataURL('image/png');
+
+        // Standard Letter: 8.5in x 11in = 612pt x 792pt (or 816px x 1056px at 96 DPI)
+        // Render at high resolution (scale 2) on a standardized 816px virtual layout width
+        const canvas = await html2canvas(node, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#ffffff',
+          windowWidth: 1024,
+          onclone: (clonedDoc) => {
+            const clonedNode = clonedDoc.getElementById('export-document-canvas');
+            if (clonedNode) {
+              clonedNode.style.width = '816px';
+              clonedNode.style.maxWidth = '816px';
+              clonedNode.style.minWidth = '816px';
+              clonedNode.style.padding = '36px 40px';
+              clonedNode.style.margin = '0 auto';
+              clonedNode.style.boxSizing = 'border-box';
+              clonedNode.style.borderRadius = '0';
+              clonedNode.style.border = 'none';
+              clonedNode.style.boxShadow = 'none';
+              // Expand tables and flex containers to standard print layout
+              clonedNode.querySelectorAll('.overflow-x-auto').forEach((el) => {
+                el.style.overflow = 'visible';
+              });
+            }
+          },
+        });
+
         const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
-        const pageWidth = pdf.internal.pageSize.getWidth();
-        const imgWidth = pageWidth - 40;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        pdf.addImage(imgData, 'PNG', 20, 20, imgWidth, imgHeight);
+        const pageWidth = pdf.internal.pageSize.getWidth(); // 612 pt
+        const pageHeight = pdf.internal.pageSize.getHeight(); // 792 pt
+        const margin = 24; // 24 pt = ~0.33 in margins for crisp framing
+        const usableWidth = pageWidth - margin * 2;
+        const usableHeight = pageHeight - margin * 2;
+
+        // Calculate rendered aspect ratio
+        const imgHeightInPdf = (canvas.height * usableWidth) / canvas.width;
+
+        if (imgHeightInPdf <= usableHeight) {
+          // Fits cleanly on a single letter page
+          const imgData = canvas.toDataURL('image/png', 1.0);
+          pdf.addImage(imgData, 'PNG', margin, margin, usableWidth, imgHeightInPdf, undefined, 'FAST');
+        } else {
+          // Multi-page slicing: Slice canvas into letter-sized pages
+          const pxPerPdfPt = canvas.width / usableWidth;
+          const pxPageHeight = usableHeight * pxPerPdfPt;
+          let renderedHeight = 0;
+          let pageIndex = 0;
+
+          while (renderedHeight < canvas.height) {
+            const sliceHeight = Math.min(pxPageHeight, canvas.height - renderedHeight);
+            const pageCanvas = document.createElement('canvas');
+            pageCanvas.width = canvas.width;
+            pageCanvas.height = sliceHeight;
+
+            const ctx = pageCanvas.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+            ctx.drawImage(
+              canvas,
+              0,
+              renderedHeight,
+              canvas.width,
+              sliceHeight,
+              0,
+              0,
+              pageCanvas.width,
+              sliceHeight
+            );
+
+            const sliceData = pageCanvas.toDataURL('image/png', 1.0);
+            const slicePdfHeight = (sliceHeight * usableWidth) / canvas.width;
+
+            if (pageIndex > 0) pdf.addPage();
+            pdf.addImage(sliceData, 'PNG', margin, margin, usableWidth, slicePdfHeight, undefined, 'FAST');
+
+            renderedHeight += pxPageHeight;
+            pageIndex++;
+          }
+        }
+
         pdf.save(`${(currentProject?.name || 'takeoff_estimate').replace(/\s+/g, '_')}_${currentFormat.id}.pdf`);
       } catch (err) {
         console.error('PDF export failed:', err);
@@ -348,7 +423,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
           'warranty_closeout_cert',
         ].includes(currentFormat.id);
         const { exportEstimateToWord } = await import('@/lib/wordExport');
-        await exportEstimateToWord(estimate, isProposalMode, branding || {});
+        await exportEstimateToWord(estimate, isProposalMode, branding || {}, null, currentFormat.id, currentProject, rates);
       } catch (err) {
         console.error('Word export failed:', err);
         await showAlert({
