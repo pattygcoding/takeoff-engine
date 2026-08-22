@@ -68,6 +68,22 @@ export const billingApi = {
   },
 
   /**
+   * Dynamically adjust additional seats on active Pro / Enterprise subscription (US-037)
+   */
+  async updateSeats(additionalSeats, orgId) {
+    const res = await fetch(`${API_BASE_URL}/billing/update-seats`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ additionalSeats, orgId }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to update seats.');
+    }
+    return data;
+  },
+
+  /**
    * Redeem a promo code (VIP bypass or credit grant)
    */
   async redeemPromoCode(code) {

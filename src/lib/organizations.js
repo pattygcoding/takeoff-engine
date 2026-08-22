@@ -72,7 +72,37 @@ export const organizationsApi = {
       err.code = data.code;
       throw err;
     }
-    return data.member;
+    return data;
+  },
+
+  /**
+   * Resend invitation email & token
+   */
+  async resendInvite(orgId, memberId) {
+    const res = await fetch(`${API_BASE_URL}/organizations/${orgId}/members/${memberId}/resend`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to resend invite.');
+    }
+    return data;
+  },
+
+  /**
+   * Revoke invitation
+   */
+  async revokeInvite(orgId, memberId) {
+    const res = await fetch(`${API_BASE_URL}/organizations/${orgId}/members/${memberId}/revoke`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to revoke invite.');
+    }
+    return data;
   },
 
   /**

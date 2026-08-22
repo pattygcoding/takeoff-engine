@@ -13,6 +13,7 @@ import LandingPage from './components/LandingPage';
 import ClientProposalView from './components/ClientProposalView';
 import AdminPortal from './components/AdminPortal';
 import ClientGuidePage from './components/ClientGuidePage';
+import AcceptInvitePage from './components/AcceptInvitePage';
 import UpgradeModal from './components/UpgradeModal';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ModalProvider } from './context/ModalContext';
@@ -393,6 +394,12 @@ function AppContent() {
         <Route
           path="/p/:publicToken"
           element={<ClientProposalView />}
+        />
+
+        {/* Team Workspace Invitation Acceptance (US-036) */}
+        <Route
+          path="/accept-invite"
+          element={<AcceptInvitePage />}
         />
 
         {/* User-Scoped Workspace Routes */}

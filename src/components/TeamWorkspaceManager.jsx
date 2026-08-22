@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { organizationsApi } from '../lib/organizations';
+import { billingApi } from '../lib/billing';
 import { useAuth } from '../context/AuthContext';
 import { useModal } from '../context/ModalContext';
 
 export default function TeamWorkspaceManager() {
-  const { user } = useAuth();
+  const { user, refreshProfile } = useAuth();
   const { showAlert, showConfirm } = useModal();
   const [organizations, setOrganizations] = useState([]);
   const [activeOrg, setActiveOrg] = useState(null);
@@ -22,11 +23,22 @@ export default function TeamWorkspaceManager() {
   const [inviteRole, setInviteRole] = useState('estimator');
   const [inviting, setInviting] = useState(false);
 
+  // Seat Management Modal / State
+  const [seatModalOpen, setSeatModalOpen] = useState(false);
+  const [targetAddSeats, setTargetAddSeats] = useState(0);
+  const [updatingSeats, setUpdatingSeats] = useState(false);
+
+  const tier = user?.subscription_tier || 'free';
+  const baseSeats = tier === 'enterprise' ? 8 : tier === 'pro' ? 3 : 1;
+  const currentAddSeats = user?.additional_seats || 0;
+  const currentTotalSeats = user?.seat_limit || (baseSeats + currentAddSeats);
+
   const isEnterpriseOrTeam =
     user?.role === 'admin' ||
     user?.role === 'payment_exempt' ||
     user?.has_unlimited_bypass === true ||
     user?.subscription_tier === 'enterprise' ||
+    user?.subscription_tier === 'pro' ||
     user?.subscription_tier === 'team';
 
   useEffect(() => {
@@ -89,17 +101,107 @@ export default function TeamWorkspaceManager() {
     setSuccessMsg('');
 
     try {
-      await organizationsApi.inviteMember(activeOrg.id, {
+      const res = await organizationsApi.inviteMember(activeOrg.id, {
         email: inviteEmail.trim(),
         role: inviteRole,
       });
       setInviteEmail('');
-      setSuccessMsg(`Invited ${inviteEmail} to ${activeOrg.name}`);
+      setSuccessMsg(`Invitation sent to ${inviteEmail}! (Invite link created)`);
       await selectOrganization(activeOrg.id);
     } catch (err) {
       setError(err.message || 'Failed to invite team member.');
     } finally {
       setInviting(false);
+    }
+  };
+
+  const handleResendInvite = async (memberId, targetEmail) => {
+    if (!activeOrg) return;
+    try {
+      const res = await organizationsApi.resendInvite(activeOrg.id, memberId);
+      await showAlert({
+        title: 'Invite Resent',
+        message: res.message || `Invitation resent to ${targetEmail}.`,
+        variant: 'success',
+      });
+      await selectOrganization(activeOrg.id);
+    } catch (err) {
+      await showAlert({
+        title: 'Resend Failed',
+        message: err.message || 'Failed to resend invitation.',
+        variant: 'error',
+      });
+    }
+  };
+
+  const handleRevokeInvite = async (memberId) => {
+    if (!activeOrg) return;
+    const confirmed = await showConfirm({
+      title: 'Revoke Invitation',
+      message: 'Are you sure you want to revoke this pending invitation? The invite link will no longer work.',
+      confirmText: 'Revoke Invite',
+      confirmVariant: 'danger',
+    });
+    if (!confirmed) return;
+
+    try {
+      await organizationsApi.revokeInvite(activeOrg.id, memberId);
+      setSuccessMsg('Invitation revoked.');
+      await selectOrganization(activeOrg.id);
+    } catch (err) {
+      await showAlert({
+        title: 'Revoke Error',
+        message: err.message || 'Failed to revoke invitation.',
+        variant: 'error',
+      });
+    }
+  };
+
+  const handleCopyInviteLink = async (rawToken) => {
+    if (!rawToken) return;
+    const link = `${window.location.origin}/accept-invite?token=${rawToken}`;
+    try {
+      await navigator.clipboard.writeText(link);
+      await showAlert({
+        title: 'Link Copied',
+        message: 'Magic invitation link copied to clipboard!',
+        variant: 'success',
+      });
+    } catch (err) {
+      await showAlert({
+        title: 'Copy Failed',
+        message: link,
+        variant: 'info',
+      });
+    }
+  };
+
+  const handleOpenSeatModal = () => {
+    setTargetAddSeats(currentAddSeats);
+    setSeatModalOpen(true);
+  };
+
+  const handleSaveSeats = async () => {
+    setUpdatingSeats(true);
+    try {
+      const res = await billingApi.updateSeats(targetAddSeats, activeOrg?.id);
+      if (refreshProfile) await refreshProfile();
+      await showAlert({
+        title: 'Seats Updated',
+        message: res.message || 'Team seats updated successfully.',
+        variant: 'success',
+      });
+      setSeatModalOpen(false);
+      await loadOrganizations();
+      if (activeOrg) await selectOrganization(activeOrg.id);
+    } catch (err) {
+      await showAlert({
+        title: 'Update Error',
+        message: err.message || 'Failed to update seat count.',
+        variant: 'error',
+      });
+    } finally {
+      setUpdatingSeats(false);
     }
   };
 
@@ -210,6 +312,36 @@ export default function TeamWorkspaceManager() {
       {/* Active Organization Members & Invites */}
       {activeOrg ? (
         <div className="space-y-4 pt-2">
+          {/* Seat Capacity & Utilization Banner */}
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                  Subscription Seat Capacity
+                </span>
+                <span className="text-xs bg-indigo-100 text-indigo-700 font-bold px-2 py-0.5 rounded">
+                  {tier.toUpperCase()} TIER
+                </span>
+              </div>
+              <div className="text-lg font-black text-slate-900 mt-1">
+                {members.length} of {activeOrg.max_seats} Seats Used
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Includes {baseSeats} base plan seats + {currentAddSeats} extra seats ($29.99/mo each + tax).
+              </p>
+            </div>
+
+            {isEnterpriseOrTeam && (
+              <button
+                type="button"
+                onClick={handleOpenSeatModal}
+                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1.5"
+              >
+                <span>⚙️ Manage Seats</span>
+              </button>
+            )}
+          </div>
+
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-slate-800">
               Workspace Members ({members.length} / {activeOrg.max_seats} seats used)
@@ -257,25 +389,59 @@ export default function TeamWorkspaceManager() {
                       )}
                     </td>
                     <td className="py-2.5 px-3">
-                      <span
-                        className={`px-2 py-0.5 rounded-md font-semibold text-[10px] uppercase ${
-                          m.status === 'active'
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                            : 'bg-amber-50 text-amber-700 border border-amber-200'
-                        }`}
-                      >
-                        {m.status}
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <span
+                          className={`px-2 py-0.5 rounded-md font-semibold text-[10px] uppercase ${
+                            m.status === 'active'
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              : m.status === 'revoked'
+                              ? 'bg-red-50 text-red-700 border border-red-200'
+                              : 'bg-amber-50 text-amber-700 border border-amber-200'
+                          }`}
+                        >
+                          {m.status}
+                        </span>
+                        {m.status === 'pending' && m.invite_token && (
+                          <button
+                            type="button"
+                            onClick={() => handleCopyInviteLink(m.invite_token)}
+                            className="text-[11px] text-indigo-600 hover:text-indigo-800 font-medium underline"
+                            title="Copy Magic Invite Link"
+                          >
+                            Copy Link
+                          </button>
+                        )}
+                      </div>
                     </td>
                     <td className="py-2.5 px-3 text-right">
                       {m.role !== 'owner' && (
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveMember(m.id)}
-                          className="text-red-500 hover:text-red-700 font-semibold text-xs"
-                        >
-                          Remove
-                        </button>
+                        <div className="flex items-center justify-end gap-2">
+                          {m.status === 'pending' && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => handleResendInvite(m.id, m.user_email || m.invited_email)}
+                                className="text-indigo-600 hover:text-indigo-800 font-semibold text-xs"
+                              >
+                                Resend
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleRevokeInvite(m.id)}
+                                className="text-amber-600 hover:text-amber-800 font-semibold text-xs"
+                              >
+                                Revoke
+                              </button>
+                            </>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveMember(m.id)}
+                            className="text-red-500 hover:text-red-700 font-semibold text-xs"
+                          >
+                            Remove
+                          </button>
+                        </div>
                       )}
                     </td>
                   </tr>
@@ -331,6 +497,74 @@ export default function TeamWorkspaceManager() {
       ) : (
         <div className="text-center py-6 text-slate-400 text-xs">
           No team workspace created yet. Create one above to begin collaborating.
+        </div>
+      )}
+
+      {/* In-App Seat Manager Modal (US-037) */}
+      {seatModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-xs animate-fade-in">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-md w-full p-6 text-slate-800 relative">
+            <button
+              onClick={() => setSeatModalOpen(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+            >
+              ✕
+            </button>
+            <h3 className="text-lg font-bold text-slate-900 mb-1">Adjust Team Seat Capacity</h3>
+            <p className="text-xs text-slate-500 mb-4">
+              Scale your team capacity. Additional seats are billed at <strong>+$29.99/mo each (+ tax)</strong> and prorated immediately on your subscription.
+            </p>
+
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-4 space-y-3">
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-slate-600">Base Plan Seats ({tier.toUpperCase()}):</span>
+                <span className="font-bold text-slate-900">{baseSeats} Seats</span>
+              </div>
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-slate-600">Additional Seats ($29.99/mo each):</span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setTargetAddSeats(Math.max(0, targetAddSeats - 1))}
+                    disabled={targetAddSeats <= 0}
+                    className="w-7 h-7 rounded bg-white border border-slate-300 font-bold hover:bg-slate-100 disabled:opacity-40"
+                  >
+                    -
+                  </button>
+                  <span className="font-mono font-bold text-sm w-6 text-center">{targetAddSeats}</span>
+                  <button
+                    type="button"
+                    onClick={() => setTargetAddSeats(targetAddSeats + 1)}
+                    className="w-7 h-7 rounded bg-white border border-slate-300 font-bold hover:bg-slate-100"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+              <div className="border-t border-slate-200 pt-2 flex justify-between items-center text-sm font-bold">
+                <span className="text-indigo-950">New Total Capacity:</span>
+                <span className="text-indigo-600 font-extrabold">{baseSeats + targetAddSeats} Seats</span>
+              </div>
+            </div>
+
+            <div className="flex gap-2 justify-end">
+              <button
+                type="button"
+                onClick={() => setSeatModalOpen(false)}
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveSeats}
+                disabled={updatingSeats}
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition disabled:opacity-50"
+              >
+                {updatingSeats ? 'Saving Seats...' : 'Save & Update Billing'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
