@@ -1,8 +1,16 @@
 import enTranslations from '../locales/en.json';
+import esTranslations from '../locales/es.json';
+import frTranslations from '../locales/fr.json';
+import ptTranslations from '../locales/pt.json';
 
 const resources = {
   en: enTranslations,
+  es: esTranslations,
+  fr: frTranslations,
+  pt: ptTranslations,
 };
+
+export const SUPPORTED_LANGUAGES = ['en', 'es', 'fr', 'pt'];
 
 let currentLanguage = 'en';
 
@@ -18,7 +26,22 @@ export function getTranslation(key, params = {}, lang = currentLanguage) {
     if (current && typeof current === 'object' && part in current) {
       current = current[part];
     } else {
-      // Fallback to key itself if not found
+      // If language was not English, fallback to English dictionary before giving up
+      if (lang !== 'en' && resources.en) {
+        let fallbackCurrent = resources.en;
+        for (const fallbackPart of parts) {
+          if (fallbackCurrent && typeof fallbackCurrent === 'object' && fallbackPart in fallbackCurrent) {
+            fallbackCurrent = fallbackCurrent[fallbackPart];
+          } else {
+            return key;
+          }
+        }
+        if (typeof fallbackCurrent === 'string') {
+          return fallbackCurrent.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, match) => {
+            return params[match] !== undefined ? params[match] : `{{${match}}}`;
+          });
+        }
+      }
       return key;
     }
   }

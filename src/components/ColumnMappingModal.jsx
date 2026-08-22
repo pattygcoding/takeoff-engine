@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { TARGET_FIELDS, normalizeRowsWithMapping, saveVendorPreset, getSavedVendorPresets } from '@/lib/csv';
+import React, { useState, useMemo } from 'react';
+import { getTargetFields, normalizeRowsWithMapping, saveVendorPreset, getSavedVendorPresets } from '@/lib/csv';
 import { useTranslation } from '@/context/I18nContext';
 
 export default function ColumnMappingModal({
@@ -15,6 +15,7 @@ export default function ColumnMappingModal({
   onCancel,
 }) {
   const { t } = useTranslation();
+  const targetFields = useMemo(() => getTargetFields(t), [t]);
   const [mapping, setMapping] = useState({ ...initialMapping });
   const [validationError, setValidationError] = useState('');
   const [presetName, setPresetName] = useState('');
@@ -47,7 +48,7 @@ export default function ColumnMappingModal({
     setValidationError('');
 
     // Verify all required fields have a selection
-    const missing = TARGET_FIELDS.filter((f) => f.required && !mapping[f.key]);
+    const missing = targetFields.filter((f) => f.required && !mapping[f.key]);
     if (missing.length > 0) {
       setValidationError(
         t('columnMappingModal.validationErrorRequired', { fields: missing.map((m) => m.label).join(', ') })
@@ -55,7 +56,7 @@ export default function ColumnMappingModal({
       return;
     }
 
-    const { items, errors, checksum } = normalizeRowsWithMapping(rawRows, mapping);
+    const { items, errors, checksum } = normalizeRowsWithMapping(rawRows, mapping, t);
     if (items.length === 0 && errors.length > 0) {
       setValidationError(t('columnMappingModal.validationErrorParsing', { error: errors[0] }));
       return;
@@ -128,7 +129,7 @@ export default function ColumnMappingModal({
 
           {/* Column Mapping Selectors */}
           <div className="divide-y divide-slate-100 border border-slate-200 rounded-2xl overflow-hidden">
-            {TARGET_FIELDS.map((field) => {
+            {targetFields.map((field) => {
               const confidence = matchConfidences[field.key];
               return (
                 <div

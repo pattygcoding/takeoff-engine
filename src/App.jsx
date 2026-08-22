@@ -13,6 +13,7 @@ import AdminPortal from '@/components/AdminPortal';
 import ClientGuidePage from '@/components/ClientGuidePage';
 import AcceptInvitePage from '@/components/AcceptInvitePage';
 import UpgradeModal from '@/components/UpgradeModal';
+import LanguageSelector from '@/components/LanguageSelector';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { ModalProvider } from '@/context/ModalContext';
 import { I18nProvider } from '@/context/I18nContext';
@@ -293,6 +294,8 @@ function AppContent() {
             </div>
 
             <div className="flex items-center gap-3">
+              <LanguageSelector variant="light" />
+
               <button
                 type="button"
                 onClick={() => navigate('/home')}

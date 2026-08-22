@@ -1,3 +1,5 @@
+import { getTranslation } from './i18n';
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const getAuthHeaders = () => {
@@ -19,7 +21,7 @@ export const ratesApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to fetch rate templates.');
+      throw new Error(data.error || getTranslation('apiErrors.fetchRatesFailed'));
     }
     return data;
   },
@@ -35,7 +37,7 @@ export const ratesApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      const err = new Error(data.error || 'Failed to save rate template.');
+      const err = new Error(data.error || getTranslation('apiErrors.saveRateTemplateFailed'));
       err.code = data.code;
       throw err;
     }
@@ -53,7 +55,7 @@ export const ratesApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to update rate template.');
+      throw new Error(data.error || getTranslation('apiErrors.updateRateTemplateFailed'));
     }
     return data.template;
   },
@@ -68,7 +70,7 @@ export const ratesApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to delete rate template.');
+      throw new Error(data.error || getTranslation('apiErrors.deleteRateTemplateFailed'));
     }
     return data;
   },

@@ -14,6 +14,7 @@ import {
   ImageRun,
 } from 'docx';
 import { formatCurrency, formatNumber } from './calculations';
+import { getTranslation } from './i18n';
 
 const THIN_BORDER = { style: BorderStyle.SINGLE, size: 2, color: 'CBD5E1' };
 const CELL_BORDERS = { top: THIN_BORDER, bottom: THIN_BORDER, left: THIN_BORDER, right: THIN_BORDER };
@@ -74,8 +75,10 @@ function summaryRow(label, value, highlight = false, highlightColor = 'EEF2FF') 
  * @param {object} estimate - result of computeEstimate()
  * @param {boolean} proposalMode - whether to hide internal cost/markup details
  * @param {object} branding - contractor branding options (companyName, companyLogoUrl, brandColor, etc.)
+ * @param {Function} [customT] - optional translation function (defaults to getTranslation)
  */
-export async function exportEstimateToWord(estimate, proposalMode, branding = {}) {
+export async function exportEstimateToWord(estimate, proposalMode, branding = {}, customT = null) {
+  const t = customT || getTranslation;
   const { totals, bySystem } = estimate;
   const brandColorHex = hexColorWithoutHash(branding?.brandColor || '#0284c7');
   const hasBranding = Boolean(branding?.companyName || branding?.companyLogoUrl);
@@ -130,8 +133,8 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
 
     const subDetails = [];
     if (branding.companyAddress) subDetails.push(branding.companyAddress);
-    if (branding.companyPhone) subDetails.push(`Phone: ${branding.companyPhone}`);
-    if (branding.licenseNumber) subDetails.push(`License: ${branding.licenseNumber}`);
+    if (branding.companyPhone) subDetails.push(t('wordExport.phone', { phone: branding.companyPhone }));
+    if (branding.licenseNumber) subDetails.push(t('wordExport.license', { license: branding.licenseNumber }));
 
     if (subDetails.length > 0) {
       brandingHeaderChildren.push(
@@ -155,15 +158,15 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
   children.push(
     new Paragraph({
       heading: HeadingLevel.HEADING_1,
-      children: [new TextRun(proposalMode ? 'Client Proposal' : 'Internal Cost Breakdown')],
+      children: [new TextRun(proposalMode ? t('wordExport.clientProposalTitle') : t('wordExport.internalCostBreakdownTitle'))],
     }),
     new Paragraph({
       spacing: { after: 300 },
       children: [
         new TextRun({
           text: proposalMode
-            ? 'Clean, client-facing summary of the project estimate.'
-            : 'Full internal cost detail including markups and labor hours.',
+            ? t('wordExport.clientProposalSubtitle')
+            : t('wordExport.internalCostBreakdownSubtitle'),
           color: '64748B',
           size: 20,
         }),
@@ -177,7 +180,7 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
       new Paragraph({
         alignment: AlignmentType.CENTER,
         spacing: { after: 100 },
-        children: [new TextRun({ text: 'TOTAL PROJECT INVESTMENT', color: '94A3B8', size: 18, bold: true })],
+        children: [new TextRun({ text: t('wordExport.totalProjectInvestment'), color: '94A3B8', size: 18, bold: true })],
       }),
       new Paragraph({
         alignment: AlignmentType.CENTER,
@@ -187,14 +190,14 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
     );
   } else {
     const summaryRows = [
-      summaryRow('Total Material Cost', formatCurrency(totals.totalMaterialCost)),
-      summaryRow('Total Labor Cost', `${formatCurrency(totals.totalLaborCost)} (${formatNumber(totals.totalLaborHours)} hrs)`),
-      summaryRow('Equipment / Mobilization', formatCurrency(totals.equipmentLumpSum)),
-      summaryRow('Total Direct Cost', formatCurrency(totals.totalDirectCost)),
-      summaryRow(`Overhead (${totals.overheadPct}%)`, formatCurrency(totals.overheadAmount)),
-      summaryRow(`Contingency (${totals.contingencyPct}%)`, formatCurrency(totals.contingencyAmount)),
-      summaryRow(`Profit (${totals.profitPct}%)`, formatCurrency(totals.profitAmount)),
-      summaryRow('Final Bid Amount', formatCurrency(totals.finalBidAmount), true),
+      summaryRow(t('wordExport.totalMaterialCost'), formatCurrency(totals.totalMaterialCost)),
+      summaryRow(t('wordExport.totalLaborCost'), `${formatCurrency(totals.totalLaborCost)} (${formatNumber(totals.totalLaborHours)} hrs)`),
+      summaryRow(t('wordExport.equipmentMobilization'), formatCurrency(totals.equipmentLumpSum)),
+      summaryRow(t('wordExport.totalDirectCost'), formatCurrency(totals.totalDirectCost)),
+      summaryRow(t('wordExport.overhead', { pct: totals.overheadPct }), formatCurrency(totals.overheadAmount)),
+      summaryRow(t('wordExport.contingency', { pct: totals.contingencyPct }), formatCurrency(totals.contingencyAmount)),
+      summaryRow(t('wordExport.profit', { pct: totals.profitPct }), formatCurrency(totals.profitAmount)),
+      summaryRow(t('wordExport.finalBidAmount'), formatCurrency(totals.finalBidAmount), true),
     ];
     children.push(
       new Table({
@@ -216,8 +219,23 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
     );
 
     const headerCells = proposalMode
-      ? ['Description', 'Size / Spec', 'Qty', 'Unit', 'Line Total']
-      : ['Description', 'Size / Spec', 'Qty', 'Unit', 'Material', 'Labor Hrs', 'Labor $', 'Direct Cost'];
+      ? [
+          t('wordExport.colDescription'),
+          t('wordExport.colSizeSpec'),
+          t('wordExport.colQty'),
+          t('wordExport.colUnit'),
+          t('wordExport.colLineTotal'),
+        ]
+      : [
+          t('wordExport.colDescription'),
+          t('wordExport.colSizeSpec'),
+          t('wordExport.colQty'),
+          t('wordExport.colUnit'),
+          t('wordExport.colMaterial'),
+          t('wordExport.colLaborHrs'),
+          t('wordExport.colLaborDollar'),
+          t('wordExport.colDirectCost'),
+        ];
 
     const headerRow = new TableRow({
       tableHeader: true,
@@ -255,7 +273,7 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
         new TableCell({
           borders: CELL_BORDERS,
           columnSpan: proposalMode ? 4 : 7,
-          children: [new Paragraph({ children: [new TextRun({ text: 'Subtotal', bold: true, size: 20 })] })],
+          children: [new Paragraph({ children: [new TextRun({ text: t('wordExport.subtotal'), bold: true, size: 20 })] })],
         }),
         bodyCell(formatCurrency(sys.directCost), true, true),
       ],
@@ -275,8 +293,8 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
       new Table({
         width: { size: 100, type: WidthType.PERCENTAGE },
         rows: [
-          summaryRow('Subtotal', formatCurrency(totals.totalDirectCost)),
-          summaryRow('Total Bid', formatCurrency(totals.finalBidAmount), true),
+          summaryRow(t('wordExport.subtotal'), formatCurrency(totals.totalDirectCost)),
+          summaryRow(t('wordExport.totalBid'), formatCurrency(totals.finalBidAmount), true),
         ],
       })
     );
@@ -289,8 +307,8 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
       children: [
         new TextRun({
           text: hasBranding
-            ? `Prepared by ${branding.companyName || 'Contractor'} using Takeoff Engine Pro`
-            : 'Generated with Takeoff Engine — Automated Construction Takeoffs & Estimating',
+            ? t('wordExport.footerBranded', { company: branding.companyName || t('wordExport.fallbackContractor') })
+            : t('wordExport.footerDefault'),
           size: 16,
           color: '94A3B8',
           italics: true,

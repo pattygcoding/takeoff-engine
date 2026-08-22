@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { formatCurrency, formatNumber } from '@/lib/calculations';
 import { useTranslation } from '@/context/I18nContext';
+import LanguageSelector from '@/components/LanguageSelector';
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -54,6 +55,7 @@ export default function LandingPage() {
           </div>
 
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+            <LanguageSelector variant="dark" />
             <a href="#calculator" className="hover:text-white transition">{t('landing.nav.freeCalculator')}</a>
             <a href="#features" className="hover:text-white transition">{t('landing.nav.features')}</a>
             <a href="#comparison" className="hover:text-white transition">{t('landing.nav.whyUs')}</a>
@@ -77,6 +79,7 @@ export default function LandingPage() {
 
           {/* Mobile hamburger button */}
           <div className="md:hidden flex items-center gap-2">
+            <LanguageSelector variant="dark" />
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

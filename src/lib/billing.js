@@ -1,3 +1,5 @@
+import { getTranslation } from './i18n';
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const getAuthHeaders = () => {
@@ -30,7 +32,7 @@ export const billingApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to fetch subscription details.');
+      throw new Error(data.error || getTranslation('apiErrors.fetchSubscriptionDetailsFailed'));
     }
     return data;
   },
@@ -46,7 +48,7 @@ export const billingApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to create checkout session.');
+      throw new Error(data.error || getTranslation('apiErrors.createCheckoutSessionFailed'));
     }
     return data;
   },
@@ -62,7 +64,7 @@ export const billingApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Mock activation failed.');
+      throw new Error(data.error || getTranslation('apiErrors.mockActivationFailed'));
     }
     return data;
   },
@@ -78,7 +80,7 @@ export const billingApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to update seats.');
+      throw new Error(data.error || getTranslation('apiErrors.updateSeatsFailed'));
     }
     return data;
   },
@@ -94,7 +96,7 @@ export const billingApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to redeem promo code.');
+      throw new Error(data.error || getTranslation('apiErrors.redeemPromoCodeFailed'));
     }
     return data;
   },
@@ -109,7 +111,7 @@ export const billingApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to get customer portal link.');
+      throw new Error(data.error || getTranslation('apiErrors.getCustomerPortalFailed'));
     }
     return data;
   },
@@ -125,7 +127,7 @@ export const billingApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to cancel subscription.');
+      throw new Error(data.error || getTranslation('apiErrors.cancelSubscriptionFailed'));
     }
     return data;
   },
@@ -142,7 +144,7 @@ export const adminApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to fetch users.');
+      throw new Error(data.error || getTranslation('apiErrors.fetchUsersFailed'));
     }
     return data.users;
   },
@@ -158,7 +160,7 @@ export const adminApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to update user bypass.');
+      throw new Error(data.error || getTranslation('apiErrors.updateUserBypassFailed'));
     }
     return data;
   },
@@ -173,7 +175,7 @@ export const adminApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to fetch promo codes.');
+      throw new Error(data.error || getTranslation('apiErrors.fetchPromoCodesFailed'));
     }
     return data.promoCodes;
   },
@@ -189,7 +191,7 @@ export const adminApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to create promo code.');
+      throw new Error(data.error || getTranslation('apiErrors.createPromoCodeFailed'));
     }
     return data;
   },

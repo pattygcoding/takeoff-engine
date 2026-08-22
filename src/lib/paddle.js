@@ -1,4 +1,5 @@
 import { initializePaddle } from '@paddle/paddle-js';
+import { getTranslation } from './i18n';
 
 let paddleInstance = null;
 
@@ -12,7 +13,7 @@ export async function getPaddleInstance() {
   const environment = import.meta.env.VITE_PADDLE_ENVIRONMENT || 'sandbox';
 
   if (!clientToken) {
-    console.warn('VITE_PADDLE_CLIENT_TOKEN is not configured. Paddle checkout overlay will operate in fallback mock mode.');
+    console.warn(getTranslation('paddle.tokenNotConfiguredWarn'));
     return null;
   }
 
@@ -23,7 +24,7 @@ export async function getPaddleInstance() {
     });
     return paddleInstance;
   } catch (err) {
-    console.error('Failed to initialize Paddle.js:', err);
+    console.error(getTranslation('paddle.initFailed'), err);
     return null;
   }
 }

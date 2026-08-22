@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from '@/context/I18nContext';
+import LanguageSelector from '@/components/LanguageSelector';
 import { downloadSampleCsv, downloadSampleExcel } from '@/lib/csv';
 
 function MarkdownRenderer({ content }) {
@@ -246,15 +247,24 @@ function renderInlineMarkdown(text) {
 export default function ClientGuidePage() {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [markdown, setMarkdown] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadGuide = async () => {
+      setLoading(true);
       try {
-        const res = await fetch(`${import.meta.env.BASE_URL}CLIENT_GUIDE.md`);
-        if (!res.ok) throw new Error('Failed to load CLIENT_GUIDE.md');
+        const langCode = ['es', 'fr', 'pt'].includes(language) ? language : 'en';
+        const res = await fetch(`${import.meta.env.BASE_URL}CLIENT_GUIDE.${langCode}.md`);
+        if (!res.ok) {
+          // Fallback to en
+          const fallbackRes = await fetch(`${import.meta.env.BASE_URL}CLIENT_GUIDE.en.md`);
+          if (!fallbackRes.ok) throw new Error('Failed to load CLIENT_GUIDE');
+          const fallbackText = await fallbackRes.text();
+          setMarkdown(fallbackText);
+          return;
+        }
         const text = await res.text();
         setMarkdown(text);
       } catch (err) {
@@ -264,7 +274,7 @@ export default function ClientGuidePage() {
       }
     };
     loadGuide();
-  }, [t]);
+  }, [t, language]);
 
   const handleBack = () => {
     if (isAuthenticated && user?.username) {
@@ -301,6 +311,7 @@ export default function ClientGuidePage() {
           </div>
 
           <div className="flex items-center gap-2">
+            <LanguageSelector variant="light" />
             <button
               type="button"
               onClick={() => downloadSampleCsv()}

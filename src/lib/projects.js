@@ -1,3 +1,5 @@
+import { getTranslation } from './i18n';
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const getAuthHeaders = () => {
@@ -24,7 +26,7 @@ export const projectsApi = {
       }
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to fetch projects.');
+        throw new Error(data.error || getTranslation('apiErrors.fetchProjectsFailed'));
       }
       return data.projects || [];
     } catch (err) {
@@ -46,7 +48,7 @@ export const projectsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to fetch project.');
+      throw new Error(data.error || getTranslation('apiErrors.fetchProjectFailed'));
     }
     return data.project;
   },
@@ -70,7 +72,7 @@ export const projectsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      const err = new Error(data.error || 'Failed to create project.');
+      const err = new Error(data.error || getTranslation('apiErrors.createProjectFailed'));
       err.code = data.code;
       err.trial_uses_remaining = data.trial_uses_remaining;
       throw err;
@@ -89,7 +91,7 @@ export const projectsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to update project.');
+      throw new Error(data.error || getTranslation('apiErrors.updateProjectFailed'));
     }
     return data.project;
   },
@@ -104,7 +106,7 @@ export const projectsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to delete project.');
+      throw new Error(data.error || getTranslation('apiErrors.deleteProjectFailed'));
     }
     return true;
   },
@@ -120,7 +122,7 @@ export const projectsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to duplicate project.');
+      throw new Error(data.error || getTranslation('apiErrors.duplicateProjectFailed'));
     }
     return data.project;
   },

@@ -1,4 +1,5 @@
 import Papa from 'papaparse';
+import { getTranslation } from './i18n';
 
 export const CSV_COLUMNS = [
   'system',
@@ -8,6 +9,18 @@ export const CSV_COLUMNS = [
   'unit',
   'avg_depth_ft',
 ];
+
+export function getTargetFields(customT = null) {
+  const t = customT || getTranslation;
+  return [
+    { key: 'system', label: t('csvParser.targetFields.systemLabel'), required: true, description: t('csvParser.targetFields.systemDesc') },
+    { key: 'item_description', label: t('csvParser.targetFields.itemDescriptionLabel'), required: true, description: t('csvParser.targetFields.itemDescriptionDesc') },
+    { key: 'size_spec', label: t('csvParser.targetFields.sizeSpecLabel'), required: true, description: t('csvParser.targetFields.sizeSpecDesc') },
+    { key: 'quantity', label: t('csvParser.targetFields.quantityLabel'), required: true, description: t('csvParser.targetFields.quantityDesc') },
+    { key: 'unit', label: t('csvParser.targetFields.unitLabel'), required: true, description: t('csvParser.targetFields.unitDesc') },
+    { key: 'avg_depth_ft', label: t('csvParser.targetFields.avgDepthFtLabel'), required: false, description: t('csvParser.targetFields.avgDepthFtDesc') },
+  ];
+}
 
 export const TARGET_FIELDS = [
   { key: 'system', label: 'System / Trade', required: true, description: 'Category, Trade, Division, or Phase group' },
@@ -96,21 +109,24 @@ export const UNIT_NORMALIZATIONS = {
   hr: 'HR', hrs: 'HR', hour: 'HR', hours: 'HR',
 };
 
-export const SAMPLE_CSV_ROWS = [
-  { system: 'Sanitary', item_description: 'Pipe', size_spec: '6" PVC SDR-35', quantity: 275, unit: 'LF', avg_depth_ft: 4 },
-  { system: 'Sanitary', item_description: 'Pipe', size_spec: '8" PVC SDR-35', quantity: 140, unit: 'LF', avg_depth_ft: 6 },
-  { system: 'Sanitary', item_description: '45 Elbow', size_spec: '6" PVC', quantity: 6, unit: 'EA', avg_depth_ft: '' },
-  { system: 'Sanitary', item_description: 'Cleanout', size_spec: '6" PVC', quantity: 4, unit: 'EA', avg_depth_ft: '' },
-  { system: 'Sanitary', item_description: 'Manhole', size_spec: '48" Precast', quantity: 3, unit: 'EA', avg_depth_ft: '' },
-  { system: 'Storm', item_description: 'Pipe', size_spec: '12" HDPE', quantity: 320, unit: 'LF', avg_depth_ft: 3 },
-  { system: 'Storm', item_description: 'Pipe', size_spec: '18" RCP', quantity: 95, unit: 'LF', avg_depth_ft: 5 },
-  { system: 'Storm', item_description: 'Catch Basin', size_spec: '24" x 24"', quantity: 5, unit: 'EA', avg_depth_ft: '' },
-  { system: 'Storm', item_description: 'Flared End Section', size_spec: '18" RCP', quantity: 2, unit: 'EA', avg_depth_ft: '' },
-  { system: 'Domestic Water', item_description: 'Pipe', size_spec: '6" C900', quantity: 410, unit: 'LF', avg_depth_ft: 3.5 },
-  { system: 'Domestic Water', item_description: 'Gate Valve', size_spec: '6"', quantity: 3, unit: 'EA', avg_depth_ft: '' },
-  { system: 'Domestic Water', item_description: 'Fire Hydrant Assembly', size_spec: 'Standard', quantity: 2, unit: 'EA', avg_depth_ft: '' },
-  { system: 'Domestic Water', item_description: 'Tapping Sleeve & Valve', size_spec: '6" x 6"', quantity: 1, unit: 'EA', avg_depth_ft: '' },
-];
+export function getSampleCsvRows(customT = null) {
+  const t = customT || getTranslation;
+  return [
+    { system: t('csvParser.sampleRows.sanitary'), item_description: t('csvParser.sampleRows.pipe'), size_spec: '6" PVC SDR-35', quantity: 275, unit: 'LF', avg_depth_ft: 4 },
+    { system: t('csvParser.sampleRows.sanitary'), item_description: t('csvParser.sampleRows.pipe'), size_spec: '8" PVC SDR-35', quantity: 140, unit: 'LF', avg_depth_ft: 6 },
+    { system: t('csvParser.sampleRows.sanitary'), item_description: t('csvParser.sampleRows.elbow'), size_spec: '6" PVC', quantity: 6, unit: 'EA', avg_depth_ft: '' },
+    { system: t('csvParser.sampleRows.sanitary'), item_description: t('csvParser.sampleRows.cleanout'), size_spec: '6" PVC', quantity: 4, unit: 'EA', avg_depth_ft: '' },
+    { system: t('csvParser.sampleRows.sanitary'), item_description: t('csvParser.sampleRows.manhole'), size_spec: '48" Precast', quantity: 3, unit: 'EA', avg_depth_ft: '' },
+    { system: t('csvParser.sampleRows.storm'), item_description: t('csvParser.sampleRows.pipe'), size_spec: '12" HDPE', quantity: 320, unit: 'LF', avg_depth_ft: 3 },
+    { system: t('csvParser.sampleRows.storm'), item_description: t('csvParser.sampleRows.pipe'), size_spec: '18" RCP', quantity: 95, unit: 'LF', avg_depth_ft: 5 },
+    { system: t('csvParser.sampleRows.storm'), item_description: t('csvParser.sampleRows.catchBasin'), size_spec: '24" x 24"', quantity: 5, unit: 'EA', avg_depth_ft: '' },
+    { system: t('csvParser.sampleRows.storm'), item_description: t('csvParser.sampleRows.flaredEndSection'), size_spec: '18" RCP', quantity: 2, unit: 'EA', avg_depth_ft: '' },
+    { system: t('csvParser.sampleRows.domesticWater'), item_description: t('csvParser.sampleRows.pipe'), size_spec: '6" C900', quantity: 410, unit: 'LF', avg_depth_ft: 3.5 },
+    { system: t('csvParser.sampleRows.domesticWater'), item_description: t('csvParser.sampleRows.gateValve'), size_spec: '6"', quantity: 3, unit: 'EA', avg_depth_ft: '' },
+    { system: t('csvParser.sampleRows.domesticWater'), item_description: t('csvParser.sampleRows.fireHydrantAssembly'), size_spec: t('csvParser.sampleRows.specStandard'), quantity: 2, unit: 'EA', avg_depth_ft: '' },
+    { system: t('csvParser.sampleRows.domesticWater'), item_description: t('csvParser.sampleRows.tappingSleeveValve'), size_spec: '6" x 6"', quantity: 1, unit: 'EA', avg_depth_ft: '' },
+  ];
+}
 
 let idCounter = 0;
 export function nextId() {
@@ -217,7 +233,8 @@ export function parseQuantityAndUnit(rawVal, fallbackUnit = 'LF') {
  * Deconstruct composite description string if size or pipe diameter is embedded inside it.
  * e.g. "8\" PVC SDR-35 Mainline" -> { description: "Mainline", sizeSpec: "8\" PVC SDR-35" }
  */
-export function deconstructDescription(rawDesc = '', currentSize = '') {
+export function deconstructDescription(rawDesc = '', currentSize = '', customT = null) {
+  const t = customT || getTranslation;
   if (currentSize && currentSize.trim() !== '') {
     return { description: rawDesc.trim(), sizeSpec: currentSize.trim() };
   }
@@ -233,7 +250,7 @@ export function deconstructDescription(rawDesc = '', currentSize = '') {
     return { description: cleanDesc, sizeSpec };
   }
 
-  return { description: desc, sizeSpec: currentSize || 'Standard' };
+  return { description: desc, sizeSpec: currentSize || t('csvParser.defaultSizeSpec') };
 }
 
 /**
@@ -479,7 +496,7 @@ export function classifyRow(rawRow, mapping) {
 
   if (isBannerMarker || (hasNoNumericData && (systemVal || descVal) && rowValues.filter(Boolean).length <= 2)) {
     const groupName = (systemVal || descVal || rowValues[0]).replace(/^[=\-—_*~#\s]+|[=\-—_*~#\s]+$/g, '').trim();
-    return { type: 'category_banner', groupName: groupName || 'General Takeoff' };
+    return { type: 'category_banner', groupName: groupName || getTranslation('csvParser.defaultCategory') };
   }
 
   // 5. Valid Line Item
@@ -490,10 +507,11 @@ export function classifyRow(rawRow, mapping) {
  * Normalizes raw rows using deterministic schema mapping, category hierarchy inheritance,
  * dirty unit splitting, and subtotal checksum calculation.
  */
-export function normalizeRowsWithMapping(rawRows = [], mapping = {}) {
+export function normalizeRowsWithMapping(rawRows = [], mapping = {}, customT = null) {
+  const t = customT || getTranslation;
   const errors = [];
   const items = [];
-  let currentGroup = 'General Takeoff';
+  let currentGroup = t('csvParser.defaultCategory');
   let totalDetectedSubtotals = 0;
   let parsedQuantitySum = 0;
 
@@ -525,10 +543,10 @@ export function normalizeRowsWithMapping(rawRows = [], mapping = {}) {
     const rawQty = mapping.quantity ? rawRow[mapping.quantity] : undefined;
 
     // Use currentGroup as fallback if system is blank on row
-    const system = rawSystem || currentGroup || 'General Takeoff';
+    const system = rawSystem || currentGroup || t('csvParser.defaultCategory');
 
     // Deconstruct description & size if size is embedded in description
-    const { description, sizeSpec } = deconstructDescription(rawDescription, rawSize);
+    const { description, sizeSpec } = deconstructDescription(rawDescription, rawSize, t);
 
     // Extract quantity and embedded unit
     const { quantity, unit: detectedUnit } = parseQuantityAndUnit(rawQty, rawUnit ? normalizeUnit(rawUnit) : 'LF');
@@ -541,7 +559,7 @@ export function normalizeRowsWithMapping(rawRows = [], mapping = {}) {
     if (Number.isNaN(quantity) || quantity <= 0) {
       // If quantity is missing or 0 on an explicit item, record error
       if (description) {
-        errors.push(`Row ${rowNum} ("${description}"): Missing or invalid numeric quantity (${rawQty})`);
+        errors.push(t('csvParser.errors.invalidRowQuantity', { row: rowNum, description, rawQty: rawQty !== undefined ? rawQty : '' }));
       }
       return;
     }
@@ -560,8 +578,8 @@ export function normalizeRowsWithMapping(rawRows = [], mapping = {}) {
     items.push({
       id: nextId(),
       system,
-      description: description || 'Takeoff Item',
-      sizeSpec: sizeSpec || 'Standard',
+      description: description || t('csvParser.defaultDescription'),
+      sizeSpec: sizeSpec || t('csvParser.defaultSizeSpec'),
       quantity,
       unit: detectedUnit || 'LF',
       avgDepthFt,
@@ -638,8 +656,8 @@ export function parseRawCsv(fileOrText) {
           sampleMatrix: matrix.slice(0, 15),
           headerRowIndex,
           confidence,
-          sheetNames: ['CSV Upload'],
-          activeSheetName: 'CSV Upload',
+          sheetNames: [getTranslation('csvParser.errors.csvUploadSheet')],
+          activeSheetName: getTranslation('csvParser.errors.csvUploadSheet'),
           parseErrors: results.errors || [],
         });
       },
@@ -659,7 +677,7 @@ export async function parseRawExcel(file, selectedSheetName = null) {
 
   const sheetNames = workbook.SheetNames || [];
   if (sheetNames.length === 0) {
-    return { headers: [], rows: [], sheetNames: [], parseErrors: ['No sheets found in Excel file.'] };
+    return { headers: [], rows: [], sheetNames: [], parseErrors: [getTranslation('csvParser.errors.noSheetsFound')] };
   }
 
   // Auto-score sheets to pick best takeoff tab if not specified
@@ -752,7 +770,8 @@ export function saveVendorPreset(presetName, mapping) {
  * Reads CSV/Excel, runs 2D header sniffing, auto-matches aliases, checks confidence.
  * Prompts interactive column mapping modal if confidence < 90% or required fields unmapped.
  */
-export async function parseTakeoffFile(file, sheetName = null, customPreset = null) {
+export async function parseTakeoffFile(file, sheetName = null, customPreset = null, customT = null) {
+  const t = customT || getTranslation;
   let rawData;
   if (isExcelFile(file)) {
     rawData = await parseRawExcel(file, sheetName);
@@ -765,7 +784,7 @@ export async function parseTakeoffFile(file, sheetName = null, customPreset = nu
   if (!rows || rows.length === 0) {
     return {
       items: [],
-      errors: ['Uploaded file is empty or contains no readable takeoff rows.'],
+      errors: [t('csvParser.errors.emptyOrNoRows')],
       sheetNames: sheetNames || [],
       activeSheetName,
     };
@@ -808,7 +827,7 @@ export async function parseTakeoffFile(file, sheetName = null, customPreset = nu
     };
   }
 
-  const { items, errors, checksum } = normalizeRowsWithMapping(rows, effectiveMapping);
+  const { items, errors, checksum } = normalizeRowsWithMapping(rows, effectiveMapping, t);
   const formattedParseErrors = (parseErrors || []).map((e) => `Row ${e.row + 2}: ${e.message}`);
 
   return {
@@ -822,20 +841,23 @@ export async function parseTakeoffFile(file, sheetName = null, customPreset = nu
   };
 }
 
-export function buildSampleCsv() {
-  return Papa.unparse(SAMPLE_CSV_ROWS, { columns: CSV_COLUMNS });
+export function buildSampleCsv(customT = null) {
+  const rows = getSampleCsvRows(customT);
+  return Papa.unparse(rows, { columns: CSV_COLUMNS });
 }
 
-export function downloadSampleCsv(filename = 'takeoff_sample_template.csv') {
-  const csv = buildSampleCsv();
+export function downloadSampleCsv(filename = 'takeoff_sample_template.csv', customT = null) {
+  const csv = buildSampleCsv(customT);
   triggerDownload(csv, filename, 'text/csv');
 }
 
-export async function downloadSampleExcel(filename = 'takeoff_sample_template.xlsx') {
+export async function downloadSampleExcel(filename = 'takeoff_sample_template.xlsx', customT = null) {
+  const t = customT || getTranslation;
   const XLSX = await import('xlsx');
-  const worksheet = XLSX.utils.json_to_sheet(SAMPLE_CSV_ROWS, { header: CSV_COLUMNS });
+  const rows = getSampleCsvRows(customT);
+  const worksheet = XLSX.utils.json_to_sheet(rows, { header: CSV_COLUMNS });
   const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Takeoff');
+  XLSX.utils.book_append_sheet(workbook, worksheet, t('csvParser.errors.takeoffSheet'));
   XLSX.writeFile(workbook, filename);
 }
 
@@ -851,10 +873,11 @@ export function triggerDownload(content, filename, mimeType = 'text/plain') {
   URL.revokeObjectURL(url);
 }
 
-export function createBlankItem() {
+export function createBlankItem(customT = null) {
+  const t = customT || getTranslation;
   return {
     id: nextId(),
-    system: 'Sanitary',
+    system: t('csvParser.sampleRows.sanitary') || 'Sanitary',
     description: '',
     sizeSpec: '',
     quantity: 0,

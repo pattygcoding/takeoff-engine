@@ -79,6 +79,19 @@ npm run build
 
 The optimized static build is generated in the `dist/` directory.
 
+### 4. Locale & Translation Generation
+Generate multilingual locale translation files (`es.json`, `fr.json`, `pt.json`) from `en.json`:
+```powershell
+# 1. Install deep-translator
+pip install deep-translator
+
+# 2. Run the locale generator script
+python src/locales/lang.py
+
+# Optional: To reuse existing translated keys and only translate new additions:
+python src/locales/lang.py -skip
+```
+
 ---
 
 ## 💳 Paddle Sandbox & Non-Prod Payment Testing Guide (US-018)

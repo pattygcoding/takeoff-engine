@@ -1,3 +1,5 @@
+import { getTranslation } from './i18n';
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const getAuthHeaders = () => {
@@ -29,7 +31,7 @@ export const proposalsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      const err = new Error(data.error || 'Failed to generate proposal link.');
+      const err = new Error(data.error || getTranslation('apiErrors.generateProposalFailed'));
       err.code = data.code;
       throw err;
     }
@@ -47,7 +49,7 @@ export const proposalsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      const err = new Error(data.error || 'Failed to send proposal email.');
+      const err = new Error(data.error || getTranslation('apiErrors.sendProposalEmailFailed'));
       err.code = data.code;
       throw err;
     }
@@ -71,7 +73,7 @@ export const proposalsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Proposal not found or has expired.');
+      throw new Error(data.error || getTranslation('apiErrors.proposalNotFoundOrExpired'));
     }
     return data;
   },
@@ -87,7 +89,7 @@ export const proposalsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to submit signature.');
+      throw new Error(data.error || getTranslation('apiErrors.submitSignatureFailed'));
     }
     return data;
   },
@@ -103,7 +105,7 @@ export const proposalsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to decline proposal.');
+      throw new Error(data.error || getTranslation('apiErrors.declineProposalFailed'));
     }
     return data;
   },

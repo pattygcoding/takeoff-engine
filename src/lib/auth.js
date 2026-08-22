@@ -1,3 +1,5 @@
+import { getTranslation } from './i18n';
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const getAuthHeaders = () => {
@@ -24,7 +26,7 @@ export const authApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Registration failed.');
+      throw new Error(data.error || getTranslation('apiErrors.registrationFailed'));
     }
     return data;
   },
@@ -37,7 +39,7 @@ export const authApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Login failed.');
+      throw new Error(data.error || getTranslation('apiErrors.loginFailed'));
     }
     return data;
   },
@@ -80,7 +82,7 @@ export const authApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to request password reset.');
+      throw new Error(data.error || getTranslation('apiErrors.requestPasswordResetFailed'));
     }
     return data;
   },
@@ -93,7 +95,7 @@ export const authApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Password update failed.');
+      throw new Error(data.error || getTranslation('apiErrors.passwordUpdateFailed'));
     }
     return data;
   },
@@ -106,7 +108,7 @@ export const authApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Profile update failed.');
+      throw new Error(data.error || getTranslation('apiErrors.profileUpdateFailed'));
     }
     return data;
   },
@@ -119,7 +121,7 @@ export const authApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to upload logo.');
+      throw new Error(data.error || getTranslation('apiErrors.uploadLogoFailed'));
     }
     return data;
   },
@@ -131,7 +133,7 @@ export const authApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Account deletion failed.');
+      throw new Error(data.error || getTranslation('apiErrors.accountDeletionFailed'));
     }
     localStorage.removeItem('takeoff_token');
     localStorage.removeItem('takeoff_user');
@@ -145,7 +147,7 @@ export const authApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      const err = new Error(data.error || 'Export recording failed');
+      const err = new Error(data.error || getTranslation('apiErrors.exportRecordingFailed'));
       err.code = data.code;
       err.trial_uses_remaining = data.trial_uses_remaining;
       throw err;

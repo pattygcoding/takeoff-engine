@@ -1,3 +1,5 @@
+import { getTranslation } from './i18n';
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const getAuthHeaders = () => {
@@ -19,7 +21,7 @@ export const organizationsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to fetch organizations.');
+      throw new Error(data.error || getTranslation('apiErrors.fetchOrganizationsFailed'));
     }
     return data.organizations || [];
   },
@@ -35,7 +37,7 @@ export const organizationsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      const err = new Error(data.error || 'Failed to create organization.');
+      const err = new Error(data.error || getTranslation('apiErrors.createOrganizationFailed'));
       err.code = data.code;
       throw err;
     }
@@ -52,7 +54,7 @@ export const organizationsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to fetch organization details.');
+      throw new Error(data.error || getTranslation('apiErrors.fetchOrganizationDetailsFailed'));
     }
     return data;
   },
@@ -68,7 +70,7 @@ export const organizationsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      const err = new Error(data.error || 'Failed to invite team member.');
+      const err = new Error(data.error || getTranslation('apiErrors.inviteMemberFailed'));
       err.code = data.code;
       throw err;
     }
@@ -85,7 +87,7 @@ export const organizationsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to resend invite.');
+      throw new Error(data.error || getTranslation('apiErrors.resendInviteFailed'));
     }
     return data;
   },
@@ -100,7 +102,7 @@ export const organizationsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to revoke invite.');
+      throw new Error(data.error || getTranslation('apiErrors.revokeInviteFailed'));
     }
     return data;
   },
@@ -116,7 +118,7 @@ export const organizationsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to update member role.');
+      throw new Error(data.error || getTranslation('apiErrors.updateMemberRoleFailed'));
     }
     return data.member;
   },
@@ -131,7 +133,7 @@ export const organizationsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to remove member.');
+      throw new Error(data.error || getTranslation('apiErrors.removeMemberFailed'));
     }
     return data;
   },
