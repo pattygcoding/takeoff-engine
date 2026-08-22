@@ -1,0 +1,89 @@
+# Como Usar o Takeoff Engine — Guia do Cliente
+
+Este guia explica como preparar seu arquivo de levantamento de quantitativos (takeoff) e como o pipeline de ingestão do Takeoff Engine processa suas planilhas.
+
+---
+
+## 1. Quais tipos de arquivo são aceitos?
+
+O Takeoff Engine aceita arquivos de todos os principais softwares de orçamento e levantamento (Bluebeam Revu, PlanSwift, HeavyBid, Trimble/Agtek, Excel, etc.):
+
+- **CSV** (`.csv`) — Arquivos de texto simples separados por vírgula.
+- **Excel** (`.xlsx`, `.xls`, `.xlsm`, `.xlsb`) — Pastas de trabalho do Excel padrão e habilitadas para macro.
+
+### Suporte para Excel com Múltiplas Abas
+Se a sua pasta de trabalho do Excel contiver várias abas de planilha, o mecanismo avalia e seleciona automaticamente a aba ativa de levantamento (por exemplo, `Takeoff`, `Civil Estimate`, `Quantities`). Você também pode alternar entre as abas diretamente na visualização de mapeamento de colunas se tiver várias planilhas para inspecionar.
+
+Modelos prontos para uso e amostras de fornecedores estão disponíveis para download na tela de upload:
+- **Modelo CSV** (`takeoff_sample_template.csv`)
+- **Modelo Excel** (`takeoff_sample_template.xlsx`)
+- **Amostra de exportação do Bluebeam Revu**
+- **Amostra de exportação do PlanSwift**
+- **Amostra de exportação do Trimble / Agtek**
+
+---
+
+## 2. Campos Padrão de Orçamento e Mapeamento Automático Inteligente
+
+O Takeoff Engine utiliza **correspondência difusa de aliases (distância de Levenshtein)**. Você **não** precisa renomear os cabeçalhos para nomes rígidos predefinidos.
+
+| Campo Padrão | Obrigatório? | Exemplos Canônicos / Aliases de Software | Descrição |
+|---|---|---|---|
+| `system` | Sim | `Trade`, `Phase`, `Division`, `Category`, `Discipline`, `Utility Type`, `Section`, `Classification` | A disciplina, especialidade ou agrupamento (ex.: `Sanitary`, `Storm`, `Domestic Water`, `Earthwork`) |
+| `item_description` | Sim | `Item Description`, `Item Name`, `Description`, `Scope`, `Takeoff Item`, `Line Item`, `Activity` | O que é o item ou serviço (ex.: `Mainline Pipe`, `Precast Manhole`, `Gate Valve`) |
+| `size_spec` | Sim | `Size / Spec`, `Pipe Size`, `Dimension`, `Material Class`, `Specification`, `Diameter`, `Rating` | Diâmetro do tubo ou especificação de material (ex.: `8" PVC SDR-35`, `48" Precast`, `6" C900`) |
+| `quantity` | Sim | `Quantity`, `Qty`, `Takeoff Qty`, `Total Qty`, `Linear Feet`, `Amount`, `Count`, `Volume`, `Footage` | Quantidade numérica ou medição (ex.: `275`, `1,250`, `45.5`) |
+| `unit` | Sim | `Unit`, `UOM`, `Unit of Measure`, `Measure`, `Units`, `Unit Type` | Unidade de medida profissional (`LF`, `EA`, `CY`, `SF`, `TON`, `LS`, `HR`) |
+| `avg_depth_ft` | Não | `Avg Trench Depth`, `Avg Depth (FT)`, `Depth (ft)`, `Trench Depth`, `Cut Depth`, `Invert Depth` | Profundidade média opcional da vala em pés (para cálculos de terraplenagem e reaterro) |
+
+*Nota: A ordem das colunas e a diferenciação de maiúsculas/minúsculas não importam.*
+
+---
+
+## 3. Recursos de Processamento Resiliente
+
+O pipeline de ingestão lida com exportações brutas sem necessidade de limpeza manual:
+
+✅ **Detecção de Cabeçalho 2D e Tolerância a Deslocamento:**
+- Se a sua planilha tiver títulos da empresa, nomes de projetos ou linhas vazias no topo (linhas 1 a 30), o mecanismo localiza a linha real de cabeçalho das colunas.
+- Suporta cabeçalhos empilhados de 2 linhas (ex.: Superior: `Trench Dimensions`, Inferior: `Depth (FT)` $\rightarrow$ `Trench Dimensions - Depth (FT)`).
+
+✅ **Desmesclagem de Células e Preenchimento Automático (Forward-Fill):**
+- Quando uma planilha do Excel usa células mescladas em categorias ou cabeçalhos de seção, o rótulo do sistema/fase principal é propagado para todos os itens secundários abaixo.
+
+✅ **Filtragem de Subtotais e Faixas de Seção:**
+- Fórmulas (`=SUM(...)`, `SUBTOTAL`), linhas de resumo (`Sub-Total`, `Grand Total`), metadados e faixas divisórias decorativas de fase (`--- PHASE 1 ---`) são identificados e filtrados para não duplicar suas quantidades.
+- Checksums são calculados para verificar se os itens processados correspondem ao subtotal de resumo original da sua planilha.
+
+✅ **Higienização de Unidades e Quantidades Compostas:**
+- Valores com formatação como `$1,250.00`, números negativos contábeis `(150.00)` ou strings com unidades embutidas como `"275 LF"` ou `"12 EA"` são separados em seu valor numérico limpo e unidade.
+
+✅ **Normalização de Unidades Profissionais:**
+- Variações de unidades são normalizadas:
+  - `lin ft`, `linear feet`, `l.f.`, `ft` $\rightarrow$ `LF`
+  - `each`, `pcs`, `e.a.`, `item` $\rightarrow$ `EA`
+  - `cu yd`, `c.y.`, `cubic yard`, `m3` $\rightarrow$ `CY`
+  - `sq ft`, `s.f.`, `sqft`, `m2` $\rightarrow$ `SF`
+  - `tn`, `tons`, `tonne` $\rightarrow$ `TON`
+  - `ls`, `lump`, `global` $\rightarrow$ `LS`
+
+✅ **Desconstrução de Dimensões Compostas:**
+- Se um software de levantamento combinar descrição e dimensão (ex.: `"8\" PVC SDR-35 Mainline"` na coluna de descrição), o mecanismo separa o diâmetro/tamanho do nome do item.
+
+---
+
+## 4. Mapeamento Interativo de Colunas e Predefinições de Fornecedores
+
+Se um arquivo contiver colunas ambíguas ou formatação personalizada (pontuação de confiança < 90%):
+
+- **Modal de Mapeamento Interativo de Colunas:** Uma caixa de diálogo de confirmação é exibida com índices de confiança para cada campo detectado.
+- **Pré-visualização em Tempo Real de 5 Linhas:** Veja como seus dados se transformam em tempo real conforme você seleciona as colunas.
+- **Salvar Predefinições de Fornecedor / Subempreiteiro:** Salve configurações de colunas personalizadas com o nome de um fornecedor (ex.: `ABC Earthwork Subcontractor`). O mecanismo lembrará esse mapeamento e o reaplicará quando novos arquivos desse fornecedor forem carregados.
+
+---
+
+## 5. O que Acontece Após o Upload
+
+- O arquivo é processado e validado em milissegundos com base em regras determinísticas.
+- Se houver quantidades inválidas, mensagens de erro detalhadas serão listadas com os números das linhas para revisão.
+- Os itens válidos preenchem a grade interativa de orçamento, onde você pode ajustar quantidades, aplicar tabelas de preços/taxas, configurar seções transversais de valas e gerar propostas comerciais ou pacotes de licitação em Word/PDF.
