@@ -7,6 +7,7 @@ import ProjectWorkspace from '@/components/ProjectWorkspace';
 import AccountSettings from '@/components/AccountSettings';
 import UserMenu from '@/components/UserMenu';
 import LoginPage from '@/components/LoginPage';
+import PlanOnboardingPage from '@/components/PlanOnboardingPage';
 import LandingPage from '@/components/LandingPage';
 import ClientProposalView from '@/components/ClientProposalView';
 import AdminPortal from '@/components/AdminPortal';
@@ -347,10 +348,16 @@ function AppContent() {
         <Route
           path="/register"
           element={
-            isAuthenticated && user?.username ? (
-              <Navigate to={`/${user.username}`} replace />
+            <LoginPage initialView="register" />
+          }
+        />
+        <Route
+          path="/onboarding"
+          element={
+            isAuthenticated ? (
+              <PlanOnboardingPage />
             ) : (
-              <LoginPage initialView="register" />
+              <Navigate to="/register" replace />
             )
           }
         />

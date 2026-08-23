@@ -89,7 +89,7 @@ export default function LoginPage({ initialView = 'login' }) {
 
     setLoading(true);
     try {
-      const regData = await register({
+      await register({
         username: registerUsername,
         password: registerPassword,
         firstName: registerFirstName,
@@ -98,12 +98,8 @@ export default function LoginPage({ initialView = 'login' }) {
         phoneNumber: registerPhone,
       });
 
-      const userObj = regData?.user || {
-        username: registerUsername,
-        email: registerEmail,
-      };
-      setRegisteredUser(userObj);
-      setView('plan-select');
+      // Route immediately to the dedicated /onboarding screen
+      navigate('/onboarding', { replace: true });
     } catch (err) {
       setError(err.message || t('loginPage.errRegisterFailed'));
     } finally {
