@@ -17,6 +17,7 @@ Si votre classeur Excel contient plusieurs onglets, le moteur évalue et sélect
 Des modèles prêts à l'emploi et des exemples de fournisseurs peuvent être téléchargés sur l'écran d'importation :
 - **Modèle CSV** (`takeoff_sample_template.csv`)
 - **Modèle Excel** (`takeoff_sample_template.xlsx`)
+- **Méga Échantillon de Cas Limites** (`sample_edge_cases_takeoff.csv`)
 - **Exemple d'export Bluebeam Revu**
 - **Exemple d'export PlanSwift**
 - **Exemple d'export Trimble / Agtek**
@@ -69,6 +70,18 @@ Le pipeline d'ingestion gère les exports bruts sans nécessiter de nettoyage ma
 
 ✅ **Déconstruction des Dimensions Composites :**
 - Si un logiciel de métré fusionne la description et la dimension (ex. `"8\" PVC SDR-35 Mainline"` dans la colonne de description), le moteur extrait la dimension du tuyau du libellé de la ligne.
+
+✅ **Détection des Tableaux Côte à Côte (Multi-Tableaux) :**
+- Lorsque les métreurs disposent différents lots horizontalement côte à côte sur le même onglet, séparés par des colonnes vides (ex. Eau Potable dans les colonnes A à F et Assainissement dans les colonnes H à M), le moteur détecte les sous-tableaux et vous permet de choisir la zone à importer dans la boîte de dialogue de mappage.
+
+✅ **Sauts de Ligne Manuels et Textes Multilignes (Alt + Entrée) :**
+- Les cellules contenant des retours chariot (`\r\n` ou `\n`) provenant de sauts de ligne manuels ou de notes sont assainies en chaînes propres sur une seule ligne sans casser les lignes du CSV.
+
+✅ **Filtrage des Lignes Masquées et des Postes Barrés (Avenants / Suppressions) :**
+- Les lignes masquées dans Excel (`row.hidden === true` ou hauteur = 0) et les éléments barrés (`font.strike === true`) signalant des suppressions de périmètre par avenant sont exclus afin de ne jamais importer accidentellement des prestations éliminées.
+
+✅ **Extraction des Valeurs Calculées en Cache et Gestion des Formules Brisées :**
+- Évalue les valeurs calculées en cache d'Excel (`.v` / `.w`) plutôt que des chaînes de formules non évaluées. Les erreurs de formules (`#REF!`, `#VALUE!`, `#N/A`) sont converties proprement en `null`/`NaN` avec des avertissements explicites au niveau de la ligne.
 
 ---
 

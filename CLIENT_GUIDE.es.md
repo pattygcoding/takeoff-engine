@@ -17,6 +17,7 @@ Si su libro de Excel contiene varias pestañas de hojas de trabajo, el motor cal
 Plantillas listas para usar y ejemplos de proveedores están disponibles para descargar en la pantalla de carga:
 - **Plantilla CSV** (`takeoff_sample_template.csv`)
 - **Plantilla Excel** (`takeoff_sample_template.xlsx`)
+- **Mega Ejemplo de Casos Límite** (`sample_edge_cases_takeoff.csv`)
 - **Ejemplo de exportación de Bluebeam Revu**
 - **Ejemplo de exportación de PlanSwift**
 - **Ejemplo de exportación de Trimble / Agtek**
@@ -69,6 +70,18 @@ El pipeline de ingesta procesa exportaciones sin procesar sin necesidad de limpi
 
 ✅ **Desconstrucción de Tamaños Compuestos:**
 - Si un software de cómputo combina la descripción y la dimensión (p. ej. `"8\" PVC SDR-35 Mainline"` en la columna de descripción), el motor separa la dimensión de la tubería del nombre del elemento.
+
+✅ **Detección de Tablas Lado a Lado (Multi-Tabla):**
+- Cuando los estimadores colocan diferentes alcances horizontalmente uno al lado del otro en la misma pestaña separados por columnas vacías (p. ej., Agua Potable en columnas A–F y Alcantarillado Sanitario en columnas H–M), el motor detecta las subtablas y le permite elegir qué área de tabla importar en el modal de mapeo.
+
+✅ **Saltos de Línea Manuales y Ajustes Multilínea (Alt + Enter):**
+- Las celdas con retornos de carro incrustados (`\r\n` o `\n`) provenientes de saltos de línea manuales o notas se sanean en cadenas limpias de una sola línea sin romper las filas del CSV.
+
+✅ **Filtrado de Filas Ocultas y Eliminación de Alcance Tachado:**
+- Las filas ocultas en Excel (`row.hidden === true` o altura = 0) y los elementos con estilo tachado (`font.strike === true`) que indican eliminaciones de alcance por adendas se excluyen para que el alcance eliminado nunca se importe por error.
+
+✅ **Extracción de Valores Calculados en Caché y Manejo de Fórmulas Rotas:**
+- Evalúa los valores calculados en caché de Excel (`.v` / `.w`) en lugar de cadenas de fórmulas sin evaluar. Los errores de fórmulas rotas (`#REF!`, `#VALUE!`, `#N/A`) se convierten sin problemas a `null`/`NaN` con advertencias claras a nivel de fila.
 
 ---
 
