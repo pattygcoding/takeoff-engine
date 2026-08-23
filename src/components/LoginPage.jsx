@@ -222,7 +222,11 @@ export default function LoginPage({ initialView = 'login' }) {
         </div>
       </div>
 
-      <div className={`bg-white rounded-2xl shadow-xl w-full border border-slate-200 transition-all duration-300 ${view === 'plan-select' ? 'max-w-5xl p-6 sm:p-10' : 'max-w-md p-6 sm:p-8'}`}>
+      <div className={`rounded-3xl shadow-2xl w-full transition-all duration-300 ${
+        view === 'plan-select'
+          ? 'max-w-6xl p-6 sm:p-10 bg-slate-950 border border-slate-800 text-white'
+          : 'max-w-md p-6 sm:p-8 bg-white border border-slate-200 shadow-xl'
+      }`}>
         {error && (
           <div className="mb-4 p-3.5 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700 space-y-2">
             <div className="flex items-start gap-2">
@@ -254,234 +258,176 @@ export default function LoginPage({ initialView = 'login' }) {
         {view === 'plan-select' && (
           <div>
             <div className="text-center mb-8 max-w-2xl mx-auto">
-              <span className="inline-block px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-200 mb-3">
+              <span className="inline-block px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 mb-3">
                 Account Created Successfully 🎉
               </span>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
                 {t('loginPage.selectPlanTitle')}
               </h2>
-              <p className="text-sm text-slate-600 mt-2">
+              <p className="text-sm text-slate-400 mt-2">
                 {t('loginPage.selectPlanSubtitle')}
               </p>
             </div>
 
-            {/* 4 Plan Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8">
+            {/* 4 Plan Cards Grid styled after Dark Theme Pricing UI */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
               {/* 1. Free Trial */}
-              <div className="flex flex-col justify-between p-5 rounded-2xl border-2 border-slate-200 bg-slate-50/70 hover:border-slate-300 transition-all hover:shadow-md">
+              <div className="bg-slate-900 p-6 rounded-3xl border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition">
                 <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                      {t('loginPage.freeTierTitle')}
-                    </span>
-                    <span className="text-[10px] font-bold bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full uppercase">
-                      {t('loginPage.freeTierBadge')}
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                      {t('landing.pricing.freeTrial.tier', 'Free Trial')}
                     </span>
                   </div>
-                  <div className="flex items-baseline gap-1 my-2">
-                    <span className="text-3xl font-extrabold text-slate-900">{t('loginPage.freeTierPrice')}</span>
-                    <span className="text-xs text-slate-500 font-medium">{t('loginPage.freeTierCadence')}</span>
+                  <div className="mt-4 flex items-baseline gap-1">
+                    <span className="text-3xl font-black text-white">{t('landing.pricing.freeTrial.price', '$0')}</span>
+                    <span className="text-xs text-slate-400">{t('landing.pricing.freeTrial.cadence', '/ forever')}</span>
                   </div>
-                  <p className="text-xs text-slate-600 mb-4 min-h-[32px] leading-snug">
-                    {t('loginPage.freeTierDesc')}
+                  <div className="text-[10px] text-slate-500 font-medium mt-0.5">
+                    {t('landing.pricing.freeTrial.noCard', 'no credit card required')}
+                  </div>
+                  <p className="text-xs text-slate-400 mt-2 leading-relaxed min-h-[34px]">
+                    {t('landing.pricing.freeTrial.description', 'Perfect for evaluating your first job bids.')}
                   </p>
-                  <ul className="space-y-2 mb-6 text-xs text-slate-700">
-                    <li className="flex items-start gap-2">
-                      <span className="text-emerald-500 font-bold">✓</span>
-                      <span>{t('loginPage.freeTierFeature1')}</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-emerald-500 font-bold">✓</span>
-                      <span>{t('loginPage.freeTierFeature2')}</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-emerald-500 font-bold">✓</span>
-                      <span>{t('loginPage.freeTierFeature3')}</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-emerald-500 font-bold">✓</span>
-                      <span>{t('loginPage.freeTierFeature4')}</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-emerald-500 font-bold">✓</span>
-                      <span>{t('loginPage.freeTierFeature5')}</span>
-                    </li>
+
+                  <ul className="mt-6 space-y-2.5 text-xs text-slate-300">
+                    <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.freeTrial.f1')}</strong></li>
+                    <li className="flex items-center gap-2">✓ {t('landing.pricing.freeTrial.f2')}</li>
+                    <li className="flex items-center gap-2">✓ {t('landing.pricing.freeTrial.f3')}</li>
+                    <li className="flex items-center gap-2">✓ {t('landing.pricing.freeTrial.f4')}</li>
                   </ul>
                 </div>
+
                 <button
                   type="button"
                   onClick={handleSelectFreePlan}
-                  className="w-full py-2.5 px-3 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 font-bold text-xs text-slate-800 shadow-sm transition"
+                  className="mt-6 w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition cursor-pointer"
                 >
-                  {t('loginPage.freeTierCta')}
+                  {t('landing.pricing.freeTrial.cta', 'Get Started Free')}
                 </button>
               </div>
 
               {/* 2. Starter Tier */}
-              <div className="flex flex-col justify-between p-5 rounded-2xl border-2 border-slate-200 bg-white hover:border-indigo-300 transition-all hover:shadow-md">
+              <div className="bg-slate-900 p-6 rounded-3xl border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition">
                 <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                      {t('loginPage.starterTierTitle')}
-                    </span>
-                    <span className="text-[10px] font-bold text-slate-400">
-                      {t('loginPage.monthlyBilled')}
-                    </span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                    {t('landing.pricing.starter.tier', 'Starter Tier')}
+                  </span>
+                  <div className="mt-4 flex items-baseline gap-1">
+                    <span className="text-3xl font-black text-white">{t('landing.pricing.starter.price', '$29.99')}</span>
+                    <span className="text-xs text-slate-400">{t('landing.pricing.starter.cadence', '/ mo')}</span>
                   </div>
-                  <div className="flex items-baseline gap-1 my-2">
-                    <span className="text-3xl font-extrabold text-slate-900">{t('loginPage.starterTierPrice')}</span>
-                    <span className="text-xs text-slate-500 font-medium">{t('loginPage.starterTierCadence')}</span>
+                  <div className="text-[10px] text-slate-400 font-medium mt-0.5">
+                    {t('landing.pricing.starter.yearly', 'or $299.99/yr • plus tax')}
                   </div>
-                  <p className="text-xs text-slate-600 mb-4 min-h-[32px] leading-snug">
-                    {t('loginPage.starterTierDesc')}
+                  <p className="text-xs text-slate-400 mt-2 leading-relaxed min-h-[34px]">
+                    {t('landing.pricing.starter.description', 'Great for solo estimators bidding jobs weekly.')}
                   </p>
-                  <ul className="space-y-2 mb-6 text-xs text-slate-700">
-                    <li className="flex items-start gap-2">
-                      <span className="text-emerald-500 font-bold">✓</span>
-                      <span className="font-semibold">{t('loginPage.starterTierFeature1')}</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-emerald-500 font-bold">✓</span>
-                      <span>{t('loginPage.starterTierFeature2')}</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-emerald-500 font-bold">✓</span>
-                      <span>{t('loginPage.starterTierFeature3')}</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-emerald-500 font-bold">✓</span>
-                      <span>{t('loginPage.starterTierFeature4')}</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-emerald-500 font-bold">✓</span>
-                      <span>{t('loginPage.starterTierFeature5')}</span>
-                    </li>
+
+                  <ul className="mt-6 space-y-2.5 text-xs text-slate-300">
+                    <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.starter.f1')}</strong></li>
+                    <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.starter.f2')}</strong></li>
+                    <li className="flex items-center gap-2">✓ {t('landing.pricing.starter.f3')}</li>
+                    <li className="flex items-center gap-2">✓ {t('landing.pricing.starter.f4')}</li>
+                    <li className="flex items-center gap-2">✓ {t('landing.pricing.starter.f5')}</li>
                   </ul>
                 </div>
+
                 <button
                   type="button"
                   disabled={checkoutLoadingPlan === 'starter'}
                   onClick={() => handleSelectPaidPlan('starter')}
-                  className="w-full py-2.5 px-3 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs shadow-sm transition disabled:opacity-50"
+                  className="mt-6 w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition cursor-pointer disabled:opacity-50"
                 >
-                  {checkoutLoadingPlan === 'starter' ? t('loginPage.launchingCheckout') : t('loginPage.starterTierCta')}
+                  {checkoutLoadingPlan === 'starter' ? t('loginPage.launchingCheckout') : t('landing.pricing.starter.cta', 'Choose Starter')}
                 </button>
               </div>
 
-              {/* 3. Pro Tier (Highlighted / Most Popular) */}
-              <div className="flex flex-col justify-between p-5 rounded-2xl border-2 border-indigo-600 bg-indigo-50/30 relative shadow-lg ring-2 ring-indigo-500/20">
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[10px] font-extrabold uppercase px-3 py-0.5 rounded-full tracking-wider shadow-sm">
-                  {t('loginPage.proTierPopular')}
+              {/* 3. Pro Tier (Most Popular) */}
+              <div className="bg-gradient-to-b from-indigo-950/80 to-slate-900 p-6 rounded-3xl border-2 border-indigo-500 shadow-2xl relative flex flex-col justify-between">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-wider px-3 py-0.5 rounded-full shadow">
+                  {t('landing.pricing.pro.mostPopular', 'Most Popular')}
                 </div>
+
                 <div>
-                  <div className="flex justify-between items-center mb-2 mt-1">
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-700">
-                      {t('loginPage.proTierTitle')}
-                    </span>
-                    <span className="text-[10px] font-bold text-slate-400">
-                      {t('loginPage.monthlyBilled')}
-                    </span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-indigo-400">
+                    {t('landing.pricing.pro.tier', 'Pro Tier')}
+                  </span>
+                  <div className="mt-4 flex items-baseline gap-1">
+                    <span className="text-3xl font-black text-white">{t('landing.pricing.pro.price', '$79.99')}</span>
+                    <span className="text-xs text-slate-400">{t('landing.pricing.pro.cadence', '/ mo')}</span>
                   </div>
-                  <div className="flex items-baseline gap-1 my-2">
-                    <span className="text-3xl font-extrabold text-slate-900">{t('loginPage.proTierPrice')}</span>
-                    <span className="text-xs text-slate-500 font-medium">{t('loginPage.proTierCadence')}</span>
+                  <div className="text-[10px] text-indigo-300/80 font-medium mt-0.5">
+                    {t('landing.pricing.pro.yearly', 'or $799.99/yr • plus tax')}
                   </div>
-                  <p className="text-xs text-slate-600 mb-4 min-h-[32px] leading-snug">
-                    {t('loginPage.proTierDesc')}
+                  <p className="text-xs text-slate-300 mt-2 leading-relaxed min-h-[34px]">
+                    {t('landing.pricing.pro.description', 'Unlimited power & full PDF report layouts.')}
                   </p>
-                  <ul className="space-y-2 mb-6 text-xs text-slate-700">
-                    <li className="flex items-start gap-2">
-                      <span className="text-indigo-600 font-bold">✓</span>
-                      <span className="font-semibold text-indigo-900">{t('loginPage.proTierFeature1')}</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-indigo-600 font-bold">✓</span>
-                      <span>{t('loginPage.proTierFeature2')}</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-indigo-600 font-bold">✓</span>
-                      <span>{t('loginPage.proTierFeature3')}</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-indigo-600 font-bold">✓</span>
-                      <span>{t('loginPage.proTierFeature4')}</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-indigo-600 font-bold">✓</span>
-                      <span>{t('loginPage.proTierFeature5')}</span>
-                    </li>
+
+                  <ul className="mt-6 space-y-2.5 text-xs text-slate-200">
+                    <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.pro.f1')}</strong></li>
+                    <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.pro.f2')}</strong></li>
+                    <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.pro.f3')}</strong></li>
+                    <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.pro.f4')}</strong></li>
+                    <li className="flex items-center gap-2">✓ {t('landing.pricing.pro.f5')}</li>
                   </ul>
                 </div>
+
                 <button
                   type="button"
                   disabled={checkoutLoadingPlan === 'pro'}
                   onClick={() => handleSelectPaidPlan('pro')}
-                  className="w-full py-2.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md transition disabled:opacity-50"
+                  className="mt-6 w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition cursor-pointer disabled:opacity-50"
                 >
-                  {checkoutLoadingPlan === 'pro' ? t('loginPage.launchingCheckout') : t('loginPage.proTierCta')}
+                  {checkoutLoadingPlan === 'pro' ? t('loginPage.launchingCheckout') : t('landing.pricing.pro.cta', 'Upgrade to Pro')}
                 </button>
               </div>
 
               {/* 4. Enterprise Tier */}
-              <div className="flex flex-col justify-between p-5 rounded-2xl border-2 border-slate-900 bg-slate-900 text-white hover:shadow-xl transition-all">
+              <div className="bg-gradient-to-b from-amber-950/40 via-slate-900 to-slate-900 p-6 rounded-3xl border border-amber-500/40 shadow-xl flex flex-col justify-between">
                 <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-amber-400">
-                      {t('loginPage.enterpriseTierTitle')}
-                    </span>
-                    <span className="text-[10px] font-bold text-slate-400">
-                      {t('loginPage.monthlyBilled')}
-                    </span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-amber-400">
+                    {t('landing.pricing.enterprise.tier', 'Enterprise')}
+                  </span>
+                  <div className="mt-4 flex items-baseline gap-1">
+                    <span className="text-3xl font-black text-white">{t('landing.pricing.enterprise.price', '$199.99')}</span>
+                    <span className="text-xs text-slate-400">{t('landing.pricing.enterprise.cadence', '/ mo')}</span>
                   </div>
-                  <div className="flex items-baseline gap-1 my-2">
-                    <span className="text-3xl font-extrabold text-white">{t('loginPage.enterpriseTierPrice')}</span>
-                    <span className="text-xs text-slate-300 font-medium">{t('loginPage.enterpriseTierCadence')}</span>
+                  <div className="text-[10px] text-amber-300/80 font-medium mt-0.5">
+                    {t('landing.pricing.enterprise.yearly', 'or $1999.99/yr • plus tax')}
                   </div>
-                  <p className="text-xs text-slate-300 mb-4 min-h-[32px] leading-snug">
-                    {t('loginPage.enterpriseTierDesc')}
+                  <p className="text-xs text-slate-300 mt-2 leading-relaxed min-h-[34px]">
+                    {t('landing.pricing.enterprise.description', 'Multi-seat collaboration for growing teams.')}
                   </p>
-                  <ul className="space-y-2 mb-6 text-xs text-slate-200">
-                    <li className="flex items-start gap-2">
-                      <span className="text-amber-400 font-bold">✓</span>
-                      <span className="font-semibold text-amber-300">{t('loginPage.enterpriseTierFeature1')}</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-amber-400 font-bold">✓</span>
-                      <span>{t('loginPage.enterpriseTierFeature2')}</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-amber-400 font-bold">✓</span>
-                      <span>{t('loginPage.enterpriseTierFeature3')}</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-amber-400 font-bold">✓</span>
-                      <span>{t('loginPage.enterpriseTierFeature4')}</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-amber-400 font-bold">✓</span>
-                      <span>{t('loginPage.enterpriseTierFeature5')}</span>
-                    </li>
+
+                  <ul className="mt-6 space-y-2.5 text-xs text-slate-300">
+                    <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.enterprise.f1')}</strong></li>
+                    <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.enterprise.f2')}</strong></li>
+                    <li className="flex items-center gap-2">✓ {t('landing.pricing.enterprise.f3')}</li>
+                    <li className="flex items-center gap-2">✓ {t('landing.pricing.enterprise.f4')}</li>
+                    <li className="flex items-center gap-2">✓ {t('landing.pricing.enterprise.f5')}</li>
                   </ul>
                 </div>
+
                 <button
                   type="button"
                   disabled={checkoutLoadingPlan === 'enterprise'}
                   onClick={() => handleSelectPaidPlan('enterprise')}
-                  className="w-full py-2.5 px-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs shadow-md transition disabled:opacity-50"
+                  className="mt-6 w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold rounded-xl shadow-lg shadow-amber-500/20 transition cursor-pointer disabled:opacity-50"
                 >
-                  {checkoutLoadingPlan === 'enterprise' ? t('loginPage.launchingCheckout') : t('loginPage.enterpriseTierCta')}
+                  {checkoutLoadingPlan === 'enterprise' ? t('loginPage.launchingCheckout') : t('landing.pricing.enterprise.cta', 'Choose Enterprise')}
                 </button>
               </div>
             </div>
 
             {/* Bottom Skip to Dashboard Link */}
-            <div className="text-center pt-2 border-t border-slate-100">
+            <div className="text-center pt-3 border-t border-slate-800">
               <button
                 type="button"
                 onClick={handleSelectFreePlan}
-                className="text-xs font-semibold text-slate-500 hover:text-indigo-600 transition cursor-pointer"
+                className="text-xs font-semibold text-slate-400 hover:text-indigo-400 transition cursor-pointer"
               >
-                {t('loginPage.skipForNow')}
+                {t('loginPage.skipForNow', 'Or continue to dashboard with Free Trial →')}
               </button>
             </div>
           </div>
