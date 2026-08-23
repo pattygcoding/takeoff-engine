@@ -29,7 +29,7 @@ const STATUS_CONFIG = {
 };
 
 export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const { showAlert, showConfirm } = useModal();
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -134,11 +134,15 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
     }
   };
 
-  const handleDelete = async (project) => {
+  const handleDelete = async (project, isAdminDelete = false) => {
+    const isSpecialAdminDelete = isAdminDelete || (isAdmin && !['draft', 'archived'].includes(project.status));
+
     const confirmed = await showConfirm({
-      title: t('projectDashboard.deleteConfirmTitle'),
-      message: t('projectDashboard.deleteConfirmMessage', { name: project.name }),
-      confirmText: t('projectDashboard.deleteConfirmButton'),
+      title: isSpecialAdminDelete ? t('projectDashboard.adminDeleteConfirmTitle') : t('projectDashboard.deleteConfirmTitle'),
+      message: isSpecialAdminDelete
+        ? t('projectDashboard.adminDeleteConfirmMessage', { name: project.name, status: project.status || 'active' })
+        : t('projectDashboard.deleteConfirmMessage', { name: project.name }),
+      confirmText: isSpecialAdminDelete ? t('projectDashboard.adminDeleteConfirmButton') : t('projectDashboard.deleteConfirmButton'),
       confirmVariant: 'danger',
     });
     if (!confirmed) {
@@ -350,7 +354,9 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
             return (
               <div
                 key={project.id}
-                className="bg-white rounded-2xl border border-slate-200 hover:border-indigo-300 hover:shadow-md transition duration-200 flex flex-col justify-between overflow-hidden group"
+                className={`bg-white rounded-2xl border border-slate-200 hover:border-indigo-300 hover:shadow-md transition duration-200 flex flex-col justify-between group relative ${
+                  actionMenuOpenId === project.id ? 'z-30' : 'z-0'
+                }`}
               >
                 {/* Card Header */}
                 <div className="p-5 pb-3">
@@ -483,6 +489,23 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                   </svg>
                                   {isDeleting ? t('projectDashboard.deleting') : t('projectDashboard.delete')}
+                                </button>
+                              </>
+                            )}
+
+                            {/* Submitted or Awarded projects: Standard users cannot delete, but Admin users get 'Admin Delete' */}
+                            {isAdmin && !isDraft && !isDeclined && !isArchived && (
+                              <>
+                                <div className="border-t border-slate-100 my-1" />
+                                <button
+                                  onClick={() => handleDelete(project, true)}
+                                  disabled={isDeleting}
+                                  className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 flex items-center gap-2 font-medium"
+                                >
+                                  <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                  </svg>
+                                  {isDeleting ? t('projectDashboard.deleting') : t('projectDashboard.adminDelete')}
                                 </button>
                               </>
                             )}

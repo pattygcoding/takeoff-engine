@@ -573,6 +573,9 @@ export default function LandingPage() {
             <button onClick={() => navigate('/register')} className="hover:text-white transition">
               {t('landing.footer.createAccount')}
             </button>
+            <button onClick={() => navigate('/terms')} className="text-indigo-400 hover:text-indigo-300 font-medium transition">
+              {t('footer.acceptableUsePolicy')}
+            </button>
           </div>
           <p className="font-semibold text-slate-400">{t('landing.footer.tagline')}</p>
           <p>{t('landing.footer.copyright', { year: new Date().getFullYear() })}</p>

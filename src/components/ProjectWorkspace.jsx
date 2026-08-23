@@ -14,50 +14,54 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState(null);
 
-  // When projectId is in the URL, make sure the project and its items are loaded
+  // When projectId is in the URL, make sure the project and its items are fresh from the backend
   useEffect(() => {
     let isMounted = true;
     if (projectId) {
+      // If current project is not yet loaded in memory, show full-screen spinner
       if (!currentProject || currentProject.id !== projectId) {
         setLoading(true);
-        setLoadError(null);
-        projectsApi.getById(projectId)
-          .then((fullProject) => {
-            if (!isMounted) return;
-            setCurrentProject(fullProject);
-            const est = fullProject.latestEstimate;
-            if (est?.items_json && Array.isArray(est.items_json)) {
-              setItems(est.items_json);
-            } else if (fullProject.items && Array.isArray(fullProject.items)) {
-              setItems(fullProject.items);
-            }
-            if (est?.rates_json && typeof est.rates_json === 'object' && Object.keys(est.rates_json).length > 0) {
-              setRates(est.rates_json);
-            } else if (fullProject.rates && typeof fullProject.rates === 'object' && Object.keys(fullProject.rates).length > 0) {
-              setRates(fullProject.rates);
-            }
-            // If project is locked (awarded, declined, submitted, archived) and user navigated directly to step 2 (edit) or step 1, redirect to results (step 3)
-            if (['awarded', 'declined', 'submitted', 'archived'].includes(fullProject?.status) && step === 2) {
-              navigate(`/${username}/takeoff/${projectId}/results`, { replace: true });
-            }
-          })
-          .catch((err) => {
-            if (!isMounted) return;
-            console.error('Failed to load project by URL ID:', err);
-            setLoadError(err.message || t('projectWorkspace.errLoadFailed'));
-          })
-          .finally(() => {
-            if (isMounted) setLoading(false);
-          });
-      } else if (['awarded', 'declined', 'submitted', 'archived'].includes(currentProject?.status) && step === 2) {
-        // If already loaded and user tried navigating to /edit via URL
-        navigate(`/${username}/takeoff/${projectId}/results`, { replace: true });
       }
+      setLoadError(null);
+
+      projectsApi.getById(projectId)
+        .then((fullProject) => {
+          if (!isMounted) return;
+          setCurrentProject(fullProject);
+          const est = fullProject.latestEstimate;
+          if (est?.items_json && Array.isArray(est.items_json)) {
+            setItems(est.items_json);
+          } else if (fullProject.items && Array.isArray(fullProject.items)) {
+            setItems(fullProject.items);
+          }
+          if (est?.rates_json && typeof est.rates_json === 'object' && Object.keys(est.rates_json).length > 0) {
+            setRates(est.rates_json);
+          } else if (fullProject.rates && typeof fullProject.rates === 'object' && Object.keys(fullProject.rates).length > 0) {
+            setRates(fullProject.rates);
+          }
+          // If project is locked (awarded, declined, submitted, archived) and user navigated directly to step 2 (edit) or step 1, redirect to results (step 3)
+          if (['awarded', 'declined', 'submitted', 'archived'].includes(fullProject?.status) && step === 2) {
+            navigate(`/${username}/takeoff/${projectId}/results`, { replace: true });
+          }
+        })
+        .catch((err) => {
+          if (!isMounted) return;
+          console.error('Failed to load project by URL ID:', err);
+          setLoadError(err.message || t('projectWorkspace.errLoadFailed'));
+        })
+        .finally(() => {
+          if (isMounted) setLoading(false);
+        });
     }
     return () => {
       isMounted = false;
     };
   }, [projectId, step]);
+
+  // Scroll to the top of the page whenever the workspace step changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [step]);
 
   const isLocked = ['awarded', 'submitted', 'archived', 'declined'].includes(currentProject?.status);
 
@@ -66,6 +70,8 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
     if (isLocked && (targetStep === 1 || targetStep === 2)) {
       return;
     }
+
+    window.scrollTo({ top: 0, behavior: 'instant' });
 
     if (projectId) {
       if (targetStep === 1) navigate(`/${username}/upload`);
@@ -81,6 +87,7 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
   };
 
   const handleCalculate = () => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
     if (projectId || currentProject?.id) {
       const activeId = projectId || currentProject.id;
       navigate(`/${username}/takeoff/${activeId}/results`);
@@ -91,6 +98,7 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
 
   const handleBackToEdit = () => {
     if (isLocked) return;
+    window.scrollTo({ top: 0, behavior: 'instant' });
     if (projectId || currentProject?.id) {
       const activeId = projectId || currentProject.id;
       navigate(`/${username}/takeoff/${activeId}/edit`);
@@ -104,6 +112,29 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
     // If a newly created project was saved, update URL to include the new takeoff ID seamlessly
     if (savedProj?.id && (!projectId || projectId !== savedProj.id)) {
       navigate(`/${username}/takeoff/${savedProj.id}/${step === 3 ? 'results' : 'edit'}`, { replace: true });
+    }
+  };
+
+  // If new draft takeoff without items and without a projectId, redirect to projects dashboard
+  useEffect(() => {
+    if (!loading && !projectId && (!items || items.length === 0)) {
+      navigate(`/${username}`, { replace: true });
+    }
+  }, [loading, projectId, items, username, navigate]);
+
+  const handleDuplicate = async () => {
+    if (!currentProject?.id) return;
+    try {
+      setLoading(true);
+      const cloned = await projectsApi.clone(currentProject.id);
+      if (cloned?.id) {
+        navigate(`/${username}/takeoff/${cloned.id}/edit`);
+      }
+    } catch (err) {
+      console.error('Failed to duplicate project:', err);
+      setLoadError(err.message || t('projectWorkspace.errDuplicateFailed'));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -140,13 +171,6 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
     );
   }
 
-  // If new draft takeoff without items and without a projectId, redirect to projects dashboard
-  useEffect(() => {
-    if (!loading && !projectId && (!items || items.length === 0)) {
-      navigate(`/${username}`, { replace: true });
-    }
-  }, [loading, projectId, items, username, navigate]);
-
   if (!projectId && (!items || items.length === 0)) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
@@ -157,22 +181,6 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
       </div>
     );
   }
-
-  const handleDuplicate = async () => {
-    if (!currentProject?.id) return;
-    try {
-      setLoading(true);
-      const cloned = await projectsApi.clone(currentProject.id);
-      if (cloned?.id) {
-        navigate(`/${username}/takeoff/${cloned.id}/edit`);
-      }
-    } catch (err) {
-      console.error('Failed to duplicate awarded project:', err);
-      setLoadError(err.message || t('projectWorkspace.errDuplicateFailed'));
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <>
@@ -210,11 +218,6 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
               <span className="text-xs font-bold text-red-800 bg-red-100 border border-red-300 px-2.5 py-0.5 rounded-full flex items-center gap-1">
                 <span>🔒</span>
                 <span>{t('projectWorkspace.statusDeclined')}</span>
-              </span>
-            )}
-            {projectId && (
-              <span className="text-[11px] font-mono font-medium text-indigo-700 bg-indigo-50 border border-indigo-200/60 px-2 py-0.5 rounded-md">
-                {t('projectWorkspace.idPrefix', { id: projectId.slice(0, 8) })}
               </span>
             )}
           </div>

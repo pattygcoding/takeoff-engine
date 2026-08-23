@@ -81,7 +81,11 @@ export default function ClientProposalView() {
     e.preventDefault();
     setDeclining(true);
     try {
-      await proposalsApi.declinePublicProposal(publicToken, { reason: declineReason });
+      await proposalsApi.declinePublicProposal(publicToken, {
+        reason: declineReason,
+        signerEmail,
+        signerName,
+      });
       setShowDeclineModal(false);
       await loadProposal();
     } catch (err) {
@@ -94,6 +98,31 @@ export default function ClientProposalView() {
       setDeclining(false);
     }
   };
+
+  const { proposal = {}, contractor = {} } = data || {};
+  const snapshot = proposal?.proposal_data_json || {};
+  const isAccepted = proposal?.client_status === 'accepted';
+  const isDeclined = proposal?.client_status === 'declined';
+  const brandColor = contractor?.brand_color || '#0284c7';
+
+  // Compute estimate totals dynamically if snapshot.summary.finalBidAmount is missing or 0
+  const computedSummary = useMemo(() => {
+    if (snapshot?.summary && Number(snapshot.summary.finalBidAmount) > 0) {
+      return snapshot.summary;
+    }
+    const items = snapshot?.items || [];
+    const rates = snapshot?.rates || {};
+    if (items.length > 0) {
+      const computed = computeEstimate(items, rates);
+      return computed?.totals || null;
+    }
+    return null;
+  }, [snapshot]);
+
+  const finalBidAmount =
+    Number(snapshot?.summary?.finalBidAmount) > 0
+      ? Number(snapshot.summary.finalBidAmount)
+      : computedSummary?.finalBidAmount || 0;
 
   if (loading) {
     return (
@@ -126,31 +155,6 @@ export default function ClientProposalView() {
     );
   }
 
-  const { proposal, contractor } = data;
-  const snapshot = proposal.proposal_data_json || {};
-  const isAccepted = proposal.client_status === 'accepted';
-  const isDeclined = proposal.client_status === 'declined';
-  const brandColor = contractor.brand_color || '#0284c7';
-
-  // Compute estimate totals dynamically if snapshot.summary.finalBidAmount is missing or 0
-  const computedSummary = useMemo(() => {
-    if (snapshot.summary && Number(snapshot.summary.finalBidAmount) > 0) {
-      return snapshot.summary;
-    }
-    const items = snapshot.items || [];
-    const rates = snapshot.rates || {};
-    if (items.length > 0) {
-      const computed = computeEstimate(items, rates);
-      return computed?.totals || null;
-    }
-    return null;
-  }, [snapshot]);
-
-  const finalBidAmount =
-    Number(snapshot.summary?.finalBidAmount) > 0
-      ? Number(snapshot.summary.finalBidAmount)
-      : computedSummary?.finalBidAmount || 0;
-
   return (
     <div className="min-h-screen bg-slate-100 py-8 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -168,8 +172,8 @@ export default function ClientProposalView() {
                 <p className="font-bold text-sm">{t('clientProposal.acceptedBannerTitle')}</p>
                 <p className="text-xs text-emerald-100">
                   {t('clientProposal.signedByOn', {
-                    name: proposal.signed_by_name || 'Client',
-                    date: new Date(proposal.signed_at).toLocaleString(),
+                    name: proposal?.signed_by_name || 'Client',
+                    date: proposal?.signed_at ? new Date(proposal.signed_at).toLocaleString() : '',
                   })}
                 </p>
               </div>
@@ -189,7 +193,7 @@ export default function ClientProposalView() {
             <div>
               <p className="font-bold text-sm">{t('clientProposal.declinedBannerTitle')}</p>
               <p className="text-xs text-red-100">
-                {t('clientProposal.declineReasonPrefix')} {proposal.decline_reason || t('clientProposal.declinedByClient')}
+                {t('clientProposal.declineReasonPrefix')} {proposal?.decline_reason || t('clientProposal.declinedByClient')}
               </p>
             </div>
           </div>
@@ -201,7 +205,7 @@ export default function ClientProposalView() {
           <div className="p-6 sm:p-8 border-b-2" style={{ borderColor: brandColor }}>
             <div className="flex flex-wrap items-center justify-between gap-6">
               <div className="flex items-center gap-4">
-                {contractor.company_logo_url ? (
+                {contractor?.company_logo_url ? (
                   <img
                     src={contractor.company_logo_url}
                     alt={contractor.company_name || 'Contractor Logo'}
@@ -212,21 +216,25 @@ export default function ClientProposalView() {
                     className="w-14 h-14 rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-sm"
                     style={{ backgroundColor: brandColor }}
                   >
-                    {(contractor.company_name?.[0] || contractor.first_name?.[0] || 'T').toUpperCase()}
+                    {(contractor?.company_name?.[0] || contractor?.first_name?.[0] || 'T').toUpperCase()}
                   </div>
                 )}
 
                 <div>
                   <h1 className="text-2xl font-bold tracking-tight" style={{ color: brandColor }}>
-                    {contractor.company_name || `${contractor.first_name || ''} ${contractor.last_name || ''}`.trim() || 'General Contractor'}
+                    {contractor?.company_name || `${contractor?.first_name || ''} ${contractor?.last_name || ''}`.trim() || 'General Contractor'}
                   </h1>
-                  {contractor.company_address && (
+                  {contractor?.company_address && (
                     <p className="text-xs text-slate-500 mt-0.5">{contractor.company_address}</p>
                   )}
                   <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 mt-1">
-                    {contractor.phone_number && <span>📞 {contractor.phone_number}</span>}
-                    {contractor.email && <span>✉️ {contractor.email}</span>}
-                    {contractor.license_number && <span>{t('clientProposal.license', { license: contractor.license_number }) || `License: #${contractor.license_number}`}</span>}
+                    {contractor?.phone_number && <span>📞 {contractor.phone_number}</span>}
+                    {contractor?.email && <span>✉️ {contractor.email}</span>}
+                    {contractor?.license_number && (
+                      <span>
+                        {t('clientProposal.license', { license: contractor.license_number }) || `License: #${contractor.license_number}`}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -235,14 +243,14 @@ export default function ClientProposalView() {
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">
                   {t('clientProposal.projectEstimate')}
                 </span>
-                <p className="text-lg font-bold text-slate-900">{snapshot.projectName || t('clientProposal.civilTakeoffProposal')}</p>
-                {snapshot.clientName && (
+                <p className="text-lg font-bold text-slate-900">{snapshot?.projectName || t('clientProposal.civilTakeoffProposal')}</p>
+                {snapshot?.clientName && (
                   <p className="text-xs text-slate-600 mt-0.5">{t('clientProposal.preparedFor')} <strong className="text-slate-800">{snapshot.clientName}</strong></p>
                 )}
-                {snapshot.location && (
+                {snapshot?.location && (
                   <p className="text-xs text-slate-500 mt-0.5">{t('clientProposal.location')} {snapshot.location}</p>
                 )}
-                <p className="text-[11px] text-slate-400 mt-1">{t('clientProposal.date')} {new Date(proposal.created_at).toLocaleDateString()}</p>
+                <p className="text-[11px] text-slate-400 mt-1">{t('clientProposal.date')} {proposal?.created_at ? new Date(proposal.created_at).toLocaleDateString() : new Date().toLocaleDateString()}</p>
               </div>
             </div>
           </div>
@@ -372,8 +380,9 @@ export default function ClientProposalView() {
                   <div className="flex items-center justify-between pt-4 gap-3">
                     <button
                       type="button"
+                      disabled={!agreedToTerms}
                       onClick={() => setShowDeclineModal(true)}
-                      className="px-4 py-2.5 text-xs font-semibold text-slate-500 hover:text-red-600 transition"
+                      className="px-5 py-2.5 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold rounded-xl text-sm shadow-md transition"
                     >
                       {t('clientProposal.declineButton')}
                     </button>

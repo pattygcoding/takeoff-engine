@@ -174,14 +174,13 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
 
             <div className="mt-6 text-center text-sm text-slate-500">
               {t('authModal.dontHaveAccount')}{' '}
-              <div className="mt-2 inline-flex flex-col items-center">
-                <span className="text-slate-400 font-semibold cursor-not-allowed">
-                  
-                </span>{/* Create an Account */}
-                <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full mt-1.5 font-medium">
-                  {t('authModal.registrationDisabledBeta')}
-                </span>
-              </div>
+              <button
+                type="button"
+                onClick={() => switchView('register')}
+                className="text-indigo-600 font-semibold hover:underline"
+              >
+                {t('authModal.createAccount')}
+              </button>
             </div>
           </div>
         )}
@@ -292,16 +291,12 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
                 />
               </div>
 
-              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800 text-center font-medium">
-                {t('authModal.betaAccountDisabledNotice')}
-              </div>
-
               <button
-               /*  type="submit" */
-                disabled
-                className="w-full py-2.5 px-4 bg-slate-300 text-slate-500 font-medium rounded-lg shadow-sm transition mt-2 text-sm cursor-not-allowed"
+                type="submit"
+                disabled={loading}
+                className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm"
               >
-                {t('authModal.createAccountDisabledButton')}
+                {loading ? t('authModal.creatingAccount') : t('authModal.createAccount')}
               </button>
             </form>
 

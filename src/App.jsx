@@ -11,9 +11,12 @@ import LandingPage from '@/components/LandingPage';
 import ClientProposalView from '@/components/ClientProposalView';
 import AdminPortal from '@/components/AdminPortal';
 import ClientGuidePage from '@/components/ClientGuidePage';
+import UsagePolicyPage from '@/components/UsagePolicyPage';
 import AcceptInvitePage from '@/components/AcceptInvitePage';
 import UpgradeModal from '@/components/UpgradeModal';
+import AppFooter from '@/components/AppFooter';
 import LanguageSelector from '@/components/LanguageSelector';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { ModalProvider } from '@/context/ModalContext';
 import { I18nProvider } from '@/context/I18nContext';
@@ -392,6 +395,20 @@ function AppContent() {
           element={<ClientGuidePage />}
         />
 
+        {/* Acceptable Use & Account Suspension Policy (US-033) */}
+        <Route
+          path="/terms"
+          element={<UsagePolicyPage />}
+        />
+        <Route
+          path="/policy"
+          element={<UsagePolicyPage />}
+        />
+        <Route
+          path="/acceptable-use"
+          element={<UsagePolicyPage />}
+        />
+
         {/* Public Client Proposal & E-Signature View */}
         <Route
           path="/p/:publicToken"
@@ -408,6 +425,10 @@ function AppContent() {
         <Route
           path="/:username/guide"
           element={<ClientGuidePage />}
+        />
+        <Route
+          path="/:username/terms"
+          element={<UsagePolicyPage />}
         />
         <Route
           path="/:username/settings"
@@ -462,6 +483,9 @@ function AppContent() {
         />
       </Routes>
 
+      {/* Persistent Global Application Footer with Terms & Usage Policy Link */}
+      <AppFooter />
+
       {/* Global Out of Credits Upgrade Modal Prompt on Login */}
       <UpgradeModal
         isOpen={showAutoUpgradeModal}
@@ -473,13 +497,15 @@ function AppContent() {
 
 function App() {
   return (
-    <I18nProvider>
-      <AuthProvider>
-        <ModalProvider>
-          <AppContent />
-        </ModalProvider>
-      </AuthProvider>
-    </I18nProvider>
+    <ErrorBoundary>
+      <I18nProvider>
+        <AuthProvider>
+          <ModalProvider>
+            <AppContent />
+          </ModalProvider>
+        </AuthProvider>
+      </I18nProvider>
+    </ErrorBoundary>
   );
 }
 

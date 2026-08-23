@@ -97,11 +97,11 @@ export const proposalsApi = {
   /**
    * Decline proposal (No auth required)
    */
-  async declinePublicProposal(token, { reason }) {
+  async declinePublicProposal(token, { reason, signerEmail, signerName } = {}) {
     const res = await fetch(`${API_BASE_URL}/proposals/public/${token}/decline`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ reason }),
+      body: JSON.stringify({ reason, signerEmail, signerName }),
     });
     const data = await res.json();
     if (!res.ok) {

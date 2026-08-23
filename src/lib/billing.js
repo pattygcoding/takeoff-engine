@@ -131,6 +131,22 @@ export const billingApi = {
     }
     return data;
   },
+
+  /**
+   * Preview seat conversions and constraints when downgrading subscription tier (US-035)
+   */
+  async previewDowngrade(targetPlan) {
+    const res = await fetch(`${API_BASE_URL}/billing/downgrade-preview`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ targetPlan }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || getTranslation('apiErrors.downgradePreviewFailed'));
+    }
+    return data;
+  },
 };
 
 export const adminApi = {
