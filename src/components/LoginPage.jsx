@@ -2,17 +2,22 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { authApi } from '@/lib/auth';
+import { billingApi } from '@/lib/billing';
+import { openPaddleCheckout } from '@/lib/paddle';
 import { useTranslation } from '@/context/I18nContext';
 
 export default function LoginPage({ initialView = 'login' }) {
-  const { login, register } = useAuth();
+  const { login, register, refreshProfile, user } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [view, setView] = useState(initialView); // 'login' | 'register' | 'forgot'
+  const [view, setView] = useState(initialView); // 'login' | 'register' | 'forgot' | 'plan-select'
 
   // Update view if prop changes
   React.useEffect(() => {
-    setView(initialView);
+    // Only update view if not in active plan-select onboarding step
+    if (view !== 'plan-select') {
+      setView(initialView);
+    }
   }, [initialView]);
 
   // Form states
@@ -29,6 +34,9 @@ export default function LoginPage({ initialView = 'login' }) {
   const [registerPhone, setRegisterPhone] = useState('');
 
   const [forgotEmail, setForgotEmail] = useState('');
+
+  const [registeredUser, setRegisteredUser] = useState(null);
+  const [checkoutLoadingPlan, setCheckoutLoadingPlan] = useState('');
 
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
@@ -81,7 +89,7 @@ export default function LoginPage({ initialView = 'login' }) {
 
     setLoading(true);
     try {
-      await register({
+      const regData = await register({
         username: registerUsername,
         password: registerPassword,
         firstName: registerFirstName,
@@ -89,10 +97,70 @@ export default function LoginPage({ initialView = 'login' }) {
         email: registerEmail,
         phoneNumber: registerPhone,
       });
+
+      const userObj = regData?.user || {
+        username: registerUsername,
+        email: registerEmail,
+      };
+      setRegisteredUser(userObj);
+      setView('plan-select');
     } catch (err) {
       setError(err.message || t('loginPage.errRegisterFailed'));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSelectFreePlan = () => {
+    const targetUsername = registeredUser?.username || user?.username || registerUsername;
+    navigate(`/${targetUsername}`);
+  };
+
+  const handleSelectPaidPlan = async (planKey) => {
+    setError('');
+    setCheckoutLoadingPlan(planKey);
+
+    const currentUser = registeredUser || user || {
+      username: registerUsername,
+      email: registerEmail,
+    };
+    const targetUsername = currentUser.username || registerUsername;
+
+    try {
+      const checkoutParams = await billingApi.createCheckout(planKey, 'monthly', 0);
+
+      const launched = await openPaddleCheckout({
+        priceId: checkoutParams.priceId,
+        items: checkoutParams.items,
+        customerEmail: currentUser.email,
+        customData: checkoutParams.customData,
+        onSuccess: async () => {
+          try {
+            const syncRes = await billingApi.mockActivate(planKey, 'monthly', 0);
+            if (syncRes.user) {
+              localStorage.setItem('takeoff_user', JSON.stringify(syncRes.user));
+            }
+          } catch (syncErr) {
+            console.warn('[Paddle Post-Checkout Sync Warning]', syncErr);
+          }
+          if (refreshProfile) await refreshProfile();
+          navigate(`/${targetUsername}`);
+        },
+      });
+
+      // Sandbox mock fallback if Paddle checkout is not configured
+      if (!launched) {
+        const mockRes = await billingApi.mockActivate(planKey, 'monthly', 0);
+        if (mockRes.user) {
+          localStorage.setItem('takeoff_user', JSON.stringify(mockRes.user));
+        }
+        if (refreshProfile) await refreshProfile();
+        navigate(`/${targetUsername}`);
+      }
+    } catch (err) {
+      setError(err.message || t('upgradeModal.checkoutErrorMessage', 'Failed to launch checkout'));
+    } finally {
+      setCheckoutLoadingPlan('');
     }
   };
 
@@ -114,7 +182,7 @@ export default function LoginPage({ initialView = 'login' }) {
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] px-4 py-8">
       {/* Back to Home / Public site navigation banner */}
-      <div className="max-w-md w-full mb-4 flex items-center justify-between text-xs font-medium text-slate-500">
+      <div className={`w-full mb-4 flex items-center justify-between text-xs font-medium text-slate-500 ${view === 'plan-select' ? 'max-w-5xl' : 'max-w-md'}`}>
         <button
           type="button"
           onClick={() => navigate('/home')}
@@ -154,7 +222,7 @@ export default function LoginPage({ initialView = 'login' }) {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 sm:p-8 border border-slate-200">
+      <div className={`bg-white rounded-2xl shadow-xl w-full border border-slate-200 transition-all duration-300 ${view === 'plan-select' ? 'max-w-5xl p-6 sm:p-10' : 'max-w-md p-6 sm:p-8'}`}>
         {error && (
           <div className="mb-4 p-3.5 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700 space-y-2">
             <div className="flex items-start gap-2">
@@ -179,6 +247,243 @@ export default function LoginPage({ initialView = 'login' }) {
         {message && (
           <div className="mb-4 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-sm text-emerald-700">
             {message}
+          </div>
+        )}
+
+        {/* POST-REGISTRATION PLAN SELECTION VIEW */}
+        {view === 'plan-select' && (
+          <div>
+            <div className="text-center mb-8 max-w-2xl mx-auto">
+              <span className="inline-block px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-200 mb-3">
+                Account Created Successfully 🎉
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                {t('loginPage.selectPlanTitle')}
+              </h2>
+              <p className="text-sm text-slate-600 mt-2">
+                {t('loginPage.selectPlanSubtitle')}
+              </p>
+            </div>
+
+            {/* 4 Plan Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8">
+              {/* 1. Free Trial */}
+              <div className="flex flex-col justify-between p-5 rounded-2xl border-2 border-slate-200 bg-slate-50/70 hover:border-slate-300 transition-all hover:shadow-md">
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                      {t('loginPage.freeTierTitle')}
+                    </span>
+                    <span className="text-[10px] font-bold bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full uppercase">
+                      {t('loginPage.freeTierBadge')}
+                    </span>
+                  </div>
+                  <div className="flex items-baseline gap-1 my-2">
+                    <span className="text-3xl font-extrabold text-slate-900">{t('loginPage.freeTierPrice')}</span>
+                    <span className="text-xs text-slate-500 font-medium">{t('loginPage.freeTierCadence')}</span>
+                  </div>
+                  <p className="text-xs text-slate-600 mb-4 min-h-[32px] leading-snug">
+                    {t('loginPage.freeTierDesc')}
+                  </p>
+                  <ul className="space-y-2 mb-6 text-xs text-slate-700">
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-500 font-bold">✓</span>
+                      <span>{t('loginPage.freeTierFeature1')}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-500 font-bold">✓</span>
+                      <span>{t('loginPage.freeTierFeature2')}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-500 font-bold">✓</span>
+                      <span>{t('loginPage.freeTierFeature3')}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-500 font-bold">✓</span>
+                      <span>{t('loginPage.freeTierFeature4')}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-500 font-bold">✓</span>
+                      <span>{t('loginPage.freeTierFeature5')}</span>
+                    </li>
+                  </ul>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleSelectFreePlan}
+                  className="w-full py-2.5 px-3 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 font-bold text-xs text-slate-800 shadow-sm transition"
+                >
+                  {t('loginPage.freeTierCta')}
+                </button>
+              </div>
+
+              {/* 2. Starter Tier */}
+              <div className="flex flex-col justify-between p-5 rounded-2xl border-2 border-slate-200 bg-white hover:border-indigo-300 transition-all hover:shadow-md">
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                      {t('loginPage.starterTierTitle')}
+                    </span>
+                    <span className="text-[10px] font-bold text-slate-400">
+                      {t('loginPage.monthlyBilled')}
+                    </span>
+                  </div>
+                  <div className="flex items-baseline gap-1 my-2">
+                    <span className="text-3xl font-extrabold text-slate-900">{t('loginPage.starterTierPrice')}</span>
+                    <span className="text-xs text-slate-500 font-medium">{t('loginPage.starterTierCadence')}</span>
+                  </div>
+                  <p className="text-xs text-slate-600 mb-4 min-h-[32px] leading-snug">
+                    {t('loginPage.starterTierDesc')}
+                  </p>
+                  <ul className="space-y-2 mb-6 text-xs text-slate-700">
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-500 font-bold">✓</span>
+                      <span className="font-semibold">{t('loginPage.starterTierFeature1')}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-500 font-bold">✓</span>
+                      <span>{t('loginPage.starterTierFeature2')}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-500 font-bold">✓</span>
+                      <span>{t('loginPage.starterTierFeature3')}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-500 font-bold">✓</span>
+                      <span>{t('loginPage.starterTierFeature4')}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-500 font-bold">✓</span>
+                      <span>{t('loginPage.starterTierFeature5')}</span>
+                    </li>
+                  </ul>
+                </div>
+                <button
+                  type="button"
+                  disabled={checkoutLoadingPlan === 'starter'}
+                  onClick={() => handleSelectPaidPlan('starter')}
+                  className="w-full py-2.5 px-3 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs shadow-sm transition disabled:opacity-50"
+                >
+                  {checkoutLoadingPlan === 'starter' ? t('loginPage.launchingCheckout') : t('loginPage.starterTierCta')}
+                </button>
+              </div>
+
+              {/* 3. Pro Tier (Highlighted / Most Popular) */}
+              <div className="flex flex-col justify-between p-5 rounded-2xl border-2 border-indigo-600 bg-indigo-50/30 relative shadow-lg ring-2 ring-indigo-500/20">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[10px] font-extrabold uppercase px-3 py-0.5 rounded-full tracking-wider shadow-sm">
+                  {t('loginPage.proTierPopular')}
+                </div>
+                <div>
+                  <div className="flex justify-between items-center mb-2 mt-1">
+                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-700">
+                      {t('loginPage.proTierTitle')}
+                    </span>
+                    <span className="text-[10px] font-bold text-slate-400">
+                      {t('loginPage.monthlyBilled')}
+                    </span>
+                  </div>
+                  <div className="flex items-baseline gap-1 my-2">
+                    <span className="text-3xl font-extrabold text-slate-900">{t('loginPage.proTierPrice')}</span>
+                    <span className="text-xs text-slate-500 font-medium">{t('loginPage.proTierCadence')}</span>
+                  </div>
+                  <p className="text-xs text-slate-600 mb-4 min-h-[32px] leading-snug">
+                    {t('loginPage.proTierDesc')}
+                  </p>
+                  <ul className="space-y-2 mb-6 text-xs text-slate-700">
+                    <li className="flex items-start gap-2">
+                      <span className="text-indigo-600 font-bold">✓</span>
+                      <span className="font-semibold text-indigo-900">{t('loginPage.proTierFeature1')}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-indigo-600 font-bold">✓</span>
+                      <span>{t('loginPage.proTierFeature2')}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-indigo-600 font-bold">✓</span>
+                      <span>{t('loginPage.proTierFeature3')}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-indigo-600 font-bold">✓</span>
+                      <span>{t('loginPage.proTierFeature4')}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-indigo-600 font-bold">✓</span>
+                      <span>{t('loginPage.proTierFeature5')}</span>
+                    </li>
+                  </ul>
+                </div>
+                <button
+                  type="button"
+                  disabled={checkoutLoadingPlan === 'pro'}
+                  onClick={() => handleSelectPaidPlan('pro')}
+                  className="w-full py-2.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md transition disabled:opacity-50"
+                >
+                  {checkoutLoadingPlan === 'pro' ? t('loginPage.launchingCheckout') : t('loginPage.proTierCta')}
+                </button>
+              </div>
+
+              {/* 4. Enterprise Tier */}
+              <div className="flex flex-col justify-between p-5 rounded-2xl border-2 border-slate-900 bg-slate-900 text-white hover:shadow-xl transition-all">
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-xs font-bold uppercase tracking-wider text-amber-400">
+                      {t('loginPage.enterpriseTierTitle')}
+                    </span>
+                    <span className="text-[10px] font-bold text-slate-400">
+                      {t('loginPage.monthlyBilled')}
+                    </span>
+                  </div>
+                  <div className="flex items-baseline gap-1 my-2">
+                    <span className="text-3xl font-extrabold text-white">{t('loginPage.enterpriseTierPrice')}</span>
+                    <span className="text-xs text-slate-300 font-medium">{t('loginPage.enterpriseTierCadence')}</span>
+                  </div>
+                  <p className="text-xs text-slate-300 mb-4 min-h-[32px] leading-snug">
+                    {t('loginPage.enterpriseTierDesc')}
+                  </p>
+                  <ul className="space-y-2 mb-6 text-xs text-slate-200">
+                    <li className="flex items-start gap-2">
+                      <span className="text-amber-400 font-bold">✓</span>
+                      <span className="font-semibold text-amber-300">{t('loginPage.enterpriseTierFeature1')}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-amber-400 font-bold">✓</span>
+                      <span>{t('loginPage.enterpriseTierFeature2')}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-amber-400 font-bold">✓</span>
+                      <span>{t('loginPage.enterpriseTierFeature3')}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-amber-400 font-bold">✓</span>
+                      <span>{t('loginPage.enterpriseTierFeature4')}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-amber-400 font-bold">✓</span>
+                      <span>{t('loginPage.enterpriseTierFeature5')}</span>
+                    </li>
+                  </ul>
+                </div>
+                <button
+                  type="button"
+                  disabled={checkoutLoadingPlan === 'enterprise'}
+                  onClick={() => handleSelectPaidPlan('enterprise')}
+                  className="w-full py-2.5 px-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs shadow-md transition disabled:opacity-50"
+                >
+                  {checkoutLoadingPlan === 'enterprise' ? t('loginPage.launchingCheckout') : t('loginPage.enterpriseTierCta')}
+                </button>
+              </div>
+            </div>
+
+            {/* Bottom Skip to Dashboard Link */}
+            <div className="text-center pt-2 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={handleSelectFreePlan}
+                className="text-xs font-semibold text-slate-500 hover:text-indigo-600 transition cursor-pointer"
+              >
+                {t('loginPage.skipForNow')}
+              </button>
+            </div>
           </div>
         )}
 

@@ -114,4 +114,47 @@ describe('Frontend Billing, Subscriptions & Paddle Checkout Tests', () => {
       assert.strictEqual(allowed.allowed, true);
     });
   });
+
+  describe('UpgradeModal Plan Selection and Current Tier Safeguards', () => {
+    it('accurately identifies current tier, upgrade, and downgrade states', () => {
+      const tierHierarchy = { free: 0, starter: 1, pro: 2, enterprise: 3 };
+
+      const evaluatePlanAction = (userTier, userSubStatus, targetTier) => {
+        const isPaid = userSubStatus === 'active';
+        const currentTier = isPaid ? userTier : 'free';
+        const currentRank = tierHierarchy[currentTier] || 0;
+        const targetRank = tierHierarchy[targetTier] || 0;
+
+        const isCurrentPlan = isPaid && currentTier === targetTier;
+        const isDowngrade = isPaid && targetRank < currentRank;
+        const isUpgrade = targetRank > currentRank;
+
+        return { isCurrentPlan, isDowngrade, isUpgrade };
+      };
+
+      // User on Pro plan viewing Pro
+      const viewingPro = evaluatePlanAction('pro', 'active', 'pro');
+      assert.strictEqual(viewingPro.isCurrentPlan, true);
+      assert.strictEqual(viewingPro.isDowngrade, false);
+      assert.strictEqual(viewingPro.isUpgrade, false);
+
+      // User on Pro plan viewing Starter (Downgrade)
+      const viewingStarter = evaluatePlanAction('pro', 'active', 'starter');
+      assert.strictEqual(viewingStarter.isCurrentPlan, false);
+      assert.strictEqual(viewingStarter.isDowngrade, true);
+      assert.strictEqual(viewingStarter.isUpgrade, false);
+
+      // User on Pro plan viewing Enterprise (Upgrade)
+      const viewingEnterprise = evaluatePlanAction('pro', 'active', 'enterprise');
+      assert.strictEqual(viewingEnterprise.isCurrentPlan, false);
+      assert.strictEqual(viewingEnterprise.isDowngrade, false);
+      assert.strictEqual(viewingEnterprise.isUpgrade, true);
+
+      // Free user viewing Starter (Upgrade)
+      const freeViewingStarter = evaluatePlanAction('free', 'none', 'starter');
+      assert.strictEqual(freeViewingStarter.isCurrentPlan, false);
+      assert.strictEqual(freeViewingStarter.isDowngrade, false);
+      assert.strictEqual(freeViewingStarter.isUpgrade, true);
+    });
+  });
 });

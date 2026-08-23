@@ -319,18 +319,12 @@ function AppContent() {
                   >
                     Log In
                   </button>
-                  <div className="relative group">
-                    <button
-                      disabled
-                      className="px-3.5 py-1.5 text-sm font-medium bg-slate-200 text-slate-400 rounded-lg cursor-not-allowed transition"
-                      title="Registration is disabled while in beta for testing only"
-                    >
-                      Sign Up
-                    </button>
-                    <div className="hidden group-hover:block absolute right-0 top-full mt-1 w-48 p-2 bg-slate-800 text-white text-[11px] rounded shadow-lg z-50 text-center leading-tight">
-                      Registration is disabled while in beta for testing only.
-                    </div>
-                  </div>
+                  <button
+                    onClick={() => navigate('/register')}
+                    className="px-3.5 py-1.5 text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-sm transition"
+                  >
+                    Sign Up
+                  </button>
                 </div>
               )}
             </div>
