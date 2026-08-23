@@ -17,6 +17,7 @@ If your Excel workbook contains multiple worksheet tabs, the engine automaticall
 Ready-to-use templates and vendor samples are available for download on the upload screen:
 - **CSV Template** (`takeoff_sample_template.csv`)
 - **Excel Template** (`takeoff_sample_template.xlsx`)
+- **Edge Cases Mega Sample** (`sample_edge_cases_takeoff.csv`)
 - **Bluebeam Revu Export Sample**
 - **PlanSwift Export Sample**
 - **Trimble / Agtek Export Sample**
@@ -69,6 +70,18 @@ The ingestion pipeline handles raw exports without manual cleanup:
 
 ✅ **Composite Size Deconstruction:**
 - If a takeoff software merges description and size (e.g. `"8\" PVC SDR-35 Mainline"` in the description column), the engine separates the pipe dimension from the line item name.
+
+✅ **Side-by-Side (Multi-Table) Detection:**
+- When estimators place different scopes horizontally side-by-side on the same tab separated by column gaps (e.g. Domestic Water in columns A–F and Sanitary Sewer in columns H–M), the engine detects the sub-tables and lets you choose which table area to import in the mapping modal.
+
+✅ **Multi-Line Wraps & Manual Line Breaks (Alt + Enter):**
+- Cells with embedded carriage returns (`\r\n` or `\n`) from manual line breaks or notes are sanitized into clean single-line strings without breaking CSV rows.
+
+✅ **Hidden Rows & Strikethrough Scope Elimination Filtering:**
+- Rows hidden in Excel (`row.hidden === true` or height = 0) and items with strikethrough styling (`font.strike === true`) indicating addendum scope removals are excluded so eliminated scope is never accidentally imported.
+
+✅ **Cached Calculated Value Extraction & Broken Formula Handling:**
+- Evaluates Excel's cached calculated values (`.v` / `.w`) rather than unevaluated formula strings. Broken formula errors (`#REF!`, `#VALUE!`, `#N/A`) convert gracefully to `null`/`NaN` with clear row-level warnings.
 
 ---
 

@@ -17,6 +17,7 @@ Se a sua pasta de trabalho do Excel contiver várias abas de planilha, o mecanis
 Modelos prontos para uso e amostras de fornecedores estão disponíveis para download na tela de upload:
 - **Modelo CSV** (`takeoff_sample_template.csv`)
 - **Modelo Excel** (`takeoff_sample_template.xlsx`)
+- **Mega Amostra de Casos Extremos** (`sample_edge_cases_takeoff.csv`)
 - **Amostra de exportação do Bluebeam Revu**
 - **Amostra de exportação do PlanSwift**
 - **Amostra de exportação do Trimble / Agtek**
@@ -69,6 +70,18 @@ O pipeline de ingestão lida com exportações brutas sem necessidade de limpeza
 
 ✅ **Desconstrução de Dimensões Compostas:**
 - Se um software de levantamento combinar descrição e dimensão (ex.: `"8\" PVC SDR-35 Mainline"` na coluna de descrição), o mecanismo separa o diâmetro/tamanho do nome do item.
+
+✅ **Detecção de Tabelas Lado a Lado (Multi-Tabelas):**
+- Quando os orçamentistas organizam diferentes disciplinas horizontalmente lado a lado na mesma aba, separadas por colunas vazias (ex.: Água Potável nas colunas A–F e Esgoto Sanitário nas colunas H–M), o mecanismo detecta as subtabelas e permite que você selecione qual área de tabela importar no modal de mapeamento.
+
+✅ **Quebras de Linha Manuais e Textos Multilinha (Alt + Enter):**
+- Células com retornos de carro embutidos (`\r\n` ou `\n`) resultantes de quebras de linha manuais ou notas são higienizadas em strings limpas de linha única sem quebrar as linhas do CSV.
+
+✅ **Filtragem de Linhas Ocultas e Escopos Riscados (Aditivos / Supressões):**
+- Linhas ocultas no Excel (`row.hidden === true` ou altura = 0) e itens tachados/riscados (`font.strike === true`) indicando supressões de escopo por aditivos são excluídos para evitar a importação indevida de itens cancelados.
+
+✅ **Extração de Valores Calculados em Cache e Tratamento de Fórmulas Corrompidas:**
+- Avalia os valores calculados armazenados em cache do Excel (`.v` / `.w`) em vez de fórmulas não resolvidas. Erros de fórmulas corrompidas (`#REF!`, `#VALUE!`, `#N/A`) são convertidos de forma limpa para `null`/`NaN` com avisos claros na linha correspondente.
 
 ---
 
