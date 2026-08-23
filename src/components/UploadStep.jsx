@@ -16,7 +16,7 @@ export default function UploadStep({ onItemsParsed }) {
   const inputRef = useRef(null);
 
   const handleFile = useCallback(
-    async (file, explicitSheetName = null) => {
+    async (file, explicitSheetName = null, explicitTableId = null) => {
       if (!file) return;
       setFileName(file.name);
       setCurrentUploadedFile(file);
@@ -25,7 +25,7 @@ export default function UploadStep({ onItemsParsed }) {
       setChecksumSummary(null);
 
       try {
-        const result = await parseTakeoffFile(file, explicitSheetName);
+        const result = await parseTakeoffFile(file, explicitSheetName, explicitTableId);
 
         if (result.requiresMappingModal) {
           setMappingModalData(result);
@@ -53,7 +53,13 @@ export default function UploadStep({ onItemsParsed }) {
 
   const handleSheetChange = (sheetName) => {
     if (currentUploadedFile) {
-      handleFile(currentUploadedFile, sheetName);
+      handleFile(currentUploadedFile, sheetName, null);
+    }
+  };
+
+  const handleTableChange = (tableId) => {
+    if (currentUploadedFile) {
+      handleFile(currentUploadedFile, mappingModalData?.activeSheetName || null, tableId);
     }
   };
 
@@ -170,6 +176,14 @@ export default function UploadStep({ onItemsParsed }) {
         </button>
         <span className="text-slate-300">|</span>
         <a
+          href={`${import.meta.env.BASE_URL}sample_edge_cases_takeoff.csv`}
+          download="sample_edge_cases_takeoff.csv"
+          className="font-medium text-indigo-600 hover:text-indigo-800 underline font-semibold"
+        >
+          {t('uploadStep.edgeCasesSample', 'Edge Cases Mega Sample')}
+        </a>
+        <span className="text-slate-300">|</span>
+        <a
           href={`${import.meta.env.BASE_URL}sample_bluebeam_takeoff.csv`}
           download="sample_bluebeam_takeoff.csv"
           className="font-medium text-indigo-600 hover:text-indigo-800 underline"
@@ -224,7 +238,10 @@ export default function UploadStep({ onItemsParsed }) {
           overallConfidence={mappingModalData.overallConfidence}
           sheetNames={mappingModalData.sheetNames}
           activeSheetName={mappingModalData.activeSheetName}
+          subTables={mappingModalData.subTables || []}
+          activeTableId={mappingModalData.activeTableId}
           onSheetChange={handleSheetChange}
+          onTableChange={handleTableChange}
           onConfirm={handleMappingConfirm}
           onCancel={() => setMappingModalData(null)}
         />

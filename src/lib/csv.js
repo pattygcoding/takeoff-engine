@@ -1,5 +1,5 @@
 import Papa from 'papaparse';
-import { getTranslation } from './i18n';
+import { getTranslation } from './i18n.js';
 
 export const CSV_COLUMNS = [
   'system',
@@ -84,6 +84,46 @@ export const COLUMN_ALIASES = {
     'profundidad', 'cut (ft)', 'trench depth (ft)', 'invert depth', 'cover depth'
   ],
 };
+
+/**
+ * Sanitizes multi-line cell values (e.g. Alt + Enter in Excel).
+ * Replaces newlines and carriage returns with a single clean space.
+ */
+export function sanitizeCellString(val) {
+  if (val === null || val === undefined) return '';
+  if (typeof val !== 'string') return String(val);
+  return val.replace(/\r?\n|\r/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * Parses composite multiline cell (Alt+Enter) splitting into primary description
+ * and supplementary scope notes.
+ */
+export function parseMultilineCell(rawCell = '') {
+  if (rawCell === null || rawCell === undefined) return { primaryText: '', notes: '' };
+  const str = String(rawCell).trim();
+  const lines = str.split(/\r?\n|\r/).map((l) => l.trim()).filter(Boolean);
+  if (lines.length <= 1) {
+    return { primaryText: str.replace(/\s+/g, ' ').trim(), notes: '' };
+  }
+  return {
+    primaryText: lines[0],
+    notes: lines.slice(1).join(' | '),
+  };
+}
+
+/**
+ * Cleans formula error representations (#REF!, #VALUE!, #N/A, #NAME?, #DIV/0!, #NULL!, #NUM!)
+ * Returns null for broken formula values, or the cleaned string/number.
+ */
+export function cleanFormulaError(val) {
+  if (val === null || val === undefined) return null;
+  const str = String(val).trim();
+  if (/^#(REF!|VALUE!|N\/A|NAME\?|DIV\/0!|NULL!|NUM!|ERROR!)/i.test(str)) {
+    return null;
+  }
+  return val;
+}
 
 /**
  * Standard Unit Normalization Table
@@ -187,6 +227,11 @@ export function cleanNumericValue(val) {
 
   let str = String(val).trim();
   if (str === '') return NaN;
+
+  // If cell contains broken formula reference (#REF!, #VALUE!, #N/A), return NaN immediately
+  if (cleanFormulaError(str) === null) {
+    return NaN;
+  }
 
   // Check for accounting negative (123.45)
   let isNegative = false;
@@ -536,11 +581,11 @@ export function normalizeRowsWithMapping(rawRows = [], mapping = {}, customT = n
     }
 
     // Process line item
-    const rawSystem = mapping.system ? String(rawRow[mapping.system] ?? '').trim() : '';
-    const rawDescription = mapping.item_description ? String(rawRow[mapping.item_description] ?? '').trim() : '';
-    const rawSize = mapping.size_spec ? String(rawRow[mapping.size_spec] ?? '').trim() : '';
-    const rawUnit = mapping.unit ? String(rawRow[mapping.unit] ?? '').trim() : '';
-    const rawQty = mapping.quantity ? rawRow[mapping.quantity] : undefined;
+    const rawSystem = mapping.system ? sanitizeCellString(rawRow[mapping.system]) : '';
+    const rawDescription = mapping.item_description ? sanitizeCellString(rawRow[mapping.item_description]) : '';
+    const rawSize = mapping.size_spec ? sanitizeCellString(rawRow[mapping.size_spec]) : '';
+    const rawUnit = mapping.unit ? sanitizeCellString(rawRow[mapping.unit]) : '';
+    const rawQty = mapping.quantity ? cleanFormulaError(rawRow[mapping.quantity]) : undefined;
 
     // Use currentGroup as fallback if system is blank on row
     const system = rawSystem || currentGroup || t('csvParser.defaultCategory');
@@ -557,9 +602,9 @@ export function normalizeRowsWithMapping(rawRows = [], mapping = {}, customT = n
     }
 
     if (Number.isNaN(quantity) || quantity <= 0) {
-      // If quantity is missing or 0 on an explicit item, record error
+      // If quantity is missing or 0 on an explicit item (or caused by #REF!/error), record error/warning
       if (description) {
-        errors.push(t('csvParser.errors.invalidRowQuantity', { row: rowNum, description, rawQty: rawQty !== undefined ? rawQty : '' }));
+        errors.push(t('csvParser.errors.invalidRowQuantity', { row: rowNum, description, rawQty: rawQty !== undefined && rawQty !== null ? rawQty : 'N/A' }));
       }
       return;
     }
@@ -567,7 +612,8 @@ export function normalizeRowsWithMapping(rawRows = [], mapping = {}, customT = n
     // Depth extraction
     let avgDepthFt = 0;
     if (mapping.avg_depth_ft && rawRow[mapping.avg_depth_ft] !== undefined && rawRow[mapping.avg_depth_ft] !== '') {
-      const depthNum = cleanNumericValue(rawRow[mapping.avg_depth_ft]);
+      const depthVal = cleanFormulaError(rawRow[mapping.avg_depth_ft]);
+      const depthNum = cleanNumericValue(depthVal);
       if (!Number.isNaN(depthNum)) {
         avgDepthFt = depthNum;
       }
@@ -625,14 +671,42 @@ function forwardFillMergedCells(worksheet, XLSX) {
 }
 
 /**
- * Parses raw CSV into 2D matrix and JSON objects using dynamic sniffing.
+ * Parses raw CSV into 2D matrix and JSON objects using dynamic sniffing,
+ * carriage return sanitization, and side-by-side multi-table detection.
  */
-export function parseRawCsv(fileOrText) {
+export function parseRawCsv(fileOrText, selectedTableId = null) {
   return new Promise((resolve, reject) => {
     Papa.parse(fileOrText, {
       skipEmptyLines: false,
       complete: (results) => {
-        const matrix = results.data || [];
+        const rawMatrix = results.data || [];
+        // Sanitize cells from multi-line Alt+Enter formatting & formula errors
+        const matrix = rawMatrix.map((row) =>
+          (row || []).map((cell) => {
+            const cleanFormula = cleanFormulaError(cell);
+            return cleanFormula === null ? '' : sanitizeCellString(cleanFormula);
+          })
+        );
+
+        // Check for Side-by-Side (Multi-Table) layout in CSV
+        const detectedSubTables = detectSideBySideTables(matrix);
+
+        if (detectedSubTables.length >= 2) {
+          const activeTable = detectedSubTables.find((t) => t.id === selectedTableId) || detectedSubTables[0];
+          return resolve({
+            headers: activeTable.headers,
+            rows: activeTable.rows,
+            sampleMatrix: activeTable.sampleMatrix,
+            headerRowIndex: activeTable.headerRowIndex,
+            confidence: activeTable.confidence,
+            sheetNames: [getTranslation('csvParser.errors.csvUploadSheet')],
+            activeSheetName: getTranslation('csvParser.errors.csvUploadSheet'),
+            subTables: detectedSubTables,
+            activeTableId: activeTable.id,
+            parseErrors: results.errors || [],
+          });
+        }
+
         const { headerRowIndex, headers, startColIndex, confidence } = sniffHeaderBoundary(matrix);
 
         // Convert 2D matrix from data rows into structured JSON rows
@@ -658,6 +732,8 @@ export function parseRawCsv(fileOrText) {
           confidence,
           sheetNames: [getTranslation('csvParser.errors.csvUploadSheet')],
           activeSheetName: getTranslation('csvParser.errors.csvUploadSheet'),
+          subTables: [],
+          activeTableId: null,
           parseErrors: results.errors || [],
         });
       },
@@ -667,13 +743,132 @@ export function parseRawCsv(fileOrText) {
 }
 
 /**
- * Multi-worksheet smart Excel (.xlsx, .xls, .xlsm, .xlsb) parser.
- * Unmerges merged cells, auto-scores worksheet tabs for takeoff content, and sniffs headers.
+ * Detects side-by-side (multi-table) sub-matrices in a 2D matrix.
+ * Identifies contiguous column island blocks separated by 1 or more completely blank column gaps.
+ * Returns array of sub-table descriptors { id, label, startCol, endCol, headers, rows, sampleMatrix, headerRowIndex, confidence }
  */
-export async function parseRawExcel(file, selectedSheetName = null) {
+export function detectSideBySideTables(matrix = [], t = getTranslation) {
+  if (!matrix || matrix.length === 0) return [];
+
+  // Determine total columns width across top rows
+  const maxScanRows = Math.min(matrix.length, 40);
+  let maxCols = 0;
+  for (let r = 0; r < maxScanRows; r++) {
+    if (matrix[r] && matrix[r].length > maxCols) {
+      maxCols = matrix[r].length;
+    }
+  }
+
+  if (maxCols < 4) return []; // Too small for side-by-side tables
+
+  // Build column occupation mask: true if column has non-empty text in scan rows
+  const colOccupied = Array(maxCols).fill(false);
+  for (let c = 0; c < maxCols; c++) {
+    for (let r = 0; r < maxScanRows; r++) {
+      const val = matrix[r]?.[c];
+      if (val !== undefined && val !== null && String(val).trim() !== '') {
+        colOccupied[c] = true;
+        break;
+      }
+    }
+  }
+
+  // Find column island segments: [startCol, endCol]
+  const islands = [];
+  let inIsland = false;
+  let startCol = 0;
+
+  for (let c = 0; c < maxCols; c++) {
+    if (colOccupied[c] && !inIsland) {
+      inIsland = true;
+      startCol = c;
+    } else if (!colOccupied[c] && inIsland) {
+      inIsland = false;
+      if (c - startCol >= 2) {
+        // Must be at least 2 columns wide
+        islands.push({ startCol, endCol: c - 1 });
+      }
+    }
+  }
+  if (inIsland && (maxCols - startCol >= 2)) {
+    islands.push({ startCol, endCol: maxCols - 1 });
+  }
+
+  // If only 1 island, no side-by-side split is needed
+  if (islands.length <= 1) return [];
+
+  // Check if each island contains distinct non-empty header/data keywords
+  const subTables = [];
+  islands.forEach((island, idx) => {
+    // Slice sub-matrix for this column segment
+    const subMatrix = matrix.map((row) => (row || []).slice(island.startCol, island.endCol + 1));
+    const sniffResult = sniffHeaderBoundary(subMatrix);
+    const { headerRowIndex, headers, startColIndex, confidence } = sniffResult;
+
+    if (headers.length >= 2 && confidence > 0.3) {
+      // Build structured rows for this sub-table
+      const rows = [];
+      for (let r = headerRowIndex + 1; r < subMatrix.length; r++) {
+        const rowArr = subMatrix[r] || [];
+        if (rowArr.every((c) => c === null || c === undefined || String(c).trim() === '')) {
+          continue;
+        }
+        const rowObj = {};
+        headers.forEach((h, hIdx) => {
+          const val = rowArr[startColIndex + hIdx];
+          rowObj[h] = val !== undefined ? sanitizeCellString(val) : '';
+        });
+        rows.push(rowObj);
+      }
+
+      if (rows.length > 0) {
+        // Generate column range label (e.g. Cols A-F or Island 1)
+        const colLetter = (colIdx) => {
+          let temp, letter = '';
+          let num = colIdx + 1;
+          while (num > 0) {
+            temp = (num - 1) % 26;
+            letter = String.fromCharCode(65 + temp) + letter;
+            num = Math.floor((num - temp) / 26);
+          }
+          return letter;
+        };
+
+        const rangeLabel = `Table ${idx + 1} (${colLetter(island.startCol)}–${colLetter(island.endCol)}: ${headers.slice(0, 3).join(', ')})`;
+
+        subTables.push({
+          id: `table_${idx + 1}`,
+          label: rangeLabel,
+          startCol: island.startCol,
+          endCol: island.endCol,
+          headers,
+          rows,
+          sampleMatrix: subMatrix.slice(0, 15),
+          headerRowIndex,
+          confidence,
+        });
+      }
+    }
+  });
+
+  return subTables.length >= 2 ? subTables : [];
+}
+
+/**
+ * Multi-worksheet smart Excel (.xlsx, .xls, .xlsm, .xlsb) parser.
+ * Unmerges merged cells, filters hidden rows/strikethrough items,
+ * extracts cached calculated values, and detects side-by-side tables.
+ */
+export async function parseRawExcel(file, selectedSheetName = null, selectedTableId = null) {
   const XLSX = await import('xlsx');
   const buffer = await file.arrayBuffer();
-  const workbook = XLSX.read(buffer, { type: 'array', cellFormula: true, cellDates: true });
+  // cellFormula: false / cellNF / cellStyles: true ensures cached values (.v / .w) are read directly
+  const workbook = XLSX.read(buffer, {
+    type: 'array',
+    cellFormula: true,
+    cellDates: true,
+    cellStyles: true,
+  });
 
   const sheetNames = workbook.SheetNames || [];
   if (sheetNames.length === 0) {
@@ -703,8 +898,84 @@ export async function parseRawExcel(file, selectedSheetName = null) {
   // Unmerge and propagate header labels across merged rectangles
   forwardFillMergedCells(worksheet, XLSX);
 
-  // Convert worksheet to raw 2D array matrix for sniffing
-  const matrix = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+  // Filter hidden rows (row.hidden === true or hpx === 0 or hpt === 0)
+  const hiddenRowSet = new Set();
+  if (Array.isArray(worksheet['!rows'])) {
+    worksheet['!rows'].forEach((rowMeta, rIdx) => {
+      if (rowMeta && (rowMeta.hidden === true || rowMeta.hpx === 0 || rowMeta.hpt === 0)) {
+        hiddenRowSet.add(rIdx);
+      }
+    });
+  }
+
+  // Convert worksheet to raw 2D array matrix for sniffing using cached values and strikethrough/hidden filters
+  const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:A1');
+  const matrix = [];
+
+  for (let r = range.s.r; r <= range.e.r; r++) {
+    // Skip hidden rows completely
+    if (hiddenRowSet.has(r)) {
+      continue;
+    }
+
+    const rowArr = [];
+    let hasStruckCell = false;
+
+    for (let c = range.s.c; c <= range.e.c; c++) {
+      const cellAddress = XLSX.utils.encode_cell({ r, c });
+      const cell = worksheet[cellAddress];
+
+      if (!cell) {
+        rowArr.push('');
+        continue;
+      }
+
+      // Check strikethrough styling in font metadata (scope-eliminated line items)
+      if (cell.s?.font?.strike || cell.font?.strike || cell.s?.strike) {
+        hasStruckCell = true;
+      }
+
+      // Read cached evaluated value (.v or formatted .w) rather than broken unevaluated formula string
+      let cellValue = cell.v !== undefined ? cell.v : (cell.w !== undefined ? cell.w : '');
+      
+      // Clean broken formula errors (#REF!, #VALUE!, #N/A) to null
+      cellValue = cleanFormulaError(cellValue);
+      if (cellValue === null) {
+        cellValue = '';
+      }
+
+      // Sanitize carriage returns (Alt + Enter)
+      rowArr.push(sanitizeCellString(cellValue));
+    }
+
+    // If an entire line item or its description is struck through with strikethrough, ignore the eliminated row
+    if (hasStruckCell) {
+      continue;
+    }
+
+    matrix.push(rowArr);
+  }
+
+  // Check for Side-by-Side (Multi-Table) layout in the matrix
+  const detectedSubTables = detectSideBySideTables(matrix);
+
+  if (detectedSubTables.length >= 2) {
+    // If specific sub-table is chosen, return that sub-table
+    const activeTable = detectedSubTables.find((t) => t.id === selectedTableId) || detectedSubTables[0];
+    return {
+      headers: activeTable.headers,
+      rows: activeTable.rows,
+      sampleMatrix: activeTable.sampleMatrix,
+      headerRowIndex: activeTable.headerRowIndex,
+      confidence: activeTable.confidence,
+      sheetNames,
+      activeSheetName: targetSheetName,
+      subTables: detectedSubTables,
+      activeTableId: activeTable.id,
+      parseErrors: [],
+    };
+  }
+
   const { headerRowIndex, headers, startColIndex, confidence } = sniffHeaderBoundary(matrix);
 
   const rows = [];
@@ -729,6 +1000,8 @@ export async function parseRawExcel(file, selectedSheetName = null) {
     confidence,
     sheetNames,
     activeSheetName: targetSheetName,
+    subTables: [],
+    activeTableId: null,
     parseErrors: [],
   };
 }
@@ -768,18 +1041,30 @@ export function saveVendorPreset(presetName, mapping) {
 /**
  * High-level Mega-Resilient Parser Entrypoint:
  * Reads CSV/Excel, runs 2D header sniffing, auto-matches aliases, checks confidence.
- * Prompts interactive column mapping modal if confidence < 90% or required fields unmapped.
+ * Prompts interactive column mapping modal if confidence < 90% or required fields unmapped
+ * or if multiple side-by-side tables are detected.
  */
-export async function parseTakeoffFile(file, sheetName = null, customPreset = null, customT = null) {
+export async function parseTakeoffFile(file, sheetName = null, tableId = null, customPreset = null, customT = null) {
   const t = customT || getTranslation;
   let rawData;
   if (isExcelFile(file)) {
-    rawData = await parseRawExcel(file, sheetName);
+    rawData = await parseRawExcel(file, sheetName, tableId);
   } else {
-    rawData = await parseRawCsv(file);
+    rawData = await parseRawCsv(file, tableId);
   }
 
-  const { headers, rows, sheetNames, activeSheetName, sampleMatrix, headerRowIndex, confidence: headerConfidence, parseErrors } = rawData;
+  const {
+    headers,
+    rows,
+    sheetNames,
+    activeSheetName,
+    sampleMatrix,
+    headerRowIndex,
+    confidence: headerConfidence,
+    subTables,
+    activeTableId,
+    parseErrors,
+  } = rawData;
 
   if (!rows || rows.length === 0) {
     return {
@@ -787,6 +1072,8 @@ export async function parseTakeoffFile(file, sheetName = null, customPreset = nu
       errors: [t('csvParser.errors.emptyOrNoRows')],
       sheetNames: sheetNames || [],
       activeSheetName,
+      subTables: subTables || [],
+      activeTableId,
     };
   }
 
@@ -807,10 +1094,11 @@ export async function parseTakeoffFile(file, sheetName = null, customPreset = nu
   const { mapping: autoMapping, unmappedRequired, matchConfidences, overallConfidence } = autoDetectColumnMapping(headers, rows);
   const effectiveMapping = appliedPresetMapping ? { ...autoMapping, ...appliedPresetMapping } : autoMapping;
 
-  // If required fields are unmapped or confidence is below 90%, fallback to confirmation UI
+  // If required fields are unmapped, confidence is below 90%, or side-by-side tables detected, prompt confirmation UI
   const missingRequired = TARGET_FIELDS.filter((f) => f.required && !effectiveMapping[f.key]).map((f) => f.key);
+  const hasMultipleTables = subTables && subTables.length >= 2;
 
-  if (missingRequired.length > 0 || overallConfidence < 0.90) {
+  if (missingRequired.length > 0 || overallConfidence < 0.90 || hasMultipleTables) {
     return {
       requiresMappingModal: true,
       headers,
@@ -823,6 +1111,8 @@ export async function parseTakeoffFile(file, sheetName = null, customPreset = nu
       headerRowIndex,
       sheetNames: sheetNames || [],
       activeSheetName,
+      subTables: subTables || [],
+      activeTableId,
       parseErrors,
     };
   }
@@ -837,6 +1127,8 @@ export async function parseTakeoffFile(file, sheetName = null, customPreset = nu
     headers,
     sheetNames: sheetNames || [],
     activeSheetName,
+    subTables: subTables || [],
+    activeTableId,
     confidence: overallConfidence,
   };
 }

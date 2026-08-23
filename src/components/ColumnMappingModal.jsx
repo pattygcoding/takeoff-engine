@@ -10,7 +10,10 @@ export default function ColumnMappingModal({
   overallConfidence = 0,
   sheetNames = [],
   activeSheetName = '',
+  subTables = [],
+  activeTableId = null,
   onSheetChange,
+  onTableChange,
   onConfirm,
   onCancel,
 }) {
@@ -84,24 +87,53 @@ export default function ColumnMappingModal({
             </div>
           </div>
 
-          {/* Multi-tab sheet selector if Excel workbook */}
-          {sheetNames.length > 1 && onSheetChange && (
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-500 font-medium">{t('columnMappingModal.sheetTab')}</span>
-              <select
-                value={activeSheetName}
-                onChange={(e) => onSheetChange(e.target.value)}
-                className="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 font-semibold text-slate-700"
-              >
-                {sheetNames.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Side-by-side table selector if multiple tables detected */}
+            {subTables.length > 1 && onTableChange && (
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-indigo-700 font-bold">{t('columnMappingModal.subTableSelect', 'Table Area:')}</span>
+                <select
+                  value={activeTableId || subTables[0]?.id}
+                  onChange={(e) => onTableChange(e.target.value)}
+                  className="text-xs bg-indigo-50 border border-indigo-300 rounded-lg px-2 py-1 font-bold text-indigo-900"
+                >
+                  {subTables.map((tb) => (
+                    <option key={tb.id} value={tb.id}>
+                      {tb.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Multi-tab sheet selector if Excel workbook */}
+            {sheetNames.length > 1 && onSheetChange && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-500 font-medium">{t('columnMappingModal.sheetTab')}</span>
+                <select
+                  value={activeSheetName}
+                  onChange={(e) => onSheetChange(e.target.value)}
+                  className="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 font-semibold text-slate-700"
+                >
+                  {sheetNames.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
         </div>
+
+        {/* Notice for multi-table side-by-side detection */}
+        {subTables.length > 1 && (
+          <div className="mt-3 p-3 bg-indigo-50/80 border border-indigo-200 text-indigo-900 text-xs rounded-xl flex items-center justify-between">
+            <span>
+              ℹ️ <strong>{t('columnMappingModal.sideBySideNotice', 'We detected multiple side-by-side tables. Select which area to import:')}</strong>
+            </span>
+          </div>
+        )}
 
         {validationError && (
           <div className="mt-4 p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl">
