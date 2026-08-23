@@ -456,8 +456,8 @@ export default function LandingPage() {
               </div>
 
               <button
-                onClick={() => navigate('/login')}
-                className="mt-6 w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition"
+                onClick={() => navigate('/register')}
+                className="mt-6 w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition cursor-pointer"
               >
                 {t('landing.pricing.freeTrial.cta')}
               </button>
@@ -484,8 +484,8 @@ export default function LandingPage() {
               </div>
 
               <button
-                onClick={() => navigate('/login')}
-                className="mt-6 w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition"
+                onClick={() => navigate('/register')}
+                className="mt-6 w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition cursor-pointer"
               >
                 {t('landing.pricing.starter.cta')}
               </button>
@@ -516,8 +516,8 @@ export default function LandingPage() {
               </div>
 
               <button
-                onClick={() => navigate('/login')}
-                className="mt-6 w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition"
+                onClick={() => navigate('/register')}
+                className="mt-6 w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition cursor-pointer"
               >
                 {t('landing.pricing.pro.cta')}
               </button>
@@ -544,8 +544,8 @@ export default function LandingPage() {
               </div>
 
               <button
-                onClick={() => navigate('/login')}
-                className="mt-6 w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-amber-600/30 transition"
+                onClick={() => navigate('/register')}
+                className="mt-6 w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-amber-600/30 transition cursor-pointer"
               >
                 {t('landing.pricing.enterprise.cta')}
               </button>

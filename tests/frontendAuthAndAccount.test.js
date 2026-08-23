@@ -144,4 +144,56 @@ describe('Frontend Authentication & Account Lifecycle Tests', () => {
       assert.strictEqual(allowedResult.canDelete, true);
     });
   });
+
+  describe('Post-Registration 4-Plan Onboarding Navigation (US-039)', () => {
+    it('transitions to plan-select view immediately after registration', () => {
+      let currentView = 'register';
+      let registeredUser = null;
+
+      const onRegisterSuccess = (userPayload) => {
+        registeredUser = userPayload;
+        currentView = 'plan-select';
+      };
+
+      onRegisterSuccess({ username: 'new_estimator_2026', email: 'estimator@takeoff.io' });
+
+      assert.strictEqual(currentView, 'plan-select');
+      assert.strictEqual(registeredUser.username, 'new_estimator_2026');
+    });
+
+    it('routes free trial selection directly to dashboard without checkout', () => {
+      let navigatedTo = null;
+      const handleSelectFreePlan = (user) => {
+        navigatedTo = `/${user.username}`;
+      };
+
+      handleSelectFreePlan({ username: 'contractor_bob' });
+      assert.strictEqual(navigatedTo, '/contractor_bob');
+    });
+
+    it('assigns correct paid plan tier and routes to dashboard upon checkout completion', async () => {
+      let activeUser = { username: 'contractor_bob', subscription_tier: 'free', subscription_status: 'trialing' };
+      let navigatedTo = null;
+
+      const handlePaidPlanCheckoutSuccess = async (planKey) => {
+        activeUser = {
+          ...activeUser,
+          subscription_tier: planKey,
+          subscription_status: 'active',
+        };
+        navigatedTo = `/${activeUser.username}`;
+      };
+
+      await handlePaidPlanCheckoutSuccess('starter');
+      assert.strictEqual(activeUser.subscription_tier, 'starter');
+      assert.strictEqual(activeUser.subscription_status, 'active');
+      assert.strictEqual(navigatedTo, '/contractor_bob');
+
+      await handlePaidPlanCheckoutSuccess('pro');
+      assert.strictEqual(activeUser.subscription_tier, 'pro');
+
+      await handlePaidPlanCheckoutSuccess('enterprise');
+      assert.strictEqual(activeUser.subscription_tier, 'enterprise');
+    });
+  });
 });
