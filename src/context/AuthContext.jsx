@@ -74,6 +74,49 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Background auto-sync: polls every 4 seconds when user is logged in
+  // so any tier/status change in the DB (via Webhooks, admin, or sandbox) reflects instantly without manual refresh
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const interval = setInterval(() => {
+      // Only refresh if tab is visible to minimize unnecessary requests
+      if (document.visibilityState === 'visible') {
+        authApi.getMe().then((latest) => {
+          if (latest) {
+            setUser((prev) => {
+              if (
+                !prev ||
+                prev.subscription_tier !== latest.subscription_tier ||
+                prev.subscription_status !== latest.subscription_status ||
+                prev.has_unlimited_bypass !== latest.has_unlimited_bypass ||
+                prev.role !== latest.role ||
+                prev.trial_uses_remaining !== latest.trial_uses_remaining ||
+                prev.seat_limit !== latest.seat_limit ||
+                prev.additional_seats !== latest.additional_seats
+              ) {
+                localStorage.setItem('takeoff_user', JSON.stringify(latest));
+                return { ...latest };
+              }
+              return prev;
+            });
+          }
+        }).catch(() => {});
+      }
+    }, 4000);
+
+    // Also re-check immediately whenever window gains focus
+    const handleFocus = () => {
+      refreshProfile();
+    };
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [user?.id]);
+
   return (
     <AuthContext.Provider
       value={{

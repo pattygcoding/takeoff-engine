@@ -2,6 +2,7 @@ import { initializePaddle } from '@paddle/paddle-js';
 import { getTranslation } from './i18n';
 
 let paddleInstance = null;
+let activeEventCallback = null;
 
 /**
  * Get or initialize Paddle.js singleton
@@ -21,6 +22,12 @@ export async function getPaddleInstance() {
     paddleInstance = await initializePaddle({
       environment: environment === 'production' ? 'production' : 'sandbox',
       token: clientToken,
+      eventCallback: (event) => {
+        console.log('[Paddle Global Event Callback]', event?.name, event);
+        if (activeEventCallback) {
+          activeEventCallback(event);
+        }
+      },
     });
     return paddleInstance;
   } catch (err) {
@@ -71,18 +78,29 @@ export async function openPaddleCheckout({ priceId, items, customerEmail, custom
     checkoutPayload.customData = sanitizedCustomData;
   }
 
+  const handleCheckoutEvent = (event) => {
+    console.log('[Paddle Checkout Event]', event?.name, event);
+    const eventName = event?.name || event?.type || event?.event;
+    
+    // Paddle emits checkout.completed, checkout.payment.successful, or transaction.completed
+    if (
+      eventName === 'checkout.completed' ||
+      eventName === 'checkout.payment.successful' ||
+      eventName === 'transaction.completed'
+    ) {
+      if (onSuccess) onSuccess(event.data || event);
+    } else if (eventName === 'checkout.closed') {
+      if (onClose) onClose();
+    } else if (eventName === 'checkout.error' || eventName === 'checkout.warning') {
+      console.error('[Paddle Error/Warning]', event);
+    }
+  };
+
+  activeEventCallback = handleCheckoutEvent;
+
   paddle.Checkout.open({
     ...checkoutPayload,
-    eventCallback: (event) => {
-      console.log('[Paddle Checkout Event]', event);
-      if (event.name === 'checkout.completed') {
-        if (onSuccess) onSuccess(event.data);
-      } else if (event.name === 'checkout.closed') {
-        if (onClose) onClose();
-      } else if (event.name === 'checkout.error' || event.name === 'checkout.warning') {
-        console.error('[Paddle Error/Warning]', event);
-      }
-    },
+    eventCallback: handleCheckoutEvent,
   });
 
   return true;

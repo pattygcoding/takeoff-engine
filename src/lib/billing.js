@@ -133,6 +133,22 @@ export const billingApi = {
   },
 
   /**
+   * Restore/Resume subscription scheduled for cancellation
+   */
+  async restoreSubscription() {
+    const res = await fetch(`${API_BASE_URL}/billing/restore-subscription`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({}),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to restore subscription.');
+    }
+    return data;
+  },
+
+  /**
    * Preview seat conversions and constraints when downgrading subscription tier (US-035)
    */
   async previewDowngrade(targetPlan) {

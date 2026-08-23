@@ -87,11 +87,11 @@ export const authApi = {
     return data;
   },
 
-  async updatePassword({ newPassword }) {
+  async updatePassword({ oldPassword, newPassword }) {
     const res = await fetch(`${API_BASE_URL}/auth/update-password`, {
       method: 'POST',
       headers: getAuthHeaders(),
-      body: JSON.stringify({ newPassword }),
+      body: JSON.stringify({ oldPassword, newPassword }),
     });
     const data = await res.json();
     if (!res.ok) {

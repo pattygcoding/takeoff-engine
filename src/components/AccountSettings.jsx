@@ -28,8 +28,12 @@ export default function AccountSettings() {
   const [logoUploading, setLogoUploading] = useState(false);
   const [logoError, setLogoError] = useState('');
 
+  const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [profileLoading, setProfileLoading] = useState(false);
   const [profileMsg, setProfileMsg] = useState('');
@@ -52,6 +56,7 @@ export default function AccountSettings() {
   const [cancelReason, setCancelReason] = useState('Project completed');
   const [cancelReasonDetails, setCancelReasonDetails] = useState('');
   const [cancelLoading, setCancelLoading] = useState(false);
+  const [restoreLoading, setRestoreLoading] = useState(false);
   const [cancelMsg, setCancelMsg] = useState('');
   const [cancelErr, setCancelErr] = useState('');
   const [portalLoading, setPortalLoading] = useState(false);
@@ -125,6 +130,32 @@ export default function AccountSettings() {
       setCancelErr(err.message || 'Failed to cancel subscription.');
     } finally {
       setCancelLoading(false);
+    }
+  };
+
+  const handleRestoreSubscription = async () => {
+    setRestoreLoading(true);
+    try {
+      const res = await billingApi.restoreSubscription();
+      if (res.user) {
+        setUser(res.user);
+        localStorage.setItem('takeoff_user', JSON.stringify(res.user));
+      }
+      if (refreshProfile) await refreshProfile();
+      await loadSubscriptionDetails();
+      await showAlert({
+        title: t('accountSettings.restoreSubscriptionSuccessTitle', 'Subscription Restored'),
+        message: res.message || t('accountSettings.restoreSubscriptionSuccessMsg', 'Your subscription has been successfully restored!'),
+        variant: 'info',
+      });
+    } catch (err) {
+      await showAlert({
+        title: t('accountSettings.restoreSubscriptionFailedTitle', 'Failed to Restore'),
+        message: err.message || 'Failed to restore subscription.',
+        variant: 'danger',
+      });
+    } finally {
+      setRestoreLoading(false);
     }
   };
 
@@ -211,6 +242,11 @@ export default function AccountSettings() {
     setPasswordErr('');
     setPasswordMsg('');
 
+    if (!oldPassword) {
+      setPasswordErr('Current password is required.');
+      return;
+    }
+
     if (newPassword.length < 6) {
       setPasswordErr('New password must be at least 6 characters long.');
       return;
@@ -223,8 +259,9 @@ export default function AccountSettings() {
 
     setPasswordLoading(true);
     try {
-      const res = await authApi.updatePassword({ newPassword });
+      const res = await authApi.updatePassword({ oldPassword, newPassword });
       setPasswordMsg(res.message || 'Password updated successfully.');
+      setOldPassword('');
       setNewPassword('');
       setConfirmPassword('');
       setTimeout(() => setPasswordMsg(''), 4000);
@@ -356,6 +393,34 @@ export default function AccountSettings() {
             </div>
           )}
 
+          {/* Scheduled Downgrade Notice Banner (Accounting & Billing Cycle Safeguard) */}
+          {subDetails?.scheduledTier && !subDetails?.cancelsAtPeriodEnd && (
+            <div className="mb-6 p-4 rounded-xl bg-blue-50 border border-blue-200 flex items-start gap-3">
+              <span className="text-xl">📅</span>
+              <div>
+                <h3 className="text-sm font-bold text-blue-900">
+                  {t('accountSettings.downgradeScheduledTitle', 'Downgrade Scheduled for Next Billing Cycle')}
+                </h3>
+                <p className="text-xs text-blue-700 mt-1">
+                  {t('accountSettings.downgradeScheduledMessage', {
+                    plan: subDetails.scheduledTier.toUpperCase(),
+                    date: subDetails?.scheduledChangeEffectiveAt || subDetails?.subscriptionRenewsAt
+                      ? new Date(subDetails?.scheduledChangeEffectiveAt || subDetails?.subscriptionRenewsAt).toLocaleDateString('en-US', {
+                          month: 'long',
+                          day: 'numeric',
+                          year: 'numeric',
+                        })
+                      : t('accountSettings.nextBillingCycle', 'your next billing date'),
+                    currentPlan: (user?.subscription_tier || 'Pro').toUpperCase(),
+                  })}
+                </p>
+                <p className="text-[11px] text-blue-600 mt-1">
+                  {t('accountSettings.downgradeAccountingNote', 'To avoid prorated billing and accounting discrepancies, your account retains all current plan features and seats through the end of the current paid billing period.')}
+                </p>
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-1.5">
               <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t('accountSettings.currentStatusLabel')}</span>
@@ -377,7 +442,7 @@ export default function AccountSettings() {
                       day: 'numeric',
                       year: 'numeric',
                     })}`
-                  : user?.has_unlimited_bypass
+                  : (['starter', 'pro', 'enterprise'].includes(user?.subscription_tier) && subDetails?.subscriptionStatus === 'active') || user?.has_unlimited_bypass
                   ? t('accountSettings.unlimitedProposalsAndExports')
                   : t('accountSettings.freeTrialExportsRemaining', { count: user?.trial_uses_remaining ?? 5 })}
               </p>
@@ -442,6 +507,19 @@ export default function AccountSettings() {
                   className="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200 rounded-xl transition"
                 >
                   {t('accountSettings.cancelSubscription')}
+                </button>
+              )}
+
+              {/* Restore Subscription Button when subscription is scheduled for cancellation */}
+              {subDetails?.cancelsAtPeriodEnd && user?.role !== 'admin' && (
+                <button
+                  type="button"
+                  disabled={restoreLoading}
+                  onClick={handleRestoreSubscription}
+                  className="px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 border border-emerald-600 rounded-xl shadow-xs transition flex items-center gap-1.5"
+                >
+                  <span>✓</span>
+                  <span>{restoreLoading ? t('accountSettings.restoringSubscription', 'Restoring...') : t('accountSettings.restoreSubscription', 'Restore Subscription')}</span>
                 </button>
               )}
             </div>
@@ -736,40 +814,113 @@ export default function AccountSettings() {
           )}
 
           <form onSubmit={handleUpdatePassword} className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                {t('accountSettings.currentPasswordLabel', 'Current Password')}
+              </label>
+              <div className="relative">
+                <input
+                  type={showOldPassword ? 'text' : 'password'}
+                  required
+                  value={oldPassword}
+                  onChange={(e) => setOldPassword(e.target.value)}
+                  placeholder={t('accountSettings.currentPasswordPlaceholder', '••••••••')}
+                  className="w-full px-3.5 py-2.5 pr-10 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowOldPassword(!showOldPassword)}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 text-sm focus:outline-none"
+                  aria-label={showOldPassword ? t('loginPage.hidePassword', 'Hide password') : t('loginPage.showPassword', 'Show password')}
+                >
+                  {showOldPassword ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
                   {t('accountSettings.newPasswordLabel')}
                 </label>
-                <input
-                  type="password"
-                  required
-                  minLength={6}
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                />
+                <div className="relative">
+                  <input
+                    type={showNewPassword ? 'text' : 'password'}
+                    required
+                    minLength={6}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder={t('accountSettings.newPasswordPlaceholder', '••••••••')}
+                    className="w-full px-3.5 py-2.5 pr-10 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 text-sm focus:outline-none"
+                    aria-label={showNewPassword ? t('loginPage.hidePassword', 'Hide password') : t('loginPage.showPassword', 'Show password')}
+                  >
+                    {showNewPassword ? (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                      </svg>
+                    ) : (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
                   {t('accountSettings.confirmPasswordLabel')}
                 </label>
-                <input
-                  type="password"
-                  required
-                  minLength={6}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                />
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    required
+                    minLength={6}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder={t('accountSettings.confirmPasswordPlaceholder', '••••••••')}
+                    className="w-full px-3.5 py-2.5 pr-10 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 text-sm focus:outline-none"
+                    aria-label={showConfirmPassword ? t('loginPage.hidePassword', 'Hide password') : t('loginPage.showPassword', 'Show password')}
+                  >
+                    {showConfirmPassword ? (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                      </svg>
+                    ) : (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
 
             <div className="pt-2 flex justify-end">
               <button
                 type="submit"
-                disabled={passwordLoading || !newPassword}
+                disabled={passwordLoading || !oldPassword || !newPassword || !confirmPassword}
                 className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 disabled:opacity-50 text-white text-sm font-semibold shadow-xs transition"
               >
                 {passwordLoading ? t('accountSettings.updatingPassword') : t('accountSettings.updatePasswordButton')}
@@ -915,7 +1066,7 @@ export default function AccountSettings() {
 
             <div className="mb-4">
               <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                {t('accountSettings.typeUsernameToConfirm', { username: user?.username })}
+                Type your username <span className="font-bold text-slate-900">{user?.username}</span> to confirm:
               </label>
               <input
                 type="text"
@@ -924,9 +1075,7 @@ export default function AccountSettings() {
                 onChange={(e) => setDeleteConfirmText(e.target.value)}
                 className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:outline-none font-mono"
               />
-            </div>
-
-            <div className="flex gap-2 justify-end">
+            </div>            <div className="flex gap-2 justify-end">
               <button
                 type="button"
                 onClick={() => setShowDeleteModal(false)}

@@ -8,7 +8,7 @@ import { useTranslation } from '@/context/I18nContext';
 
 export default function UpgradeModal({ isOpen, onClose }) {
   const { user, logout, refreshProfile } = useAuth();
-  const { showAlert } = useModal();
+  const { showAlert, showConfirm } = useModal();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [promoCodeInput, setPromoCodeInput] = useState('');
@@ -21,6 +21,13 @@ export default function UpgradeModal({ isOpen, onClose }) {
   const [additionalSeats, setAdditionalSeats] = useState(0);
 
   if (!isOpen) return null;
+
+  const currentTier = user?.subscription_status === 'active' ? (user?.subscription_tier || 'free') : 'free';
+  const tierHierarchy = { free: 0, starter: 1, pro: 2, enterprise: 3 };
+  const currentTierRank = tierHierarchy[currentTier] || 0;
+  const activeTierRank = tierHierarchy[activePlan] || 0;
+  const isCurrentPlanSelected = user?.subscription_status === 'active' && currentTier === activePlan;
+  const isDowngradeSelected = user?.subscription_status === 'active' && activeTierRank < currentTierRank;
 
   if (user?.role === 'payment_exempt' || user?.has_unlimited_bypass) {
     return (
@@ -52,6 +59,25 @@ export default function UpgradeModal({ isOpen, onClose }) {
   }
 
   const handleLaunchCheckout = async (selectedPlan) => {
+    if (selectedPlan === currentTier && user?.subscription_status === 'active') {
+      return;
+    }
+
+    const isDowngrading = user?.subscription_status === 'active' && (tierHierarchy[selectedPlan] || 0) < (tierHierarchy[currentTier] || 0);
+
+    if (isDowngrading) {
+      const confirmed = await showConfirm({
+        title: t('upgradeModal.confirmDowngradeTitle', 'Confirm Plan Downgrade'),
+        message: t('upgradeModal.confirmDowngradePrompt', {
+          plan: selectedPlan.toUpperCase(),
+          currentPlan: currentTier.toUpperCase(),
+        }),
+        confirmText: t('upgradeModal.confirmDowngradeBtn', 'Proceed with Downgrade'),
+        cancelText: t('upgradeModal.cancelDowngradeBtn', 'Keep Current Plan'),
+      });
+      if (!confirmed) return;
+    }
+
     setCheckoutLoading(true);
     try {
       const seatsToAdd = (selectedPlan === 'enterprise' || selectedPlan === 'pro') ? additionalSeats : 0;
@@ -63,8 +89,24 @@ export default function UpgradeModal({ isOpen, onClose }) {
         items: checkoutParams.items,
         customerEmail: user?.email,
         customData: checkoutParams.customData,
-        onSuccess: async () => {
+        onSuccess: async (data) => {
+          try {
+            // Instantly sync & activate the subscription in backend DB upon checkout completion
+            const syncRes = await billingApi.mockActivate(selectedPlan, billingInterval, seatsToAdd);
+            if (syncRes.user) {
+              localStorage.setItem('takeoff_user', JSON.stringify(syncRes.user));
+            }
+          } catch (syncErr) {
+            console.warn('[Paddle Post-Checkout Sync Warning]', syncErr);
+          }
           if (refreshProfile) await refreshProfile();
+          await showAlert({
+            title: isDowngrading ? t('upgradeModal.downgradeScheduledTitle', 'Downgrade Scheduled') : t('upgradeModal.successTitle', 'Upgrade Successful'),
+            message: isDowngrading
+              ? `Your downgrade to ${selectedPlan.toUpperCase()} has been scheduled for your next billing cycle.`
+              : `Congratulations! Your account has been upgraded to the ${selectedPlan.toUpperCase()} plan.`,
+            variant: isDowngrading ? 'info' : 'success',
+          });
           onClose();
         },
       });
@@ -77,9 +119,9 @@ export default function UpgradeModal({ isOpen, onClose }) {
         }
         if (refreshProfile) await refreshProfile();
         await showAlert({
-          title: 'Upgrade Successful',
-          message: mockRes.message || 'Upgraded successfully via Sandbox Mock Mode!',
-          variant: 'success',
+          title: isDowngrading ? 'Downgrade Scheduled' : 'Upgrade Successful',
+          message: mockRes.message || (isDowngrading ? 'Downgrade scheduled for next cycle.' : 'Upgraded successfully via Sandbox Mock Mode!'),
+          variant: isDowngrading ? 'info' : 'success',
         });
         onClose();
       }
@@ -145,15 +187,15 @@ export default function UpgradeModal({ isOpen, onClose }) {
   const isOutOfCredits = !isExempt && remainingCredits <= 0;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-fade-in overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-xl w-full overflow-hidden p-6 sm:p-8 relative my-8">
+    <div className="fixed inset-0 z-50 overflow-y-auto p-4 sm:p-6 bg-slate-900/80 backdrop-blur-sm animate-fade-in flex min-h-full items-center justify-center">
+      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-2xl w-full p-6 sm:p-8 relative my-auto">
         {!isOutOfCredits && (
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+            className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-2 rounded-xl hover:bg-slate-100 transition-colors z-20 cursor-pointer"
             aria-label="Close"
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -210,12 +252,17 @@ export default function UpgradeModal({ isOpen, onClose }) {
               setActivePlan('starter');
               setAdditionalSeats(0);
             }}
-            className={`p-3 rounded-xl border text-left transition-all ${
+            className={`p-3 rounded-xl border text-left relative transition-all ${
               activePlan === 'starter'
                 ? 'border-indigo-600 bg-indigo-50/50 ring-2 ring-indigo-500/20'
                 : 'border-slate-200 bg-slate-50 hover:bg-slate-100/70'
             }`}
           >
+            {currentTier === 'starter' && (
+              <span className="absolute -top-2 right-2 bg-emerald-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider">
+                {t('upgradeModal.currentPlanBadge', 'Current Plan')}
+              </span>
+            )}
             <div className="text-xs font-bold uppercase tracking-wider text-slate-600 mb-0.5">{t('upgradeModal.starterTier')}</div>
             <div className="text-sm font-extrabold text-slate-900">
               ${isAnnual ? '299.99' : '29.99'}
@@ -234,9 +281,15 @@ export default function UpgradeModal({ isOpen, onClose }) {
                 : 'border-slate-200 bg-slate-50 hover:bg-slate-100/70'
             }`}
           >
-            <span className="absolute -top-2 right-2 bg-indigo-600 text-white text-[9px] font-bold px-1.5 py-0.2 rounded-full uppercase tracking-wider">
-              {t('upgradeModal.popularBadge')}
-            </span>
+            {currentTier === 'pro' ? (
+              <span className="absolute -top-2 right-2 bg-emerald-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider">
+                {t('upgradeModal.currentPlanBadge', 'Current Plan')}
+              </span>
+            ) : (
+              <span className="absolute -top-2 right-2 bg-indigo-600 text-white text-[9px] font-bold px-1.5 py-0.2 rounded-full uppercase tracking-wider">
+                {t('upgradeModal.popularBadge')}
+              </span>
+            )}
             <div className="text-xs font-bold uppercase tracking-wider text-indigo-700 mb-0.5">{t('upgradeModal.proTier')}</div>
             <div className="text-sm font-extrabold text-slate-900">
               ${isAnnual ? '799.99' : '79.99'}
@@ -255,9 +308,15 @@ export default function UpgradeModal({ isOpen, onClose }) {
                 : 'border-slate-200 bg-slate-50 hover:bg-slate-100/70'
             }`}
           >
-            <span className="absolute -top-2 right-2 bg-amber-600 text-white text-[9px] font-bold px-1.5 py-0.2 rounded-full uppercase tracking-wider">
-              {t('upgradeModal.multiSeatBadge')}
-            </span>
+            {currentTier === 'enterprise' ? (
+              <span className="absolute -top-2 right-2 bg-emerald-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider">
+                {t('upgradeModal.currentPlanBadge', 'Current Plan')}
+              </span>
+            ) : (
+              <span className="absolute -top-2 right-2 bg-amber-600 text-white text-[9px] font-bold px-1.5 py-0.2 rounded-full uppercase tracking-wider">
+                {t('upgradeModal.multiSeatBadge')}
+              </span>
+            )}
             <div className="text-xs font-bold uppercase tracking-wider text-amber-700 mb-0.5">{t('upgradeModal.enterpriseTier')}</div>
             <div className="text-sm font-extrabold text-slate-900">
               ${isAnnual ? '1999.99' : '199.99'}
@@ -373,17 +432,44 @@ export default function UpgradeModal({ isOpen, onClose }) {
             )}
           </ul>
 
+          {/* Downgrade Explanatory Notice */}
+          {isDowngradeSelected && (
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-2.5 mb-3 text-[11px] text-amber-200 flex items-start gap-2">
+              <span className="text-base">ℹ️</span>
+              <div>
+                <strong className="text-amber-300">Downgrade Note:</strong> {t('upgradeModal.downgradeNotice', {
+                  plan: activePlan.toUpperCase(),
+                  currentPlan: currentTier.toUpperCase(),
+                })}
+              </div>
+            </div>
+          )}
+
           <button
             onClick={() => handleLaunchCheckout(activePlan)}
-            disabled={checkoutLoading}
-            className="w-full py-2.5 px-4 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 font-semibold text-sm text-white shadow-md hover:shadow-indigo-500/25 transition-all text-center"
+            disabled={checkoutLoading || isCurrentPlanSelected}
+            className={`w-full py-2.5 px-4 rounded-lg font-semibold text-sm shadow-md transition-all text-center ${
+              isCurrentPlanSelected
+                ? 'bg-slate-700 text-slate-400 cursor-not-allowed border border-slate-600'
+                : isDowngradeSelected
+                ? 'bg-amber-600 hover:bg-amber-500 text-white shadow-amber-600/25'
+                : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-500/25'
+            }`}
           >
             {checkoutLoading
               ? t('upgradeModal.openingCheckout')
+              : isCurrentPlanSelected
+              ? t('upgradeModal.currentPlanButton', 'Current Active Plan')
+              : isDowngradeSelected
+              ? t('upgradeModal.downgradeButton', {
+                  plan: activePlan === 'starter' ? t('upgradeModal.starterTier') : activePlan === 'pro' ? t('upgradeModal.proTier') : t('upgradeModal.enterpriseTier'),
+                  price: activeTotalPrice.toFixed(2),
+                  interval: isAnnual ? '/yr' : '/mo',
+                })
               : t('upgradeModal.upgradeButton', { 
                   plan: activePlan === 'starter' ? t('upgradeModal.starterTier') : activePlan === 'pro' ? t('upgradeModal.proTier') : t('upgradeModal.enterpriseTier'),
                   price: activeTotalPrice.toFixed(2),
-                  interval: isAnnual ? '/yr' : '/mo'
+                  interval: isAnnual ? '/yr' : '/mo',
                 })}
           </button>
         </div>

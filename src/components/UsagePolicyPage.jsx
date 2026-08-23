@@ -107,6 +107,7 @@ export default function UsagePolicyPage() {
               <li>{t('usagePolicy.s3Item1')}</li>
               <li>{t('usagePolicy.s3Item2')}</li>
               <li>{t('usagePolicy.s3Item3')}</li>
+              <li>{t('usagePolicy.s3Item4')}</li>
             </ul>
           </section>
 
