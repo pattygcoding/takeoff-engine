@@ -137,4 +137,21 @@ export const organizationsApi = {
     }
     return data;
   },
+
+  /**
+   * Delete an organization
+   */
+  async delete(orgId) {
+    const res = await fetch(`${API_BASE_URL}/organizations/${orgId}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      const err = new Error(data.error || getTranslation('apiErrors.deleteOrganizationFailed'));
+      err.code = data.code;
+      throw err;
+    }
+    return data;
+  },
 };

@@ -243,6 +243,48 @@ export default function TeamWorkspaceManager() {
     }
   };
 
+  const isOwnerOfActiveOrg = activeOrg?.owner_id === user?.id;
+  const otherOccupiedMembers = members.filter(
+    (m) => m.role !== 'owner' && m.user_id !== user?.id && (m.status === 'active' || m.status === 'pending')
+  );
+  const canDeleteActiveOrg = isOwnerOfActiveOrg && otherOccupiedMembers.length === 0;
+
+  const handleDeleteOrg = async () => {
+    if (!activeOrg) return;
+
+    if (!canDeleteActiveOrg) {
+      await showAlert({
+        title: t('teamWorkspaceManager.deleteOrgErrorTitle'),
+        message: t('teamWorkspaceManager.cannotDeleteOrgOccupied'),
+        variant: 'error',
+      });
+      return;
+    }
+
+    const confirmed = await showConfirm({
+      title: t('teamWorkspaceManager.deleteOrgTitle'),
+      message: t('teamWorkspaceManager.deleteOrgMessage', { name: activeOrg.name }),
+      confirmText: t('teamWorkspaceManager.deleteOrgConfirmButton'),
+      confirmVariant: 'danger',
+    });
+    if (!confirmed) return;
+
+    try {
+      const orgName = activeOrg.name;
+      await organizationsApi.delete(activeOrg.id);
+      setSuccessMsg(t('teamWorkspaceManager.deleteOrgSuccess', { name: orgName }));
+      setActiveOrg(null);
+      setMembers([]);
+      await loadOrganizations();
+    } catch (err) {
+      await showAlert({
+        title: t('teamWorkspaceManager.deleteOrgErrorTitle'),
+        message: err.message || t('teamWorkspaceManager.deleteOrgErrorMessage'),
+        variant: 'error',
+      });
+    }
+  };
+
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4 border-b border-slate-100 pb-4">
@@ -348,9 +390,20 @@ export default function TeamWorkspaceManager() {
             <h3 className="text-sm font-bold text-slate-800">
               {t('teamWorkspaceManager.workspaceMembers')} ({members.length} / {activeOrg.max_seats} {t('teamWorkspaceManager.seatsUsed')})
             </h3>
-            <span className="text-xs text-slate-400">
-              {t('teamWorkspaceManager.owner')}: {activeOrg.owner_email || t('teamWorkspaceManager.you')}
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-slate-400">
+                {t('teamWorkspaceManager.owner')}: {activeOrg.owner_email || t('teamWorkspaceManager.you')}
+              </span>
+              {canDeleteActiveOrg && (
+                <button
+                  type="button"
+                  onClick={handleDeleteOrg}
+                  className="px-2.5 py-1 text-xs font-semibold text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200 rounded-lg transition"
+                >
+                  🗑️ {t('teamWorkspaceManager.deleteOrgButton')}
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Member List */}
@@ -513,9 +566,10 @@ export default function TeamWorkspaceManager() {
               ✕
             </button>
             <h3 className="text-lg font-bold text-slate-900 mb-1">{t('teamWorkspaceManager.seatModalTitle')}</h3>
-            <p className="text-xs text-slate-500 mb-4">
-              {t('teamWorkspaceManager.seatModalDescription')}
-            </p>
+            <p
+              className="text-xs text-slate-500 mb-4"
+              dangerouslySetInnerHTML={{ __html: t('teamWorkspaceManager.seatModalDescription') }}
+            />
 
             <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-4 space-y-3">
               <div className="flex justify-between items-center text-xs">

@@ -36,8 +36,8 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
             } else if (fullProject.rates && typeof fullProject.rates === 'object' && Object.keys(fullProject.rates).length > 0) {
               setRates(fullProject.rates);
             }
-            // If project is awarded and user navigated directly to step 2 (edit) or step 1, redirect to results (step 3)
-            if (fullProject?.status === 'awarded' && step === 2) {
+            // If project is locked (awarded, declined, submitted, archived) and user navigated directly to step 2 (edit) or step 1, redirect to results (step 3)
+            if (['awarded', 'declined', 'submitted', 'archived'].includes(fullProject?.status) && step === 2) {
               navigate(`/${username}/takeoff/${projectId}/results`, { replace: true });
             }
           })
@@ -49,7 +49,7 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
           .finally(() => {
             if (isMounted) setLoading(false);
           });
-      } else if (currentProject?.status === 'awarded' && step === 2) {
+      } else if (['awarded', 'declined', 'submitted', 'archived'].includes(currentProject?.status) && step === 2) {
         // If already loaded and user tried navigating to /edit via URL
         navigate(`/${username}/takeoff/${projectId}/results`, { replace: true });
       }
@@ -59,10 +59,10 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
     };
   }, [projectId, step]);
 
-  const isLocked = ['awarded', 'submitted', 'archived'].includes(currentProject?.status);
+  const isLocked = ['awarded', 'submitted', 'archived', 'declined'].includes(currentProject?.status);
 
   const goToStep = (targetStep) => {
-    // If project is locked (awarded, submitted, or archived), step 1 (upload) and step 2 (edit) are locked and not navigable
+    // If project is locked (awarded, submitted, archived, or declined), step 1 (upload) and step 2 (edit) are locked and not navigable
     if (isLocked && (targetStep === 1 || targetStep === 2)) {
       return;
     }
@@ -204,6 +204,12 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
               <span className="text-xs font-bold text-amber-800 bg-amber-100 border border-amber-300 px-2.5 py-0.5 rounded-full flex items-center gap-1">
                 <span>🔒</span>
                 <span>{t('projectWorkspace.statusArchived')}</span>
+              </span>
+            )}
+            {currentProject?.status === 'declined' && (
+              <span className="text-xs font-bold text-red-800 bg-red-100 border border-red-300 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                <span>🔒</span>
+                <span>{t('projectWorkspace.statusDeclined')}</span>
               </span>
             )}
             {projectId && (

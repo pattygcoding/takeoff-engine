@@ -291,6 +291,8 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
       ? t('resultsStep.statusSubmitted')
       : activeStatus === 'archived'
       ? t('resultsStep.statusArchived')
+      : activeStatus === 'declined'
+      ? t('resultsStep.statusDeclined')
       : t('resultsStep.statusAwarded');
 
   const statusDescription =
@@ -298,6 +300,8 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
       ? t('resultsStep.statusDescSubmitted')
       : activeStatus === 'archived'
       ? t('resultsStep.statusDescArchived')
+      : activeStatus === 'declined'
+      ? t('resultsStep.statusDescDeclined')
       : t('resultsStep.statusDescAwarded');
 
   return (

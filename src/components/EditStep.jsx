@@ -12,6 +12,8 @@ export default function EditStep({ items, onItemsChange, rates, onRatesChange, o
       ? t('editStep.statusSubmitted')
       : projectStatus === 'archived'
       ? t('editStep.statusArchived')
+      : projectStatus === 'declined'
+      ? t('editStep.statusDeclined')
       : t('editStep.statusAwarded');
 
   const statusDescription =
@@ -19,6 +21,8 @@ export default function EditStep({ items, onItemsChange, rates, onRatesChange, o
       ? t('editStep.submittedDesc')
       : projectStatus === 'archived'
       ? t('editStep.archivedDesc')
+      : projectStatus === 'declined'
+      ? t('editStep.declinedDesc')
       : t('editStep.awardedDesc');
 
   return (

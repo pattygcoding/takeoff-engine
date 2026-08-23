@@ -22,6 +22,10 @@ const STATUS_CONFIG = {
     label: 'Archived',
     badgeClass: 'bg-amber-100 text-amber-700 border-amber-200',
   },
+  declined: {
+    label: 'Declined',
+    badgeClass: 'bg-red-100 text-red-700 border-red-200',
+  },
 };
 
 export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
@@ -264,7 +268,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
 
         {/* Status Filter Tabs */}
         <div className="flex items-center gap-1 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
-          {['all', 'draft', 'submitted', 'awarded', 'archived'].map((statusKey) => (
+          {['all', 'draft', 'submitted', 'awarded', 'declined', 'archived'].map((statusKey) => (
             <button
               key={statusKey}
               onClick={() => setStatusFilter(statusKey)}
@@ -336,6 +340,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
             const statusStyle = STATUS_CONFIG[rawStatus] || STATUS_CONFIG.draft;
             const isDraft = rawStatus === 'draft';
             const isArchived = rawStatus === 'archived';
+            const isDeclined = rawStatus === 'declined';
             const isSubmittedOrAwarded = rawStatus === 'submitted' || rawStatus === 'awarded';
             const summary = project.latestEstimate?.summary_json || {};
             const bidTotal = summary.finalBidAmount || 0;
@@ -390,7 +395,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
                             <button
                               onClick={() => {
                                 setActionMenuOpenId(null);
-                                handleOpen(project, 'edit');
+                                handleOpen(project, isDraft ? 'edit' : 'results');
                               }}
                               className="w-full text-left px-4 py-2 text-slate-700 hover:bg-slate-50 flex items-center gap-2 font-medium"
                             >
@@ -398,7 +403,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                               </svg>
-                              {t('projectDashboard.openTakeoff')}
+                              {isDraft ? t('projectDashboard.openTakeoff') : t('projectDashboard.viewTakeoffSummary') || t('projectDashboard.openTakeoff')}
                             </button>
 
                             <button
@@ -426,8 +431,8 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
                               {isCloning ? t('projectDashboard.duplicating') : t('projectDashboard.duplicate')}
                             </button>
 
-                            {/* Draft projects: Show Archive and Delete */}
-                            {isDraft && (
+                            {/* Draft or Declined projects: Show Archive and Delete */}
+                            {(isDraft || isDeclined) && (
                               <>
                                 <button
                                   onClick={() => handleArchiveToggle(project)}
