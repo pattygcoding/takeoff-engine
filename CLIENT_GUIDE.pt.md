@@ -30,12 +30,13 @@ O Takeoff Engine utiliza **correspondência difusa de aliases (distância de Lev
 
 | Campo Padrão | Obrigatório? | Exemplos Canônicos / Aliases de Software | Descrição |
 |---|---|---|---|
-| `system` | Sim | `Trade`, `Phase`, `Division`, `Category`, `Discipline`, `Utility Type`, `Section`, `Classification` | A disciplina, especialidade ou agrupamento (ex.: `Sanitary`, `Storm`, `Domestic Water`, `Earthwork`) |
+| `system` | Sim | `Trade`, `Phase`, `Division`, `Category`, `Discipline`, `Utility Type`, `Section`, `Classification`, Códigos CSI (`02-31-00`, `03 21 00`, `26 24 16`) | A disciplina, especialidade ou agrupamento (ex.: `Sanitary`, `Storm`, `Domestic Water`, `Earthwork`, `02 - Existing Conditions`, `26 - Electrical`) |
 | `item_description` | Sim | `Item Description`, `Item Name`, `Description`, `Scope`, `Takeoff Item`, `Line Item`, `Activity` | O que é o item ou serviço (ex.: `Mainline Pipe`, `Precast Manhole`, `Gate Valve`) |
 | `size_spec` | Sim | `Size / Spec`, `Pipe Size`, `Dimension`, `Material Class`, `Specification`, `Diameter`, `Rating` | Diâmetro do tubo ou especificação de material (ex.: `8" PVC SDR-35`, `48" Precast`, `6" C900`) |
-| `quantity` | Sim | `Quantity`, `Qty`, `Takeoff Qty`, `Total Qty`, `Linear Feet`, `Amount`, `Count`, `Volume`, `Footage` | Quantidade numérica ou medição (ex.: `275`, `1,250`, `45.5`) |
-| `unit` | Sim | `Unit`, `UOM`, `Unit of Measure`, `Measure`, `Units`, `Unit Type` | Unidade de medida profissional (`LF`, `EA`, `CY`, `SF`, `TON`, `LS`, `HR`) |
+| `quantity` | Sim | `Quantity`, `Qty`, `Takeoff Qty`, `Total Qty`, `Linear Feet`, `Amount`, `Count`, `Volume`, `Footage` | Quantidade numérica ou medição (ex.: `275`, `1,250`, `45.5`, dedutivos `(350.00)`, `TBD`) |
+| `unit` | Sim | `Unit`, `UOM`, `Unit of Measure`, `Measure`, `Units`, `Unit Type` | Unidade de medida profissional (`LF`, `EA`, `CY`, `SF`, `SY`, `TON`, `LS`, `HR` ou unidades personalizadas) |
 | `avg_depth_ft` | Não | `Avg Trench Depth`, `Avg Depth (FT)`, `Depth (ft)`, `Trench Depth`, `Cut Depth`, `Invert Depth` | Profundidade média opcional da vala em pés (para cálculos de terraplenagem e reaterro) |
+| `material_cost_per_unit` | Não | `Material $/Unit`, `Mat $/Unit`, `Material Cost`, `Unit Price`, `Material Rate`, `Unit Cost`, `Cost/Unit` | Preço unitário do material ou custo por unidade (ex.: `$42.50`, `$1,350.00`, `$19.0857`) |
 
 *Nota: A ordem das colunas e a diferenciação de maiúsculas/minúsculas não importam.*
 
@@ -45,9 +46,23 @@ O Takeoff Engine utiliza **correspondência difusa de aliases (distância de Lev
 
 O pipeline de ingestão lida com exportações brutas sem necessidade de limpeza manual:
 
-✅ **Detecção de Cabeçalho 2D e Tolerância a Deslocamento:**
-- Se a sua planilha tiver títulos da empresa, nomes de projetos ou linhas vazias no topo (linhas 1 a 30), o mecanismo localiza a linha real de cabeçalho das colunas.
+✅ **Detecção de Cabeçalho 2D, Ignorar Banners Mesclados e Seleção de Cabeçalho:**
+- Se a sua planilha tiver títulos da empresa, nomes de projetos, notas ou linhas vazias no topo (linhas 1 a 30), o mecanismo localiza automaticamente a linha real de cabeçalho das colunas após os banners mesclados.
+- Você também pode selecionar manualmente qual linha contém os cabeçalhos usando o seletor interativo de Linha de Cabeçalho.
 - Suporta cabeçalhos empilhados de 2 linhas (ex.: Superior: `Trench Dimensions`, Inferior: `Depth (FT)` $\rightarrow$ `Trench Dimensions - Depth (FT)`).
+
+✅ **Mapeamento de Disciplinas com Códigos CSI MasterFormat:**
+- Reconhece códigos de divisão CSI e números de seção MasterFormat (ex.: `02-31-00`, `03 21 00`, `09 22 00`, `26 24 16`, `Division 31`) e os mapeia automaticamente para sistemas de disciplinas padronizados (`02 - Existing Conditions`, `03 - Concrete`, `09 - Finishes`, `26 - Electrical`, `31 - Earthwork`, etc.).
+
+✅ **Ingestão de Custo Unitário de Material e Formatação de Moedas:**
+- Suporta campos opcionais de custo unitário de material (`Material $/Unit`, `Mat $/Unit`, `Material Cost`, `Unit Price`).
+- Remove automaticamente símbolos de moeda (`$`, `€`, `£`, `¥`), vírgulas de formatação e espaços para que os preços unitários (ex.: `$1,350.00`, `$42.50`, `$19.0857`) alimentem diretamente os cálculos de custos.
+
+✅ **Ordens de Alteração Dedutivas e Quantidades Negativas Contábeis:**
+- Mantém quantidades e valores negativos no formato contábil, como `(350.00)` e `-$6,680.00`, sem descartar itens negativos, permitindo ordens de alteração dedutivas precisas.
+
+✅ **Marcadores de Posição e Identificação de Escopos Pendentes:**
+- Células contendo marcadores de posição (ex.: `TBD`, `N/A`, `HOLD`, `PENDING`, `BY OTHERS`) são processadas com segurança com quantidade `0` e destacadas com um selo interativo **⚠️ Escopo Pendente / TBD** na grade de orçamento para verificação em campo.
 
 ✅ **Desmesclagem de Células e Preenchimento Automático (Forward-Fill):**
 - Quando uma planilha do Excel usa células mescladas em categorias ou cabeçalhos de seção, o rótulo do sistema/fase principal é propagado para todos os itens secundários abaixo.
@@ -59,14 +74,17 @@ O pipeline de ingestão lida com exportações brutas sem necessidade de limpeza
 ✅ **Higienização de Unidades e Quantidades Compostas:**
 - Valores com formatação como `$1,250.00`, números negativos contábeis `(150.00)` ou strings com unidades embutidas como `"275 LF"` ou `"12 EA"` são separados em seu valor numérico limpo e unidade.
 
-✅ **Normalização de Unidades Profissionais:**
-- Variações de unidades são normalizadas:
-  - `lin ft`, `linear feet`, `l.f.`, `ft` $\rightarrow$ `LF`
-  - `each`, `pcs`, `e.a.`, `item` $\rightarrow$ `EA`
-  - `cu yd`, `c.y.`, `cubic yard`, `m3` $\rightarrow$ `CY`
-  - `sq ft`, `s.f.`, `sqft`, `m2` $\rightarrow$ `SF`
-  - `tn`, `tons`, `tonne` $\rightarrow$ `TON`
-  - `ls`, `lump`, `global` $\rightarrow$ `LS`
+✅ **Normalização Abrangente de Unidades e Preservação de Unidades Personalizadas:**
+- Variações de unidades são normalizadas para os padrões do setor:
+  - `lin ft`, `linear feet`, `l.f.`, `ft`, `m`, `meter` $\rightarrow$ `LF`
+  - `each`, `pcs`, `e.a.`, `item`, `pza`, `count` $\rightarrow$ `EA`
+  - `cu yd`, `c.y.`, `cubic yard`, `m3`, `cu m` $\rightarrow$ `CY`
+  - `sq ft`, `s.f.`, `sqft`, `m2`, `m²`, `sq m` $\rightarrow$ `SF`
+  - `sq yd`, `s.y.`, `sqyd`, `yd2` $\rightarrow$ `SY`
+  - `tn`, `tons`, `tonne`, `t.n.` $\rightarrow$ `TON`
+  - `ls`, `lump`, `global`, `lot` $\rightarrow$ `LS`
+  - `hr`, `hrs`, `hour`, `man hours` $\rightarrow$ `HR`
+- Unidades personalizadas não reconhecidas (ex.: `ROLLS`, `BUNDLE`, `PALLET`, `TRIP`) são mantidas em maiúsculas sem serem convertidas forçadamente em pés lineares.
 
 ✅ **Desconstrução de Dimensões Compostas:**
 - Se um software de levantamento combinar descrição e dimensão (ex.: `"8\" PVC SDR-35 Mainline"` na coluna de descrição), o mecanismo separa o diâmetro/tamanho do nome do item.
@@ -77,8 +95,9 @@ O pipeline de ingestão lida com exportações brutas sem necessidade de limpeza
 ✅ **Quebras de Linha Manuais e Textos Multilinha (Alt + Enter):**
 - Células com retornos de carro embutidos (`\r\n` ou `\n`) resultantes de quebras de linha manuais ou notas são higienizadas em strings limpas de linha única sem quebrar as linhas do CSV.
 
-✅ **Filtragem de Linhas Ocultas e Escopos Riscados (Aditivos / Supressões):**
-- Linhas ocultas no Excel (`row.hidden === true` ou altura = 0) e itens tachados/riscados (`font.strike === true`) indicando supressões de escopo por aditivos são excluídos para evitar a importação indevida de itens cancelados.
+✅ **Filtragem de Linhas Ocultas e Divisores de Seção:**
+- Linhas ocultas no Excel (`row.hidden === true` ou altura = 0), bem como linhas divisórias visuais vazias, são filtradas automaticamente.
+- *Nota sobre Supressão de Escopo:* O estilo de fonte tachado não é compatível para eliminação de escopo em XLSX/CSV. Para excluir itens cancelados por aditivos, exclua ou oculte a linha no Excel, ou preencha a quantidade com um marcador como `HOLD`, `TBD` ou `N/A`.
 
 ✅ **Extração de Valores Calculados em Cache e Tratamento de Fórmulas Corrompidas:**
 - Avalia os valores calculados armazenados em cache do Excel (`.v` / `.w`) em vez de fórmulas não resolvidas. Erros de fórmulas corrompidas (`#REF!`, `#VALUE!`, `#N/A`) são convertidos de forma limpa para `null`/`NaN` com avisos claros na linha correspondente.
