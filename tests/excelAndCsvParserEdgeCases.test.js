@@ -9,7 +9,11 @@ import {
   sniffHeaderBoundary,
   extractHeadersAndRowsAtHeaderRow,
   normalizeRowsWithMapping,
+  deconstructDescription,
+  normalizeUnit,
+  parseRawExcel,
 } from '../src/lib/csv.js';
+import * as XLSX from 'xlsx';
 
 describe('Excel & CSV Import Edge Cases (US-031 / 4 Friction Points)', () => {
   describe('1. Side-by-Side (Multi-Table) Sheets', () => {
@@ -133,6 +137,40 @@ describe('Excel & CSV Import Edge Cases (US-031 / 4 Friction Points)', () => {
       assert.strictEqual(result.items[0].system, 'Storm Drainage');
       assert.strictEqual(result.items[0].quantity, 450);
       assert.strictEqual(result.items[0].avgDepthFt, 6.5);
+    });
+
+    it('filters out hidden rows when parsing raw Excel worksheets', async () => {
+      // Create an Excel workbook in memory with a header row, active rows, and a hidden row
+      const ws_data = [
+        ['System', 'Item Description', 'Size / Spec', 'Quantity', 'Unit'],
+        ['Plumbing', '4" Schedule 40 PVC Drain', '4" SCH 40', '120', 'LF'],
+        ['Plumbing', '4" Two-Way Cleanout Assembly (Deleted per Addendum 3)', '4"', '2', 'EA'],
+        ['Plumbing', 'Floor Drain 3" Nickel Bronze Strainer', '3"', '6', 'EA'],
+      ];
+
+      const ws = XLSX.utils.aoa_to_sheet(ws_data);
+      // Mark row index 2 (1-based row 3) as hidden
+      ws['!rows'] = [
+        { hidden: false },
+        { hidden: false },
+        { hidden: true },
+        { hidden: false },
+      ];
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Takeoff');
+
+      const rawBuf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+
+      // Mock File object
+      const mockFile = {
+        name: 'takeoff_hidden_row.xlsx',
+        arrayBuffer: async () => rawBuf.buffer.slice(rawBuf.byteOffset, rawBuf.byteOffset + rawBuf.byteLength),
+      };
+
+      const parsed = await parseRawExcel(mockFile);
+      assert.strictEqual(parsed.rows.length, 2, 'Hidden row (4" Two-Way Cleanout Assembly) must be filtered out');
+      assert.strictEqual(parsed.rows[0]['Item Description'], '4" Schedule 40 PVC Drain');
+      assert.strictEqual(parsed.rows[1]['Item Description'], 'Floor Drain 3" Nickel Bronze Strainer');
     });
   });
 
@@ -315,6 +353,210 @@ describe('Excel & CSV Import Edge Cases (US-031 / 4 Friction Points)', () => {
       assert.strictEqual(result.items[1].quantity, 0);
       assert.strictEqual(result.items[1].hasMissingScope, true);
       assert.strictEqual(result.items[1].missingScopeReason, 'N/A');
+    });
+  });
+
+  describe('7. Standard Construction & Plumbing Data Model Alignments', () => {
+    it('1. Labor Hours vs Labor Cost: maps labor productivity hours and calculates hours from labor $/unit using hourly billing rate', () => {
+      const rawRows = [
+        {
+          system: 'Plumbing',
+          item_description: 'Water Heater 50 Gal',
+          size_spec: '50 Gallon Gas',
+          quantity: '2',
+          unit: 'EA',
+          labor_hours_per_unit: '4.5',
+        },
+        {
+          system: 'Sanitary',
+          item_description: 'Cleanout Assembly',
+          size_spec: '4" PVC',
+          quantity: '6',
+          unit: 'EA',
+          labor_unit_cost: '$130.00', // At $65/hr -> 2.0 hrs/unit
+        },
+      ];
+
+      const mapping = {
+        system: 'system',
+        item_description: 'item_description',
+        size_spec: 'size_spec',
+        quantity: 'quantity',
+        unit: 'unit',
+        labor_hours_per_unit: 'labor_hours_per_unit',
+        labor_unit_cost: 'labor_unit_cost',
+      };
+
+      const result = normalizeRowsWithMapping(rawRows, mapping, null, 65.0);
+      assert.strictEqual(result.items[0].laborHoursPerUnit, 4.5);
+      assert.strictEqual(result.items[1].laborHoursPerUnit, 2);
+      assert.strictEqual(result.items[1].laborUnitCost, 130);
+    });
+
+    it('2. Size / Spec deconstruction and string fallback: never defaults to numeric 0 and extracts embedded pipe spec from description', () => {
+      const rawRows = [
+        {
+          system: 'Plumbing',
+          item_description: '2-1/2" Type L Copper Domestic Water Piping',
+          quantity: '180',
+          unit: 'LF',
+        },
+        {
+          system: 'HVAC',
+          item_description: 'Exhaust Fan Roof Mount',
+          quantity: '3',
+          unit: 'EA',
+        },
+      ];
+
+      const mapping = {
+        system: 'system',
+        item_description: 'item_description',
+        quantity: 'quantity',
+        unit: 'unit',
+      };
+
+      const result = normalizeRowsWithMapping(rawRows, mapping);
+      assert.strictEqual(result.items[0].sizeSpec, '2-1/2" Type L Copper');
+      assert.strictEqual(result.items[0].description, 'Domestic Water Piping');
+      assert.strictEqual(result.items[1].sizeSpec, '', 'Missing sizeSpec should be empty string, never numeric 0');
+
+      // Test masonry dimension extraction: 8x8x16
+      const masonryRow = [{ system: 'Masonry', item_description: 'Architectural Concrete Masonry Units 8x8x16', quantity: '100', unit: 'EA' }];
+      const masonryResult = normalizeRowsWithMapping(masonryRow, mapping);
+      assert.strictEqual(masonryResult.items[0].sizeSpec, '8x8x16');
+      assert.strictEqual(masonryResult.items[0].description, 'Architectural Concrete Masonry Units');
+    });
+
+    it('2b. Derived labor hours rounds to 2 decimal places to avoid floating-point drift', () => {
+      const rawRows = [
+        {
+          system: 'Electrical',
+          item_description: 'Service Entrance Cable',
+          quantity: '100',
+          unit: 'LF',
+          labor_unit_cost: '$14.27', // $14.27 / 65 = 0.219538... -> 0.22
+        },
+        {
+          system: 'Drywall',
+          item_description: 'Sheetrock 5/8',
+          quantity: '500',
+          unit: 'SF',
+          labor_unit_cost: '$8.75', // $8.75 / 65 = 0.134615... -> 0.13
+        },
+      ];
+
+      const mapping = {
+        system: 'system',
+        item_description: 'item_description',
+        quantity: 'quantity',
+        unit: 'unit',
+        labor_unit_cost: 'labor_unit_cost',
+      };
+
+      const result = normalizeRowsWithMapping(rawRows, mapping, null, 65.0);
+      assert.strictEqual(result.items[0].laborHoursPerUnit, 0.22);
+      assert.strictEqual(result.items[1].laborHoursPerUnit, 0.13);
+    });
+
+    it('3. Optional Trench / Civil Dimensions: preserves null when avg_depth_ft column is omitted from sheet', () => {
+      const rawRows = [
+        {
+          system: 'Electrical',
+          item_description: 'Conduit 2" EMT',
+          size_spec: '2" EMT',
+          quantity: '200',
+          unit: 'LF',
+        },
+      ];
+
+      const mappingWithoutDepth = {
+        system: 'system',
+        item_description: 'item_description',
+        size_spec: 'size_spec',
+        quantity: 'quantity',
+        unit: 'unit',
+      };
+
+      const result = normalizeRowsWithMapping(rawRows, mappingWithoutDepth);
+      assert.strictEqual(result.items[0].avgDepthFt, null, 'Omitted avg_depth_ft should be null');
+    });
+
+    it('4. Placeholder Scope & Cost Flags: detects placeholders (TBD, N/A, PENDING, HOLD, UNKNOWN) in cost cells and sets has_placeholder_scope flag', () => {
+      const rawRows = [
+        {
+          system: 'Masonry',
+          item_description: 'Concrete Masonry Unit 8x8x16',
+          size_spec: '8x8x16 Lightweight',
+          quantity: '1200',
+          unit: 'EA',
+          material_cost_per_unit: 'N/A',
+          labor_unit_cost: 'TBD',
+        },
+        {
+          system: 'Site Utilities',
+          item_description: '6" Storm Drain SDR-35',
+          size_spec: 'SDR-35',
+          quantity: '500',
+          unit: 'cu. yds',
+          material_cost_per_unit: 'HOLD',
+          labor_unit_cost: 'UNKNOWN',
+        },
+      ];
+
+      const mapping = {
+        system: 'system',
+        item_description: 'item_description',
+        size_spec: 'size_spec',
+        quantity: 'quantity',
+        unit: 'unit',
+        material_cost_per_unit: 'material_cost_per_unit',
+        labor_unit_cost: 'labor_unit_cost',
+      };
+
+      const result = normalizeRowsWithMapping(rawRows, mapping);
+      assert.strictEqual(result.items[0].has_placeholder_scope, true);
+      assert.strictEqual(result.items[0].hasMissingScope, true);
+      assert.strictEqual(result.items[0].materialCostPerUnit, 0);
+      assert.strictEqual(result.items[0].missingScopeReason, 'N/A');
+
+      assert.strictEqual(result.items[1].has_placeholder_scope, true);
+      assert.strictEqual(result.items[1].unit, 'CY');
+      assert.strictEqual(result.items[1].materialCostPerUnit, 0);
+      assert.strictEqual(result.items[1].laborHoursPerUnit, 0);
+      assert.strictEqual(result.items[1].missingScopeReason, 'HOLD');
+    });
+
+    it('5. Refined composite size extraction: prioritizes compound specs like SDR-35, SCH-40 over bare numbers', () => {
+      const testCases = [
+        { input: 'Direct Burial SDR-35', expectedSize: 'SDR-35', expectedDesc: 'Direct Burial' },
+        { input: '4" SCH-40 PVC Conduit', expectedSize: '4" SCH-40 PVC', expectedDesc: 'Conduit' },
+        { input: '8x8x16 CMU Block', expectedSize: '8x8x16', expectedDesc: 'CMU Block' },
+        { input: 'Reinforced Concrete Pipe Class III', expectedSize: 'Class III', expectedDesc: 'Reinforced Concrete Pipe' },
+      ];
+
+      for (const tc of testCases) {
+        const { cleanDescription, sizeSpec } = deconstructDescription(tc.input);
+        assert.strictEqual(sizeSpec, tc.expectedSize, `Failed size extraction for: ${tc.input}`);
+        assert.strictEqual(cleanDescription, tc.expectedDesc, `Failed desc extraction for: ${tc.input}`);
+      }
+    });
+
+    it('6. Expanded UOM normalization: converts plural and dotted variants to standard abbreviations', () => {
+      const uomCases = [
+        { raw: 'cu. yds', expected: 'CY' },
+        { raw: 'cu. yd.', expected: 'CY' },
+        { raw: 'cu yds', expected: 'CY' },
+        { raw: 'sq. yds', expected: 'SY' },
+        { raw: 'l.f.', expected: 'LF' },
+        { raw: 'ft.', expected: 'LF' },
+        { raw: 'hrs.', expected: 'HR' },
+        { raw: 'm³', expected: 'CY' },
+      ];
+
+      for (const { raw, expected } of uomCases) {
+        assert.strictEqual(normalizeUnit(raw), expected, `UOM mismatch for '${raw}'`);
+      }
     });
   });
 });

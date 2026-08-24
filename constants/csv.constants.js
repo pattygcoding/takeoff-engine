@@ -10,16 +10,20 @@ export const CSV_COLUMNS = [
   'unit',
   'avg_depth_ft',
   'material_cost_per_unit',
+  'labor_hours_per_unit',
+  'labor_unit_cost',
 ];
 
 export const TARGET_FIELDS = [
   { key: 'system', label: 'System / Trade', required: true, description: 'Category, Trade, Division, or Phase group' },
   { key: 'item_description', label: 'Item / Description', required: true, description: 'Material name, scope description, or line item' },
-  { key: 'size_spec', label: 'Size / Spec', required: true, description: 'Pipe diameter, material class, or dimension spec' },
+  { key: 'size_spec', label: 'Size / Spec', required: false, description: 'Pipe diameter, material class, or dimension spec' },
   { key: 'quantity', label: 'Quantity', required: true, description: 'Length (LF), count (EA), area (SF), or volume (CY)' },
   { key: 'unit', label: 'Unit of Measure', required: true, description: 'LF, EA, CY, SF, TON, LS, etc.' },
   { key: 'avg_depth_ft', label: 'Avg Trench Depth (FT)', required: false, description: 'Optional depth for trench earthwork & backfill math' },
   { key: 'material_cost_per_unit', label: 'Material $/Unit', required: false, description: 'Unit material price or cost per unit' },
+  { key: 'labor_hours_per_unit', label: 'Labor Hrs/Unit', required: false, description: 'Crew productivity hours per unit (e.g. 0.25 hrs/LF)' },
+  { key: 'labor_unit_cost', label: 'Labor $/Unit', required: false, description: 'Labor dollar rate per unit (e.g. $15.50/LF)' },
 ];
 
 export const COLUMN_ALIASES = {
@@ -82,6 +86,18 @@ export const COLUMN_ALIASES = {
     'cost/unit', 'price / unit', 'cost / unit', 'material $/uom', 'precio unitario', 'costo unitario',
     'mat $/ea', 'mat $/lf', 'mat price', 'mat rate', 'unit $/mat', 'material $'
   ],
+  labor_hours_per_unit: [
+    'labor_hours_per_unit', 'labor hours per unit', 'labor hrs/unit', 'labor hrs / unit',
+    'hours/unit', 'hours / unit', 'hrs/unit', 'hrs / unit', 'man hours', 'manhours',
+    'man hours/unit', 'labor hours', 'labor hrs', 'hrs/lf', 'hrs/ea', 'hrs/cy', 'hrs/sf',
+    'horas de trabajo', 'horas/unidad', 'heures de travail', 'horas de mao de obra'
+  ],
+  labor_unit_cost: [
+    'labor_unit_cost', 'labor unit cost', 'labor $/unit', 'labor $/uom', 'labor cost/unit',
+    'labor cost per unit', 'labor rate', 'labor unit price', 'labor price/unit', 'labor cost',
+    'labor price', 'labor $', 'labor $/ea', 'labor $/lf', 'labor $/sf', 'labor $/cy',
+    'costo de mano de obra', 'precio mano de obra', 'cout de main d oeuvre'
+  ],
 };
 
 /**
@@ -128,40 +144,42 @@ export const CSI_DIVISIONS = {
  */
 export const UNIT_NORMALIZATIONS = {
   // Linear Feet / Length
-  lf: 'LF', 'l.f.': 'LF', 'lin ft': 'LF', 'lin. ft.': 'LF', 'linear feet': 'LF',
-  'linear foot': 'LF', ft: 'LF', feet: 'LF', lft: 'LF', ml: 'LF', meter: 'LF', meters: 'LF',
-  m: 'LF', lm: 'LF', 'lin m': 'LF', 'linear meter': 'LF', 'linear meters': 'LF',
+  lf: 'LF', 'l.f.': 'LF', 'l.f': 'LF', 'lin ft': 'LF', 'lin. ft.': 'LF', 'lin. ft': 'LF', 'lin ft.': 'LF',
+  'linear feet': 'LF', 'linear foot': 'LF', ft: 'LF', 'ft.': 'LF', feet: 'LF', lft: 'LF', 'lft.': 'LF',
+  ml: 'LF', meter: 'LF', meters: 'LF', m: 'LF', lm: 'LF', 'lin m': 'LF', 'linear meter': 'LF', 'linear meters': 'LF',
 
   // Each / Item / Count
-  ea: 'EA', 'e.a.': 'EA', each: 'EA', pcs: 'EA', piece: 'EA', pieces: 'EA',
+  ea: 'EA', 'e.a.': 'EA', 'e.a': 'EA', each: 'EA', pcs: 'EA', 'pcs.': 'EA', piece: 'EA', pieces: 'EA',
   item: 'EA', items: 'EA', count: 'EA', un: 'EA', und: 'EA', unit: 'EA', units: 'EA',
   nr: 'EA', no: 'EA', 'no.': 'EA', pza: 'EA', pzas: 'EA',
 
   // Cubic Yards / Volume
-  cy: 'CY', 'c.y.': 'CY', 'cu yd': 'CY', 'cu. yd.': 'CY', 'cu yds': 'CY', 'cu. yds.': 'CY',
-  'cubic yards': 'CY', 'cubic yard': 'CY', yds3: 'CY', yd3: 'CY', m3: 'CY', 'cu m': 'CY',
+  cy: 'CY', 'c.y.': 'CY', 'c.y': 'CY', 'cu yd': 'CY', 'cu. yd.': 'CY', 'cu. yd': 'CY', 'cu yd.': 'CY',
+  'cu yds': 'CY', 'cu. yds.': 'CY', 'cu. yds': 'CY', 'cu yds.': 'CY',
+  'cubic yards': 'CY', 'cubic yard': 'CY', yds3: 'CY', yd3: 'CY', m3: 'CY', 'm³': 'CY', 'cu m': 'CY', 'cu. m': 'CY', 'cu. m.': 'CY',
   'cubic meters': 'CY', 'cubic meter': 'CY',
 
   // Square Feet / Area
-  sf: 'SF', 's.f.': 'SF', 'sq ft': 'SF', 'sq. ft.': 'SF', 'sq feet': 'SF',
-  'square feet': 'SF', 'square foot': 'SF', ft2: 'SF', sqft: 'SF', 'sq.ft.': 'SF',
-  m2: 'SF', 'm²': 'SF', 'sq m': 'SF', 'sq. m.': 'SF', 'square meter': 'SF', 'square meters': 'SF',
+  sf: 'SF', 's.f.': 'SF', 's.f': 'SF', 'sq ft': 'SF', 'sq. ft.': 'SF', 'sq. ft': 'SF', 'sq ft.': 'SF',
+  'sq feet': 'SF', 'square feet': 'SF', 'square foot': 'SF', ft2: 'SF', 'ft²': 'SF', sqft: 'SF', 'sq.ft.': 'SF', 'sq.ft': 'SF',
+  m2: 'SF', 'm²': 'SF', 'sq m': 'SF', 'sq. m.': 'SF', 'sq. m': 'SF', 'square meter': 'SF', 'square meters': 'SF',
   area: 'SF',
 
   // Square Yards
-  sy: 'SY', 's.y.': 'SY', 'sq yd': 'SY', 'sq. yd.': 'SY', 'sq yds': 'SY', 'sq. yds.': 'SY',
-  'square yards': 'SY', 'square yard': 'SY', yd2: 'SY', sqyd: 'SY',
+  sy: 'SY', 's.y.': 'SY', 's.y': 'SY', 'sq yd': 'SY', 'sq. yd.': 'SY', 'sq. yd': 'SY', 'sq yd.': 'SY',
+  'sq yds': 'SY', 'sq. yds.': 'SY', 'sq. yds': 'SY', 'sq yds.': 'SY',
+  'square yards': 'SY', 'square yard': 'SY', yd2: 'SY', 'yd²': 'SY', sqyd: 'SY',
 
   // Tons / Weight
-  tn: 'TON', 't.n.': 'TON', ton: 'TON', tons: 'TON', 'tn.': 'TON', tonne: 'TON', tonnes: 'TON',
+  tn: 'TON', 't.n.': 'TON', 't.n': 'TON', ton: 'TON', tons: 'TON', 'tn.': 'TON', tonne: 'TON', tonnes: 'TON',
   to: 'TON', t: 'TON',
 
   // Lump Sum / Global
-  ls: 'LS', 'l.s.': 'LS', lump: 'LS', 'lump sum': 'LS', gl: 'LS', global: 'LS',
+  ls: 'LS', 'l.s.': 'LS', 'l.s': 'LS', lump: 'LS', 'lump sum': 'LS', gl: 'LS', global: 'LS',
   sum: 'LS', lot: 'LS', set: 'LS',
 
   // Hours / Labor Time
-  hr: 'HR', hrs: 'HR', hour: 'HR', hours: 'HR', h: 'HR', mh: 'HR', 'man hours': 'HR',
+  hr: 'HR', 'hr.': 'HR', hrs: 'HR', 'hrs.': 'HR', hour: 'HR', hours: 'HR', h: 'HR', mh: 'HR', 'man hours': 'HR', 'man-hours': 'HR',
 };
 
 export const EXCEL_EXTENSIONS = ['.xlsx', '.xls', '.xlsm', '.xlsb'];

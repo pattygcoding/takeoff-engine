@@ -1404,7 +1404,11 @@
       "avgDepthFtLabel": "Avg Trench Depth (FT)",
       "avgDepthFtDesc": "Optional depth for trench earthwork & backfill math",
       "materialCostPerUnitLabel": "Material $/Unit",
-      "materialCostPerUnitDesc": "Unit material price or cost per unit"
+      "materialCostPerUnitDesc": "Unit material price or cost per unit",
+      "laborHoursPerUnitLabel": "Labor Hrs/Unit",
+      "laborHoursPerUnitDesc": "Crew productivity hours per unit (e.g. 0.25 hrs/LF)",
+      "laborUnitCostLabel": "Labor $/Unit",
+      "laborUnitCostDesc": "Labor dollar rate per unit (e.g. $15.50/LF)"
     },
     "defaultCategory": "General Takeoff",
     "defaultDescription": "Takeoff Item",

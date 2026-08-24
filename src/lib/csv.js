@@ -25,11 +25,13 @@ export function getTargetFields(customT = null) {
   return [
     { key: 'system', label: t('csvParser.targetFields.systemLabel'), required: true, description: t('csvParser.targetFields.systemDesc') },
     { key: 'item_description', label: t('csvParser.targetFields.itemDescriptionLabel'), required: true, description: t('csvParser.targetFields.itemDescriptionDesc') },
-    { key: 'size_spec', label: t('csvParser.targetFields.sizeSpecLabel'), required: true, description: t('csvParser.targetFields.sizeSpecDesc') },
+    { key: 'size_spec', label: t('csvParser.targetFields.sizeSpecLabel'), required: false, description: t('csvParser.targetFields.sizeSpecDesc') },
     { key: 'quantity', label: t('csvParser.targetFields.quantityLabel'), required: true, description: t('csvParser.targetFields.quantityDesc') },
     { key: 'unit', label: t('csvParser.targetFields.unitLabel'), required: true, description: t('csvParser.targetFields.unitDesc') },
     { key: 'avg_depth_ft', label: t('csvParser.targetFields.avgDepthFtLabel'), required: false, description: t('csvParser.targetFields.avgDepthFtDesc') },
     { key: 'material_cost_per_unit', label: t('csvParser.targetFields.materialCostPerUnitLabel', 'Material $/Unit'), required: false, description: t('csvParser.targetFields.materialCostPerUnitDesc', 'Unit material price or cost per unit') },
+    { key: 'labor_hours_per_unit', label: t('csvParser.targetFields.laborHoursPerUnitLabel', 'Labor Hrs/Unit'), required: false, description: t('csvParser.targetFields.laborHoursPerUnitDesc', 'Crew productivity hours per unit') },
+    { key: 'labor_unit_cost', label: t('csvParser.targetFields.laborUnitCostLabel', 'Labor $/Unit'), required: false, description: t('csvParser.targetFields.laborUnitCostDesc', 'Labor dollar rate per unit') },
   ];
 }
 
@@ -231,14 +233,14 @@ export function cleanNumericValue(val) {
 
 /**
  * Extract embedded units & clean number from composite cells.
- * Also detects placeholder / TBD tokens (e.g. "TBD", "N/A", "HOLD", "PENDING", "BY OTHERS").
+ * Also detects placeholder / TBD tokens (e.g. "TBD", "N/A", "HOLD", "PENDING", "UNKNOWN", "BY OTHERS", "TBA").
  */
 export function parseQuantityAndUnit(rawVal, fallbackUnit = 'LF') {
   if (rawVal === null || rawVal === undefined) return { quantity: 0, unit: fallbackUnit, isPlaceholder: false };
   if (typeof rawVal === 'number') return { quantity: rawVal, unit: fallbackUnit, isPlaceholder: false };
 
   const str = String(rawVal).trim();
-  const isPlaceholder = /^(tbd|n\/a|na|pending|hold|t\.b\.d\.|to\s*be\s*determined|by\s*others|tba)$/i.test(str);
+  const isPlaceholder = /^(tbd|n\/a|na|pending|hold|unknown|t\.b\.d\.|to\s*be\s*determined|by\s*others|tba)$/i.test(str);
 
   if (isPlaceholder) {
     return {
@@ -262,26 +264,72 @@ export function parseQuantityAndUnit(rawVal, fallbackUnit = 'LF') {
 
 /**
  * Deconstruct composite description string if size or pipe diameter is embedded inside it.
+ * Prioritizes compound construction specs before dimensional tokens, and avoids matching isolated bare integers.
+ * e.g. "Direct Burial SDR-35" -> { description: "Direct Burial", sizeSpec: "SDR-35" }
  * e.g. "8\" PVC SDR-35 Mainline" -> { description: "Mainline", sizeSpec: "8\" PVC SDR-35" }
+ * e.g. "2-1/2\" Type L Copper Domestic Water Piping" -> { description: "Domestic Water Piping", sizeSpec: "2-1/2\" Type L Copper" }
+ * e.g. "Architectural Concrete Masonry Units 8x8x16" -> { description: "Architectural Concrete Masonry Units", sizeSpec: "8x8x16" }
  */
 export function deconstructDescription(rawDesc = '', currentSize = '', customT = null) {
   const t = customT || getTranslation;
-  if (currentSize && currentSize.trim() !== '') {
-    return { description: rawDesc.trim(), sizeSpec: currentSize.trim() };
+  if (currentSize !== null && currentSize !== undefined && String(currentSize).trim() !== '') {
+    const cleanDesc = String(rawDesc || '').trim();
+    return {
+      description: cleanDesc,
+      cleanDescription: cleanDesc,
+      sizeSpec: String(currentSize).trim(),
+    };
   }
 
   const desc = String(rawDesc || '').trim();
-  // Match common pipe size patterns: 6", 8-Inch, 24" x 24", 12' HDPE, etc.
-  const sizeMatch = desc.match(/(\d+(?:\.\d+)?(?:\/\d+)?(?:\s*(?:\"|inch|in|')|\s*-\s*inch)?(?:\s*(?:pvc|hdpe|rcp|dip|c900|sdr-?\d+|class\s*\d+|type\s*[a-z0-9]+|dia|diameter|precast|iron))?)/i);
+  if (!desc) return { description: '', cleanDescription: '', sizeSpec: '' };
 
-  if (sizeMatch && sizeMatch[0].length >= 2) {
-    const sizeSpec = sizeMatch[0].trim();
-    let cleanDesc = desc.replace(sizeSpec, '').replace(/^[-–—:\s]+|[-–—:\s]+$/g, '').trim();
-    if (!cleanDesc) cleanDesc = desc;
-    return { description: cleanDesc, sizeSpec };
+  // 1. Full composite with dimension AND specification/material (e.g. '8" PVC SDR-35', '2-1/2" Type L Copper', '24" Class III RCP')
+  // We exclude general product type nouns like 'cmu' or 'pipe' from the sizeSpec itself unless preceded by a standard pipe/structural material spec
+  const compositeMatch = desc.match(/\b(\d+(?:[-/]\d+)?(?:\/\d+)?(?:\.\d+)?(?:\s*(?:\"|inch|in|'|mm|cm)|\s*-\s*inch)?(?:\s*(?:type\s*[a-z0-9]+|class\s+[ivx\d]+|class\s*\d+|sdr-?\d+|sch(?:edule)?-?\d+|c\d{3}))?(?:\s+(?:pvc|hdpe|rcp|dip|c900|copper|ductile\s*iron|steel|iron|brass))?)\b/i);
+
+  if (compositeMatch && compositeMatch[0].trim().length >= 2 && /[0-9]/.test(compositeMatch[0])) {
+    const candidate = compositeMatch[0].trim();
+    // Ensure candidate is not just a bare un-dimensioned word or number
+    if (/(?:\"|inch|in|'|mm|cm|x|by|\*|sdr|sch|class|type|c\d{3}|pvc|hdpe|rcp|dip|c900|copper|precast)/i.test(candidate)) {
+      let cleanDesc = desc.replace(candidate, '').replace(/^[-–—:\s]+|[-–—:\s]+$/g, '').trim();
+      if (!cleanDesc) cleanDesc = desc;
+      return { description: cleanDesc, cleanDescription: cleanDesc, sizeSpec: candidate };
+    }
   }
 
-  return { description: desc, sizeSpec: currentSize || t('csvParser.defaultSizeSpec') };
+  // 2. Standalone Compound Specifications: SDR-35, SCH-40, Schedule 80, Class III, Class 52, C900, C905
+  const compoundSpecMatch = desc.match(/\b(SDR[-\s]?\d+|SCH(?:EDULE)?[-\s]?\d+|C\d{3}|Class\s+[IVX\d]+|Type\s+[A-Z0-9]+)\b/i);
+  if (compoundSpecMatch) {
+    const specToken = compoundSpecMatch[0].trim();
+    let cleanDesc = desc.replace(specToken, '').replace(/^[-–—:\s]+|[-–—:\s]+$/g, '').trim();
+    if (!cleanDesc) cleanDesc = desc;
+    return { description: cleanDesc, cleanDescription: cleanDesc, sizeSpec: specToken };
+  }
+
+  // 3. Multi-dimensional specs: 8x8x16, 24" x 24", 12x12
+  const multiDimMatch = desc.match(/\b(\d+(?:[-/]\d+)?(?:\.\d+)?(?:\s*(?:\"|inch|in|'|mm|cm))?\s*(?:x|by|\*)\s*\d+(?:[-/]\d+)?(?:\.\d+)?(?:\s*(?:\"|inch|in|'|mm|cm))?(?:\s*(?:x|by|\*)\s*\d+(?:[-/]\d+)?(?:\.\d+)?(?:\s*(?:\"|inch|in|'|mm|cm))?)?)\b/i);
+  if (multiDimMatch) {
+    const dimToken = multiDimMatch[0].trim();
+    let cleanDesc = desc.replace(dimToken, '').replace(/^[-–—:\s]+|[-–—:\s]+$/g, '').trim();
+    if (!cleanDesc) cleanDesc = desc;
+    return { description: cleanDesc, cleanDescription: cleanDesc, sizeSpec: dimToken };
+  }
+
+  // 4. Explicit Single Dimensions: 6", 8-Inch, 24-in, 48' (must have dimension suffix or 'dia' to prevent matching bare numbers)
+  const singleDimMatch = desc.match(/\b(\d+(?:[-/]\d+)?(?:\/\d+)?(?:\.\d+)?\s*(?:\"|inch|inches|in\b|'|mm\b|cm\b|\s*-\s*inch|dia(?:\.|\b)|diameter))\b/i);
+  if (singleDimMatch) {
+    const dimToken = singleDimMatch[0].trim();
+    let cleanDesc = desc.replace(dimToken, '').replace(/^[-–—:\s]+|[-–—:\s]+$/g, '').trim();
+    if (!cleanDesc) cleanDesc = desc;
+    return { description: cleanDesc, cleanDescription: cleanDesc, sizeSpec: dimToken };
+  }
+
+  return {
+    description: desc,
+    cleanDescription: desc,
+    sizeSpec: currentSize ? String(currentSize).trim() : '',
+  };
 }
 
 /**
@@ -579,15 +627,16 @@ export function classifyRow(rawRow, mapping) {
   const rowValues = Object.values(rawRow || {}).map((v) => String(v ?? '').trim());
   const rowText = rowValues.join(' ').toLowerCase();
 
-  // 1. Check for empty row
-  if (rowValues.every((v) => v === '')) {
+  // 1. Check for empty row or blank/zero divider rows (e.g. decorative divider bars or formula error rows)
+  const nonEmptyValues = rowValues.filter((v) => v !== '');
+  if (nonEmptyValues.length === 0 || nonEmptyValues.every((v) => v === '0' || v === '0.00' || v === '-')) {
     return { type: 'empty' };
   }
 
   // 2. Check for Subtotal / Grand Total / Formula Summary Row
   if (
     /^(total|subtotal|sub-total|sum|summary|grand\s*total|balance|net\s*total)/i.test(rowText) ||
-    rowValues.some((v) => /^=(sum|subtotal)/i.test(v))
+    rowValues.some((v) => /^sub-?total/i.test(v) || /^total/i.test(v) || /^=(sum|subtotal)/i.test(v))
   ) {
     const qtyVal = mapping.quantity ? cleanNumericValue(rawRow[mapping.quantity]) : NaN;
     return {
@@ -625,13 +674,16 @@ export function classifyRow(rawRow, mapping) {
  * Normalizes raw rows using deterministic schema mapping, category hierarchy inheritance,
  * dirty unit splitting, and subtotal checksum calculation.
  */
-export function normalizeRowsWithMapping(rawRows = [], mapping = {}, customT = null) {
+export function normalizeRowsWithMapping(rawRows = [], mapping = {}, customT = null, defaultLaborRate = null) {
   const t = customT || getTranslation;
   const errors = [];
   const items = [];
   let currentGroup = t('csvParser.defaultCategory');
   let totalDetectedSubtotals = 0;
   let parsedQuantitySum = 0;
+
+  // Check if default crew/labor hourly rate is supplied, or fallback to default standard rate ($65/hr)
+  const fallbackLaborHourlyRate = typeof defaultLaborRate === 'number' && defaultLaborRate > 0 ? defaultLaborRate : 65.0;
 
   rawRows.forEach((rawRow, idx) => {
     const rowNum = idx + 2;
@@ -660,6 +712,8 @@ export function normalizeRowsWithMapping(rawRows = [], mapping = {}, customT = n
     const rawUnit = mapping.unit ? sanitizeCellString(rawRow[mapping.unit]) : '';
     const rawQty = mapping.quantity ? cleanFormulaError(rawRow[mapping.quantity]) : undefined;
     const rawMatCost = mapping.material_cost_per_unit ? cleanFormulaError(rawRow[mapping.material_cost_per_unit]) : undefined;
+    const rawLaborHrs = mapping.labor_hours_per_unit ? cleanFormulaError(rawRow[mapping.labor_hours_per_unit]) : undefined;
+    const rawLaborCost = mapping.labor_unit_cost ? cleanFormulaError(rawRow[mapping.labor_unit_cost]) : undefined;
 
     // Resolve CSI division / system codes (e.g. 02-31-00 -> 02 - Existing Conditions)
     const resolvedSystem = resolveCsiSystem(rawSystem);
@@ -671,7 +725,7 @@ export function normalizeRowsWithMapping(rawRows = [], mapping = {}, customT = n
     const { description, sizeSpec } = deconstructDescription(rawDescription, rawSize, t);
 
     // Extract quantity and embedded unit (supports accounting negatives and placeholder tokens like TBD)
-    const { quantity, unit: detectedUnit, isPlaceholder, rawToken } = parseQuantityAndUnit(rawQty, rawUnit ? normalizeUnit(rawUnit) : 'LF');
+    const { quantity, unit: detectedUnit, isPlaceholder: isQtyPlaceholder, rawToken: qtyToken } = parseQuantityAndUnit(rawQty, rawUnit ? normalizeUnit(rawUnit) : 'LF');
 
     if (!description && !rawSize) {
       // Row has no identifying text description
@@ -679,31 +733,84 @@ export function normalizeRowsWithMapping(rawRows = [], mapping = {}, customT = n
     }
 
     // If quantity is NaN or 0 without being an intentional placeholder (TBD/N/A), flag validation warning
-    if (Number.isNaN(quantity) || (quantity === 0 && !isPlaceholder)) {
+    if (Number.isNaN(quantity) || (quantity === 0 && !isQtyPlaceholder)) {
       if (description) {
         errors.push(t('csvParser.errors.invalidRowQuantity', { row: rowNum, description, rawQty: rawQty !== undefined && rawQty !== null ? rawQty : 'N/A' }));
       }
       return;
     }
 
-    // Material Cost per Unit extraction ($/unit)
+    // Material Cost per Unit extraction ($/unit) and placeholder check
     let materialCostPerUnit = 0;
+    let isMatPlaceholder = false;
+    let matPlaceholderToken = null;
     if (rawMatCost !== undefined && rawMatCost !== null && rawMatCost !== '') {
-      const parsedMatCost = cleanNumericValue(rawMatCost);
-      if (!Number.isNaN(parsedMatCost)) {
-        materialCostPerUnit = parsedMatCost;
+      const matStr = String(rawMatCost).trim();
+      if (/^(tbd|n\/a|na|pending|hold|unknown|t\.b\.d\.|to\s*be\s*determined|by\s*others|tba)$/i.test(matStr)) {
+        isMatPlaceholder = true;
+        matPlaceholderToken = matStr;
+        materialCostPerUnit = 0;
+      } else {
+        const parsedMatCost = cleanNumericValue(rawMatCost);
+        if (!Number.isNaN(parsedMatCost)) {
+          materialCostPerUnit = parsedMatCost;
+        }
       }
     }
 
-    // Depth extraction
-    let avgDepthFt = 0;
-    if (mapping.avg_depth_ft && rawRow[mapping.avg_depth_ft] !== undefined && rawRow[mapping.avg_depth_ft] !== '') {
+    // Labor Hours vs Labor Cost Resolution
+    let laborHoursPerUnit = 0;
+    let laborUnitCost = 0;
+    let isLaborPlaceholder = false;
+    let laborPlaceholderToken = null;
+
+    if (rawLaborHrs !== undefined && rawLaborHrs !== null && rawLaborHrs !== '') {
+      const laborHrsStr = String(rawLaborHrs).trim();
+      if (/^(tbd|n\/a|na|pending|hold|unknown|t\.b\.d\.|to\s*be\s*determined|by\s*others|tba)$/i.test(laborHrsStr)) {
+        isLaborPlaceholder = true;
+        laborPlaceholderToken = laborHrsStr;
+      } else {
+        const parsedHrs = cleanNumericValue(rawLaborHrs);
+        if (!Number.isNaN(parsedHrs)) {
+          laborHoursPerUnit = parsedHrs;
+        }
+      }
+    }
+
+    if (rawLaborCost !== undefined && rawLaborCost !== null && rawLaborCost !== '') {
+      const laborCostStr = String(rawLaborCost).trim();
+      if (/^(tbd|n\/a|na|pending|hold|unknown|t\.b\.d\.|to\s*be\s*determined|by\s*others|tba)$/i.test(laborCostStr)) {
+        isLaborPlaceholder = true;
+        laborPlaceholderToken = laborCostStr;
+      } else {
+        const parsedCost = cleanNumericValue(rawLaborCost);
+        if (!Number.isNaN(parsedCost)) {
+          laborUnitCost = parsedCost;
+          // If labor hours per unit wasn't explicitly supplied, compute labor_hours_per_unit from dollar cost
+          // Round to 2 decimal places to avoid floating-point drift (e.g. 0.1346... -> 0.13, 64.6154... -> 64.62)
+          if (laborHoursPerUnit === 0 && fallbackLaborHourlyRate > 0) {
+            laborHoursPerUnit = Math.round((parsedCost / fallbackLaborHourlyRate) * 100) / 100;
+          }
+        }
+      }
+    }
+
+    // Depth extraction: Preserve null if column is not mapped / omitted from the sheet
+    let avgDepthFt = null;
+    if (mapping.avg_depth_ft && rawRow[mapping.avg_depth_ft] !== undefined && rawRow[mapping.avg_depth_ft] !== null && rawRow[mapping.avg_depth_ft] !== '') {
       const depthVal = cleanFormulaError(rawRow[mapping.avg_depth_ft]);
       const depthNum = cleanNumericValue(depthVal);
       if (!Number.isNaN(depthNum)) {
         avgDepthFt = depthNum;
+      } else {
+        avgDepthFt = 0;
       }
+    } else if (mapping.avg_depth_ft && (rawRow[mapping.avg_depth_ft] === 0 || rawRow[mapping.avg_depth_ft] === '0')) {
+      avgDepthFt = 0;
     }
+
+    const hasPlaceholderScope = isQtyPlaceholder || isMatPlaceholder || isLaborPlaceholder;
+    const placeholderReason = qtyToken || matPlaceholderToken || laborPlaceholderToken || 'TBD';
 
     parsedQuantitySum += quantity;
 
@@ -711,14 +818,16 @@ export function normalizeRowsWithMapping(rawRows = [], mapping = {}, customT = n
       id: nextId(),
       system,
       description: description || t('csvParser.defaultDescription'),
-      sizeSpec: sizeSpec || t('csvParser.defaultSizeSpec'),
+      sizeSpec: sizeSpec || '',
       quantity,
       unit: detectedUnit || 'LF',
       avgDepthFt,
       materialCostPerUnit,
-      laborHoursPerUnit: 0,
-      hasMissingScope: !!isPlaceholder,
-      missingScopeReason: isPlaceholder ? (rawToken || 'TBD') : null,
+      laborHoursPerUnit,
+      laborUnitCost: laborUnitCost || (laborHoursPerUnit * fallbackLaborHourlyRate),
+      hasMissingScope: !!hasPlaceholderScope,
+      has_placeholder_scope: !!hasPlaceholderScope,
+      missingScopeReason: hasPlaceholderScope ? placeholderReason : null,
     });
   });
 
@@ -945,17 +1054,19 @@ export function detectSideBySideTables(matrix = [], t = getTranslation) {
 
 /**
  * Multi-worksheet smart Excel (.xlsx, .xls, .xlsm, .xlsb) parser.
- * Unmerges merged cells, filters hidden rows/strikethrough items,
+ * Unmerges merged cells, filters hidden rows,
  * extracts cached calculated values, and detects side-by-side tables.
  */
 export async function parseRawExcel(file, selectedSheetName = null, selectedTableId = null) {
   const XLSX = await import('xlsx');
+
   const buffer = await file.arrayBuffer();
-  // cellFormula: false / cellNF / cellStyles: true ensures cached values (.v / .w) are read directly
+  // cellFormula: false / cellNF / cellHTML: false / dense: false ensures cached values and row metadata are read
   const workbook = XLSX.read(buffer, {
     type: 'array',
     cellFormula: true,
     cellDates: true,
+    cellNF: true,
     cellStyles: true,
   });
 
@@ -997,7 +1108,7 @@ export async function parseRawExcel(file, selectedSheetName = null, selectedTabl
     });
   }
 
-  // Convert worksheet to raw 2D array matrix for sniffing using cached values and strikethrough/hidden filters
+  // Convert worksheet to raw 2D array matrix for sniffing using cached values and hidden row filters
   const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:A1');
   const matrix = [];
 
@@ -1008,7 +1119,6 @@ export async function parseRawExcel(file, selectedSheetName = null, selectedTabl
     }
 
     const rowArr = [];
-    let hasStruckCell = false;
 
     for (let c = range.s.c; c <= range.e.c; c++) {
       const cellAddress = XLSX.utils.encode_cell({ r, c });
@@ -1017,11 +1127,6 @@ export async function parseRawExcel(file, selectedSheetName = null, selectedTabl
       if (!cell) {
         rowArr.push('');
         continue;
-      }
-
-      // Check strikethrough styling in font metadata (scope-eliminated line items)
-      if (cell.s?.font?.strike || cell.font?.strike || cell.s?.strike) {
-        hasStruckCell = true;
       }
 
       // Read cached evaluated value (.v or formatted .w) rather than broken unevaluated formula string
@@ -1035,11 +1140,6 @@ export async function parseRawExcel(file, selectedSheetName = null, selectedTabl
 
       // Sanitize carriage returns (Alt + Enter)
       rowArr.push(sanitizeCellString(cellValue));
-    }
-
-    // If an entire line item or its description is struck through with strikethrough, ignore the eliminated row
-    if (hasStruckCell) {
-      continue;
     }
 
     matrix.push(rowArr);
