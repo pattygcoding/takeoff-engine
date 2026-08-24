@@ -12,6 +12,7 @@ import {
   deconstructDescription,
   normalizeUnit,
   parseRawExcel,
+  autoDetectColumnMapping,
 } from '../src/lib/csv.js';
 import * as XLSX from 'xlsx';
 
@@ -557,6 +558,26 @@ describe('Excel & CSV Import Edge Cases (US-031 / 4 Friction Points)', () => {
       for (const { raw, expected } of uomCases) {
         assert.strictEqual(normalizeUnit(raw), expected, `UOM mismatch for '${raw}'`);
       }
+    });
+
+    it('7. Benchmark header mapping: avoids mapping Item # into item_description and maps Scope / Line Item Description', () => {
+      const benchmarkHeaders = [
+        'Item #',
+        'CSI MasterFormat',
+        'Scope / Line Item Description',
+        'Est Qty',
+        'UOM',
+        'Material Unit Rate',
+        'Labor Unit Rate'
+      ];
+      const { mapping } = autoDetectColumnMapping(benchmarkHeaders);
+
+      assert.strictEqual(mapping.system, 'CSI MasterFormat');
+      assert.strictEqual(mapping.item_description, 'Scope / Line Item Description');
+      assert.strictEqual(mapping.quantity, 'Est Qty');
+      assert.strictEqual(mapping.unit, 'UOM');
+      assert.strictEqual(mapping.material_cost_per_unit, 'Material Unit Rate');
+      assert.strictEqual(mapping.labor_unit_cost, 'Labor Unit Rate');
     });
   });
 });

@@ -4,6 +4,7 @@ import {
   CSV_COLUMNS,
   TARGET_FIELDS,
   COLUMN_ALIASES,
+  IGNORED_INDEX_HEADER_ALIASES,
   CSI_DIVISIONS,
   UNIT_NORMALIZATIONS,
   EXCEL_EXTENSIONS,
@@ -14,6 +15,7 @@ export {
   CSV_COLUMNS,
   TARGET_FIELDS,
   COLUMN_ALIASES,
+  IGNORED_INDEX_HEADER_ALIASES,
   CSI_DIVISIONS,
   UNIT_NORMALIZATIONS,
   EXCEL_EXTENSIONS,
@@ -528,6 +530,8 @@ export function extractHeadersAndRowsAtHeaderRow(matrix = [], headerRowIndex = 0
  * Multi-layer deterministic fuzzy column alias matcher with Levenshtein & data-type profiling lookahead.
  */
 export function autoDetectColumnMapping(headers = [], sampleDataRows = []) {
+  const ignoredIndexClean = IGNORED_INDEX_HEADER_ALIASES.map((a) => a.toLowerCase().replace(/[^a-z0-9]/g, ''));
+
   const normalizedHeaders = headers.map((h, index) => ({
     raw: h,
     index,
@@ -544,6 +548,9 @@ export function autoDetectColumnMapping(headers = [], sampleDataRows = []) {
     const cleanAliases = aliases.map((a) => a.toLowerCase().replace(/[^a-z0-9]/g, ''));
 
     for (const h of normalizedHeaders) {
+      if (key === 'item_description' && ignoredIndexClean.includes(h.clean)) {
+        continue;
+      }
       if (!matchedRawCols.has(h.raw) && cleanAliases.includes(h.clean)) {
         mapping[key] = h.raw;
         matchedRawCols.add(h.raw);
@@ -563,6 +570,7 @@ export function autoDetectColumnMapping(headers = [], sampleDataRows = []) {
 
     for (const h of normalizedHeaders) {
       if (matchedRawCols.has(h.raw)) continue;
+      if (key === 'item_description' && ignoredIndexClean.includes(h.clean)) continue;
 
       for (const alias of aliases) {
         // Direct substring match
@@ -635,8 +643,8 @@ export function classifyRow(rawRow, mapping) {
 
   // 2. Check for Subtotal / Grand Total / Formula Summary Row
   if (
-    /^(total|subtotal|sub-total|sum|summary|grand\s*total|balance|net\s*total)/i.test(rowText) ||
-    rowValues.some((v) => /^sub-?total/i.test(v) || /^total/i.test(v) || /^=(sum|subtotal)/i.test(v))
+    /^(total|subtotal|sub-total|sum|summary|grand\s*total|balance|net\s*total|direct\s*cost|direct\s*cost\s*sub-?total)/i.test(rowText) ||
+    rowValues.some((v) => /^sub-?total/i.test(v) || /^total/i.test(v) || /^direct\s*cost/i.test(v) || /^=(sum|subtotal)/i.test(v))
   ) {
     const qtyVal = mapping.quantity ? cleanNumericValue(rawRow[mapping.quantity]) : NaN;
     return {
@@ -645,9 +653,9 @@ export function classifyRow(rawRow, mapping) {
     };
   }
 
-  // 3. Check for Metadata / Notes / Signatures
+  // 3. Check for Metadata / Notes / Signatures / Markups & Overhead
   if (
-    /(page\s*\d+\s*of\s*\d+|prepared\s*by|approved\s*by|terms\s*and\s*conditions|date:|authorized\s*signature|notice:|disclaimer)/i.test(rowText)
+    /(page\s*\d+\s*of\s*\d+|prepared\s*by|approved\s*by|terms\s*and\s*conditions|date:|authorized\s*signature|notice:|disclaimer|project\s*management|overhead|supervision|profit\s*margin|field\s*conditions|contingency)/i.test(rowText)
   ) {
     return { type: 'metadata' };
   }

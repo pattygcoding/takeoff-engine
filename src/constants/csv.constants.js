@@ -1,6 +1,16 @@
 /**
  * CSV / Takeoff Ingestion & Parser Constants
  */
+import systemAliases from '../data/aliases/systemAliases.json' with { type: 'json' };
+import itemDescriptionAliases from '../data/aliases/itemDescriptionAliases.json' with { type: 'json' };
+import sizeSpecAliases from '../data/aliases/sizeSpecAliases.json' with { type: 'json' };
+import quantityAliases from '../data/aliases/quantityAliases.json' with { type: 'json' };
+import unitAliases from '../data/aliases/unitAliases.json' with { type: 'json' };
+import avgDepthAliases from '../data/aliases/avgDepthAliases.json' with { type: 'json' };
+import materialCostPerUnitAliases from '../data/aliases/materialCostPerUnitAliases.json' with { type: 'json' };
+import laborHoursPerUnitAliases from '../data/aliases/laborHoursPerUnitAliases.json' with { type: 'json' };
+import laborUnitCostAliases from '../data/aliases/laborUnitCostAliases.json' with { type: 'json' };
+import ignoredIndexAliasesData from '../data/aliases/ignoredIndexAliases.json' with { type: 'json' };
 
 export const CSV_COLUMNS = [
   'system',
@@ -27,78 +37,18 @@ export const TARGET_FIELDS = [
 ];
 
 export const COLUMN_ALIASES = {
-  system: [
-    'system', 'trade', 'phase', 'division', 'category', 'discipline',
-    'work_type', 'work type', 'system / trade', 'system/trade', 'utility',
-    'utility_type', 'utility type', 'spec division', 'spec_division', 'group',
-    'section', 'subsystem', 'cost code description', 'cost code', 'area',
-    'classification', 'layer', 'markuptype', 'markup type', 'subject',
-    'space', 'page label', 'sheet', 'drawing', 'zone', 'folder', 'tree',
-    'surface', 'boundary', 'stratum', 'region', 'strata', 'stage',
-    'csi', 'csi code', 'csi division', 'masterformat',
-    'sistema', 'fase', 'categoria', 'rubro'
-  ],
-  item_description: [
-    'item_description', 'item description', 'description', 'item', 'name',
-    'item_name', 'item name', 'scope', 'detail', 'work detail', 'work_detail',
-    'scope description', 'scope_description', 'material_description', 'material description',
-    'line item', 'line_item', 'activity', 'takeoff item', 'takeoff_item',
-    'material name', 'material_name', 'spec item', 'label', 'comments', 'comment',
-    'measurement', 'markup', 'markups', 'markups list', 'tool', 'tool name',
-    'part description', 'task', 'component', 'material / assembly', 'assembly',
-    'item title', 'surface name', 'material surface', 'cut/fill', 'feature',
-    'descripcion', 'concepto'
-  ],
-  size_spec: [
-    'size_spec', 'size / spec', 'size spec', 'size', 'spec', 'specification',
-    'dimension', 'dimensions', 'material', 'material class', 'class',
-    'size / specification', 'pipe size', 'pipe_size', 'diameter', 'dia',
-    'thickness', 'rating', 'type', 'custom 1', 'custom 2', 'custom field',
-    'spec / size', 'size & spec', 'schedule', 'strata type', 'material type',
-    'compaction', 'expansion', 'shrink/swell', 'subgrade', 'medida', 'especificacion', 'calibre',
-    'pipe diameter'
-  ],
-  quantity: [
-    'quantity', 'qty', 'quant', 'amount', 'count', 'length', 'takeoff_qty',
-    'takeoff qty', 'takeoff quantity', 'total qty', 'total quantity', 'qty.',
-    'volume', 'footage', 'linear feet', 'cant', 'cantidad', 'est qty',
-    'estimated qty', 'net qty', 'gross qty', 'units', 'medicion', 'total length',
-    'measurement value', 'markup value', 'total', 'net volume', 'cut volume',
-    'fill volume', 'adjusted volume', 'raw qty', 'net area', 'takeoff value'
-  ],
-  unit: [
-    'unit', 'uom', 'unit_of_measure', 'unit of measure', 'unit of measurement',
-    'measure', 'units', 'unit type', 'measurement unit', 'markup unit',
-    'qty unit', 'volume unit', 'area unit',
-    'unidad', 'medida', 'u.m.', 'um', 'unidades'
-  ],
-  avg_depth_ft: [
-    'avg_depth_ft', 'avg depth (ft)', 'average depth (ft)', 'avg depth',
-    'average depth', 'depth', 'trench_depth', 'trench depth', 'trench_depth_ft',
-    'cut_depth', 'cut depth', 'avg. depth', 'depth (ft)', 'depth_ft',
-    'avg cut', 'average cut', 'avg cut (ft)', 'avg fill (ft)', 'avg depth/cut',
-    'profundidad', 'cut (ft)', 'trench depth (ft)', 'invert depth', 'cover depth'
-  ],
-  material_cost_per_unit: [
-    'material_cost_per_unit', 'material cost per unit', 'material cost/unit', 'material $/unit',
-    'mat $/unit', 'mat $/uom', 'material unit cost', 'material rate', 'unit cost', 'unit price',
-    'unit rate', 'mat unit cost', 'material cost', 'material price', 'mat cost', 'price/unit',
-    'cost/unit', 'price / unit', 'cost / unit', 'material $/uom', 'precio unitario', 'costo unitario',
-    'mat $/ea', 'mat $/lf', 'mat price', 'mat rate', 'unit $/mat', 'material $'
-  ],
-  labor_hours_per_unit: [
-    'labor_hours_per_unit', 'labor hours per unit', 'labor hrs/unit', 'labor hrs / unit',
-    'hours/unit', 'hours / unit', 'hrs/unit', 'hrs / unit', 'man hours', 'manhours',
-    'man hours/unit', 'labor hours', 'labor hrs', 'hrs/lf', 'hrs/ea', 'hrs/cy', 'hrs/sf',
-    'horas de trabajo', 'horas/unidad', 'heures de travail', 'horas de mao de obra'
-  ],
-  labor_unit_cost: [
-    'labor_unit_cost', 'labor unit cost', 'labor $/unit', 'labor $/uom', 'labor cost/unit',
-    'labor cost per unit', 'labor rate', 'labor unit price', 'labor price/unit', 'labor cost',
-    'labor price', 'labor $', 'labor $/ea', 'labor $/lf', 'labor $/sf', 'labor $/cy',
-    'costo de mano de obra', 'precio mano de obra', 'cout de main d oeuvre'
-  ],
+  system: systemAliases,
+  item_description: itemDescriptionAliases,
+  size_spec: sizeSpecAliases,
+  quantity: quantityAliases,
+  unit: unitAliases,
+  avg_depth_ft: avgDepthAliases,
+  material_cost_per_unit: materialCostPerUnitAliases,
+  labor_hours_per_unit: laborHoursPerUnitAliases,
+  labor_unit_cost: laborUnitCostAliases,
 };
+
+export const IGNORED_INDEX_HEADER_ALIASES = ignoredIndexAliasesData;
 
 /**
  * Standard MasterFormat CSI Division Lookup Table
