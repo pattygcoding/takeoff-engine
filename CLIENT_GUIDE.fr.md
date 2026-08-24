@@ -37,12 +37,31 @@ Takeoff Engine utilise la **correspondance floue d'alias (distance de Levenshtei
 | `unit` | Oui | `Unit`, `UOM`, `Unit of Measure`, `Measure`, `Units`, `Unit Type` | Unité de mesure professionnelle (`LF`, `EA`, `CY`, `SF`, `SY`, `TON`, `LS`, `HR` ou unités personnalisées) |
 | `avg_depth_ft` | Non | `Avg Trench Depth`, `Avg Depth (FT)`, `Depth (ft)`, `Trench Depth`, `Cut Depth`, `Invert Depth` | Profondeur moyenne optionnelle de tranchée en pieds (pour les calculs de terrassement et de remblai) |
 | `material_cost_per_unit` | Non | `Material $/Unit`, `Mat $/Unit`, `Material Cost`, `Unit Price`, `Material Rate`, `Unit Cost`, `Cost/Unit` | Prix unitaire des matériaux ou coût par unité (ex. `$42.50`, `$1,350.00`, `$19.0857`) |
+| `labor_hours_per_unit` | Non | `Labor Hours/Unit`, `Hrs/Unit`, `Labor $/Unit`, `Labor Rate`, `Crew Hours`, `Unit Labor Cost`, `Labor Extension` | Heures de productivité ou coût unitaire direct de main-d'œuvre par ligne (ex. `0.25 hrs/LF` ou `$15.00/LF`) |
 
 *Remarque : L'ordre des colonnes et la sensibilité à la casse n'ont pas d'importance.*
 
 ---
 
-## 3. Capacités d'Analyse Résilientes
+## 3. Modes d'Estimation de la Main-d'Œuvre (Heures vs. Main-d'Œuvre $/Unité)
+
+Takeoff Engine offre un calcul flexible à double mode pour la main-d'œuvre, adapté aux entrepreneurs généraux comme aux sous-traitants spécialisés :
+
+1. **Mode Heures de Main-d'Œuvre (`Heures/Unité`)** :
+   - Les lignes précisent la productivité en heures requises par unité métrique (ex. `0.35 hrs/LF` ou `1.50 hrs/EA`).
+   - Coût de Main-d'Œuvre de la Ligne = $\text{Quantité} \times \text{Heures/Unité} \times \text{Taux Horaire de Base}$ (configuré dans le volet des Tarifs).
+   - Idéal pour le suivi de productivité des équipes et la planification des ressources de chantier.
+
+2. **Mode Coût Unitaire de Main-d'Œuvre (`$/Unité`)** :
+   - Les lignes précisent la main-d'œuvre directement sous forme de coût unitaire fixe (ex. `$25.00/LF` ou `$150.00/EA`).
+   - Coût de Main-d'Œuvre de la Ligne = $\text{Quantité} \times \text{Main-d'œuvre \$/Unité}$ directement, sans multiplication par le taux horaire de base.
+   - Idéal pour les devis de sous-traitance, la tarification à la pièce ou les barèmes de prix forfaitaires.
+
+Vous pouvez basculer entre **Heures/Unité** et **$/Unité** à tout moment directement depuis l'en-tête de la grille de chiffrage ou dans le volet des Tarifs. Le moteur assure une synchronisation bidirectionnelle en temps réel entre heures et montants selon votre taux horaire de base actif.
+
+---
+
+## 4. Capacités d'Analyse Résilientes
 
 Le pipeline d'ingestion gère les exports bruts sans nécessiter de nettoyage manuel :
 
@@ -104,7 +123,7 @@ Le pipeline d'ingestion gère les exports bruts sans nécessiter de nettoyage ma
 
 ---
 
-## 4. Mappage Interactif des Colonnes et Préréglages Fournisseurs
+## 5. Mappage Interactif des Colonnes et Préréglages Fournisseurs
 
 Si un fichier présente des colonnes ambiguës ou un formatage personnalisé (score de confiance < 90 %) :
 
@@ -114,7 +133,7 @@ Si un fichier présente des colonnes ambiguës ou un formatage personnalisé (sc
 
 ---
 
-## 5. Que se Passe-t-il Après l'Importation ?
+## 6. Que se Passe-t-il Après l'Importation ?
 
 - Le fichier est analysé et validé en quelques millisecondes selon des règles déterministes.
 - En cas de quantités non valides, des messages d'erreur détaillés avec numéros de lignes sont affichés pour vérification.

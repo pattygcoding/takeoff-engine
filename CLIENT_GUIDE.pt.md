@@ -37,12 +37,31 @@ O Takeoff Engine utiliza **correspondência difusa de aliases (distância de Lev
 | `unit` | Sim | `Unit`, `UOM`, `Unit of Measure`, `Measure`, `Units`, `Unit Type` | Unidade de medida profissional (`LF`, `EA`, `CY`, `SF`, `SY`, `TON`, `LS`, `HR` ou unidades personalizadas) |
 | `avg_depth_ft` | Não | `Avg Trench Depth`, `Avg Depth (FT)`, `Depth (ft)`, `Trench Depth`, `Cut Depth`, `Invert Depth` | Profundidade média opcional da vala em pés (para cálculos de terraplenagem e reaterro) |
 | `material_cost_per_unit` | Não | `Material $/Unit`, `Mat $/Unit`, `Material Cost`, `Unit Price`, `Material Rate`, `Unit Cost`, `Cost/Unit` | Preço unitário do material ou custo por unidade (ex.: `$42.50`, `$1,350.00`, `$19.0857`) |
+| `labor_hours_per_unit` | Não | `Labor Hours/Unit`, `Hrs/Unit`, `Labor $/Unit`, `Labor Rate`, `Crew Hours`, `Unit Labor Cost`, `Labor Extension` | Horas de produtividade da mão de obra ou custo unitário direto de mão de obra por item (ex.: `0.25 hrs/LF` ou `$15.00/LF`) |
 
 *Nota: A ordem das colunas e a diferenciação de maiúsculas/minúsculas não importam.*
 
 ---
 
-## 3. Recursos de Processamento Resiliente
+## 3. Modos de Estimativa de Mão de Obra (Horas de Mão de Obra vs. Mão de Obra $/Unidade)
+
+O Takeoff Engine oferece flexibilidade com modo duplo de cálculo de mão de obra para atender tanto empreiteiros gerais quanto subempreiteiros especializados:
+
+1. **Modo Horas de Mão de Obra (`Horas/Unidade`)**:
+   - Os itens especificam a produtividade em horas necessárias por unidade de medida (ex.: `0.35 hrs/LF` ou `1.50 hrs/EA`).
+   - Custo de Mão de Obra do Item = $\text{Quantidade} \times \text{Horas de Mão de Obra/Unidade} \times \text{Taxa Horária Base de Mão de Obra}$ (configurada no Painel de Taxas).
+   - Ideal para controle de produtividade de equipes e dimensionamento de mão de obra do projeto.
+
+2. **Modo Custo de Mão de Obra (`$/Unidade`)**:
+   - Os itens especificam a mão de obra diretamente como um custo ou preço unitário fixo (ex.: `$25.00/LF` ou `$150.00/EA`).
+   - Custo de Mão de Obra do Item = $\text{Quantidade} \times \text{Mão de Obra \$/Unidade}$ diretamente, sem multiplicação pela taxa horária base.
+   - Ideal para cotações fechadas de subempreiteiros, contratos por produção/peça ou preços unitários consolidados.
+
+Você pode alternar entre **Horas/Unidade** e **$/Unidade** a qualquer momento diretamente no seletor do cabeçalho da grade de orçamento ou no Painel de Taxas. O mecanismo mantém sincronização bidirecional em tempo real entre horas e valores monetários com base na sua taxa horária ativa.
+
+---
+
+## 4. Recursos de Processamento Resiliente
 
 O pipeline de ingestão lida com exportações brutas sem necessidade de limpeza manual:
 
@@ -104,7 +123,7 @@ O pipeline de ingestão lida com exportações brutas sem necessidade de limpeza
 
 ---
 
-## 4. Mapeamento Interativo de Colunas e Predefinições de Fornecedores
+## 5. Mapeamento Interativo de Colunas e Predefinições de Fornecedores
 
 Se um arquivo contiver colunas ambíguas ou formatação personalizada (pontuação de confiança < 90%):
 
@@ -114,7 +133,7 @@ Se um arquivo contiver colunas ambíguas ou formatação personalizada (pontuaç
 
 ---
 
-## 5. O que Acontece Após o Upload
+## 6. O que Acontece Após o Upload
 
 - O arquivo é processado e validado em milissegundos com base em regras determinísticas.
 - Se houver quantidades inválidas, mensagens de erro detalhadas serão listadas com os números das linhas para revisão.
