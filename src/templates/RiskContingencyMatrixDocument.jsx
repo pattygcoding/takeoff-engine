@@ -23,13 +23,17 @@ export default function RiskContingencyMatrixDocument({ estimate, branding, curr
               <th className="p-2.5 text-center">{t('templates.riskContingency.colRiskLevel')}</th>
               <th className="p-2.5 text-right">{t('templates.riskContingency.colBaseDirect')}</th>
               <th className="p-2.5 text-right">
-                {t('templates.riskContingency.colContingencyBuffer', { percent: rates?.contingencyPercent || 5 })}
+                {totals.contingencyType === 'fixed'
+                  ? t('templates.riskContingency.colContingencyBufferFixed')
+                  : t('templates.riskContingency.colContingencyBuffer', { percent: rates?.contingencyPct ?? rates?.contingencyPercent ?? totals.contingencyPct ?? 5 })}
               </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 font-mono">
             {bySystem.map((sys, idx) => {
-              const cont = sys.directCost * ((rates?.contingencyPercent || 5) / 100);
+              const cont = totals.contingencyType === 'fixed'
+                ? (totals.directCost > 0 ? (sys.directCost / totals.directCost) * totals.contingencyCost : 0)
+                : sys.directCost * (((rates?.contingencyPct ?? rates?.contingencyPercent ?? totals.contingencyPct) || 5) / 100);
               const isHigh = idx === 0;
               return (
                 <tr key={sys.system} className="hover:bg-slate-50">

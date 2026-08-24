@@ -5,9 +5,15 @@ export const DEFAULT_TRENCH_WIDTH_FT = 2;
 export const DEFAULT_RATES = {
   laborHourlyRate: 65.0,
   overheadPct: 10,
+  overheadType: 'percent', // 'percent' | 'fixed'
   contingencyPct: 5,
+  contingencyType: 'percent', // 'percent' | 'fixed'
   profitPct: 15,
+  profitType: 'percent', // 'percent' | 'fixed'
   equipmentLumpSum: 12000.0,
+  equipmentType: 'fixed', // 'fixed' | 'percent'
+  miscCost: 0,
+  miscType: 'fixed', // 'fixed' | 'percent'
   trenchWidthFt: DEFAULT_TRENCH_WIDTH_FT,
 };
 
@@ -95,17 +101,50 @@ export function computeEstimate(items, rates = DEFAULT_RATES) {
     bySystem[system].directCost += item.directCost;
   }
 
-  const equipmentLumpSum = Number(rates.equipmentLumpSum) || 0;
-  const totalDirectCost = totalMaterialCost + totalLaborCost + equipmentLumpSum;
+  const equipmentType = rates.equipmentType || 'fixed';
+  const rawEquipmentValue = Number(rates.equipmentLumpSum ?? rates.equipmentValue ?? rates.equipmentCost) || 0;
+  const rawDirectItems = totalMaterialCost + totalLaborCost;
+  const equipmentLumpSum = equipmentType === 'percent'
+    ? rawDirectItems * (rawEquipmentValue / 100)
+    : rawEquipmentValue;
 
-  const overheadPct = Number(rates.overheadPct) || 0;
-  const contingencyPct = Number(rates.contingencyPct) || 0;
-  const profitPct = Number(rates.profitPct) || 0;
+  const miscType = rates.miscType || 'fixed';
+  const rawMiscValue = Number(rates.miscCost ?? rates.miscValue ?? rates.miscLumpSum ?? rates.miscAmount) || 0;
+  const miscCost = miscType === 'percent'
+    ? rawDirectItems * (rawMiscValue / 100)
+    : rawMiscValue;
 
-  const overheadAmount = totalDirectCost * (overheadPct / 100);
-  const contingencyAmount = totalDirectCost * (contingencyPct / 100);
+  const totalDirectCost = totalMaterialCost + totalLaborCost + equipmentLumpSum + miscCost;
+
+  const overheadType = rates.overheadType || 'percent';
+  const rawOverheadValue = Number(rates.overheadPct ?? rates.overheadValue ?? rates.overheadCost) || 0;
+  const overheadAmount = overheadType === 'fixed'
+    ? rawOverheadValue
+    : totalDirectCost * (rawOverheadValue / 100);
+  const overheadPct = overheadType === 'percent'
+    ? rawOverheadValue
+    : (totalDirectCost > 0 ? (overheadAmount / totalDirectCost) * 100 : 0);
+
+  const contingencyType = rates.contingencyType || 'percent';
+  const rawContingencyValue = Number(rates.contingencyPct ?? rates.contingencyValue ?? rates.contingencyCost) || 0;
+  const contingencyAmount = contingencyType === 'fixed'
+    ? rawContingencyValue
+    : totalDirectCost * (rawContingencyValue / 100);
+  const contingencyPct = contingencyType === 'percent'
+    ? rawContingencyValue
+    : (totalDirectCost > 0 ? (contingencyAmount / totalDirectCost) * 100 : 0);
+
   const subtotalWithMarkups = totalDirectCost + overheadAmount + contingencyAmount;
-  const profitAmount = subtotalWithMarkups * (profitPct / 100);
+
+  const profitType = rates.profitType || 'percent';
+  const rawProfitValue = Number(rates.profitPct ?? rates.profitValue ?? rates.profitAmount) || 0;
+  const profitAmount = profitType === 'fixed'
+    ? rawProfitValue
+    : subtotalWithMarkups * (rawProfitValue / 100);
+  const profitPct = profitType === 'percent'
+    ? rawProfitValue
+    : (subtotalWithMarkups > 0 ? (profitAmount / subtotalWithMarkups) * 100 : 0);
+
   const finalBidAmount = subtotalWithMarkups + profitAmount;
 
   // Compute factored / fully-burdened bid amount for each system and item
@@ -142,19 +181,36 @@ export function computeEstimate(items, rates = DEFAULT_RATES) {
     bySystem: bySystemFactored.sort((a, b) => a.system.localeCompare(b.system)),
     totals: {
       totalMaterialCost,
+      materialCost: totalMaterialCost,
       totalLaborHours,
+      laborHours: totalLaborHours,
       totalLaborCost,
+      laborCost: totalLaborCost,
       totalTrenchCubicYards,
       equipmentLumpSum,
+      equipmentCost: equipmentLumpSum,
+      equipmentType,
+      equipmentValue: rawEquipmentValue,
+      miscCost,
+      miscType,
+      miscValue: rawMiscValue,
       totalDirectCost,
+      directCost: totalDirectCost,
       overheadPct,
       overheadAmount,
       overheadCost: overheadAmount,
+      overheadType,
+      overheadValue: rawOverheadValue,
       contingencyPct,
       contingencyAmount,
       contingencyCost: contingencyAmount,
+      contingencyType,
+      contingencyValue: rawContingencyValue,
       profitPct,
       profitAmount,
+      profitCost: profitAmount,
+      profitType,
+      profitValue: rawProfitValue,
       finalBidAmount,
       markupFactor,
     },

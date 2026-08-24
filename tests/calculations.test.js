@@ -211,6 +211,96 @@ describe('Calculations Engine Tests', () => {
       assert.strictEqual(estimate.totals.totalDirectCost, 12000); // default equipment lump sum
       assert.ok(estimate.totals.finalBidAmount > 0);
     });
+
+    it('supports fixed dollar amounts for overhead, contingency, profit, and misc costs', () => {
+      const items = [
+        {
+          system: 'Grading',
+          itemDescription: 'Site Clearing',
+          quantity: 10,
+          unit: 'AC',
+          materialCostPerUnit: 500,
+          laborHoursPerUnit: 10,
+        },
+      ];
+
+      const rates = {
+        laborHourlyRate: 50,
+        equipmentLumpSum: 2000,
+        equipmentType: 'fixed',
+        miscCost: 1000,
+        miscType: 'fixed',
+        overheadPct: 1500,
+        overheadType: 'fixed',
+        contingencyPct: 800,
+        contingencyType: 'fixed',
+        profitPct: 3000,
+        profitType: 'fixed',
+      };
+
+      // Material: 10 * 500 = 5000
+      // Labor: 10 * 10 * 50 = 5000
+      // Equipment: 2000
+      // Misc: 1000
+      // Direct Cost: 5000 + 5000 + 2000 + 1000 = 13000
+      // Overhead: 1500
+      // Contingency: 800
+      // Subtotal with Markups: 13000 + 1500 + 800 = 15300
+      // Profit: 3000
+      // Final Bid: 15300 + 3000 = 18300
+      const estimate = computeEstimate(items, rates);
+
+      assert.strictEqual(estimate.totals.totalMaterialCost, 5000);
+      assert.strictEqual(estimate.totals.totalLaborCost, 5000);
+      assert.strictEqual(estimate.totals.equipmentLumpSum, 2000);
+      assert.strictEqual(estimate.totals.miscCost, 1000);
+      assert.strictEqual(estimate.totals.totalDirectCost, 13000);
+      assert.strictEqual(estimate.totals.overheadAmount, 1500);
+      assert.strictEqual(estimate.totals.contingencyAmount, 800);
+      assert.strictEqual(estimate.totals.profitAmount, 3000);
+      assert.strictEqual(estimate.totals.finalBidAmount, 18300);
+    });
+
+    it('supports percentage mode for equipment and miscellaneous costs', () => {
+      const items = [
+        {
+          system: 'Paving',
+          itemDescription: 'Asphalt 3"',
+          quantity: 100,
+          unit: 'SY',
+          materialCostPerUnit: 20,
+          laborHoursPerUnit: 0.1,
+        },
+      ];
+
+      const rates = {
+        laborHourlyRate: 100,
+        // Material: 100 * 20 = 2000
+        // Labor: 100 * 0.1 * 100 = 1000
+        // Raw Direct Items = 3000
+        equipmentLumpSum: 10, // 10% of raw direct items = 300
+        equipmentType: 'percent',
+        miscCost: 5, // 5% of raw direct items = 150
+        miscType: 'percent',
+        overheadPct: 10, // 10% of total direct cost (3450) = 345
+        overheadType: 'percent',
+        contingencyPct: 0,
+        contingencyType: 'percent',
+        profitPct: 20, // 20% of subtotal (3450 + 345 = 3795) = 759
+        profitType: 'percent',
+      };
+
+      const estimate = computeEstimate(items, rates);
+      assert.strictEqual(estimate.totals.totalMaterialCost, 2000);
+      assert.strictEqual(estimate.totals.totalLaborCost, 1000);
+      assert.strictEqual(estimate.totals.equipmentLumpSum, 300);
+      assert.strictEqual(estimate.totals.miscCost, 150);
+      assert.strictEqual(estimate.totals.totalDirectCost, 3450);
+      assert.strictEqual(estimate.totals.overheadAmount, 345);
+      assert.strictEqual(estimate.totals.contingencyAmount, 0);
+      assert.strictEqual(estimate.totals.profitAmount, 759);
+      assert.strictEqual(estimate.totals.finalBidAmount, 4554);
+    });
   });
 
   describe('formatCurrency & formatNumber', () => {

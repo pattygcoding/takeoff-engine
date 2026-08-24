@@ -114,6 +114,10 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
     onChange({ ...rates, [field]: value === '' ? '' : Number(value) });
   };
 
+  const updateType = (field, type) => {
+    onChange({ ...rates, [field]: type });
+  };
+
   return (
     <>
       {open && <div className="fixed inset-0 bg-black/30 z-20" onClick={onClose} />}
@@ -232,14 +236,44 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
 
           <section>
             <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-3">{t('ratesDrawer.markupBusinessConstants')}</h3>
-            <Field label={t('ratesDrawer.overhead')} value={rates.overheadPct} onChange={update('overheadPct')} suffix="%" disabled={readOnly} />
-            <Field label={t('ratesDrawer.contingency')} value={rates.contingencyPct} onChange={update('contingencyPct')} suffix="%" disabled={readOnly} />
-            <Field label={t('ratesDrawer.profitMargin')} value={rates.profitPct} onChange={update('profitPct')} suffix="%" disabled={readOnly} />
-            <Field
+            <DualModeField
+              label={t('ratesDrawer.overhead')}
+              value={rates.overheadPct}
+              onChange={update('overheadPct')}
+              type={rates.overheadType || 'percent'}
+              onTypeChange={(t) => updateType('overheadType', t)}
+              disabled={readOnly}
+            />
+            <DualModeField
+              label={t('ratesDrawer.contingency')}
+              value={rates.contingencyPct}
+              onChange={update('contingencyPct')}
+              type={rates.contingencyType || 'percent'}
+              onTypeChange={(t) => updateType('contingencyType', t)}
+              disabled={readOnly}
+            />
+            <DualModeField
+              label={t('ratesDrawer.profitMargin')}
+              value={rates.profitPct}
+              onChange={update('profitPct')}
+              type={rates.profitType || 'percent'}
+              onTypeChange={(t) => updateType('profitType', t)}
+              disabled={readOnly}
+            />
+            <DualModeField
               label={t('ratesDrawer.mobilizationEquipment')}
               value={rates.equipmentLumpSum}
               onChange={update('equipmentLumpSum')}
-              prefix="$"
+              type={rates.equipmentType || 'fixed'}
+              onTypeChange={(t) => updateType('equipmentType', t)}
+              disabled={readOnly}
+            />
+            <DualModeField
+              label={t('ratesDrawer.miscellaneousCosts')}
+              value={rates.miscCost ?? 0}
+              onChange={update('miscCost')}
+              type={rates.miscType || 'fixed'}
+              onTypeChange={(t) => updateType('miscType', t)}
               disabled={readOnly}
             />
           </section>
@@ -336,5 +370,54 @@ function Field({ label, value, onChange, prefix, suffix, disabled = false }) {
         {suffix && <span className="pr-3 text-slate-400 text-sm">{suffix}</span>}
       </div>
     </label>
+  );
+}
+
+function DualModeField({ label, value, onChange, type = 'percent', onTypeChange, disabled = false }) {
+  const isPercent = type === 'percent';
+  return (
+    <div className="mb-4">
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-sm text-slate-600">{label}</span>
+        <div className="inline-flex rounded-lg border border-slate-200 bg-slate-100 p-0.5">
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={() => onTypeChange('percent')}
+            className={`px-2 py-0.5 text-xs font-semibold rounded-md transition-colors ${
+              isPercent
+                ? 'bg-white text-indigo-600 shadow-xs'
+                : 'text-slate-500 hover:text-slate-700'
+            } disabled:cursor-not-allowed`}
+          >
+            %
+          </button>
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={() => onTypeChange('fixed')}
+            className={`px-2 py-0.5 text-xs font-semibold rounded-md transition-colors ${
+              !isPercent
+                ? 'bg-white text-indigo-600 shadow-xs'
+                : 'text-slate-500 hover:text-slate-700'
+            } disabled:cursor-not-allowed`}
+          >
+            $
+          </button>
+        </div>
+      </div>
+      <div className={`flex items-center rounded-md border border-slate-300 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-indigo-500 overflow-hidden ${disabled ? 'bg-slate-50 opacity-80' : ''}`}>
+        {!isPercent && <span className="pl-3 text-slate-400 text-sm">$</span>}
+        <input
+          type="number"
+          value={value}
+          onChange={onChange}
+          disabled={disabled}
+          className="w-full px-3 py-2 text-sm outline-none disabled:cursor-not-allowed"
+          step="any"
+        />
+        {isPercent && <span className="pr-3 text-slate-400 text-sm">%</span>}
+      </div>
+    </div>
   );
 }

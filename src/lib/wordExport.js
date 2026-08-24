@@ -463,14 +463,27 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
       })
     );
 
+    const overheadLabel = totals.overheadType === 'fixed'
+      ? t('wordExport.overheadFixed')
+      : t('wordExport.overhead', { pct: totals.overheadPct });
+
+    const contingencyLabel = totals.contingencyType === 'fixed'
+      ? t('wordExport.contingencyFixed')
+      : t('wordExport.contingency', { pct: totals.contingencyPct });
+
+    const profitLabel = totals.profitType === 'fixed'
+      ? t('wordExport.profitFixed')
+      : t('wordExport.profit', { pct: totals.profitPct });
+
     const summaryRows = [
       summaryRow(t('wordExport.totalMaterialCost'), formatCurrency(totals.totalMaterialCost)),
       summaryRow(t('wordExport.totalLaborCost'), `${formatCurrency(totals.totalLaborCost)} (${formatNumber(totals.totalLaborHours)} hrs)`),
       summaryRow(t('wordExport.equipmentMobilization'), formatCurrency(totals.equipmentLumpSum)),
+      ...(totals.miscCost > 0 ? [summaryRow(t('wordExport.miscellaneousCosts'), formatCurrency(totals.miscCost))] : []),
       summaryRow(t('wordExport.totalDirectCost'), formatCurrency(totals.totalDirectCost)),
-      summaryRow(t('wordExport.overhead', { pct: totals.overheadPct }), formatCurrency(totals.overheadAmount)),
-      summaryRow(t('wordExport.contingency', { pct: totals.contingencyPct }), formatCurrency(totals.contingencyAmount)),
-      summaryRow(t('wordExport.profit', { pct: totals.profitPct }), formatCurrency(totals.profitAmount)),
+      summaryRow(overheadLabel, formatCurrency(totals.overheadAmount)),
+      summaryRow(contingencyLabel, formatCurrency(totals.contingencyAmount)),
+      summaryRow(profitLabel, formatCurrency(totals.profitAmount)),
       summaryRow(t('wordExport.finalBidAmount'), formatCurrency(totals.finalBidAmount), true),
     ];
 
