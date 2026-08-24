@@ -1,14 +1,24 @@
 import Papa from 'papaparse';
 import { getTranslation } from './i18n.js';
+import {
+  CSV_COLUMNS,
+  TARGET_FIELDS,
+  COLUMN_ALIASES,
+  CSI_DIVISIONS,
+  UNIT_NORMALIZATIONS,
+  EXCEL_EXTENSIONS,
+  PRESETS_STORAGE_KEY,
+} from '../constants/csv.constants.js';
 
-export const CSV_COLUMNS = [
-  'system',
-  'item_description',
-  'size_spec',
-  'quantity',
-  'unit',
-  'avg_depth_ft',
-];
+export {
+  CSV_COLUMNS,
+  TARGET_FIELDS,
+  COLUMN_ALIASES,
+  CSI_DIVISIONS,
+  UNIT_NORMALIZATIONS,
+  EXCEL_EXTENSIONS,
+  PRESETS_STORAGE_KEY,
+};
 
 export function getTargetFields(customT = null) {
   const t = customT || getTranslation;
@@ -19,71 +29,36 @@ export function getTargetFields(customT = null) {
     { key: 'quantity', label: t('csvParser.targetFields.quantityLabel'), required: true, description: t('csvParser.targetFields.quantityDesc') },
     { key: 'unit', label: t('csvParser.targetFields.unitLabel'), required: true, description: t('csvParser.targetFields.unitDesc') },
     { key: 'avg_depth_ft', label: t('csvParser.targetFields.avgDepthFtLabel'), required: false, description: t('csvParser.targetFields.avgDepthFtDesc') },
+    { key: 'material_cost_per_unit', label: t('csvParser.targetFields.materialCostPerUnitLabel', 'Material $/Unit'), required: false, description: t('csvParser.targetFields.materialCostPerUnitDesc', 'Unit material price or cost per unit') },
   ];
 }
 
-export const TARGET_FIELDS = [
-  { key: 'system', label: 'System / Trade', required: true, description: 'Category, Trade, Division, or Phase group' },
-  { key: 'item_description', label: 'Item / Description', required: true, description: 'Material name, scope description, or line item' },
-  { key: 'size_spec', label: 'Size / Spec', required: true, description: 'Pipe diameter, material class, or dimension spec' },
-  { key: 'quantity', label: 'Quantity', required: true, description: 'Length (LF), count (EA), area (SF), or volume (CY)' },
-  { key: 'unit', label: 'Unit of Measure', required: true, description: 'LF, EA, CY, SF, TON, LS, etc.' },
-  { key: 'avg_depth_ft', label: 'Avg Trench Depth (FT)', required: false, description: 'Optional depth for trench earthwork & backfill math' },
-];
+/**
+ * Resolves CSI Code or Division string (e.g. "02-31-00", "03 21 00", "09 22 00", "26 24 16", "Div 03")
+ * into a human-readable trade system.
+ */
+export function resolveCsiSystem(rawSystem = '') {
+  if (!rawSystem) return '';
+  const str = String(rawSystem).trim();
 
-export const COLUMN_ALIASES = {
-  system: [
-    'system', 'trade', 'phase', 'division', 'category', 'discipline',
-    'work_type', 'work type', 'system / trade', 'system/trade', 'utility',
-    'utility_type', 'utility type', 'spec division', 'spec_division', 'group',
-    'section', 'subsystem', 'cost code description', 'cost code', 'area',
-    'classification', 'layer', 'markuptype', 'markup type', 'subject',
-    'space', 'page label', 'sheet', 'drawing', 'zone', 'folder', 'tree',
-    'surface', 'boundary', 'stratum', 'region', 'strata', 'stage',
-    'sistema', 'fase', 'categoria', 'rubro'
-  ],
-  item_description: [
-    'item_description', 'item description', 'description', 'item', 'name',
-    'item_name', 'item name', 'scope', 'detail', 'work detail', 'work_detail',
-    'scope description', 'scope_description', 'material_description', 'material description',
-    'line item', 'line_item', 'activity', 'takeoff item', 'takeoff_item',
-    'material name', 'material_name', 'spec item', 'label', 'comments', 'comment',
-    'measurement', 'markup', 'markups', 'markups list', 'tool', 'tool name',
-    'part description', 'task', 'component', 'material / assembly', 'assembly',
-    'item title', 'surface name', 'material surface', 'cut/fill', 'feature',
-    'descripcion', 'concepto'
-  ],
-  size_spec: [
-    'size_spec', 'size / spec', 'size spec', 'size', 'spec', 'specification',
-    'dimension', 'dimensions', 'material', 'material class', 'class',
-    'size / specification', 'pipe size', 'pipe_size', 'diameter', 'dia',
-    'thickness', 'rating', 'type', 'custom 1', 'custom 2', 'custom field',
-    'spec / size', 'size & spec', 'schedule', 'strata type', 'material type',
-    'compaction', 'expansion', 'shrink/swell', 'subgrade', 'medida', 'especificacion', 'calibre',
-    'pipe diameter'
-  ],
-  quantity: [
-    'quantity', 'qty', 'quant', 'amount', 'count', 'length', 'takeoff_qty',
-    'takeoff qty', 'takeoff quantity', 'total qty', 'total quantity', 'qty.',
-    'volume', 'footage', 'linear feet', 'cant', 'cantidad', 'est qty',
-    'estimated qty', 'net qty', 'gross qty', 'units', 'medicion', 'total length',
-    'measurement value', 'markup value', 'total', 'net volume', 'cut volume',
-    'fill volume', 'adjusted volume', 'raw qty', 'net area', 'takeoff value'
-  ],
-  unit: [
-    'unit', 'uom', 'unit_of_measure', 'unit of measure', 'unit of measurement',
-    'measure', 'units', 'unit type', 'measurement unit', 'markup unit',
-    'qty unit', 'volume unit', 'area unit',
-    'unidad', 'medida', 'u.m.', 'um', 'unidades'
-  ],
-  avg_depth_ft: [
-    'avg_depth_ft', 'avg depth (ft)', 'average depth (ft)', 'avg depth',
-    'average depth', 'depth', 'trench_depth', 'trench depth', 'trench_depth_ft',
-    'cut_depth', 'cut depth', 'avg. depth', 'depth (ft)', 'depth_ft',
-    'avg cut', 'average cut', 'avg cut (ft)', 'avg fill (ft)', 'avg depth/cut',
-    'profundidad', 'cut (ft)', 'trench depth (ft)', 'invert depth', 'cover depth'
-  ],
-};
+  // Check for leading 2-digit CSI division: e.g. "02-31-00", "03 21 00", "092200", "Div 02", "Division 31"
+  const match = str.match(/^(?:div(?:ision)?\s*)?(\d{2})(?:[-\s.]?\d{2}[-\s.]?\d{2})?/i);
+  if (match) {
+    const divNum = match[1].padStart(2, '0');
+    if (CSI_DIVISIONS[divNum]) {
+      return `${divNum} - ${CSI_DIVISIONS[divNum]}`;
+    }
+  }
+
+  // Check if string contains division name
+  for (const [divNum, divName] of Object.entries(CSI_DIVISIONS)) {
+    if (str.toLowerCase() === divName.toLowerCase() || str.toLowerCase() === `division ${divNum}`.toLowerCase()) {
+      return `${divNum} - ${divName}`;
+    }
+  }
+
+  return str;
+}
 
 /**
  * Sanitizes multi-line cell values (e.g. Alt + Enter in Excel).
@@ -124,30 +99,6 @@ export function cleanFormulaError(val) {
   }
   return val;
 }
-
-/**
- * Standard Unit Normalization Table
- */
-export const UNIT_NORMALIZATIONS = {
-  // Linear Feet
-  lf: 'LF', 'l.f.': 'LF', 'lin ft': 'LF', 'lin. ft.': 'LF', 'linear feet': 'LF',
-  'linear foot': 'LF', ft: 'LF', feet: 'LF', lft: 'LF', ml: 'LF', meter: 'LF', meters: 'LF',
-  // Each / Item
-  ea: 'EA', 'e.a.': 'EA', each: 'EA', pcs: 'EA', piece: 'EA', pieces: 'EA',
-  item: 'EA', items: 'EA', count: 'EA', un: 'EA', und: 'EA', unit: 'EA', units: 'EA',
-  // Cubic Yards
-  cy: 'CY', 'c.y.': 'CY', 'cu yd': 'CY', 'cu. yd.': 'CY', 'cu yds': 'CY', 'cu. yds.': 'CY',
-  'cubic yards': 'CY', 'cubic yard': 'CY', yds3: 'CY', yd3: 'CY', m3: 'CY',
-  // Square Feet
-  sf: 'SF', 's.f.': 'SF', 'sq ft': 'SF', 'sq. ft.': 'SF', 'sq feet': 'SF',
-  'square feet': 'SF', 'square foot': 'SF', ft2: 'SF', sqft: 'SF', m2: 'SF',
-  // Tons
-  tn: 'TON', 't.n.': 'TON', ton: 'TON', tons: 'TON', 'tn.': 'TON', tonne: 'TON', tonnes: 'TON',
-  // Lump Sum
-  ls: 'LS', 'l.s.': 'LS', lump: 'LS', 'lump sum': 'LS', gl: 'LS', global: 'LS',
-  // Hours
-  hr: 'HR', hrs: 'HR', hour: 'HR', hours: 'HR',
-};
 
 export function getSampleCsvRows(customT = null) {
   const t = customT || getTranslation;
@@ -210,11 +161,25 @@ export function calculateStringSimilarity(a = '', b = '') {
 
 /**
  * Clean & normalize messy construction unit strings.
+ * Preserves unmatched custom unit strings in clean uppercase rather than forcing LF.
  */
 export function normalizeUnit(rawUnit = '') {
   if (!rawUnit) return 'LF';
-  const clean = String(rawUnit).trim().toLowerCase().replace(/[^a-z0-9.]/g, '');
-  return UNIT_NORMALIZATIONS[clean] || rawUnit.toUpperCase().trim().slice(0, 6) || 'LF';
+  const rawStr = String(rawUnit).trim();
+  if (!rawStr) return 'LF';
+
+  const clean = rawStr.toLowerCase().replace(/[^a-z0-9.²³]/g, '');
+  if (UNIT_NORMALIZATIONS[clean]) {
+    return UNIT_NORMALIZATIONS[clean];
+  }
+
+  // Check direct lookup in UNIT_NORMALIZATIONS with lowercase raw string
+  if (UNIT_NORMALIZATIONS[rawStr.toLowerCase()]) {
+    return UNIT_NORMALIZATIONS[rawStr.toLowerCase()];
+  }
+
+  // Preserve raw unmatched unit string (e.g. "ROLL", "BUNDLE", "PALLET", "TRIP", "PKG")
+  return rawStr.toUpperCase().slice(0, 8);
 }
 
 /**
@@ -233,44 +198,65 @@ export function cleanNumericValue(val) {
     return NaN;
   }
 
-  // Check for accounting negative (123.45)
+  // Check for accounting negative e.g. (123.45), ( $1,350.00 ), ($6,680.00)
   let isNegative = false;
-  if (/^\((.*)\)$/.test(str)) {
+  if (/^\s*\((.*)\)\s*$/.test(str)) {
     isNegative = true;
-    str = str.replace(/^\((.*)\)$/, '$1');
+    str = str.replace(/^\s*\((.*)\)\s*$/, '$1');
+  }
+
+  // Check for explicit leading negative sign with currency: -$6,680.00 or $-6,680.00
+  if (/^\s*-\s*[$€£]/.test(str) || /^\s*[$€£]\s*-/.test(str)) {
+    isNegative = true;
   }
 
   // Check for embedded unit suffixes
-  const unitMatch = str.match(/(cu\s*yd|cy|sq\s*ft|sf|lf|ft|ea|pcs|pallet|tn|ton|hrs?|ls)/i);
+  const unitMatch = str.match(/(cu\s*yds?|c\.y\.|cy|sq\s*ft|s\.f\.|sf|m2|m²|sq\s*yds?|sy|lin\s*ft|lf|feet|ft|each|ea|pcs|pallet|tn|tons?|hrs?|ls)/i);
   let extractedUnit = null;
   if (unitMatch) {
     extractedUnit = normalizeUnit(unitMatch[0]);
   }
 
-  // Remove currency symbols, commas, trailing text, non-numeric artifacts
+  // Remove currency symbols ($ € £ ¥), commas, trailing text, non-numeric artifacts
   // Keep decimals and hyphens
-  const cleaned = str.replace(/[$€£,\s]/g, '').replace(/[^\d.-]/g, '');
-  if (!cleaned || cleaned === '-' || cleaned === '.') return NaN;
+  const cleaned = str.replace(/[$€£¥,\s]/g, '').replace(/[^\d.-]/g, '');
+  if (!cleaned || cleaned === '-' || cleaned === '.' || cleaned === '-.') return NaN;
 
-  const num = Number(cleaned) * (isNegative ? -1 : 1);
+  const parsedFloat = parseFloat(cleaned);
+  if (Number.isNaN(parsedFloat)) return NaN;
+
+  const num = Math.abs(parsedFloat) * (isNegative || parsedFloat < 0 ? -1 : 1);
   return Number.isNaN(num) ? NaN : num;
 }
 
 /**
  * Extract embedded units & clean number from composite cells.
+ * Also detects placeholder / TBD tokens (e.g. "TBD", "N/A", "HOLD", "PENDING", "BY OTHERS").
  */
 export function parseQuantityAndUnit(rawVal, fallbackUnit = 'LF') {
-  if (rawVal === null || rawVal === undefined) return { quantity: 0, unit: fallbackUnit };
-  if (typeof rawVal === 'number') return { quantity: rawVal, unit: fallbackUnit };
+  if (rawVal === null || rawVal === undefined) return { quantity: 0, unit: fallbackUnit, isPlaceholder: false };
+  if (typeof rawVal === 'number') return { quantity: rawVal, unit: fallbackUnit, isPlaceholder: false };
 
   const str = String(rawVal).trim();
-  const unitMatch = str.match(/(cu\s*yds?|c\.y\.|cy|sq\s*ft|s\.f\.|sf|linear\s*feet|lin\s*ft|lf|feet|ft|each|ea|pcs|tn|tons?|hrs?|ls)/i);
+  const isPlaceholder = /^(tbd|n\/a|na|pending|hold|t\.b\.d\.|to\s*be\s*determined|by\s*others|tba)$/i.test(str);
+
+  if (isPlaceholder) {
+    return {
+      quantity: 0,
+      unit: fallbackUnit,
+      isPlaceholder: true,
+      rawToken: str,
+    };
+  }
+
+  const unitMatch = str.match(/(cu\s*yds?|c\.y\.|cy|sq\s*ft|s\.f\.|sf|m2|m²|sq\s*yds?|sy|linear\s*feet|lin\s*ft|lf|feet|ft|each|ea|pcs|tn|tons?|hrs?|ls)/i);
   const detectedUnit = unitMatch ? normalizeUnit(unitMatch[0]) : fallbackUnit;
   const num = cleanNumericValue(str);
 
   return {
     quantity: Number.isNaN(num) ? 0 : num,
     unit: detectedUnit || fallbackUnit,
+    isPlaceholder: false,
   };
 }
 
@@ -301,7 +287,10 @@ export function deconstructDescription(rawDesc = '', currentSize = '', customT =
 /**
  * Dynamic 2D Header Sniffer:
  * Inspects a matrix of raw 2D array rows and scores each row based on density of non-empty text,
- * keyword matches against canonical estimating fields, and lack of numeric-only data.
+ * distinct keyword matches against canonical estimating fields (e.g., Description, Qty, Unit, Cost, Code, CSI),
+ * and lack of numeric-only data.
+ * Skips merged title banners (which usually only contain 1 broad text item or single keyword match)
+ * by requiring at least 2 distinct estimating keywords across separate columns.
  * Also handles stacked multi-row headers and left column offset.
  */
 export function sniffHeaderBoundary(matrix = []) {
@@ -314,6 +303,11 @@ export function sniffHeaderBoundary(matrix = []) {
   let highestScore = -Infinity;
 
   const allKeywords = Object.values(COLUMN_ALIASES).flat().map((k) => k.toLowerCase().replace(/[^a-z0-9]/g, ''));
+  // Canonical distinct field categories for keyword validation
+  const targetCategories = Object.entries(COLUMN_ALIASES).map(([field, aliases]) => ({
+    field,
+    aliases: aliases.map((a) => a.toLowerCase().replace(/[^a-z0-9]/g, '')),
+  }));
 
   for (let r = 0; r < maxScanRows; r++) {
     const row = matrix[r] || [];
@@ -321,6 +315,7 @@ export function sniffHeaderBoundary(matrix = []) {
     let keywordMatches = 0;
     let numericCells = 0;
     let emptyCells = 0;
+    const matchedCategories = new Set();
 
     row.forEach((cell) => {
       if (cell === null || cell === undefined || String(cell).trim() === '') {
@@ -335,17 +330,45 @@ export function sniffHeaderBoundary(matrix = []) {
       } else {
         textCells++;
         const cleanCell = valStr.toLowerCase().replace(/[^a-z0-9]/g, '');
-        if (allKeywords.some((kw) => cleanCell.includes(kw) || kw.includes(cleanCell))) {
-          keywordMatches++;
+        if (cleanCell.length > 0) {
+          let matched = false;
+          for (const { field, aliases } of targetCategories) {
+            if (aliases.some((kw) => cleanCell === kw || cleanCell.includes(kw) || kw.includes(cleanCell))) {
+              matchedCategories.add(field);
+              matched = true;
+            }
+          }
+          if (matched) {
+            keywordMatches++;
+          }
         }
       }
     });
 
-    // Heuristic score: heavily reward keyword matches and text density, penalize pure numeric data rows
-    const score = (keywordMatches * 6) + (textCells * 2) - (numericCells * 4) - (emptyCells * 0.5);
-    if (score > highestScore && keywordMatches > 0) {
+    const distinctCategoryCount = matchedCategories.size;
+
+    // Requirement: A true header row must have at least 2 distinct keyword matches (or at least 2 distinct target categories)
+    // to distinguish it from merged title banners / project notes on rows above the table.
+    const isHeaderCandidate = distinctCategoryCount >= 2 || (keywordMatches >= 2 && textCells >= 2);
+
+    // Heuristic score: heavily reward distinct keyword categories & column matches, text density, penalize numeric rows
+    const score = (distinctCategoryCount * 10) + (keywordMatches * 4) + (textCells * 2) - (numericCells * 5) - (emptyCells * 0.5);
+
+    if (isHeaderCandidate && score > highestScore) {
       highestScore = score;
       bestRowIndex = r;
+    }
+  }
+
+  // Fallback if no multi-keyword row was found: pick the first row with any text or row 0
+  if (highestScore === -Infinity) {
+    for (let r = 0; r < maxScanRows; r++) {
+      const row = matrix[r] || [];
+      const hasText = row.some((c) => c !== null && c !== undefined && String(c).trim() !== '');
+      if (hasText) {
+        bestRowIndex = r;
+        break;
+      }
     }
   }
 
@@ -399,7 +422,57 @@ export function sniffHeaderBoundary(matrix = []) {
     headerRowIndex: effectiveHeaderRowIndex,
     headers,
     startColIndex,
-    confidence: Math.max(0.5, Math.min(1.0, highestScore / 20)),
+    confidence: highestScore > 0 ? Math.max(0.5, Math.min(1.0, highestScore / 25)) : 0.4,
+  };
+}
+
+/**
+ * Re-indexes a 2D matrix at a specific chosen header row index.
+ * Useful when user manually selects which row contains their headers in the UI.
+ */
+export function extractHeadersAndRowsAtHeaderRow(matrix = [], headerRowIndex = 0) {
+  if (!matrix || matrix.length === 0) {
+    return { headers: [], rows: [], headerRowIndex: 0 };
+  }
+
+  const validRowIdx = Math.max(0, Math.min(headerRowIndex, matrix.length - 1));
+  const rawHeaderRow = matrix[validRowIdx] || [];
+
+  // Find left column start offset (first non-empty column in the matrix from header row onwards)
+  let startColIndex = 0;
+  for (let c = 0; c < rawHeaderRow.length; c++) {
+    const hasData = matrix.slice(validRowIdx, validRowIdx + 10).some((r) => r[c] !== undefined && String(r[c]).trim() !== '');
+    if (hasData) {
+      startColIndex = c;
+      break;
+    }
+  }
+
+  const headers = [];
+  for (let c = startColIndex; c < rawHeaderRow.length; c++) {
+    const val = String(rawHeaderRow[c] || '').trim();
+    headers.push(val || `Column_${c + 1}`);
+  }
+
+  const rows = [];
+  for (let r = validRowIdx + 1; r < matrix.length; r++) {
+    const rowArr = matrix[r] || [];
+    if (rowArr.every((c) => c === null || c === undefined || String(c).trim() === '')) {
+      continue;
+    }
+    const rowObj = {};
+    headers.forEach((h, hIdx) => {
+      const val = rowArr[startColIndex + hIdx];
+      rowObj[h] = val !== undefined ? val : '';
+    });
+    rows.push(rowObj);
+  }
+
+  return {
+    headers,
+    rows,
+    headerRowIndex: validRowIdx,
+    startColIndex,
   };
 }
 
@@ -586,27 +659,40 @@ export function normalizeRowsWithMapping(rawRows = [], mapping = {}, customT = n
     const rawSize = mapping.size_spec ? sanitizeCellString(rawRow[mapping.size_spec]) : '';
     const rawUnit = mapping.unit ? sanitizeCellString(rawRow[mapping.unit]) : '';
     const rawQty = mapping.quantity ? cleanFormulaError(rawRow[mapping.quantity]) : undefined;
+    const rawMatCost = mapping.material_cost_per_unit ? cleanFormulaError(rawRow[mapping.material_cost_per_unit]) : undefined;
+
+    // Resolve CSI division / system codes (e.g. 02-31-00 -> 02 - Existing Conditions)
+    const resolvedSystem = resolveCsiSystem(rawSystem);
 
     // Use currentGroup as fallback if system is blank on row
-    const system = rawSystem || currentGroup || t('csvParser.defaultCategory');
+    const system = resolvedSystem || currentGroup || t('csvParser.defaultCategory');
 
     // Deconstruct description & size if size is embedded in description
     const { description, sizeSpec } = deconstructDescription(rawDescription, rawSize, t);
 
-    // Extract quantity and embedded unit
-    const { quantity, unit: detectedUnit } = parseQuantityAndUnit(rawQty, rawUnit ? normalizeUnit(rawUnit) : 'LF');
+    // Extract quantity and embedded unit (supports accounting negatives and placeholder tokens like TBD)
+    const { quantity, unit: detectedUnit, isPlaceholder, rawToken } = parseQuantityAndUnit(rawQty, rawUnit ? normalizeUnit(rawUnit) : 'LF');
 
     if (!description && !rawSize) {
       // Row has no identifying text description
       return;
     }
 
-    if (Number.isNaN(quantity) || quantity <= 0) {
-      // If quantity is missing or 0 on an explicit item (or caused by #REF!/error), record error/warning
+    // If quantity is NaN or 0 without being an intentional placeholder (TBD/N/A), flag validation warning
+    if (Number.isNaN(quantity) || (quantity === 0 && !isPlaceholder)) {
       if (description) {
         errors.push(t('csvParser.errors.invalidRowQuantity', { row: rowNum, description, rawQty: rawQty !== undefined && rawQty !== null ? rawQty : 'N/A' }));
       }
       return;
+    }
+
+    // Material Cost per Unit extraction ($/unit)
+    let materialCostPerUnit = 0;
+    if (rawMatCost !== undefined && rawMatCost !== null && rawMatCost !== '') {
+      const parsedMatCost = cleanNumericValue(rawMatCost);
+      if (!Number.isNaN(parsedMatCost)) {
+        materialCostPerUnit = parsedMatCost;
+      }
     }
 
     // Depth extraction
@@ -629,8 +715,10 @@ export function normalizeRowsWithMapping(rawRows = [], mapping = {}, customT = n
       quantity,
       unit: detectedUnit || 'LF',
       avgDepthFt,
-      materialCostPerUnit: 0,
+      materialCostPerUnit,
       laborHoursPerUnit: 0,
+      hasMissingScope: !!isPlaceholder,
+      missingScopeReason: isPlaceholder ? (rawToken || 'TBD') : null,
     });
   });
 
@@ -727,7 +815,8 @@ export function parseRawCsv(fileOrText, selectedTableId = null) {
         resolve({
           headers,
           rows,
-          sampleMatrix: matrix.slice(0, 15),
+          sampleMatrix: matrix.slice(0, 30),
+          rawMatrix: matrix,
           headerRowIndex,
           confidence,
           sheetNames: [getTranslation('csvParser.errors.csvUploadSheet')],
@@ -995,7 +1084,8 @@ export async function parseRawExcel(file, selectedSheetName = null, selectedTabl
   return {
     headers,
     rows,
-    sampleMatrix: matrix.slice(0, 15),
+    sampleMatrix: matrix.slice(0, 30),
+    rawMatrix: matrix,
     headerRowIndex,
     confidence,
     sheetNames,
@@ -1006,8 +1096,6 @@ export async function parseRawExcel(file, selectedSheetName = null, selectedTabl
   };
 }
 
-const EXCEL_EXTENSIONS = ['.xlsx', '.xls', '.xlsm', '.xlsb'];
-
 export function isExcelFile(file) {
   const name = (file?.name || '').toLowerCase();
   return EXCEL_EXTENSIONS.some((ext) => name.endsWith(ext));
@@ -1016,8 +1104,6 @@ export function isExcelFile(file) {
 /**
  * Saved Vendor / Subcontractor Presets Management (LocalStorage)
  */
-const PRESETS_STORAGE_KEY = 'takeoff_engine_vendor_presets';
-
 export function getSavedVendorPresets() {
   try {
     const saved = localStorage.getItem(PRESETS_STORAGE_KEY);
@@ -1059,6 +1145,7 @@ export async function parseTakeoffFile(file, sheetName = null, tableId = null, c
     sheetNames,
     activeSheetName,
     sampleMatrix,
+    rawMatrix,
     headerRowIndex,
     confidence: headerConfidence,
     subTables,
@@ -1108,6 +1195,7 @@ export async function parseTakeoffFile(file, sheetName = null, tableId = null, c
       matchConfidences,
       overallConfidence,
       sampleMatrix,
+      rawMatrix: rawMatrix || sampleMatrix,
       headerRowIndex,
       sheetNames: sheetNames || [],
       activeSheetName,

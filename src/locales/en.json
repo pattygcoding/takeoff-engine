@@ -228,6 +228,8 @@
     "title": "Match Spreadsheet Columns",
     "confidenceLabel": "Auto-detection confidence:",
     "confirmOrRemap": "Confirm or remap columns:",
+    "headerRowLabel": "Headers start on Row:",
+    "headerRowOption": "Row {{row}}",
     "sheetTab": "Sheet Tab:",
     "sideBySideNotice": "We detected multiple side-by-side tables. Select which area to import:",
     "subTableSelect": "Table Area:",
@@ -239,6 +241,7 @@
     "tableHeaderQuantity": "Quantity",
     "tableHeaderUnit": "Unit",
     "tableHeaderDepth": "Depth (FT)",
+    "tableHeaderMaterialCost": "Mat $/Unit",
     "selectFileColumn": "-- Select File Column --",
     "matchConfidence": "{{confidence}}% match",
     "saveAsVendorPreset": "Save as vendor preset:",
@@ -627,7 +630,9 @@
     "materialCostPerUnit": "Material $/Unit",
     "laborHoursPerUnit": "Labor Hrs/Unit",
     "addRow": "Add Row",
-    "deleteRow": "Delete row"
+    "deleteRow": "Delete row",
+    "missingScopeBadge": "Missing Scope",
+    "missingScopeTooltip": "Scope requires field verification / pricing review"
   },
   "stepper": {
     "step1Label": "Upload Takeoff",
@@ -1397,7 +1402,9 @@
       "unitLabel": "Unit of Measure",
       "unitDesc": "LF, EA, CY, SF, TON, LS, etc.",
       "avgDepthFtLabel": "Avg Trench Depth (FT)",
-      "avgDepthFtDesc": "Optional depth for trench earthwork & backfill math"
+      "avgDepthFtDesc": "Optional depth for trench earthwork & backfill math",
+      "materialCostPerUnitLabel": "Material $/Unit",
+      "materialCostPerUnitDesc": "Unit material price or cost per unit"
     },
     "defaultCategory": "General Takeoff",
     "defaultDescription": "Takeoff Item",

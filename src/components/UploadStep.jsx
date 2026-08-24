@@ -236,6 +236,8 @@ export default function UploadStep({ onItemsParsed }) {
           initialMapping={mappingModalData.currentMapping}
           matchConfidences={mappingModalData.matchConfidences}
           overallConfidence={mappingModalData.overallConfidence}
+          sampleMatrix={mappingModalData.rawMatrix || mappingModalData.sampleMatrix || []}
+          initialHeaderRowIndex={mappingModalData.headerRowIndex ?? 0}
           sheetNames={mappingModalData.sheetNames}
           activeSheetName={mappingModalData.activeSheetName}
           subTables={mappingModalData.subTables || []}

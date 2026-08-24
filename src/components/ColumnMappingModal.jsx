@@ -1,13 +1,22 @@
-import React, { useState, useMemo } from 'react';
-import { getTargetFields, normalizeRowsWithMapping, saveVendorPreset, getSavedVendorPresets } from '@/lib/csv';
+import React, { useState, useMemo, useEffect } from 'react';
+import {
+  getTargetFields,
+  normalizeRowsWithMapping,
+  saveVendorPreset,
+  getSavedVendorPresets,
+  extractHeadersAndRowsAtHeaderRow,
+  autoDetectColumnMapping,
+} from '@/lib/csv';
 import { useTranslation } from '@/context/I18nContext';
 
 export default function ColumnMappingModal({
-  headers,
-  rawRows,
+  headers: initialHeaders,
+  rawRows: initialRawRows,
   initialMapping,
-  matchConfidences = {},
-  overallConfidence = 0,
+  matchConfidences: initialMatchConfidences = {},
+  overallConfidence: initialOverallConfidence = 0,
+  sampleMatrix = [],
+  initialHeaderRowIndex = 0,
   sheetNames = [],
   activeSheetName = '',
   subTables = [],
@@ -19,11 +28,40 @@ export default function ColumnMappingModal({
 }) {
   const { t } = useTranslation();
   const targetFields = useMemo(() => getTargetFields(t), [t]);
+
+  const [headerRowIndex, setHeaderRowIndex] = useState(initialHeaderRowIndex);
+  const [currentHeaders, setCurrentHeaders] = useState(initialHeaders || []);
+  const [currentRawRows, setCurrentRawRows] = useState(initialRawRows || []);
   const [mapping, setMapping] = useState({ ...initialMapping });
+  const [matchConfidences, setMatchConfidences] = useState({ ...initialMatchConfidences });
+  const [overallConfidence, setOverallConfidence] = useState(initialOverallConfidence);
   const [validationError, setValidationError] = useState('');
   const [presetName, setPresetName] = useState('');
   const [showPresetSaved, setShowPresetSaved] = useState(false);
   const [savedPresets, setSavedPresets] = useState(() => getSavedVendorPresets());
+
+  // Allow choosing header row among available matrix rows (up to 30 rows)
+  const maxHeaderOptions = Math.min(sampleMatrix?.length || 1, 30);
+  const headerRowOptions = Array.from({ length: maxHeaderOptions }, (_, i) => i);
+
+  const handleHeaderRowChange = (newRowIndex) => {
+    const rIdx = Number(newRowIndex);
+    setHeaderRowIndex(rIdx);
+
+    if (sampleMatrix && sampleMatrix.length > 0) {
+      const { headers: newHeaders, rows: newRows } = extractHeadersAndRowsAtHeaderRow(sampleMatrix, rIdx);
+      setCurrentHeaders(newHeaders);
+      setCurrentRawRows(newRows);
+
+      // Re-run auto-detection with newly extracted headers
+      const { mapping: newAutoMapping, matchConfidences: newConfidences, overallConfidence: newOverallConf } =
+        autoDetectColumnMapping(newHeaders, newRows);
+
+      setMapping(newAutoMapping);
+      setMatchConfidences(newConfidences);
+      setOverallConfidence(newOverallConf);
+    }
+  };
 
   const handleChange = (targetKey, selectedCol) => {
     setMapping((prev) => ({
@@ -59,7 +97,7 @@ export default function ColumnMappingModal({
       return;
     }
 
-    const { items, errors, checksum } = normalizeRowsWithMapping(rawRows, mapping, t);
+    const { items, errors, checksum } = normalizeRowsWithMapping(currentRawRows, mapping, t);
     if (items.length === 0 && errors.length > 0) {
       setValidationError(t('columnMappingModal.validationErrorParsing', { error: errors[0] }));
       return;
@@ -69,7 +107,7 @@ export default function ColumnMappingModal({
   };
 
   // Compute live 5-row preview with current mapping
-  const previewRows = (rawRows || []).slice(0, 5);
+  const previewRows = (currentRawRows || []).slice(0, 5);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in overflow-y-auto">
@@ -88,6 +126,32 @@ export default function ColumnMappingModal({
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
+            {/* Header Row Index selector */}
+            {sampleMatrix && sampleMatrix.length > 1 && (
+              <div className="flex items-center gap-1.5 bg-slate-100/90 border border-slate-300 rounded-lg px-2 py-1">
+                <span className="text-[11px] text-slate-700 font-semibold">
+                  {t('columnMappingModal.headerRowLabel', 'Headers start on Row:')}
+                </span>
+                <select
+                  value={headerRowIndex}
+                  onChange={(e) => handleHeaderRowChange(e.target.value)}
+                  className="text-xs bg-white border border-slate-300 rounded px-1.5 py-0.5 font-bold text-slate-900"
+                >
+                  {headerRowOptions.map((r) => {
+                    const previewText = (sampleMatrix[r] || [])
+                      .filter(Boolean)
+                      .slice(0, 3)
+                      .join(', ');
+                    return (
+                      <option key={r} value={r}>
+                        {t('columnMappingModal.headerRowOption', { row: r + 1 })} {previewText ? `(${previewText.slice(0, 25)}...)` : ''}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+            )}
+
             {/* Side-by-side table selector if multiple tables detected */}
             {subTables.length > 1 && onTableChange && (
               <div className="flex items-center gap-1.5">
@@ -205,7 +269,7 @@ export default function ColumnMappingModal({
                       }`}
                     >
                       <option value="">{t('columnMappingModal.selectFileColumn')}</option>
-                      {headers.map((h, i) => (
+                      {currentHeaders.map((h, i) => (
                         <option key={i} value={h}>
                           {h}
                         </option>
@@ -231,6 +295,7 @@ export default function ColumnMappingModal({
                       <th className="p-2 text-slate-600 font-semibold">{t('columnMappingModal.tableHeaderQuantity')}</th>
                       <th className="p-2 text-slate-600 font-semibold">{t('columnMappingModal.tableHeaderUnit')}</th>
                       <th className="p-2 text-slate-600 font-semibold">{t('columnMappingModal.tableHeaderDepth')}</th>
+                      <th className="p-2 text-slate-600 font-semibold">{t('columnMappingModal.tableHeaderMaterialCost', 'Mat $/Unit')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200/60 bg-white">
@@ -253,6 +318,9 @@ export default function ColumnMappingModal({
                         </td>
                         <td className="p-2 text-slate-500 font-mono text-[11px]">
                           {mapping.avg_depth_ft ? String(row[mapping.avg_depth_ft] ?? '0') : '0'}
+                        </td>
+                        <td className="p-2 text-slate-700 font-mono text-[11px]">
+                          {mapping.material_cost_per_unit ? String(row[mapping.material_cost_per_unit] ?? '$0.00') : '$0.00'}
                         </td>
                       </tr>
                     ))}
