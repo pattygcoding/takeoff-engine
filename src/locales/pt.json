@@ -1461,12 +1461,39 @@
     }
   },
   "footer": {
-    "brandName": "Motor de decolagem",
-    "copyright": "© {{year}} Motor de decolagem. Todos os direitos reservados.",
-    "home": "Lar",
+    "brandName": "Takeoff Engine",
+    "copyright": "© {{year}} Takeoff Engine. Todos os direitos reservados.",
+    "home": "Início",
     "dashboard": "Painel",
     "documentation": "Documentação",
-    "acceptableUsePolicy": "Política de uso aceitável"
+    "acceptableUsePolicy": "Política de uso aceitável",
+    "legalDisclaimer": "Isenção de Responsabilidade Legal"
+  },
+  "legalDisclaimer": {
+    "badge": "Proteção Legal e de Risco",
+    "title": "Isenção de Responsabilidade e Limitação de Danos",
+    "headerTitle": "Isenção de Responsabilidade Legal para Orçamentação de Obras",
+    "effectiveDate": "Data de vigência: {{date}}",
+    "subtitle": "Condições essenciais de serviço, isenção de garantias e limitação de responsabilidade para empreiteiros e orçamentistas",
+    "s1Title": "Ferramenta Matemática e Não Garantia de Estimativas",
+    "s1Body": "O Takeoff Engine fornece ferramentas de software de processamento quantitativo e cálculo de custos projetadas para auxiliar empreiteiros, orçamentistas e engenheiros. Todos os cálculos, resumos de custos de propostas, cubagens de terraplenagem e valas, tabelas de taxas e documentos de exportação gerados por esta plataforma constituem exclusivamente estimativas matemáticas orientativas. O Takeoff Engine NÃO presta serviços de arquitetura, engenharia estrutural ou civil, agrimensura, consultoria jurídica ou assessoria profissional credenciada. NÃO garantimos a precisão matemática dos lances, a suficiência dos preços, a rentabilidade dos projetos ou a adjudicação de contratos.",
+    "s2Title": "Responsabilidade do Empreiteiro e Verificação Obrigatória em Campo",
+    "s2Body": "O usuário (empreiteiro geral, subempreiteiro ou orçamentista) retém a responsabilidade única, final e exclusiva de verificar todas as dimensões, quantidades, especificações e custos do projeto antes de submeter lances, celebrar contratos ou encomendar materiais. O usuário reconhece expressamente que:",
+    "s2Item1": "Conferência de Pranchas e Projetos: O usuário é o único responsável por cruzar todos os quantitativos do levantamento com os conjuntos de projetos executivos completos, relatórios geotécnicos de sondagem, aditivos e memoriais descritivos.",
+    "s2Item2": "Condições Geotécnicas e do Subsolo: Volumes de escavação, profundidades de valas, fatores de empolamento/compactação e incidência de rocha/lençol freático devem ser verificados em campo. Os cálculos de valas do Takeoff Engine são aproximações geométricas e não detectam rocha oculta, interferências subterrâneas ou desmoronamentos.",
+    "s2Item3": "Volatilidade de Preços de Materiais e Mão de Obra: Preços de materiais, cotações de fornecedores, sobretaxas de combustível, reajustes salariais e flutuações de mercado devem ser confirmados independentemente com fornecedores e terceirizados antes do envio de propostas.",
+    "s2Item4": "Completude do Escopo e Exclusões: Alertas de escopo faltante, linhas não mapeadas e itens marcados como pendentes (TBD, HOLD, N/A) devem ser revisados manualmente. O software não garante que todos os requisitos do edital ou detalhes do projeto foram integralmente capturados.",
+    "s3Title": "Isenção de Garantias e Fornecimento \"No Estado em que se Encontra\"",
+    "s3Body": "O Takeoff Engine é disponibilizado \"NO ESTADO EM QUE SE ENCONTRA\" e \"CONFORME DISPONÍVEL\", sem garantias de qualquer tipo, expressas, legais ou implícitas. Na máxima extensão permitida pela legislação aplicável, o Takeoff Engine renuncia a todas as garantias, incluindo, entre outras, garantias implícitas de comerciabilidade, adequação a uma finalidade específica na construção civil, precisão algorítmica, disponibilidade ininterrupta e não violação.",
+    "s4Title": "Limitação de Responsabilidade e Danos Indiretos",
+    "s4Body": "Em nenhuma hipótese o Takeoff Engine, seus criadores, fundadores, desenvolvedores, diretores ou afiliados serão responsáveis por quaisquer danos decorrentes do uso ou da impossibilidade de uso desta plataforma ou das estimativas geradas, incluindo, mas não se limitando a:",
+    "s4Item1": "Perdas Diretas ou Indiretas de Licitacões: Orçamentos subestimados, perdas de lucro do empreiteiro, penalidades por atraso em cronogramas, perda de garantias de proposta, estouros de custos ou desclassificação em concorrências.",
+    "s4Item2": "Falta ou Excesso de Materiais: Compras a mais de materiais, desabastecimento em canteiro, custos de devolução de fornecedores ou atrasos de entrega decorrentes de divergências de quantitativos.",
+    "s4Item3": "Teto Máximo de Responsabilidade: Em todas as jurisdições onde as limitações de responsabilidade forem aplicáveis, a responsabilidade acumulada total do Takeoff Engine por qualquer reivindicação não excederá o valor total efetivamente pago pelo usuário ao Takeoff Engine pelo acesso à plataforma durante os doze (12) meses anteriores à ocorrência da reivindicação, ou US$ 100,00, o que for menor.",
+    "s5Title": "Dados de Terceiros, Integrações de Software e Planilhas Enviadas",
+    "s5Body": "O Takeoff Engine processa dados importados de fontes terceiras (como Bluebeam Revu, PlanSwift, HeavyBid, Trimble/Agtek, arquivos CSV e planilhas Excel). O Takeoff Engine não se responsabiliza por fórmulas corrompidas, linhas ocultas, convenções de unidades incorretas, cabeçalhos incorretamente identificados ou erros de medição contidos nos arquivos de origem fornecidos pelo usuário.",
+    "s6Title": "Propostas Comerciais, Assinaturas Eletrônicas e Contratos Executáveis",
+    "s6Body": "As propostas e minutas contratuais geradas pelo Takeoff Engine são minutas comerciais criadas sob orientação do empreiteiro. Recomenda-se veementemente que empreiteiros e clientes submetam todos os contratos de empreitada, cronogramas de desembolso, escopos de trabalho e cláusulas de indenização à revisão de assessoria jurídica qualificada antes da assinatura formal."
   },
   "usagePolicy": {
     "badge": "Jurídico e Termos",

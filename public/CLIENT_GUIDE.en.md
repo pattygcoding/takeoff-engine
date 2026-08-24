@@ -37,12 +37,31 @@ Takeoff Engine uses **fuzzy alias matching (Levenshtein distance)**. You **do no
 | `unit` | Yes | `Unit`, `UOM`, `Unit of Measure`, `Measure`, `Units`, `Unit Type` | Trade unit of measure (`LF`, `EA`, `CY`, `SF`, `SY`, `TON`, `LS`, `HR`, or custom units) |
 | `avg_depth_ft` | No | `Avg Trench Depth`, `Avg Depth (FT)`, `Depth (ft)`, `Trench Depth`, `Cut Depth`, `Invert Depth` | Optional average trench depth in feet (for trench earthwork & backfill math) |
 | `material_cost_per_unit` | No | `Material $/Unit`, `Mat $/Unit`, `Material Cost`, `Unit Price`, `Material Rate`, `Unit Cost`, `Cost/Unit` | Unit material price or cost per unit (e.g. `$42.50`, `$1,350.00`, `$19.0857`) |
+| `labor_hours_per_unit` | No | `Labor Hours/Unit`, `Hrs/Unit`, `Labor $/Unit`, `Labor Rate`, `Crew Hours`, `Unit Labor Cost`, `Labor Extension` | Labor productivity hours or direct unit labor cost per item (e.g. `0.25 hrs/LF` or `$15.00/LF`) |
 
 *Note: Column ordering and case sensitivity do not matter.*
 
 ---
 
-## 3. Resilient Parsing Capabilities
+## 3. Labor Estimation Modes (Labor Hours vs. Labor $/Unit)
+
+Takeoff Engine provides dual-mode labor calculation flexibility to match the workflow of both general contractors and specialized subcontractors:
+
+1. **Labor Hours Mode (`Hrs/Unit`)**:
+   - Items specify labor productivity as hours required per unit (e.g. `0.35 hrs/LF` or `1.50 hrs/EA`).
+   - Line Item Labor Cost = $\text{Quantity} \times \text{Labor Hours/Unit} \times \text{Base Labor Hourly Rate}$ (configured in the Rates Drawer).
+   - Ideal for crew-based productivity tracking and project staffing projections.
+
+2. **Labor Cost Mode (`$/Unit`)**:
+   - Items specify labor as a fixed unit cost (e.g. `$25.00/LF` or `$150.00/EA`).
+   - Line Item Labor Cost = $\text{Quantity} \times \text{Labor \$/Unit}$ directly, bypassing multiplication by the base hourly rate.
+   - Ideal for subcontractor quotes, trade piece-rate bidding, or pre-burdened unit pricing.
+
+You can switch between **Hrs/Unit** and **$/Unit** at any time directly in the estimating grid header toggle or in the Rates Drawer. The engine maintains real-time bidirectional synchronization between hours and dollars based on your active base labor rate.
+
+---
+
+## 4. Resilient Parsing Capabilities
 
 The ingestion pipeline handles raw exports without manual cleanup:
 
@@ -104,7 +123,7 @@ The ingestion pipeline handles raw exports without manual cleanup:
 
 ---
 
-## 4. Interactive Column Mapping & Vendor Presets
+## 5. Interactive Column Mapping & Vendor Presets
 
 If a file has ambiguous columns or custom formatting (confidence score < 90%):
 
@@ -114,7 +133,7 @@ If a file has ambiguous columns or custom formatting (confidence score < 90%):
 
 ---
 
-## 5. What Happens After You Upload
+## 6. What Happens After You Upload
 
 - The file is parsed and validated in milliseconds with deterministic rules.
 - If any invalid quantities exist, detailed error messages are listed with row numbers so you can review them.

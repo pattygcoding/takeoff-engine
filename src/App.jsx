@@ -13,6 +13,7 @@ import ClientProposalView from '@/components/ClientProposalView';
 import AdminPortal from '@/components/AdminPortal';
 import ClientGuidePage from '@/components/ClientGuidePage';
 import UsagePolicyPage from '@/components/UsagePolicyPage';
+import LegalDisclaimerPage from '@/components/LegalDisclaimerPage';
 import AcceptInvitePage from '@/components/AcceptInvitePage';
 import UpgradeModal from '@/components/UpgradeModal';
 import AppFooter from '@/components/AppFooter';
@@ -410,6 +411,16 @@ function AppContent() {
           element={<UsagePolicyPage />}
         />
 
+        {/* Legal Disclaimer & Limitation of Liability */}
+        <Route
+          path="/disclaimer"
+          element={<LegalDisclaimerPage />}
+        />
+        <Route
+          path="/legal-disclaimer"
+          element={<LegalDisclaimerPage />}
+        />
+
         {/* Public Client Proposal & E-Signature View */}
         <Route
           path="/p/:publicToken"
@@ -430,6 +441,10 @@ function AppContent() {
         <Route
           path="/:username/terms"
           element={<UsagePolicyPage />}
+        />
+        <Route
+          path="/:username/disclaimer"
+          element={<LegalDisclaimerPage />}
         />
         <Route
           path="/:username/settings"

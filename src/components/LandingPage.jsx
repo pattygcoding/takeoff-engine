@@ -573,8 +573,11 @@ export default function LandingPage() {
             <button onClick={() => navigate('/register')} className="hover:text-white transition">
               {t('landing.footer.createAccount')}
             </button>
-            <button onClick={() => navigate('/terms')} className="text-indigo-400 hover:text-indigo-300 font-medium transition">
+            <button onClick={() => navigate('/terms')} className="text-slate-400 hover:text-white font-medium transition">
               {t('footer.acceptableUsePolicy')}
+            </button>
+            <button onClick={() => navigate('/disclaimer')} className="text-amber-400 hover:text-amber-300 font-medium transition">
+              {t('footer.legalDisclaimer')}
             </button>
           </div>
           <p className="font-semibold text-slate-400">{t('landing.footer.tagline')}</p>

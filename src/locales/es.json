@@ -1461,12 +1461,39 @@
     }
   },
   "footer": {
-    "brandName": "Motor de despegue",
-    "copyright": "© {{año}} Motor de despegue. Reservados todos los derechos.",
-    "home": "Hogar",
+    "brandName": "Takeoff Engine",
+    "copyright": "© {{year}} Takeoff Engine. Todos los derechos reservados.",
+    "home": "Inicio",
     "dashboard": "Panel",
     "documentation": "Documentación",
-    "acceptableUsePolicy": "Política de uso aceptable"
+    "acceptableUsePolicy": "Política de uso aceptable",
+    "legalDisclaimer": "Descargo de responsabilidad legal"
+  },
+  "legalDisclaimer": {
+    "badge": "Protección legal y de riesgos",
+    "title": "Descargo de responsabilidad y limitación de responsabilidad",
+    "headerTitle": "Descargo de Responsabilidad Legal de Estimación de Construcción",
+    "effectiveDate": "Fecha de vigencia: {{date}}",
+    "subtitle": "Términos importantes de uso, no garantía y limitaciones de responsabilidad para contratistas y estimadores",
+    "s1Title": "Herramienta matemática y no garantía de estimaciones",
+    "s1Body": "Takeoff Engine proporciona herramientas de cálculo y procesamiento automatizado de cantidades diseñadas para asistir a contratistas de construcción, estimadores e ingenieros. Todos los cálculos, resúmenes de precios, modelos de movimiento de tierras y zanjas, aplicaciones de tarifas y documentos de exportación generados por este software son únicamente estimaciones preliminares. Takeoff Engine NO presta servicios de arquitectura, ingeniería estructural, ingeniería civil, agrimensura, asesoría legal ni consultoría profesional colegiada. NO garantizamos la integridad matemática, la suficiencia de precios, la rentabilidad ni el éxito de licitación de ningún presupuesto producido.",
+    "s2Title": "Responsabilidad del contratista y verificación obligatoria en campo",
+    "s2Body": "El usuario (contratista, subcontratista o estimador) asume la responsabilidad única y exclusiva de verificar todas las dimensiones, cantidades, especificaciones y costos del proyecto antes de presentar cualquier oferta, celebrar contratos u ordenar materiales de construcción. Específicamente, los usuarios reconocen y aceptan que:",
+    "s2Item1": "Revisión de planos y especificaciones: El usuario es el único responsable de cotejar todas las cantidades calculadas con los juegos completos de planos de ingeniería, estudios geotécnicos de suelos, adendas y especificaciones del proyecto.",
+    "s2Item2": "Condiciones del subsuelo y geotécnicas: Los volúmenes de excavación de suelo, profundidades de zanja, factores de esponjamiento/compactación y clasificaciones de roca/agua deben verificarse mediante perforaciones de campo y condiciones locales reales. Los cálculos de zanjas de Takeoff Engine son estimaciones geométricas y no contemplan roca subterránea, servicios no localizables ni derrumbes adversos de zanjas.",
+    "s2Item3": "Volatilidad de precios de materiales y mano de obra: Los costos de materiales, cotizaciones de proveedores, recargos por combustible, aumentos salariales y la volatilidad del mercado regional deben confirmarse de manera independiente con proveedores locales y gremios antes de presentar la oferta.",
+    "s2Item4": "Integridad del alcance y exclusiones: Las etiquetas de alcance faltante, los elementos no asignados y los marcadores de posición (TBD, HOLD, N/A) deben revisarse manualmente. El software no certifica si se han capturado en su totalidad todos los requisitos de los pliegos o detalles de los planos.",
+    "s3Title": "Exclusión de garantías y provisión de software \"tal cual\"",
+    "s3Body": "Takeoff Engine se proporciona \"TAL CUAL\" y \"SEGÚN DISPONIBILIDAD\", sin garantías de ningún tipo, ya sean expresas, legales o implícitas. En la máxima medida permitida por la ley aplicable, Takeoff Engine renuncia a todas las garantías, incluidas, entre otras, las garantías implícitas de comerciabilidad, idoneidad para un propósito particular de construcción, precisión de algoritmos, tiempo de actividad del sistema y no infracción.",
+    "s4Title": "Limitación de responsabilidad y daños consecuentes",
+    "s4Body": "Bajo ninguna circunstancia Takeoff Engine, sus creadores, fundadores, desarrolladores, directivos o afiliados serán responsables de ningún daño derivado del uso o la imposibilidad de usar esta plataforma o las estimaciones generadas en la misma, incluidos, entre otros:",
+    "s4Item1": "Pérdidas de licitación directas o indirectas: Subestimación de ofertas, pérdida de beneficios del contratista, daños y perjuicios liquidados, pérdida de fianzas de propuesta, sobrecostos del proyecto u ofertas rechazadas.",
+    "s4Item2": "Escasez o exceso de materiales: Pedidos excesivos, déficit de suministros, cargos por reabastecimiento de proveedores o retrasos en las entregas derivados de discrepancias en las cantidades del cómputo.",
+    "s4Item3": "Límite máximo de responsabilidad: En todas las jurisdicciones donde las limitaciones de responsabilidad sean exigibles, la responsabilidad total acumulada de Takeoff Engine por cualquier reclamo no excederá el monto total pagado por el usuario a Takeoff Engine por el acceso a la plataforma en los doce (12) meses anteriores al reclamo, o $100.00 USD, lo que sea menor.",
+    "s5Title": "Datos de terceros, integraciones de software y archivos de hojas de cálculo cargados",
+    "s5Body": "Takeoff Engine procesa datos de fuentes de terceros (incluidos Bluebeam Revu, PlanSwift, HeavyBid, Trimble/Agtek, CSV y hojas de cálculo de Excel). Takeoff Engine no se hace responsable de fórmulas corruptas, filas ocultas, convenciones de unidades incorrectas, columnas mal etiquetadas o mediciones erróneas presentes en los archivos de origen cargados por el usuario.",
+    "s6Title": "Propuestas de clientes, firmas electrónicas y contratos vinculantes",
+    "s6Body": "Las propuestas y acuerdos generados a través de Takeoff Engine son borradores de documentos comerciales creados bajo la dirección y criterio del contratista. Se recomienda encarecidamente a contratistas y clientes que todos los contratos de construcción, hitos de pago, alcances incluidos y cláusulas de indemnización sean revisados por un asesor legal colegiado antes de su formalización."
   },
   "usagePolicy": {
     "badge": "Términos legales y términos",

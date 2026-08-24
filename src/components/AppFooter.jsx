@@ -60,9 +60,17 @@ export default function AppFooter() {
           <button
             type="button"
             onClick={() => navigate('/terms')}
-            className="font-semibold text-indigo-600 dark:text-indigo-400 hover:underline transition"
+            className="hover:text-indigo-600 transition"
           >
             {t('footer.acceptableUsePolicy')}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => navigate('/disclaimer')}
+            className="font-semibold text-amber-600 dark:text-amber-400 hover:underline transition"
+          >
+            {t('footer.legalDisclaimer')}
           </button>
         </div>
       </div>

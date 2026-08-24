@@ -35,14 +35,33 @@ Takeoff Engine utiliza **coincidencia difusa de alias (distancia de Levenshtein)
 | `size_spec` | Sí | `Size / Spec`, `Pipe Size`, `Dimension`, `Material Class`, `Specification`, `Diameter`, `Rating` | Diámetro de tubería o especificación de material (p. ej. `8" PVC SDR-35`, `48" Precast`, `6" C900`) |
 | `quantity` | Sí | `Quantity`, `Qty`, `Takeoff Qty`, `Total Qty`, `Linear Feet`, `Amount`, `Count`, `Volume`, `Footage` | Cantidad numérica o medición (p. ej. `275`, `1,250`, `45.5`, deductivos `(350.00)`, `TBD`) |
 | `unit` | Sí | `Unit`, `UOM`, `Unit of Measure`, `Measure`, `Units`, `Unit Type` | Unidad de medida de la especialidad (`LF`, `EA`, `CY`, `SF`, `SY`, `TON`, `LS`, `HR` o unidades personalizadas) |
-| `avg_depth_ft` | No | `Avg Trench Depth`, `Avg Depth (FT)`, `Depth (ft)`, `Trench Depth`, `Cut Depth`, `Invert Depth` | Profundidad promedio opcional de la zanja en pies (para cálculos de movimiento de tierras y relleno) |
-| `material_cost_per_unit` | No | `Material $/Unit`, `Mat $/Unit`, `Material Cost`, `Unit Price`, `Material Rate`, `Unit Cost`, `Cost/Unit` | Precio unitario de material o costo por unidad (p. ej. `$42.50`, `$1,350.00`, `$19.0857`) |
+| `avg_depth_ft` | No | `Avg Trench Depth`, `Avg Depth (FT)`, `Depth (ft)`, `Trench Depth`, `Cut Depth`, `Invert Depth` | Profundidad promedio de la zanja en pies (opcional, para cálculos de movimiento de tierras y relleno) |
+| `material_cost_per_unit` | No | `Material $/Unit`, `Mat $/Unit`, `Material Cost`, `Unit Price`, `Material Rate`, `Unit Cost`, `Cost/Unit` | Precio o costo unitario del material (p. ej. `$42.50`, `$1,350.00`, `$19.0857`) |
+| `labor_hours_per_unit` | No | `Labor Hours/Unit`, `Hrs/Unit`, `Labor $/Unit`, `Labor Rate`, `Crew Hours`, `Unit Labor Cost`, `Labor Extension` | Horas de productividad laboral o costo unitario directo de mano de obra por partida (p. ej. `0.25 hrs/LF` o `$15.00/LF`) |
 
 *Nota: El orden de las columnas y el uso de mayúsculas o minúsculas no importan.*
 
 ---
 
-## 3. Capacidades de Procesamiento Resiliente
+## 3. Modos de Estimación de Mano de Obra (Horas de Mano de Obra vs. Mano de Obra $/Unidad)
+
+Takeoff Engine ofrece flexibilidad de cálculo con dos modos de mano de obra para adaptarse al flujo de trabajo tanto de contratistas generales como de subcontratistas especializados:
+
+1. **Modo Horas de Mano de Obra (`Horas/Unidad`)**:
+   - Las partidas especifican la productividad en horas requeridas por unidad de medida (p. ej. `0.35 hrs/LF` o `1.50 hrs/EA`).
+   - Costo de Mano de Obra de la Partida = $\text{Cantidad} \times \text{Horas de Mano de Obra/Unidad} \times \text{Tarifa Horaria Base}$ (configurada en el Panel de Tarifas).
+   - Ideal para control de rendimiento de cuadrillas y proyecciones de dotación de personal.
+
+2. **Modo Costo de Mano de Obra (`$/Unidad`)**:
+   - Las partidas especifican la mano de obra directamente como un precio o costo unitario fijo (p. ej. `$25.00/LF` o `$150.00/EA`).
+   - Costo de Mano de Obra de la Partida = $\text{Cantidad} \times \text{Mano de Obra \$/Unidad}$ directamente, sin multiplicar por la tarifa horaria base.
+   - Ideal para cotizaciones de subcontratistas, licitaciones a destajo o precios unitarios cerrados.
+
+Puede alternar entre **Horas/Unidad** y **$/Unidad** en cualquier momento desde el selector en el encabezado de la cuadrícula o en el Panel de Tarifas. El motor mantiene una sincronización bidireccional en tiempo real entre horas y dólares según la tarifa horaria base activa.
+
+---
+
+## 4. Capacidades de Procesamiento Resiliente
 
 El pipeline de ingesta procesa exportaciones sin procesar sin necesidad de limpieza manual:
 
@@ -104,7 +123,7 @@ El pipeline de ingesta procesa exportaciones sin procesar sin necesidad de limpi
 
 ---
 
-## 4. Mapeo Interactivo de Columnas y Ajustes Preestablecidos de Proveedores
+## 5. Mapeo Interactivo de Columnas y Ajustes Preestablecidos de Proveedores
 
 Si un archivo tiene columnas ambiguas o formato personalizado (puntuación de confianza < 90%):
 
@@ -114,7 +133,7 @@ Si un archivo tiene columnas ambiguas o formato personalizado (puntuación de co
 
 ---
 
-## 5. Qué Sucede Después de la Carga
+## 6. Qué Sucede Después de la Carga
 
 - El archivo se analiza y valida en milisegundos mediante reglas deterministas.
 - Si existen cantidades no válidas, se detallan mensajes de error con los números de fila para su revisión.

@@ -1461,12 +1461,39 @@
     }
   },
   "footer": {
-    "brandName": "Moteur de décollage",
-    "copyright": "© {{year}} Moteur de décollage. Tous droits réservés.",
-    "home": "Maison",
+    "brandName": "Takeoff Engine",
+    "copyright": "© {{year}} Takeoff Engine. Tous droits réservés.",
+    "home": "Accueil",
     "dashboard": "Tableau de bord",
     "documentation": "Documentation",
-    "acceptableUsePolicy": "Politique d'utilisation acceptable"
+    "acceptableUsePolicy": "Politique d'utilisation acceptable",
+    "legalDisclaimer": "Avis de non-responsabilité juridique"
+  },
+  "legalDisclaimer": {
+    "badge": "Protection juridique et des risques",
+    "title": "Avis de non-responsabilité et limitation de responsabilité",
+    "headerTitle": "Avis de Non-Responsabilité Juridique pour le Chiffrage de Construction",
+    "effectiveDate": "Date d'entrée en vigueur : {{date}}",
+    "subtitle": "Conditions importantes d'utilisation, exclusion de garantie et limitation de responsabilité pour les entrepreneurs et métreurs",
+    "s1Title": "Outil de calcul et absence de garantie sur les estimations",
+    "s1Body": "Takeoff Engine fournit des outils de calcul et de traitement automatisé des quantités conçus pour assister les entrepreneurs en construction, les métreurs et les ingénieurs. Tous les calculs, récapitulatifs de prix, cubatures de terrassement et de tranchées, grilles tarifaires et documents d'exportation générés par ce logiciel constituent uniquement des estimations indicatives. Takeoff Engine NE fournit PAS de services d'architecture, d'ingénierie structurelle, de génie civil, d'arpentage, de conseil juridique ou d'expertise professionnelle agréée. Nous ne garantissons PAS l'exactitude mathématique, la suffisance des prix, la rentabilité ou l'attribution des marchés pour les devis produits.",
+    "s2Title": "Responsabilité de l'entrepreneur et vérification obligatoire sur site",
+    "s2Body": "L'utilisateur (entrepreneur général, sous-traitant ou métreur) conserve la responsabilité unique et exclusive de vérifier l'ensemble des dimensions, quantités, spécifications et coûts du projet avant de soumettre une offre, de signer un contrat ou de commander des matériaux. L'utilisateur reconnaît et accepte notamment que :",
+    "s2Item1": "Examen des plans et devis : L'utilisateur est seul responsable du recoupement de toutes les quantités du métré avec les dossiers de plans d'ingénierie complets, les rapports géotechniques de sol, les addendas et les cahiers des charges techniques.",
+    "s2Item2": "Conditions du sous-sol et géotechniques : Les volumes d'excavation, profondeurs de tranchée, coefficients de foisonnement/compactage et natures de roche/eau doivent être vérifiés par des forages et constats sur site. Les calculs de tranchée de Takeoff Engine sont des estimations géométriques et n'intègrent pas la présence de roche masquée, de réseaux enterrés non repérés ou d'éboulements.",
+    "s2Item3": "Volatilité des prix des matériaux et de la main-d'œuvre : Les coûts des matériaux, devis des fournisseurs, surcharges de carburant, augmentations salariales et variations locales du marché doivent être confirmés de manière indépendante auprès des fournisseurs et corps de métier avant soumission de l'offre.",
+    "s2Item4": "Exhaustivité du périmètre et exclusions : Les avertissements de périmètre manquant, les lignes non mappées et les balises d'attente (TBD, HOLD, N/A) doivent être vérifiés manuellement. Le logiciel ne garantit pas que toutes les exigences du marché ou détails des plans ont été intégralement saisis.",
+    "s3Title": "Absence de garanties et mise à disposition \"en l'état\"",
+    "s3Body": "Takeoff Engine est fourni \"EN L'ÉTAT\" et \"SELON DISPONIBILITÉ\", sans garantie d'aucune sorte, expresse, légale ou implicite. Dans toute la mesure permise par la loi applicable, Takeoff Engine décline toute garantie, y compris, mais sans s'y limiter, les garanties implicites de qualité marchande, d'adéquation à un usage particulier dans la construction, d'exactitude algorithmique, de disponibilité du système et d'absence de contrefaçon.",
+    "s4Title": "Limitation de responsabilité et dommages indirects",
+    "s4Body": "En aucun cas Takeoff Engine, ses créateurs, fondateurs, développeurs, dirigeants ou affiliés ne pourront être tenus responsables de tout dommage résultant de l'utilisation ou de l'impossibilité d'utiliser cette plateforme ou les estimations générées, y compris, mais sans s'y limiter :",
+    "s4Item1": "Pertes directes ou indirectes liées aux offres : Sous-évaluation d'un devis, pertes de bénéfices de l'entrepreneur, pénalités de retard, perte de cautionnement de soumission, dépassements de coûts ou rejets d'offres.",
+    "s4Item2": "Pénuries ou surplus de matériaux : Commandes excédentaires, ruptures d'approvisionnement, frais de retour fournisseur ou retards de livraison découlant d'écarts de quantités sur le métré.",
+    "s4Item3": "Plafond maximal de responsabilité : Dans toutes les juridictions où les limitations de responsabilité sont applicables, la responsabilité globale de Takeoff Engine pour toute réclamation ne pourra excéder le montant total payé par l'utilisateur à Takeoff Engine pour l'accès à la plateforme au cours des douze (12) mois précédant la réclamation, ou 100,00 $ USD, le montant le plus faible étant retenu.",
+    "s5Title": "Données tierces, intégrations logicielles et feuilles de calcul téléversées",
+    "s5Body": "Takeoff Engine traite des données provenant de sources tierces (notamment Bluebeam Revu, PlanSwift, HeavyBid, Trimble/Agtek, fichiers CSV et feuilles de calcul Excel). Takeoff Engine n'est pas responsable des formules corrompues, lignes masquées, conventions d'unités erronées, en-têtes mal identifiés ou erreurs de mesure figurant dans les fichiers sources fournis par l'utilisateur.",
+    "s6Title": "Propositions commerciales, signatures électroniques et contrats exécutoires",
+    "s6Body": "Les propositions et contrats générés via Takeoff Engine sont des projets de documents commerciaux créés sous la direction de l'entrepreneur. Il est vivement recommandé aux entrepreneurs et à leurs clients de faire réviser l'ensemble des contrats de construction, échéanciers de paiement, périmètres de travaux et clauses d'indemnisation par un conseiller juridique qualifié avant leur signature officielle."
   },
   "usagePolicy": {
     "badge": "Mentions légales et conditions",
