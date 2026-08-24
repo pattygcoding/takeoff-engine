@@ -1270,6 +1270,17 @@ export function saveVendorPreset(presetName, mapping) {
   }
 }
 
+export function deleteVendorPreset(presetName) {
+  if (!presetName) return;
+  try {
+    const current = getSavedVendorPresets();
+    delete current[presetName.trim()];
+    localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(current));
+  } catch (err) {
+    console.warn('Could not delete vendor preset:', err);
+  }
+}
+
 /**
  * High-level Mega-Resilient Parser Entrypoint:
  * Reads CSV/Excel, runs 2D header sniffing, auto-matches aliases, checks confidence.

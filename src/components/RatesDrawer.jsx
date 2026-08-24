@@ -118,6 +118,51 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
     onChange({ ...rates, [field]: type });
   };
 
+  const miscItems = Array.isArray(rates.miscItems) ? rates.miscItems : [];
+
+  const handleAddMiscItem = () => {
+    const newItem = {
+      id: String(Date.now() + Math.random()),
+      title: '',
+      amount: '',
+    };
+    const updated = [...miscItems, newItem];
+    const totalAmount = updated.reduce((sum, it) => sum + (Number(it.amount) || 0), 0);
+    onChange({
+      ...rates,
+      miscItems: updated,
+      miscCost: totalAmount,
+    });
+  };
+
+  const handleUpdateMiscItem = (id, field, val) => {
+    const updated = miscItems.map((item) => {
+      if (item.id === id) {
+        return {
+          ...item,
+          [field]: field === 'amount' ? (val === '' ? '' : Number(val)) : val,
+        };
+      }
+      return item;
+    });
+    const totalAmount = updated.reduce((sum, it) => sum + (Number(it.amount) || 0), 0);
+    onChange({
+      ...rates,
+      miscItems: updated,
+      miscCost: totalAmount,
+    });
+  };
+
+  const handleRemoveMiscItem = (id) => {
+    const updated = miscItems.filter((item) => item.id !== id);
+    const totalAmount = updated.reduce((sum, it) => sum + (Number(it.amount) || 0), 0);
+    onChange({
+      ...rates,
+      miscItems: updated,
+      miscCost: totalAmount,
+    });
+  };
+
   return (
     <>
       {open && <div className="fixed inset-0 bg-black/30 z-20" onClick={onClose} />}
@@ -268,14 +313,75 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
               onTypeChange={(t) => updateType('equipmentType', t)}
               disabled={readOnly}
             />
-            <DualModeField
-              label={t('ratesDrawer.miscellaneousCosts')}
-              value={rates.miscCost ?? 0}
-              onChange={update('miscCost')}
-              type={rates.miscType || 'fixed'}
-              onTypeChange={(t) => updateType('miscType', t)}
-              disabled={readOnly}
-            />
+
+            {/* Itemized Miscellaneous Costs Section */}
+            <div className="mb-4 pt-2 border-t border-slate-100">
+              <div className="flex items-center justify-between mb-2">
+                <div>
+                  <span className="text-sm font-semibold text-slate-700 block">
+                    {t('ratesDrawer.miscellaneousCosts')}
+                  </span>
+                  <span className="text-[11px] text-slate-400">
+                    {t('ratesDrawer.miscTotal')} ${(rates.miscCost ?? 0).toLocaleString()}
+                  </span>
+                </div>
+                {!readOnly && (
+                  <button
+                    type="button"
+                    onClick={handleAddMiscItem}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors border border-indigo-100"
+                  >
+                    {t('ratesDrawer.addMiscItem')}
+                  </button>
+                )}
+              </div>
+
+              {miscItems.length === 0 ? (
+                <div className="p-3 text-center bg-slate-50 border border-dashed border-slate-200 rounded-xl text-xs text-slate-400">
+                  {t('ratesDrawer.noMiscItems')}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {miscItems.map((item, idx) => (
+                    <div
+                      key={item.id || idx}
+                      className="flex items-center gap-2 p-2 bg-slate-50 border border-slate-200 rounded-xl"
+                    >
+                      <input
+                        type="text"
+                        placeholder={t('ratesDrawer.miscItemTitlePlaceholder')}
+                        value={item.title || ''}
+                        disabled={readOnly}
+                        onChange={(e) => handleUpdateMiscItem(item.id, 'title', e.target.value)}
+                        className="flex-1 min-w-0 px-2.5 py-1.5 text-xs bg-white border border-slate-200 rounded-lg focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                      />
+                      <div className="flex items-center bg-white border border-slate-200 rounded-lg overflow-hidden w-28 shrink-0 focus-within:ring-1 focus-within:ring-indigo-500">
+                        <span className="pl-2 text-xs text-slate-400">$</span>
+                        <input
+                          type="number"
+                          placeholder={t('ratesDrawer.miscItemAmountPlaceholder')}
+                          value={item.amount === 0 ? 0 : item.amount || ''}
+                          disabled={readOnly}
+                          onChange={(e) => handleUpdateMiscItem(item.id, 'amount', e.target.value)}
+                          className="w-full px-2 py-1.5 text-xs text-right outline-none"
+                          step="any"
+                        />
+                      </div>
+                      {!readOnly && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveMiscItem(item.id)}
+                          aria-label="Remove item"
+                          className="p-1 text-slate-400 hover:text-red-500 rounded-md transition-colors"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </section>
         </div>
 

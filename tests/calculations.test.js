@@ -323,6 +323,49 @@ describe('Calculations Engine Tests', () => {
       assert.strictEqual(estimate.totals.profitAmount, 759);
       assert.strictEqual(estimate.totals.finalBidAmount, 4554);
     });
+
+    it('supports itemized miscellaneous line items summing towards direct cost', () => {
+      const items = [
+        {
+          system: 'Utilities',
+          itemDescription: '8" PVC Pipe',
+          quantity: 100,
+          unit: 'LF',
+          materialCostPerUnit: 10,
+          laborHoursPerUnit: 0.1,
+        },
+      ];
+
+      const rates = {
+        laborHourlyRate: 50,
+        equipmentLumpSum: 500,
+        equipmentType: 'fixed',
+        miscItems: [
+          { id: '1', title: 'City Permits', amount: 350 },
+          { id: '2', title: 'Traffic Control & Signage', amount: 450 },
+          { id: '3', title: 'Street Opening Bond', amount: 200 },
+        ],
+        miscType: 'fixed',
+        overheadPct: 0,
+        contingencyPct: 0,
+        profitPct: 0,
+      };
+
+      // Material: 100 * 10 = 1000
+      // Labor: 100 * 0.1 * 50 = 500
+      // Equipment: 500
+      // Itemized Misc Costs: 350 + 450 + 200 = 1000
+      // Total Direct: 1000 + 500 + 500 + 1000 = 3000
+      const estimate = computeEstimate(items, rates);
+
+      assert.strictEqual(estimate.totals.totalMaterialCost, 1000);
+      assert.strictEqual(estimate.totals.totalLaborCost, 500);
+      assert.strictEqual(estimate.totals.equipmentLumpSum, 500);
+      assert.strictEqual(estimate.totals.miscCost, 1000);
+      assert.strictEqual(estimate.totals.miscItems.length, 3);
+      assert.strictEqual(estimate.totals.totalDirectCost, 3000);
+      assert.strictEqual(estimate.totals.finalBidAmount, 3000);
+    });
   });
 
   describe('formatCurrency & formatNumber', () => {

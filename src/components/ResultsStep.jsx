@@ -721,6 +721,9 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
               sub={t('resultsStep.laborHrs', { count: formatNumber(totals.totalLaborHours) })}
             />
             <SummaryCard label={t('resultsStep.equipmentMobilization')} value={formatCurrency(totals.equipmentLumpSum)} />
+            {totals.miscCost > 0 && (
+              <SummaryCard label={t('resultsStep.miscellaneousCosts')} value={formatCurrency(totals.miscCost)} />
+            )}
             <SummaryCard label={t('resultsStep.totalDirectCost')} value={formatCurrency(totals.totalDirectCost)} />
             <SummaryCard
               label={t('resultsStep.overhead', { pct: totals.overheadPct })}

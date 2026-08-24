@@ -3,11 +3,13 @@ import {
   getTargetFields,
   normalizeRowsWithMapping,
   saveVendorPreset,
+  deleteVendorPreset,
   getSavedVendorPresets,
   extractHeadersAndRowsAtHeaderRow,
   autoDetectColumnMapping,
 } from '@/lib/csv';
 import { useTranslation } from '@/context/I18nContext';
+import { useModal } from '@/context/ModalContext';
 
 export default function ColumnMappingModal({
   headers: initialHeaders,
@@ -27,6 +29,7 @@ export default function ColumnMappingModal({
   onCancel,
 }) {
   const { t } = useTranslation();
+  const { showConfirm } = useModal();
   const targetFields = useMemo(() => getTargetFields(t), [t]);
 
   const [headerRowIndex, setHeaderRowIndex] = useState(initialHeaderRowIndex);
@@ -76,6 +79,19 @@ export default function ColumnMappingModal({
     }
   };
 
+  const handleDeletePreset = async (name, e) => {
+    e.stopPropagation();
+    const confirmed = await showConfirm({
+      title: t('columnMappingModal.deletePresetTitle', 'Delete Preset'),
+      message: t('columnMappingModal.deletePresetMessage', 'Are you sure you want to delete this preset?'),
+      confirmText: t('columnMappingModal.deletePresetConfirm', 'Delete'),
+      confirmVariant: 'danger',
+    });
+    if (!confirmed) return;
+    deleteVendorPreset(name);
+    setSavedPresets(getSavedVendorPresets());
+  };
+
   const handleSavePreset = () => {
     if (!presetName.trim()) return;
     saveVendorPreset(presetName.trim(), mapping);
@@ -109,95 +125,112 @@ export default function ColumnMappingModal({
   // Compute live 5-row preview with current mapping
   const previewRows = (currentRawRows || []).slice(0, 5);
 
+  const hasRowSelector = sampleMatrix && sampleMatrix.length > 1;
+  const hasSubTables = subTables.length > 1 && onTableChange;
+  const hasMultipleSheets = sheetNames.length > 1 && onSheetChange;
+  const hasConfigurationBar = hasRowSelector || hasSubTables || hasMultipleSheets;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in overflow-y-auto">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-3xl w-full p-6 sm:p-8 border border-slate-200 max-h-[90vh] flex flex-col my-auto">
-        <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-3xl w-full p-6 sm:p-7 border border-slate-200 max-h-[90vh] flex flex-col my-auto">
+        {/* Modal Header */}
+        <div className="pb-4 border-b border-slate-100">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl">
+            <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl shrink-0">
               🔀
             </div>
             <div>
-              <h3 className="text-lg font-bold text-slate-900">{t('columnMappingModal.title')}</h3>
-              <p className="text-xs text-slate-500">
-                {t('columnMappingModal.confidenceLabel')} <strong className="text-indigo-600">{Math.round(overallConfidence * 100)}%</strong>. {t('columnMappingModal.confirmOrRemap')}
+              <h3 className="text-lg font-bold text-slate-900 leading-snug">{t('columnMappingModal.title')}</h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                {t('columnMappingModal.confidenceLabel')} <strong className="text-indigo-600 font-semibold">{Math.round(overallConfidence * 100)}%</strong>. {t('columnMappingModal.confirmOrRemap')}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* Header Row Index selector */}
-            {sampleMatrix && sampleMatrix.length > 1 && (
-              <div className="flex items-center gap-1.5 bg-slate-100/90 border border-slate-300 rounded-lg px-2 py-1">
-                <span className="text-[11px] text-slate-700 font-semibold">
-                  {t('columnMappingModal.headerRowLabel', 'Headers start on Row:')}
-                </span>
-                <select
-                  value={headerRowIndex}
-                  onChange={(e) => handleHeaderRowChange(e.target.value)}
-                  className="text-xs bg-white border border-slate-300 rounded px-1.5 py-0.5 font-bold text-slate-900"
-                >
-                  {headerRowOptions.map((r) => {
-                    const previewText = (sampleMatrix[r] || [])
-                      .filter(Boolean)
-                      .slice(0, 3)
-                      .join(', ');
-                    return (
-                      <option key={r} value={r}>
-                        {t('columnMappingModal.headerRowOption', { row: r + 1 })} {previewText ? `(${previewText.slice(0, 25)}...)` : ''}
+          {/* Configuration Controls Below Title: Distinct styling for Header Row vs Table Area vs Sheet Tab */}
+          {hasConfigurationBar && (
+            <div className="mt-4 pt-3.5 border-t border-slate-100/80 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* 1. Header Row Selector (Clean Neutral Slate card) */}
+              {hasRowSelector && (
+                <div className={`p-2.5 bg-slate-50 border border-slate-200 rounded-2xl flex flex-col gap-1.5 ${!hasSubTables ? 'sm:col-span-2' : ''}`}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wide flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-slate-400"></span>
+                      {t('columnMappingModal.headerRowLabel', 'Headers start on Row:')}
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-medium">Row selection</span>
+                  </div>
+                  <select
+                    value={headerRowIndex}
+                    onChange={(e) => handleHeaderRowChange(e.target.value)}
+                    className="w-full text-xs bg-white border border-slate-300 rounded-xl px-2.5 py-1.5 font-semibold text-slate-800 shadow-xs focus:ring-2 focus:ring-slate-400 focus:outline-none"
+                  >
+                    {headerRowOptions.map((r) => {
+                      const previewText = (sampleMatrix[r] || [])
+                        .filter(Boolean)
+                        .slice(0, 3)
+                        .join(', ');
+                      return (
+                        <option key={r} value={r}>
+                          {t('columnMappingModal.headerRowOption', { row: r + 1 })} {previewText ? `(${previewText.slice(0, 24)}...)` : ''}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+              )}
+
+              {/* 2. Side-by-Side Table Area Selector (Distinct Vibrant Indigo Theme) */}
+              {hasSubTables && (
+                <div className="p-2.5 bg-indigo-50/70 border border-indigo-200 rounded-2xl flex flex-col gap-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold text-indigo-900 uppercase tracking-wide flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
+                      {t('columnMappingModal.subTableSelect', 'Table Area:')}
+                    </span>
+                    <span className="text-[10px] text-indigo-500 font-semibold bg-indigo-100/80 px-1.5 py-0.2 rounded-md">
+                      Multi-table detected
+                    </span>
+                  </div>
+                  <select
+                    value={activeTableId || subTables[0]?.id}
+                    onChange={(e) => onTableChange(e.target.value)}
+                    className="w-full text-xs bg-white border border-indigo-300 rounded-xl px-2.5 py-1.5 font-bold text-indigo-950 shadow-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none truncate"
+                  >
+                    {subTables.map((tb) => (
+                      <option key={tb.id} value={tb.id}>
+                        {tb.label}
                       </option>
-                    );
-                  })}
-                </select>
-              </div>
-            )}
+                    ))}
+                  </select>
+                </div>
+              )}
 
-            {/* Side-by-side table selector if multiple tables detected */}
-            {subTables.length > 1 && onTableChange && (
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs text-indigo-700 font-bold">{t('columnMappingModal.subTableSelect', 'Table Area:')}</span>
-                <select
-                  value={activeTableId || subTables[0]?.id}
-                  onChange={(e) => onTableChange(e.target.value)}
-                  className="text-xs bg-indigo-50 border border-indigo-300 rounded-lg px-2 py-1 font-bold text-indigo-900"
-                >
-                  {subTables.map((tb) => (
-                    <option key={tb.id} value={tb.id}>
-                      {tb.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            {/* Multi-tab sheet selector if Excel workbook */}
-            {sheetNames.length > 1 && onSheetChange && (
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-500 font-medium">{t('columnMappingModal.sheetTab')}</span>
-                <select
-                  value={activeSheetName}
-                  onChange={(e) => onSheetChange(e.target.value)}
-                  className="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 font-semibold text-slate-700"
-                >
-                  {sheetNames.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-          </div>
+              {/* 3. Multi-sheet Workbook Tab (if present) */}
+              {hasMultipleSheets && (
+                <div className="p-2.5 bg-sky-50/60 border border-sky-200 rounded-2xl flex flex-col gap-1.5 sm:col-span-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold text-sky-900 uppercase tracking-wide flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-sky-500"></span>
+                      {t('columnMappingModal.sheetTab')}
+                    </span>
+                  </div>
+                  <select
+                    value={activeSheetName}
+                    onChange={(e) => onSheetChange(e.target.value)}
+                    className="w-full text-xs bg-white border border-sky-300 rounded-xl px-2.5 py-1.5 font-semibold text-sky-950 shadow-xs focus:ring-2 focus:ring-sky-500 focus:outline-none"
+                  >
+                    {sheetNames.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+          )}
         </div>
-
-        {/* Notice for multi-table side-by-side detection */}
-        {subTables.length > 1 && (
-          <div className="mt-3 p-3 bg-indigo-50/80 border border-indigo-200 text-indigo-900 text-xs rounded-xl flex items-center justify-between">
-            <span>
-              ℹ️ <strong>{t('columnMappingModal.sideBySideNotice', 'We detected multiple side-by-side tables. Select which area to import:')}</strong>
-            </span>
-          </div>
-        )}
 
         {validationError && (
           <div className="mt-4 p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl">
@@ -208,17 +241,30 @@ export default function ColumnMappingModal({
         <div className="overflow-y-auto flex-1 my-4 pr-1 space-y-6">
           {/* Presets Bar */}
           {Object.keys(savedPresets).length > 0 && (
-            <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-2 flex-wrap text-xs">
-              <span className="font-semibold text-slate-700">{t('columnMappingModal.savedPresets')}</span>
+            <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl flex items-center gap-2 flex-wrap text-xs">
+              <span className="font-semibold text-slate-700 mr-1">{t('columnMappingModal.savedPresets')}</span>
               {Object.keys(savedPresets).map((presetKey) => (
-                <button
+                <div
                   key={presetKey}
-                  type="button"
-                  onClick={() => handleApplyPreset(presetKey)}
-                  className="px-2.5 py-1 bg-white hover:bg-indigo-50 hover:border-indigo-300 text-slate-700 hover:text-indigo-700 border border-slate-300 rounded-lg transition font-medium text-[11px]"
+                  className="inline-flex items-center rounded-xl bg-white border border-slate-300 shadow-2xs hover:border-indigo-300 transition-colors group overflow-hidden"
                 >
-                  {presetKey}
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => handleApplyPreset(presetKey)}
+                    className="pl-2.5 pr-1.5 py-1 text-slate-700 group-hover:text-indigo-700 font-medium text-[11px] transition-colors"
+                  >
+                    {presetKey}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => handleDeletePreset(presetKey, e)}
+                    title={t('columnMappingModal.deletePreset', 'Delete preset')}
+                    aria-label={`Delete preset ${presetKey}`}
+                    className="pr-2 pl-1 py-1 text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors text-xs font-bold leading-none border-l border-slate-200"
+                  >
+                    ×
+                  </button>
+                </div>
               ))}
             </div>
           )}

@@ -14,6 +14,7 @@ export const DEFAULT_RATES = {
   equipmentLumpSum: 12000.0,
   equipmentType: 'fixed', // 'fixed' | 'percent'
   miscCost: 0,
+  miscItems: [], // [{ id: '1', title: 'Permits & Fees', amount: 500 }]
   miscType: 'fixed', // 'fixed' | 'percent'
   trenchWidthFt: DEFAULT_TRENCH_WIDTH_FT,
 };
@@ -124,7 +125,12 @@ export function computeEstimate(items, rates = DEFAULT_RATES) {
     : rawEquipmentValue;
 
   const miscType = rates.miscType || 'fixed';
-  const rawMiscValue = Number(rates.miscCost ?? rates.miscValue ?? rates.miscLumpSum ?? rates.miscAmount) || 0;
+  const miscItems = Array.isArray(rates.miscItems) ? rates.miscItems : [];
+  const itemizedMiscTotal = miscItems.reduce((sum, item) => sum + (Number(item?.amount) || 0), 0);
+  const rawMiscValue = miscItems.length > 0
+    ? itemizedMiscTotal
+    : (Number(rates.miscCost ?? rates.miscValue ?? rates.miscLumpSum ?? rates.miscAmount) || 0);
+
   const miscCost = miscType === 'percent'
     ? rawDirectItems * (rawMiscValue / 100)
     : rawMiscValue;
@@ -207,6 +213,7 @@ export function computeEstimate(items, rates = DEFAULT_RATES) {
       equipmentType,
       equipmentValue: rawEquipmentValue,
       miscCost,
+      miscItems,
       miscType,
       miscValue: rawMiscValue,
       totalDirectCost,
