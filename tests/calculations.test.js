@@ -89,6 +89,28 @@ describe('Calculations Engine Tests', () => {
       assert.strictEqual(result.laborCost, 600);
       assert.strictEqual(result.directCost, 1100);
     });
+
+    it('computes direct labor cost in cost mode without multiplying by hourly rate', () => {
+      const item = {
+        quantity: 10,
+        materialCostPerUnit: 25,
+        laborUnitCost: 15,
+        laborHoursPerUnit: 0.2,
+      };
+      const costModeRates = {
+        laborMode: 'cost',
+        laborHourlyRate: 100, // Should NOT be used to multiply laborUnitCost
+      };
+
+      const result = computeItemCost(item, costModeRates);
+
+      // material: 10 * 25 = 250
+      // labor cost: 10 * 15 = 150 (direct $/unit, ignores laborHourlyRate)
+      // direct cost: 250 + 150 = 400
+      assert.strictEqual(result.materialCost, 250);
+      assert.strictEqual(result.laborCost, 150);
+      assert.strictEqual(result.directCost, 400);
+    });
   });
 
   describe('computeEstimate', () => {

@@ -579,5 +579,114 @@ describe('Excel & CSV Import Edge Cases (US-031 / 4 Friction Points)', () => {
       assert.strictEqual(mapping.material_cost_per_unit, 'Material Unit Rate');
       assert.strictEqual(mapping.labor_unit_cost, 'Labor Unit Rate');
     });
+
+    it('8. Civil bid sheet with Pipe Size / Dimension, UOM, extensions, and trailer summary rows', () => {
+      const civilHeaders = [
+        'Item Description',
+        'Pipe Size / Dimension',
+        'Avg Depth (ft)',
+        'Takeoff Qty',
+        'UOM',
+        'Material Cost / Unit',
+        'Labor Cost / Unit',
+        'Equipment Rate',
+        'Total Mat Extension',
+        'Total Lbr Extension',
+        'Total Line Budget',
+      ];
+
+      const { mapping, unmappedRequired } = autoDetectColumnMapping(civilHeaders);
+      assert.deepStrictEqual(unmappedRequired, ['system']); // System/Trade header is absent in single-discipline civil sheet
+      assert.strictEqual(mapping.item_description, 'Item Description');
+      assert.strictEqual(mapping.size_spec, 'Pipe Size / Dimension');
+      assert.strictEqual(mapping.avg_depth_ft, 'Avg Depth (ft)');
+      assert.strictEqual(mapping.quantity, 'Takeoff Qty');
+      assert.strictEqual(mapping.unit, 'UOM');
+      assert.strictEqual(mapping.material_cost_per_unit, 'Material Cost / Unit');
+      assert.strictEqual(mapping.labor_unit_cost, 'Labor Cost / Unit');
+
+      const rawRows = [
+        {
+          'Item Description': 'RCP Storm Pipe',
+          'Pipe Size / Dimension': '18" RCP Bell & Spigot',
+          'Avg Depth (ft)': '6.2',
+          'Takeoff Qty': '1,420',
+          'UOM': 'LF',
+          'Material Cost / Unit': '$34.50',
+          'Labor Cost / Unit': '$18.00',
+          'Equipment Rate': '$14.50',
+          'Total Mat Extension': '$48,990.00',
+          'Total Lbr Extension': '$46,150.00',
+          'Total Line Budget': '$95,140.00',
+        },
+        {
+          'Item Description': 'TOTAL BASE DIRECT CIVIL ESTIMATE',
+          'Pipe Size / Dimension': '',
+          'Avg Depth (ft)': '',
+          'Takeoff Qty': '',
+          'UOM': '',
+          'Material Cost / Unit': '$434,726.00',
+          'Labor Cost / Unit': '$619,185.00',
+          'Equipment Rate': '',
+          'Total Mat Extension': '',
+          'Total Lbr Extension': '',
+          'Total Line Budget': '$1,053,911.00',
+        },
+        {
+          'Item Description': 'NPDES SWPPP & Erosion Control Compliance (3.5%)',
+          'Pipe Size / Dimension': '',
+          'Avg Depth (ft)': '',
+          'Takeoff Qty': '',
+          'UOM': '',
+          'Material Cost / Unit': '',
+          'Labor Cost / Unit': '',
+          'Equipment Rate': '',
+          'Total Mat Extension': '',
+          'Total Lbr Extension': '',
+          'Total Line Budget': '$36,886.89',
+        },
+      ];
+
+      const { items, errors } = normalizeRowsWithMapping(rawRows, mapping);
+      assert.strictEqual(items.length, 1);
+      assert.strictEqual(items[0].description, 'RCP Storm Pipe');
+      assert.strictEqual(items[0].sizeSpec, '18" RCP Bell & Spigot');
+      assert.strictEqual(items[0].quantity, 1420);
+      assert.strictEqual(items[0].unit, 'LF');
+      assert.strictEqual(items[0].avgDepthFt, 6.2);
+      assert.strictEqual(items[0].materialCostPerUnit, 34.5);
+      assert.strictEqual(errors.length, 0);
+    });
+
+    it('9. Ambiguous "Labor" header heuristics: differentiates $/unit vs hrs/unit based on values & formatting', () => {
+      // Case A: Ambiguous "Labor" column with currency formatting & >10 values ($19.50) -> maps to labor_unit_cost
+      const dollarHeaders = ['Description', 'Qty', 'Unit', 'Labor'];
+      const dollarDataRows = [
+        { Description: 'C900 Pipe', Qty: '100', Unit: 'LF', Labor: '$19.50' },
+        { Description: 'Gate Valve', Qty: '2', Unit: 'EA', Labor: '$35.00' },
+      ];
+      const dollarMapping = autoDetectColumnMapping(dollarHeaders, dollarDataRows);
+      assert.strictEqual(dollarMapping.mapping.labor_unit_cost, 'Labor');
+      assert.strictEqual(dollarMapping.mapping.labor_hours_per_unit, undefined);
+
+      // Ingestion with base rate $65/hr: $19.50 / $65 = 0.30 hrs/LF
+      const normalizedDollar = normalizeRowsWithMapping(dollarDataRows, dollarMapping.mapping, null, 65.0);
+      assert.strictEqual(normalizedDollar.items[0].laborHoursPerUnit, 0.3);
+      assert.strictEqual(normalizedDollar.items[0].laborUnitCost, 19.5);
+
+      // Case B: Ambiguous "Labor" column with small fractional production rates (0.05 hrs/LF) -> maps to labor_hours_per_unit
+      const hoursDataRows = [
+        { Description: 'C900 Pipe', Qty: '100', Unit: 'LF', Labor: '0.06' },
+        { Description: 'Gate Valve', Qty: '2', Unit: 'EA', Labor: '0.75' },
+      ];
+      const hoursMapping = autoDetectColumnMapping(dollarHeaders, hoursDataRows);
+      assert.strictEqual(hoursMapping.mapping.labor_hours_per_unit, 'Labor');
+      assert.strictEqual(hoursMapping.mapping.labor_unit_cost, undefined);
+
+      // Ingestion with base rate $65/hr: 0.06 hrs/LF * $65 = $3.90/LF
+      const normalizedHours = normalizeRowsWithMapping(hoursDataRows, hoursMapping.mapping, null, 65.0);
+      assert.strictEqual(normalizedHours.items[0].laborHoursPerUnit, 0.06);
+      assert.strictEqual(normalizedHours.items[0].laborUnitCost, 3.9);
+    });
   });
 });

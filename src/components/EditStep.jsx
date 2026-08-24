@@ -89,7 +89,13 @@ export default function EditStep({ items, onItemsChange, rates, onRatesChange, o
         </button>
       </div>
 
-      <TakeoffGrid items={items} onChange={onItemsChange} readOnly={readOnly} />
+      <TakeoffGrid
+        items={items}
+        onChange={onItemsChange}
+        readOnly={readOnly}
+        rates={rates}
+        onRatesChange={onRatesChange}
+      />
 
       <div className="mt-8 flex justify-end">
         <button

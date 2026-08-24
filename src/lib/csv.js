@@ -551,6 +551,10 @@ export function autoDetectColumnMapping(headers = [], sampleDataRows = []) {
       if (key === 'item_description' && ignoredIndexClean.includes(h.clean)) {
         continue;
       }
+      // Ambiguous generic headers like "Labor" are handled via step 3 profiling lookahead
+      if (h.clean === 'labor' && (key === 'labor_hours_per_unit' || key === 'labor_unit_cost')) {
+        continue;
+      }
       if (!matchedRawCols.has(h.raw) && cleanAliases.includes(h.clean)) {
         mapping[key] = h.raw;
         matchedRawCols.add(h.raw);
@@ -575,6 +579,11 @@ export function autoDetectColumnMapping(headers = [], sampleDataRows = []) {
       for (const alias of aliases) {
         // Direct substring match
         const cleanAlias = alias.toLowerCase().replace(/[^a-z0-9]/g, '');
+        // For ambiguous generic terms like 'labor', avoid substring matching a short single token against longer aliases
+        if (h.clean === 'labor' && (key === 'labor_hours_per_unit' || key === 'labor_unit_cost')) {
+          continue;
+        }
+
         if (h.clean.includes(cleanAlias) || cleanAlias.includes(h.clean)) {
           const score = Math.max(0.88, cleanAlias.length / Math.max(h.clean.length, cleanAlias.length));
           if (score > bestScore) {
@@ -599,7 +608,36 @@ export function autoDetectColumnMapping(headers = [], sampleDataRows = []) {
     }
   });
 
-  // 3. Column Data-Type Profiling Lookahead (Break ties on unmapped fields)
+  // 3. Column Data-Type Profiling & Heuristic Lookahead (Break ties on unmapped fields)
+  // Check for ambiguous "Labor" column (e.g. determine if it's Labor Hrs or Labor $/Unit)
+  if (!mapping.labor_hours_per_unit && !mapping.labor_unit_cost && sampleDataRows.length > 0) {
+    for (const h of normalizedHeaders) {
+      if (matchedRawCols.has(h.raw)) continue;
+      if (/^(labor|labour|mano de obra|main d'oeuvre|mao de obra)$/i.test(h.clean)) {
+        // Sample rows to check if values have currency symbols or are > 10.0 (likely $/unit)
+        let hasCurrency = false;
+        let hasLargeValue = false;
+        for (const r of sampleDataRows.slice(0, 10)) {
+          const rawVal = String(r[h.raw] || '');
+          if (/[$€£¥]/.test(rawVal)) hasCurrency = true;
+          const num = cleanNumericValue(rawVal);
+          if (!Number.isNaN(num) && num > 10) hasLargeValue = true;
+        }
+
+        if (hasCurrency || hasLargeValue) {
+          mapping.labor_unit_cost = h.raw;
+          matchedRawCols.add(h.raw);
+          matchConfidences.labor_unit_cost = 0.85;
+        } else {
+          mapping.labor_hours_per_unit = h.raw;
+          matchedRawCols.add(h.raw);
+          matchConfidences.labor_hours_per_unit = 0.85;
+        }
+        break;
+      }
+    }
+  }
+
   if (!mapping.quantity && sampleDataRows.length > 0) {
     for (const h of normalizedHeaders) {
       if (matchedRawCols.has(h.raw)) continue;
@@ -641,10 +679,10 @@ export function classifyRow(rawRow, mapping) {
     return { type: 'empty' };
   }
 
-  // 2. Check for Subtotal / Grand Total / Formula Summary Row
+  // 2. Check for Subtotal / Grand Total / Formula Summary Row / Cost Rollup Footer
   if (
-    /^(total|subtotal|sub-total|sum|summary|grand\s*total|balance|net\s*total|direct\s*cost|direct\s*cost\s*sub-?total)/i.test(rowText) ||
-    rowValues.some((v) => /^sub-?total/i.test(v) || /^total/i.test(v) || /^direct\s*cost/i.test(v) || /^=(sum|subtotal)/i.test(v))
+    /^(total|subtotal|sub-total|sum|summary|grand\s*total|balance|net\s*total|direct\s*cost|direct\s*cost\s*sub-?total|total\s*base\s*direct|base\s*direct|total\s*line\s*budget)/i.test(rowText) ||
+    rowValues.some((v) => /^sub-?total/i.test(v) || /^total/i.test(v) || /^direct\s*cost/i.test(v) || /^total\s*base\s*direct/i.test(v) || /^=(sum|subtotal)/i.test(v))
   ) {
     const qtyVal = mapping.quantity ? cleanNumericValue(rawRow[mapping.quantity]) : NaN;
     return {
@@ -653,9 +691,9 @@ export function classifyRow(rawRow, mapping) {
     };
   }
 
-  // 3. Check for Metadata / Notes / Signatures / Markups & Overhead
+  // 3. Check for Metadata / Notes / Signatures / Markups & Overhead / Trailer / Compliance Items
   if (
-    /(page\s*\d+\s*of\s*\d+|prepared\s*by|approved\s*by|terms\s*and\s*conditions|date:|authorized\s*signature|notice:|disclaimer|project\s*management|overhead|supervision|profit\s*margin|field\s*conditions|contingency)/i.test(rowText)
+    /(page\s*\d+\s*of\s*\d+|prepared\s*by|approved\s*by|terms\s*and\s*conditions|date:|authorized\s*signature|notice:|disclaimer|project\s*management|overhead|supervision|profit\s*margin|field\s*conditions|contingency|npdes|swppp|erosion\s*control|site\s*survey|layout\s*engineering|general\s*liability|bonding\s*(&|and)\s*insurance|contractor\s*fee|gross\s*profit)/i.test(rowText)
   ) {
     return { type: 'metadata' };
   }

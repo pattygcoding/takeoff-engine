@@ -1,12 +1,20 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { createBlankItem } from '@/lib/csv';
 import { useTranslation } from '@/context/I18nContext';
 
 const DEFAULT_SYSTEMS = ['Sanitary', 'Storm', 'Domestic Water'];
 const DEFAULT_UNITS = ['LF', 'EA', 'SF', 'CY', 'SY', 'TON', 'LS', 'HR'];
 
-export default function TakeoffGrid({ items, onChange, readOnly = false }) {
+export default function TakeoffGrid({ items, onChange, readOnly = false, rates = {}, onRatesChange }) {
   const { t } = useTranslation();
+  const laborInputMode = rates?.laborMode === 'cost' ? 'cost' : 'hours';
+  const hourlyRate = Number(rates?.laborHourlyRate) > 0 ? Number(rates.laborHourlyRate) : 65.0;
+
+  const handleSetLaborInputMode = (mode) => {
+    if (onRatesChange) {
+      onRatesChange({ ...rates, laborMode: mode });
+    }
+  };
 
   // Dynamically compute system and unit options from items plus defaults so imported custom trades are always selectable
   const systemOptions = useMemo(() => {
@@ -46,6 +54,18 @@ export default function TakeoffGrid({ items, onChange, readOnly = false }) {
     updateItem(item.id, field, v === '' ? '' : Number(v));
   };
 
+  const laborCostField = (item) => (e) => {
+    if (readOnly) return;
+    const v = e.target.value;
+    if (v === '') {
+      onChange(items.map((it) => (it.id === item.id ? { ...it, laborHoursPerUnit: '', laborUnitCost: '' } : it)));
+      return;
+    }
+    const cost = Number(v);
+    const hrs = hourlyRate > 0 ? Math.round((cost / hourlyRate) * 100) / 100 : (item.laborHoursPerUnit || 0);
+    onChange(items.map((it) => (it.id === item.id ? { ...it, laborHoursPerUnit: hrs, laborUnitCost: cost } : it)));
+  };
+
   const textField = (item, field) => (e) => {
     if (readOnly) return;
     updateItem(item.id, field, e.target.value);
@@ -63,7 +83,37 @@ export default function TakeoffGrid({ items, onChange, readOnly = false }) {
             <Th>{t('takeoffGrid.unit')}</Th>
             <Th align="right">{t('takeoffGrid.avgDepth')}</Th>
             <Th align="right">{t('takeoffGrid.materialCostPerUnit')}</Th>
-            <Th align="right">{t('takeoffGrid.laborHoursPerUnit')}</Th>
+            <Th align="right">
+              <div className="flex items-center justify-end gap-1.5">
+                <span>{laborInputMode === 'hours' ? t('takeoffGrid.laborHoursPerUnit') : t('takeoffGrid.laborUnitCost')}</span>
+                <div className="inline-flex rounded border border-slate-200 bg-slate-100 p-0.5 text-[10px]">
+                  <button
+                    type="button"
+                    onClick={() => handleSetLaborInputMode('hours')}
+                    className={`px-1.5 py-0.2 rounded font-semibold transition-colors ${
+                      laborInputMode === 'hours'
+                        ? 'bg-white text-indigo-600 shadow-xs'
+                        : 'text-slate-500 hover:text-slate-700'
+                    }`}
+                    title={t('takeoffGrid.laborHoursPerUnit')}
+                  >
+                    hrs
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSetLaborInputMode('cost')}
+                    className={`px-1.5 py-0.2 rounded font-semibold transition-colors ${
+                      laborInputMode === 'cost'
+                        ? 'bg-white text-indigo-600 shadow-xs'
+                        : 'text-slate-500 hover:text-slate-700'
+                    }`}
+                    title={t('takeoffGrid.laborUnitCost')}
+                  >
+                    $
+                  </button>
+                </div>
+              </div>
+            </Th>
             <Th></Th>
           </tr>
         </thead>
@@ -158,8 +208,12 @@ export default function TakeoffGrid({ items, onChange, readOnly = false }) {
                 <input
                   type="number"
                   step="any"
-                  value={item.laborHoursPerUnit ?? ''}
-                  onChange={numberField(item, 'laborHoursPerUnit')}
+                  value={
+                    laborInputMode === 'hours'
+                      ? (item.laborHoursPerUnit ?? '')
+                      : (item.laborUnitCost ?? (item.laborHoursPerUnit !== undefined && item.laborHoursPerUnit !== '' ? Math.round((item.laborHoursPerUnit * hourlyRate) * 100) / 100 : ''))
+                  }
+                  onChange={laborInputMode === 'hours' ? numberField(item, 'laborHoursPerUnit') : laborCostField(item)}
                   disabled={readOnly}
                   className="w-20 bg-transparent outline-none text-right disabled:opacity-80 disabled:cursor-not-allowed"
                 />

@@ -4,6 +4,7 @@ export const DEFAULT_TRENCH_WIDTH_FT = 2;
 
 export const DEFAULT_RATES = {
   laborHourlyRate: 65.0,
+  laborMode: 'hours', // 'hours' | 'cost'
   overheadPct: 10,
   overheadType: 'percent', // 'percent' | 'fixed'
   contingencyPct: 5,
@@ -31,15 +32,29 @@ export function trenchVolumeCubicYards(item, trenchWidthFt = DEFAULT_TRENCH_WIDT
 
 /**
  * Computes the material and labor cost for a single takeoff item.
+ * If rates.laborMode === 'cost', labor is computed directly from item.laborUnitCost * quantity
+ * without factoring in rates.laborHourlyRate.
  */
 export function computeItemCost(item, rates = DEFAULT_RATES) {
   const qty = Number(item.quantity) || 0;
   const materialUnitCost = Number(item.materialCostPerUnit) || 0;
-  const laborHoursPerUnit = Number(item.laborHoursPerUnit) || 0;
+  const isLaborCostMode = rates.laborMode === 'cost';
 
   const materialCost = qty * materialUnitCost;
-  const laborHours = qty * laborHoursPerUnit;
-  const laborCost = laborHours * (Number(rates.laborHourlyRate) || 0);
+  let laborHours = 0;
+  let laborCost = 0;
+
+  if (isLaborCostMode) {
+    const laborUnitCost = Number(item.laborUnitCost) || 0;
+    laborCost = qty * laborUnitCost;
+    // Retain or derive hours for crew scheduling metrics if hourly rate is present
+    const hourlyRate = Number(rates.laborHourlyRate) || 0;
+    laborHours = Number(item.laborHoursPerUnit) || (hourlyRate > 0 ? (laborCost / hourlyRate) : 0);
+  } else {
+    const laborHoursPerUnit = Number(item.laborHoursPerUnit) || 0;
+    laborHours = qty * laborHoursPerUnit;
+    laborCost = laborHours * (Number(rates.laborHourlyRate) || 0);
+  }
 
   return {
     materialCost,
