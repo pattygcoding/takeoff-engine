@@ -213,9 +213,126 @@ export default function UploadStep({ onItemsParsed }) {
         <p className="text-xs text-slate-500 mb-2">
           {t('uploadStep.ingestionDescription')}
         </p>
-        <code className="text-xs bg-white border border-slate-200 rounded px-2 py-1 block overflow-x-auto">
-          {t('uploadStep.standardFields')}
-        </code>
+
+        <div className="space-y-3 my-3">
+          <div>
+            <div className="text-xs font-semibold text-slate-700 mb-1">
+              {t('uploadStep.standardFieldsTitle', 'Standard Fields:')}
+            </div>
+            <code className="text-xs bg-white border border-slate-200 rounded px-2.5 py-1.5 block overflow-x-auto text-slate-800 font-mono">
+              {t('uploadStep.standardFieldsList', 'system, item_description, size_spec, quantity, unit, avg_depth_ft')}
+            </code>
+          </div>
+
+          <div>
+            <div className="text-xs font-semibold text-slate-700 mb-1">
+              {t('uploadStep.optionalFieldsTitle', 'Optional Fields:')}
+            </div>
+            <code className="text-xs bg-white border border-slate-200 rounded px-2.5 py-1.5 block overflow-x-auto text-slate-800 font-mono">
+              {t('uploadStep.optionalFieldsList', 'material_cost_per_unit, labor_hours_per_unit, labor_unit_cost')}
+            </code>
+          </div>
+
+          <div>
+            <div className="text-xs font-semibold text-slate-700 mb-1.5">
+              {t('uploadStep.fieldExamplesTitle', 'Supported Column Names & Value Examples:')}
+            </div>
+            <div className="bg-white border border-slate-200 rounded p-3 space-y-2.5 text-xs">
+              <div className="space-y-2">
+                <div className="border-b border-slate-100 pb-2">
+                  <div className="flex flex-wrap items-baseline gap-1.5">
+                    <span className="font-mono font-bold text-indigo-700">system</span>
+                    <span className="text-[11px] text-slate-500 font-medium">({t('uploadStep.headersLabel', 'Header aliases')}: <span className="font-mono text-slate-700">{t('uploadStep.exampleSystemHeaders', 'System, Trade, Phase, Division, Div, Category')}</span>)</span>
+                  </div>
+                  <div className="text-slate-600 font-mono text-[11px] mt-0.5 pl-2">
+                    <span className="text-slate-400">{t('uploadStep.valuesLabel', 'Sample values')}:</span> {t('uploadStep.exampleSystem', 'Plumbing, 02-31-00, Earthwork, Div 22, Site Utilities')}
+                  </div>
+                </div>
+
+                <div className="border-b border-slate-100 pb-2">
+                  <div className="flex flex-wrap items-baseline gap-1.5">
+                    <span className="font-mono font-bold text-indigo-700">item_description</span>
+                    <span className="text-[11px] text-slate-500 font-medium">({t('uploadStep.headersLabel', 'Header aliases')}: <span className="font-mono text-slate-700">{t('uploadStep.exampleItemDescriptionHeaders', 'Description, Item Description, Scope, Name, Line Item, Item')}</span>)</span>
+                  </div>
+                  <div className="text-slate-600 font-mono text-[11px] mt-0.5 pl-2">
+                    <span className="text-slate-400">{t('uploadStep.valuesLabel', 'Sample values')}:</span> {t('uploadStep.exampleItemDescription', '4" PVC Sanitary Sewer Pipe, Trench Excavation, Water Main')}
+                  </div>
+                </div>
+
+                <div className="border-b border-slate-100 pb-2">
+                  <div className="flex flex-wrap items-baseline gap-1.5">
+                    <span className="font-mono font-bold text-indigo-700">size_spec</span>
+                    <span className="text-[11px] text-slate-500 font-medium">({t('uploadStep.headersLabel', 'Header aliases')}: <span className="font-mono text-slate-700">{t('uploadStep.exampleSizeSpecHeaders', 'Size, Spec, Size/Spec, Pipe Size, Dimension, Material')}</span>)</span>
+                  </div>
+                  <div className="text-slate-600 font-mono text-[11px] mt-0.5 pl-2">
+                    <span className="text-slate-400">{t('uploadStep.valuesLabel', 'Sample values')}:</span> {t('uploadStep.exampleSizeSpec', '4" SCH-40, 6" SDR-35, 1/2" Type L, 8" C900')}
+                  </div>
+                </div>
+
+                <div className="border-b border-slate-100 pb-2">
+                  <div className="flex flex-wrap items-baseline gap-1.5">
+                    <span className="font-mono font-bold text-indigo-700">quantity</span>
+                    <span className="text-[11px] text-slate-500 font-medium">({t('uploadStep.headersLabel', 'Header aliases')}: <span className="font-mono text-slate-700">{t('uploadStep.exampleQuantityHeaders', 'Qty, Quantity, Takeoff Qty, Amount, Est Qty, Count')}</span>)</span>
+                  </div>
+                  <div className="text-slate-600 font-mono text-[11px] mt-0.5 pl-2">
+                    <span className="text-slate-400">{t('uploadStep.valuesLabel', 'Sample values')}:</span> {t('uploadStep.exampleQuantity', '150, 2,450.50, 12, 500')}
+                  </div>
+                </div>
+
+                <div className="border-b border-slate-100 pb-2">
+                  <div className="flex flex-wrap items-baseline gap-1.5">
+                    <span className="font-mono font-bold text-indigo-700">unit</span>
+                    <span className="text-[11px] text-slate-500 font-medium">({t('uploadStep.headersLabel', 'Header aliases')}: <span className="font-mono text-slate-700">{t('uploadStep.exampleUnitHeaders', 'Unit, UOM, Units, Unit of Measure, Measure')}</span>)</span>
+                  </div>
+                  <div className="text-slate-600 font-mono text-[11px] mt-0.5 pl-2">
+                    <span className="text-slate-400">{t('uploadStep.valuesLabel', 'Sample values')}:</span> {t('uploadStep.exampleUnit', 'LF, FT, EA, CY, SY, SQ FT, TONS, M, LBS')}
+                  </div>
+                </div>
+
+                <div className="border-b border-slate-100 pb-2">
+                  <div className="flex flex-wrap items-baseline gap-1.5">
+                    <span className="font-mono font-bold text-indigo-700">avg_depth_ft</span>
+                    <span className="text-[11px] text-slate-500 font-medium">({t('uploadStep.headersLabel', 'Header aliases')}: <span className="font-mono text-slate-700">{t('uploadStep.exampleAvgDepthFtHeaders', 'Depth, Avg Depth, Depth (ft), Average Depth, Trench Depth')}</span>)</span>
+                  </div>
+                  <div className="text-slate-600 font-mono text-[11px] mt-0.5 pl-2">
+                    <span className="text-slate-400">{t('uploadStep.valuesLabel', 'Sample values')}:</span> {t('uploadStep.exampleAvgDepthFt', '4.5, 6.0, 8, 3.5\'')}
+                  </div>
+                </div>
+
+                <div className="border-b border-slate-100 pb-2">
+                  <div className="flex flex-wrap items-baseline gap-1.5">
+                    <span className="font-mono font-bold text-indigo-700">material_cost_per_unit</span>
+                    <span className="text-[11px] text-slate-500 font-medium">({t('uploadStep.headersLabel', 'Header aliases')}: <span className="font-mono text-slate-700">{t('uploadStep.exampleMaterialCostHeaders', 'Material $/Unit, Material Unit Cost, Mat Rate, Material Price')}</span>)</span>
+                  </div>
+                  <div className="text-slate-600 font-mono text-[11px] mt-0.5 pl-2">
+                    <span className="text-slate-400">{t('uploadStep.valuesLabel', 'Sample values')}:</span> {t('uploadStep.exampleMaterialCostPerUnit', '$18.50, 42.00, $1,250.00')}
+                  </div>
+                </div>
+
+                <div className="border-b border-slate-100 pb-2">
+                  <div className="flex flex-wrap items-baseline gap-1.5">
+                    <span className="font-mono font-bold text-indigo-700">labor_hours_per_unit</span>
+                    <span className="text-[11px] text-slate-500 font-medium">({t('uploadStep.headersLabel', 'Header aliases')}: <span className="font-mono text-slate-700">{t('uploadStep.exampleLaborHoursHeaders', 'Labor Hrs/Unit, Labor Hours, Crew Hrs/Unit, Manhours/Unit')}</span>)</span>
+                  </div>
+                  <div className="text-slate-600 font-mono text-[11px] mt-0.5 pl-2">
+                    <span className="text-slate-400">{t('uploadStep.valuesLabel', 'Sample values')}:</span> {t('uploadStep.exampleLaborHoursPerUnit', '0.25, 1.5, 0.08 hrs/unit')}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex flex-wrap items-baseline gap-1.5">
+                    <span className="font-mono font-bold text-indigo-700">labor_unit_cost</span>
+                    <span className="text-[11px] text-slate-500 font-medium">({t('uploadStep.headersLabel', 'Header aliases')}: <span className="font-mono text-slate-700">{t('uploadStep.exampleLaborUnitCostHeaders', 'Labor $/Unit, Labor Unit Rate, Labor Rate/Unit, Labor Cost/Unit')}</span>)</span>
+                  </div>
+                  <div className="text-slate-600 font-mono text-[11px] mt-0.5 pl-2">
+                    <span className="text-slate-400">{t('uploadStep.valuesLabel', 'Sample values')}:</span> {t('uploadStep.exampleLaborUnitCost', '$15.00/LF, $65.00/EA, 25.00')}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <p className="mt-3">
           {t('uploadStep.needMoreDetail')}{' '}
           <Link
