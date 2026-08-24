@@ -72,7 +72,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false }) {
             <tr key={item.id} className={`hover:bg-slate-50 ${item.hasMissingScope ? 'bg-amber-50/40' : ''}`}>
               <Td>
                 <select
-                  value={item.system}
+                  value={item.system ?? ''}
                   onChange={textField(item, 'system')}
                   disabled={readOnly}
                   className="w-full bg-transparent outline-none text-slate-700 disabled:opacity-80 disabled:cursor-not-allowed font-medium text-xs"
@@ -87,7 +87,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false }) {
               <Td>
                 <div className="flex items-center gap-1.5 flex-wrap">
                   <input
-                    value={item.description}
+                    value={item.description ?? ''}
                     onChange={textField(item, 'description')}
                     disabled={readOnly}
                     className="flex-1 bg-transparent outline-none min-w-[120px] disabled:opacity-80 disabled:cursor-not-allowed"
@@ -104,7 +104,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false }) {
               </Td>
               <Td>
                 <input
-                  value={item.sizeSpec}
+                  value={item.sizeSpec ?? ''}
                   onChange={textField(item, 'sizeSpec')}
                   disabled={readOnly}
                   className="w-full bg-transparent outline-none min-w-[120px] disabled:opacity-80 disabled:cursor-not-allowed"
@@ -113,7 +113,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false }) {
               <Td align="right">
                 <input
                   type="number"
-                  value={item.quantity}
+                  value={item.quantity ?? ''}
                   onChange={numberField(item, 'quantity')}
                   disabled={readOnly}
                   className={`w-20 bg-transparent outline-none text-right disabled:opacity-80 disabled:cursor-not-allowed ${
@@ -123,7 +123,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false }) {
               </Td>
               <Td>
                 <select
-                  value={item.unit}
+                  value={item.unit ?? ''}
                   onChange={textField(item, 'unit')}
                   disabled={readOnly}
                   className="w-full bg-transparent outline-none disabled:opacity-80 disabled:cursor-not-allowed font-mono text-xs"
@@ -138,7 +138,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false }) {
               <Td align="right">
                 <input
                   type="number"
-                  value={item.avgDepthFt}
+                  value={item.avgDepthFt ?? ''}
                   onChange={numberField(item, 'avgDepthFt')}
                   className="w-16 bg-transparent outline-none text-right disabled:opacity-80 disabled:cursor-not-allowed"
                   disabled={readOnly || item.unit !== 'LF'}
@@ -148,7 +148,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false }) {
                 <input
                   type="number"
                   step="any"
-                  value={item.materialCostPerUnit}
+                  value={item.materialCostPerUnit ?? ''}
                   onChange={numberField(item, 'materialCostPerUnit')}
                   disabled={readOnly}
                   className="w-20 bg-transparent outline-none text-right disabled:opacity-80 disabled:cursor-not-allowed"
@@ -158,7 +158,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false }) {
                 <input
                   type="number"
                   step="any"
-                  value={item.laborHoursPerUnit}
+                  value={item.laborHoursPerUnit ?? ''}
                   onChange={numberField(item, 'laborHoursPerUnit')}
                   disabled={readOnly}
                   className="w-20 bg-transparent outline-none text-right disabled:opacity-80 disabled:cursor-not-allowed"
