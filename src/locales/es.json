@@ -228,6 +228,8 @@
     "title": "Coincidir columnas de hoja de cálculo",
     "confidenceLabel": "Confianza en la detección automática:",
     "confirmOrRemap": "Confirmar o reasignar columnas:",
+    "headerRowLabel": "Los encabezados comienzan en la fila:",
+    "headerRowOption": "Fila {{row}}",
     "sheetTab": "Pestaña Hoja:",
     "sideBySideNotice": "Detectamos varias mesas una al lado de la otra. Seleccione qué área importar:",
     "subTableSelect": "Área de la mesa:",
@@ -239,6 +241,7 @@
     "tableHeaderQuantity": "Cantidad",
     "tableHeaderUnit": "Unidad",
     "tableHeaderDepth": "Profundidad (pies)",
+    "tableHeaderMaterialCost": "Mat. $/Unidad",
     "selectFileColumn": "-- Seleccionar columna de archivo --",
     "matchConfidence": "{{confianza}}% de coincidencia",
     "saveAsVendorPreset": "Guardar como valor preestablecido del proveedor:",
@@ -627,7 +630,9 @@
     "materialCostPerUnit": "Materiales $/Unidad",
     "laborHoursPerUnit": "Horas de trabajo/unidad",
     "addRow": "Agregar fila",
-    "deleteRow": "Eliminar fila"
+    "deleteRow": "Eliminar fila",
+    "missingScopeBadge": "Alcance Faltante",
+    "missingScopeTooltip": "El alcance requiere verificación en campo / revisión de precios"
   },
   "stepper": {
     "step1Label": "Subir despegue",
@@ -1397,7 +1402,13 @@
       "unitLabel": "Unidad de medida",
       "unitDesc": "LF, EA, CY, SF, TONELADA, LS, etc.",
       "avgDepthFtLabel": "Profundidad promedio de la zanja (pies)",
-      "avgDepthFtDesc": "Profundidad opcional para cálculos de movimiento de tierras y relleno de zanjas"
+      "avgDepthFtDesc": "Profundidad opcional para cálculos de movimiento de tierras y relleno de zanjas",
+      "materialCostPerUnitLabel": "Material $/Unidad",
+      "materialCostPerUnitDesc": "Precio unitario del material o costo por unidad",
+      "laborHoursPerUnitLabel": "Horas de trabajo/Unidad",
+      "laborHoursPerUnitDesc": "Horas de productividad de la cuadrilla por unidad (p. ej. 0.25 hrs/LF)",
+      "laborUnitCostLabel": "Mano de obra $/Unidad",
+      "laborUnitCostDesc": "Tarifa en dólares de mano de obra por unidad (p. ej. $15.50/LF)"
     },
     "defaultCategory": "Despegue General",
     "defaultDescription": "Artículo de despegue",

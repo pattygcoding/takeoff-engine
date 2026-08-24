@@ -228,6 +228,8 @@
     "title": "Faire correspondre les colonnes de la feuille de calcul",
     "confidenceLabel": "Confiance de la détection automatique :",
     "confirmOrRemap": "Confirmez ou remapper les colonnes :",
+    "headerRowLabel": "Les en-têtes commencent sur la ligne :",
+    "headerRowOption": "Ligne {{row}}",
     "sheetTab": "Onglet Feuille :",
     "sideBySideNotice": "Nous avons détecté plusieurs tables côte à côte. Sélectionnez la zone à importer :",
     "subTableSelect": "Zone de table:",
@@ -239,6 +241,7 @@
     "tableHeaderQuantity": "Quantité",
     "tableHeaderUnit": "Unité",
     "tableHeaderDepth": "Profondeur (pi)",
+    "tableHeaderMaterialCost": "Mat. $/Unité",
     "selectFileColumn": "-- Sélectionnez la colonne Fichier --",
     "matchConfidence": "{{confidence}} % de correspondance",
     "saveAsVendorPreset": "Enregistrer en tant que préréglage du fournisseur :",
@@ -627,7 +630,9 @@
     "materialCostPerUnit": "Matériel $/Unité",
     "laborHoursPerUnit": "Heures de travail/unité",
     "addRow": "Ajouter une ligne",
-    "deleteRow": "Supprimer la ligne"
+    "deleteRow": "Supprimer la ligne",
+    "missingScopeBadge": "Périmètre Manquant",
+    "missingScopeTooltip": "Le périmètre nécessite une vérification sur le terrain / révision des prix"
   },
   "stepper": {
     "step1Label": "Télécharger le décollage",
@@ -1397,7 +1402,13 @@
       "unitLabel": "Unité de mesure",
       "unitDesc": "LF, EA, CY, SF, TON, LS, etc.",
       "avgDepthFtLabel": "Profondeur moyenne de la tranchée (FT)",
-      "avgDepthFtDesc": "Profondeur facultative pour le terrassement des tranchées et les calculs de remblai"
+      "avgDepthFtDesc": "Profondeur facultative pour le terrassement des tranchées et les calculs de remblai",
+      "materialCostPerUnitLabel": "Matériel $/Unité",
+      "materialCostPerUnitDesc": "Prix unitaire des matériaux ou coût par unité",
+      "laborHoursPerUnitLabel": "Heures de travail/Unité",
+      "laborHoursPerUnitDesc": "Heures de productivité de l'équipe par unité (ex. 0.25 hrs/LF)",
+      "laborUnitCostLabel": "Main d'oeuvre $/Unité",
+      "laborUnitCostDesc": "Taux horaire de main-d'œuvre par unité (ex. 15,50 $/LF)"
     },
     "defaultCategory": "Décollage général",
     "defaultDescription": "Article de décollage",

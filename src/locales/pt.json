@@ -228,6 +228,8 @@
     "title": "Corresponder colunas da planilha",
     "confidenceLabel": "Confiança na detecção automática:",
     "confirmOrRemap": "Confirme ou remapeie colunas:",
+    "headerRowLabel": "Os cabeçalhos começam na linha:",
+    "headerRowOption": "Linha {{row}}",
     "sheetTab": "Guia Folha:",
     "sideBySideNotice": "Detectamos várias tabelas lado a lado. Selecione qual área importar:",
     "subTableSelect": "Área da mesa:",
@@ -239,6 +241,7 @@
     "tableHeaderQuantity": "Quantidade",
     "tableHeaderUnit": "Unidade",
     "tableHeaderDepth": "Profundidade (FT)",
+    "tableHeaderMaterialCost": "Tapete $/Unidade",
     "selectFileColumn": "-- Selecione a coluna do arquivo --",
     "matchConfidence": "{{confiança}}% de correspondência",
     "saveAsVendorPreset": "Salvar como predefinição do fornecedor:",
@@ -627,7 +630,9 @@
     "materialCostPerUnit": "Material $/Unidade",
     "laborHoursPerUnit": "Horas Trabalhistas/Unidade",
     "addRow": "Adicionar linha",
-    "deleteRow": "Excluir linha"
+    "deleteRow": "Excluir linha",
+    "missingScopeBadge": "Escopo Pendente",
+    "missingScopeTooltip": "O escopo requer verificação de campo/revisão de preços"
   },
   "stepper": {
     "step1Label": "Carregar decolagem",
@@ -1397,7 +1402,13 @@
       "unitLabel": "Unidade de medida",
       "unitDesc": "LF, EA, CY, SF, TONELADA, LS, etc.",
       "avgDepthFtLabel": "Profundidade média da vala (FT)",
-      "avgDepthFtDesc": "Profundidade opcional para terraplenagem de valas e matemática de aterro"
+      "avgDepthFtDesc": "Profundidade opcional para terraplenagem de valas e matemática de aterro",
+      "materialCostPerUnitLabel": "Material $/Unidade",
+      "materialCostPerUnitDesc": "Preço unitário do material ou custo por unidade",
+      "laborHoursPerUnitLabel": "Horas de Trabalho/Unidade",
+      "laborHoursPerUnitDesc": "Horas de produtividade da equipe por unidade (por exemplo, 0,25 hrs/LF)",
+      "laborUnitCostLabel": "Mão de obra $/Unidade",
+      "laborUnitCostDesc": "Taxa do dólar trabalhista por unidade (por exemplo, US$ 15,50/LF)"
     },
     "defaultCategory": "Decolagem Geral",
     "defaultDescription": "Item de decolagem",
