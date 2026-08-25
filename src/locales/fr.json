@@ -1547,5 +1547,35 @@
     "s4Body2": "Dans les cas impliquant des attaques malveillantes sur la plateforme, des activités illégales ou une conduite frauduleuse grave, les comptes peuvent être fermés immédiatement sans préavis, et les données pertinentes peuvent être transmises aux autorités compétentes si la loi l'exige.",
     "s5Title": "Questions et rapports",
     "s5Body": "Si vous constatez un abus du système ou des communications violant ces normes, ou si vous avez des questions concernant ces conditions, veuillez contacter notre équipe administrative via les paramètres de votre compte ou le portail d'assistance."
+  },
+  "seo": {
+    "landing": {
+      "title": "Takeoff Engine | Logiciel de Devis et Métrés de Construction",
+      "description": "Transformez vos métrés CSV et exports Bluebeam en devis et propositions professionnels en quelques secondes avec coûts réels."
+    },
+    "guide": {
+      "title": "Guide Client et Estimateur | Documentation Takeoff Engine",
+      "description": "Maîtrisez l'importation de métrés, les bibliothèques de tarifs, les assemblages, le calcul des marges et la création de propositions."
+    },
+    "policy": {
+      "title": "Conditions d'Utilisation Acceptable | Takeoff Engine",
+      "description": "Consultez les normes d'exploitation, les règles d'utilisation acceptable et les politiques de la plateforme Takeoff Engine."
+    },
+    "disclaimer": {
+      "title": "Avis de Non-Responsabilité Légale et Ingénierie | Takeoff Engine",
+      "description": "Avis importants d'ingénierie, d'appel d'offres et de calculs pour les estimateurs et entrepreneurs de construction."
+    },
+    "login": {
+      "title": "Connexion | Portail Entrepreneurs & Estimateurs Takeoff Engine",
+      "description": "Connectez-vous pour gérer vos métrés, estimations de projets, bibliothèques de tarifs et propositions commerciales."
+    },
+    "register": {
+      "title": "Créer un Compte | Takeoff Engine",
+      "description": "Créez des estimations de construction précises et des propositions clients en quelques minutes. Essai gratuit inclus."
+    },
+    "forgot": {
+      "title": "Réinitialiser le Mot de Passe | Takeoff Engine",
+      "description": "Demandez un lien sécurisé pour réinitialiser le mot de passe de votre compte Takeoff Engine."
+    }
   }
 }

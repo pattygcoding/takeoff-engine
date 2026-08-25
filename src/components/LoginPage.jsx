@@ -5,6 +5,7 @@ import { authApi } from '@/lib/auth';
 import { billingApi } from '@/lib/billing';
 import { openPaddleCheckout } from '@/lib/paddle';
 import { useTranslation } from '@/context/I18nContext';
+import SeoHead from '@/components/SeoHead';
 
 export default function LoginPage({ initialView = 'login' }) {
   const { login, register, refreshProfile, user } = useAuth();
@@ -175,8 +176,38 @@ export default function LoginPage({ initialView = 'login' }) {
     }
   };
 
+  const getSeoData = () => {
+    switch (view) {
+      case 'register':
+        return {
+          title: t('seo.register.title', 'Sign Up — Takeoff Engine Civil & Construction Estimator'),
+          description: t('seo.register.description', 'Create your free Takeoff Engine account. Get 5 free takeoff exports with automatic column mapping, trench cubic yard calculators, and proposal generation.'),
+          canonicalUrl: 'https://takeoffengine.com/register',
+        };
+      case 'forgot':
+        return {
+          title: t('seo.forgot.title', 'Reset Password — Takeoff Engine'),
+          description: t('seo.forgot.description', 'Reset your Takeoff Engine account password securely.'),
+          canonicalUrl: 'https://takeoffengine.com/forgot-password',
+        };
+      default:
+        return {
+          title: t('seo.login.title', 'Sign In — Takeoff Engine Estimating Platform'),
+          description: t('seo.login.description', 'Log in to your Takeoff Engine estimating workspace, projects, client proposals, and rate libraries.'),
+          canonicalUrl: 'https://takeoffengine.com/login',
+        };
+    }
+  };
+
+  const seoData = getSeoData();
+
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] px-4 py-8">
+      <SeoHead
+        title={seoData.title}
+        description={seoData.description}
+        canonicalUrl={seoData.canonicalUrl}
+      />
       {/* Back to Home / Public site navigation banner */}
       <div className={`w-full mb-4 flex items-center justify-between text-xs font-medium text-slate-500 ${view === 'plan-select' ? 'max-w-5xl' : 'max-w-md'}`}>
         <button

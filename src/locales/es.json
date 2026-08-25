@@ -1547,5 +1547,35 @@
     "s4Body2": "En casos que impliquen ataques maliciosos a plataformas, actividades ilegales o conductas fraudulentas graves, las cuentas pueden cancelarse inmediatamente sin previo aviso y los datos relevantes pueden remitirse a las autoridades correspondientes si así lo exige la ley.",
     "s5Title": "Preguntas e informes",
     "s5Body": "Si observa abuso del sistema o comunicaciones que violan estos estándares, o tiene preguntas sobre estos términos, comuníquese con nuestro equipo administrativo a través de la configuración de su cuenta o del portal de soporte."
+  },
+  "seo": {
+    "landing": {
+      "title": "Takeoff Engine | Software de Cómputos y Presupuestos de Construcción",
+      "description": "Transforme cómputos métricos en CSV y exportaciones de Bluebeam en presupuestos y propuestas profesionales en segundos con costos directos en tiempo real."
+    },
+    "guide": {
+      "title": "Guía del Cliente y Estimador | Documentación de Takeoff Engine",
+      "description": "Aprenda a importar cómputos métricos, gestionar bibliotecas de tarifas, ensamblajes de materiales, márgenes y generación de propuestas profesionales."
+    },
+    "policy": {
+      "title": "Términos y Uso Aceptable | Takeoff Engine",
+      "description": "Revise los estándares operativos, las pautas de uso aceptable y las políticas de plataforma de Takeoff Engine."
+    },
+    "disclaimer": {
+      "title": "Descargo de Responsabilidad Legal y de Ingeniería | Takeoff Engine",
+      "description": "Avisos importantes de ingeniería, licitación y cálculo para estimadores y contratistas de construcción."
+    },
+    "login": {
+      "title": "Iniciar Sesión | Portal de Contratistas y Estimadores Takeoff Engine",
+      "description": "Inicie sesión para administrar sus cómputos de obra, presupuestos de proyectos, bibliotecas de tarifas y propuestas de clientes."
+    },
+    "register": {
+      "title": "Crear su Cuenta | Takeoff Engine",
+      "description": "Comience a crear presupuestos de construcción precisos y propuestas para clientes en minutos. Prueba gratuita incluida."
+    },
+    "forgot": {
+      "title": "Restablecer Contraseña | Takeoff Engine",
+      "description": "Solicite un enlace seguro para restablecer la contraseña de su cuenta de Takeoff Engine."
+    }
   }
 }

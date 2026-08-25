@@ -2,6 +2,9 @@ User-agent: *
 Allow: /
 Allow: /home
 Allow: /login
+Allow: /guide
+Allow: /terms
+Allow: /disclaimer
 Allow: /pricing
 Allow: /p/
 
@@ -11,6 +14,7 @@ Disallow: /settings
 Disallow: /upload
 Disallow: /edit
 Disallow: /results
+Disallow: /dashboard
 Disallow: /api/
 
 Sitemap: https://takeoffengine.com/sitemap.xml

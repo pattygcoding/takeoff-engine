@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from '@/context/I18nContext';
 import LanguageSelector from '@/components/LanguageSelector';
+import SeoHead from '@/components/SeoHead';
 
 export default function LegalDisclaimerPage() {
   const navigate = useNavigate();
@@ -19,6 +20,11 @@ export default function LegalDisclaimerPage() {
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900 pb-20 flex flex-col">
+      <SeoHead
+        title={t('seo.disclaimer.title', 'Legal Disclaimer & Estimating Liability — Takeoff Engine')}
+        description={t('seo.disclaimer.description', 'Review the legal disclaimer regarding construction estimating calculations, field verification responsibilities, and limitation of liability.')}
+        canonicalUrl="https://takeoffengine.com/disclaimer"
+      />
       {/* Header Bar */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-2xs">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">

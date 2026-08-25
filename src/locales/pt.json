@@ -1547,5 +1547,35 @@
     "s4Body2": "Em casos que envolvam ataques maliciosos à plataforma, atividades ilegais ou conduta fraudulenta grave, as contas poderão ser encerradas imediatamente sem aviso prévio e os dados relevantes poderão ser encaminhados às autoridades competentes, se exigido por lei.",
     "s5Title": "Perguntas e relatórios",
     "s5Body": "Se você observar abuso do sistema ou comunicações que violam esses padrões, ou tiver dúvidas sobre estes termos, entre em contato com nossa equipe administrativa através das configurações da sua conta ou do portal de suporte."
+  },
+  "seo": {
+    "landing": {
+      "title": "Takeoff Engine | Software de Levantamento e Orçamento de Obras",
+      "description": "Transforme levantamentos CSV e exportações do Bluebeam em propostas e orçamentos profissionais em segundos com custos em tempo real."
+    },
+    "guide": {
+      "title": "Guia do Cliente e Orçamentista | Documentação Takeoff Engine",
+      "description": "Aprenda a importar levantamentos quantitativos, bibliotecas de taxas, composições de materiais, margens e geração de propostas."
+    },
+    "policy": {
+      "title": "Termos de Uso Aceitável | Takeoff Engine",
+      "description": "Confira os padrões operacionais, diretrizes de uso aceitável e políticas da plataforma Takeoff Engine."
+    },
+    "disclaimer": {
+      "title": "Aviso Legal e de Engenharia | Takeoff Engine",
+      "description": "Avisos importantes sobre engenharia, propostas e cálculos para orçamentistas e empreiteiros da construção civil."
+    },
+    "login": {
+      "title": "Entrar | Portal de Empreiteiros e Orçamentistas Takeoff Engine",
+      "description": "Acesse para gerenciar seus levantamentos de obra, orçamentos, tabelas de preços e propostas de clientes."
+    },
+    "register": {
+      "title": "Criar Conta | Takeoff Engine",
+      "description": "Comece a criar orçamentos de obras precisos e propostas comerciais em minutos. Teste grátis incluso."
+    },
+    "forgot": {
+      "title": "Redefinir Senha | Takeoff Engine",
+      "description": "Solicite um link seguro para redefinir a senha da sua conta Takeoff Engine."
+    }
   }
 }

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { formatCurrency, formatNumber } from '@/lib/calculations';
 import { useTranslation } from '@/context/I18nContext';
 import LanguageSelector from '@/components/LanguageSelector';
+import SeoHead from '@/components/SeoHead';
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -39,6 +40,11 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 font-sans selection:bg-indigo-500 selection:text-white">
+      <SeoHead
+        title={t('seo.landing.title', 'Takeoff Engine — Construction Proposal Maker & Takeoff Software')}
+        description={t('seo.landing.description', 'Generate accurate civil takeoff estimates, trench volume calculations, and client-ready digital construction proposals from Bluebeam and Excel spreadsheets.')}
+        canonicalUrl="https://takeoffengine.com/home"
+      />
       {/* Navigation Header */}
       <nav className="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">

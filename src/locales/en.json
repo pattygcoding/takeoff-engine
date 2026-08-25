@@ -1547,5 +1547,35 @@
     "s4Body2": "In cases involving malicious platform attacks, illegal activities, or severe fraudulent conduct, accounts may be terminated immediately without prior notice, and relevant data may be referred to appropriate authorities if required by law.",
     "s5Title": "Questions & Reporting",
     "s5Body": "If you observe abuse of the system or communications violating these standards, or have questions regarding these terms, please contact our administrative team through your account settings or support portal."
+  },
+  "seo": {
+    "landing": {
+      "title": "Takeoff Engine | Construction Takeoff & Estimating Software",
+      "description": "Turn CSV takeoffs and Bluebeam exports into professional bids and proposals in seconds with real-time labor, material, and equipment costing."
+    },
+    "guide": {
+      "title": "Client & Estimator Guide | Takeoff Engine Documentation",
+      "description": "Master construction takeoff import, rate libraries, material assemblies, margin calculation, and professional proposal generation."
+    },
+    "policy": {
+      "title": "Acceptable Use & Terms | Takeoff Engine",
+      "description": "Review Takeoff Engine operating standards, acceptable use guidelines, and platform policies."
+    },
+    "disclaimer": {
+      "title": "Legal & Engineering Disclaimer | Takeoff Engine",
+      "description": "Important engineering, bidding, and calculation disclaimers for construction estimators and contractors."
+    },
+    "login": {
+      "title": "Sign In to Takeoff Engine | Contractor & Estimator Portal",
+      "description": "Sign in to manage your construction takeoffs, project estimates, rate libraries, and team proposals."
+    },
+    "register": {
+      "title": "Create Your Account | Takeoff Engine Estimating",
+      "description": "Start creating accurate construction estimates and client proposals in minutes. Free trial included."
+    },
+    "forgot": {
+      "title": "Reset Password | Takeoff Engine",
+      "description": "Request a secure password reset link for your Takeoff Engine account."
+    }
   }
 }

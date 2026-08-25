@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from '@/context/I18nContext';
 import LanguageSelector from '@/components/LanguageSelector';
+import SeoHead from '@/components/SeoHead';
 import { downloadSampleCsv, downloadSampleExcel } from '@/lib/csv';
 
 function MarkdownRenderer({ content }) {
@@ -286,6 +287,11 @@ export default function ClientGuidePage() {
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900 pb-20">
+      <SeoHead
+        title={t('seo.guide.title', 'Takeoff Import & Formatting Documentation — Takeoff Engine')}
+        description={t('seo.guide.description', 'Learn how to format CSV/Excel takeoffs from Bluebeam, PlanSwift, and Trimble Agtek for automated ingestion, trench calculations, and client proposals.')}
+        canonicalUrl="https://takeoffengine.com/guide"
+      />
       {/* Header Bar */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-2xs">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
