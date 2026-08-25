@@ -3,12 +3,12 @@
 // Project: Highland Mixed-Use Commercial Phase 2
 // Prepared By: Chief Estimator (Rev 4 Addendum 2)
 // ============================================================================
-// Notice: Contains multi-line descriptions (Alt+Enter), dirty unit strings,
-// accounting formats ($ and commas), subtotal sum rows, category banners,
-// and side-by-side scope columns.
+// Notice: Contains ambiguous/custom header names (requiring column mapping),
+// multi-line descriptions (Alt+Enter), dirty unit strings, accounting formats,
+// subtotal sum rows, category banners, and side-by-side scope columns.
 // ============================================================================
 
-Trade / Phase,Line Item Description,Material Spec & Class,Takeoff Qty,UOM,Cut Depth (ft),Material $/Unit,Labor $/Unit,,Division / Utility,Work Description,Pipe Size / Rating,Quantity,Units,Trench Depth,Material Unit Cost,Labor $/Unit
+Phase / Work Category,Line Item & Scope Notes,Material Spec & Class,Field Count / Measure,UOM,Cut Depth (ft),Material $/Unit,Labor $/Unit,,Division / Utility,Scope Item & Spec,Material Rating,Gross Takeoff Qty,Measure Unit,Trench Depth,Material Unit Cost,Labor $/Unit
 === DIVISION 02 - EARTHWORK & DEMOLITION ===,,,,,,,,,,,,,,,,
 Site Grading,"Mass Excavation & Export
 Native Clay & Silt Soil
@@ -18,7 +18,7 @@ PG 64-22 Binder",Type S-4,"3,200",SQ YD,,18.50,6.50
 Site Grading,Engineered Fill & Structural Compaction,95% Modified Proctor,"8,900",CY,6.0,8.50,11.00,,Paving & Surface,Aggregate Base Course,Crushed Stone Class 5,"1,850",TON,,22.00,7.50
 Demolition,"Sawcut Existing Concrete Pavement
 Depth 6 to 8 inches
-Includes slurry vacuum",8" Reinforced Slab,"450.00 LF",LF,,,0.00,12.00,,Paving & Surface,Concrete Curb and Gutter,Type A 24-inch,"1,120",lin ft,,,28.00,16.50
+Includes slurry vacuum",8" Reinforced Slab,"450.00 LF",LF,,0.00,12.00,,Paving & Surface,Concrete Curb and Gutter,Type A 24-inch,"1,120",lin ft,,,28.00,16.50
 SUBTOTAL - EARTHWORK,,,,21800,CY,,,,,,SUBTOTAL - PAVING,,,,6170,UN,,,
 ,,,,,,,,,,,,,,,,
 === DIVISION 33 - UTILITIES (WATER & SANITARY) ===,,,,,,,,,,,,,,,,
@@ -27,12 +27,12 @@ Includes tracer wire and poly wrap
 Testing and chlorination per spec",8" C900 PVC,"1,250",Linear Feet,4.5,38.00,22.50,,Sanitary Sewer,"8-Inch SDR-35 Gravity Sewer Main
 Class 1 Bedding
 Air and mandrel testing included",8" PVC SDR-35,"880",LF,7.5,24.00,28.00
-Water Distribution,Resilient Wedge Gate Valve,8" Mechanical Joint,"4",Each,,,680.00,150.00,,Sanitary Sewer,Sanitary Sewer Manhole,48" Precast Concrete,"6",EA,8.0,1850.00,550.00
+Water Distribution,Resilient Wedge Gate Valve,8" Mechanical Joint,"4",Each,,680.00,150.00,,Sanitary Sewer,Sanitary Sewer Manhole,48" Precast Concrete,"6",EA,8.0,1850.00,550.00
 Water Distribution,"Fire Hydrant Assembly Complete
 6-inch shoe with 5-1/4 main valve
 Traffic breakaway flange",Standard Mueller Super Centurion,"2",PCS,5.0,2400.00,650.00,,Sanitary Sewer,Sanitary Service Lateral & Cleanout,6" SDR-35 w/ 2-way cleanout,"12",EA,4.0,120.00,85.00
 Water Distribution,"Tapping Sleeve & Valve
-Live tap on existing 12-inch DI line",12" x 8" Stainless Steel,"1",EA,,,1450.00,450.00,,Sanitary Sewer,"Drop Manhole Connection
+Live tap on existing 12-inch DI line",12" x 8" Stainless Steel,"1",EA,,1450.00,450.00,,Sanitary Sewer,"Drop Manhole Connection
 Includes inside drop piping",8" SDR-26 PVC,"2",EA,10.5,2450.00,750.00
 SUBTOTAL - WATER,,,,1257,LF,,,,,,SUBTOTAL - SANITARY,,,,900,LF,,,
 ,,,,,,,,,,,,,,,,
@@ -45,7 +45,7 @@ Arch Chamber System
 Includes geotextile wrap",StormTech SC-740,"85",EA,,350.00,120.00
 Storm Drainage,"48-Inch Precast Junction Box
 Traffic rated frame and grate",48" Precast Box,"3",EA,7.0,1450.00,420.00,,Specialty Structures,Rip-Rap Outfall Scour Protection,Class 2 Stone 12" D50,"45.0",TON,,45.00,25.00
-Storm Drainage,Flared End Section with Trash Rack,24" Concrete FES,"2",EA,,,420.00,160.00,,Specialty Structures,Silt Fence Sediment Barrier,Wire Backed Fabric,"1,500",LF,,3.50,2.50
+Storm Drainage,Flared End Section with Trash Rack,24" Concrete FES,"2",EA,,420.00,160.00,,Specialty Structures,Silt Fence Sediment Barrier,Wire Backed Fabric,"1,500",LF,,3.50,2.50
 SUBTOTAL - STORM DRAINAGE,,,,653,FT,,,,,,SUBTOTAL - SPECIALTIES,,,,1631,UN,,,
 ,,,,,,,,,,,,,,,,
 GRAND TOTAL SUMMARY,,,,23710,TOTAL,,,,,,GRAND TOTAL SUMMARY,,,,8701,TOTAL,,,
