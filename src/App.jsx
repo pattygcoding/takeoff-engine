@@ -94,8 +94,14 @@ function UserWorkspace({ items, setItems, rates, setRates, currentProject, setCu
     navigate(`/${username}/upload`);
   };
 
-  const handleItemsParsed = (parsedItems) => {
+  const handleItemsParsed = (parsedItems, options = {}) => {
     setItems(parsedItems);
+    if (options?.detectedLaborMode) {
+      setRates((prevRates) => ({
+        ...prevRates,
+        laborMode: options.detectedLaborMode,
+      }));
+    }
     navigate(`/${username}/edit`);
   };
 

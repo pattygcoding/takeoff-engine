@@ -107,19 +107,19 @@ export function cleanFormulaError(val) {
 export function getSampleCsvRows(customT = null) {
   const t = customT || getTranslation;
   return [
-    { system: t('csvParser.sampleRows.sanitary'), item_description: t('csvParser.sampleRows.pipe'), size_spec: '6" PVC SDR-35', quantity: 275, unit: 'LF', avg_depth_ft: 4 },
-    { system: t('csvParser.sampleRows.sanitary'), item_description: t('csvParser.sampleRows.pipe'), size_spec: '8" PVC SDR-35', quantity: 140, unit: 'LF', avg_depth_ft: 6 },
-    { system: t('csvParser.sampleRows.sanitary'), item_description: t('csvParser.sampleRows.elbow'), size_spec: '6" PVC', quantity: 6, unit: 'EA', avg_depth_ft: '' },
-    { system: t('csvParser.sampleRows.sanitary'), item_description: t('csvParser.sampleRows.cleanout'), size_spec: '6" PVC', quantity: 4, unit: 'EA', avg_depth_ft: '' },
-    { system: t('csvParser.sampleRows.sanitary'), item_description: t('csvParser.sampleRows.manhole'), size_spec: '48" Precast', quantity: 3, unit: 'EA', avg_depth_ft: '' },
-    { system: t('csvParser.sampleRows.storm'), item_description: t('csvParser.sampleRows.pipe'), size_spec: '12" HDPE', quantity: 320, unit: 'LF', avg_depth_ft: 3 },
-    { system: t('csvParser.sampleRows.storm'), item_description: t('csvParser.sampleRows.pipe'), size_spec: '18" RCP', quantity: 95, unit: 'LF', avg_depth_ft: 5 },
-    { system: t('csvParser.sampleRows.storm'), item_description: t('csvParser.sampleRows.catchBasin'), size_spec: '24" x 24"', quantity: 5, unit: 'EA', avg_depth_ft: '' },
-    { system: t('csvParser.sampleRows.storm'), item_description: t('csvParser.sampleRows.flaredEndSection'), size_spec: '18" RCP', quantity: 2, unit: 'EA', avg_depth_ft: '' },
-    { system: t('csvParser.sampleRows.domesticWater'), item_description: t('csvParser.sampleRows.pipe'), size_spec: '6" C900', quantity: 410, unit: 'LF', avg_depth_ft: 3.5 },
-    { system: t('csvParser.sampleRows.domesticWater'), item_description: t('csvParser.sampleRows.gateValve'), size_spec: '6"', quantity: 3, unit: 'EA', avg_depth_ft: '' },
-    { system: t('csvParser.sampleRows.domesticWater'), item_description: t('csvParser.sampleRows.fireHydrantAssembly'), size_spec: t('csvParser.sampleRows.specStandard'), quantity: 2, unit: 'EA', avg_depth_ft: '' },
-    { system: t('csvParser.sampleRows.domesticWater'), item_description: t('csvParser.sampleRows.tappingSleeveValve'), size_spec: '6" x 6"', quantity: 1, unit: 'EA', avg_depth_ft: '' },
+    { system: t('csvParser.sampleRows.sanitary'), item_description: t('csvParser.sampleRows.pipe'), size_spec: '6" PVC SDR-35', quantity: 275, unit: 'LF', avg_depth_ft: 4, material_cost_per_unit: 18.50, labor_hours_per_unit: 0.15 },
+    { system: t('csvParser.sampleRows.sanitary'), item_description: t('csvParser.sampleRows.pipe'), size_spec: '8" PVC SDR-35', quantity: 140, unit: 'LF', avg_depth_ft: 6, material_cost_per_unit: 24.00, labor_hours_per_unit: 0.22 },
+    { system: t('csvParser.sampleRows.sanitary'), item_description: t('csvParser.sampleRows.elbow'), size_spec: '6" PVC', quantity: 6, unit: 'EA', avg_depth_ft: '', material_cost_per_unit: 45.00, labor_hours_per_unit: 0.75 },
+    { system: t('csvParser.sampleRows.sanitary'), item_description: t('csvParser.sampleRows.cleanout'), size_spec: '6" PVC', quantity: 4, unit: 'EA', avg_depth_ft: '', material_cost_per_unit: 120.00, labor_hours_per_unit: 1.20 },
+    { system: t('csvParser.sampleRows.sanitary'), item_description: t('csvParser.sampleRows.manhole'), size_spec: '48" Precast', quantity: 3, unit: 'EA', avg_depth_ft: '', material_cost_per_unit: 1850.00, labor_hours_per_unit: 6.50 },
+    { system: t('csvParser.sampleRows.storm'), item_description: t('csvParser.sampleRows.pipe'), size_spec: '12" HDPE', quantity: 320, unit: 'LF', avg_depth_ft: 3, material_cost_per_unit: 28.00, labor_hours_per_unit: 0.18 },
+    { system: t('csvParser.sampleRows.storm'), item_description: t('csvParser.sampleRows.pipe'), size_spec: '18" RCP', quantity: 95, unit: 'LF', avg_depth_ft: 5, material_cost_per_unit: 52.00, labor_hours_per_unit: 0.35 },
+    { system: t('csvParser.sampleRows.storm'), item_description: t('csvParser.sampleRows.catchBasin'), size_spec: '24" x 24"', quantity: 5, unit: 'EA', avg_depth_ft: '', material_cost_per_unit: 850.00, labor_hours_per_unit: 3.00 },
+    { system: t('csvParser.sampleRows.storm'), item_description: t('csvParser.sampleRows.flaredEndSection'), size_spec: '18" RCP', quantity: 2, unit: 'EA', avg_depth_ft: '', material_cost_per_unit: 420.00, labor_hours_per_unit: 1.50 },
+    { system: t('csvParser.sampleRows.domesticWater'), item_description: t('csvParser.sampleRows.pipe'), size_spec: '6" C900', quantity: 410, unit: 'LF', avg_depth_ft: 3.5, material_cost_per_unit: 32.00, labor_hours_per_unit: 0.20 },
+    { system: t('csvParser.sampleRows.domesticWater'), item_description: t('csvParser.sampleRows.gateValve'), size_spec: '6"', quantity: 3, unit: 'EA', avg_depth_ft: '', material_cost_per_unit: 680.00, labor_hours_per_unit: 2.50 },
+    { system: t('csvParser.sampleRows.domesticWater'), item_description: t('csvParser.sampleRows.fireHydrantAssembly'), size_spec: t('csvParser.sampleRows.specStandard'), quantity: 2, unit: 'EA', avg_depth_ft: '', material_cost_per_unit: 2400.00, labor_hours_per_unit: 8.00 },
+    { system: t('csvParser.sampleRows.domesticWater'), item_description: t('csvParser.sampleRows.tappingSleeveValve'), size_spec: '6" x 6"', quantity: 1, unit: 'EA', avg_depth_ft: '', material_cost_per_unit: 1450.00, labor_hours_per_unit: 4.00 },
   ];
 }
 
@@ -880,9 +880,13 @@ export function normalizeRowsWithMapping(rawRows = [], mapping = {}, customT = n
   // Mathematical checksum comparison
   const checksumMatches = totalDetectedSubtotals > 0 && Math.abs(totalDetectedSubtotals - parsedQuantitySum) < 0.01;
 
+  // Detect whether labor mode should be '$' (cost) or 'hrs' (hours) based on mapping
+  const detectedLaborMode = mapping.labor_unit_cost && !mapping.labor_hours_per_unit ? 'cost' : 'hours';
+
   return {
     items,
     errors,
+    detectedLaborMode,
     checksum: {
       hasSubtotals: totalDetectedSubtotals > 0,
       detectedSubtotals: totalDetectedSubtotals,
@@ -1362,13 +1366,14 @@ export async function parseTakeoffFile(file, sheetName = null, tableId = null, c
     };
   }
 
-  const { items, errors, checksum } = normalizeRowsWithMapping(rows, effectiveMapping, t);
+  const { items, errors, checksum, detectedLaborMode } = normalizeRowsWithMapping(rows, effectiveMapping, t);
   const formattedParseErrors = (parseErrors || []).map((e) => `Row ${e.row + 2}: ${e.message}`);
 
   return {
     items,
     errors: [...formattedParseErrors, ...errors],
     checksum,
+    detectedLaborMode,
     headers,
     sheetNames: sheetNames || [],
     activeSheetName,

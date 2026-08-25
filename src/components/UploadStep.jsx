@@ -32,14 +32,14 @@ export default function UploadStep({ onItemsParsed }) {
           return;
         }
 
-        const { items, errors: parseErrors, checksum } = result;
+        const { items, errors: parseErrors, checksum, detectedLaborMode } = result;
         setErrors(parseErrors || []);
         if (checksum?.hasSubtotals) {
           setChecksumSummary(checksum);
         }
 
         if (items && items.length > 0) {
-          onItemsParsed(items);
+          onItemsParsed(items, { detectedLaborMode });
         }
       } catch (err) {
         console.error('Failed to parse takeoff file:', err);
@@ -63,14 +63,14 @@ export default function UploadStep({ onItemsParsed }) {
     }
   };
 
-  const handleMappingConfirm = ({ items, errors: mappingErrors, checksum }) => {
+  const handleMappingConfirm = ({ items, errors: mappingErrors, checksum, detectedLaborMode }) => {
     setMappingModalData(null);
     setErrors(mappingErrors || []);
     if (checksum?.hasSubtotals) {
       setChecksumSummary(checksum);
     }
     if (items && items.length > 0) {
-      onItemsParsed(items);
+      onItemsParsed(items, { detectedLaborMode });
     }
   };
 

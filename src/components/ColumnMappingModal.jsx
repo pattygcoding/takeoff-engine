@@ -113,13 +113,13 @@ export default function ColumnMappingModal({
       return;
     }
 
-    const { items, errors, checksum } = normalizeRowsWithMapping(currentRawRows, mapping, t);
+    const { items, errors, checksum, detectedLaborMode } = normalizeRowsWithMapping(currentRawRows, mapping, t);
     if (items.length === 0 && errors.length > 0) {
       setValidationError(t('columnMappingModal.validationErrorParsing', { error: errors[0] }));
       return;
     }
 
-    onConfirm({ items, errors, checksum });
+    onConfirm({ items, errors, checksum, detectedLaborMode });
   };
 
   // Compute live 5-row preview with current mapping

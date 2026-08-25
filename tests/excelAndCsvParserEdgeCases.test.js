@@ -673,6 +673,7 @@ describe('Excel & CSV Import Edge Cases (US-031 / 4 Friction Points)', () => {
       const normalizedDollar = normalizeRowsWithMapping(dollarDataRows, dollarMapping.mapping, null, 65.0);
       assert.strictEqual(normalizedDollar.items[0].laborHoursPerUnit, 0.3);
       assert.strictEqual(normalizedDollar.items[0].laborUnitCost, 19.5);
+      assert.strictEqual(normalizedDollar.detectedLaborMode, 'cost', 'Labor $/unit column should auto-detect cost mode');
 
       // Case B: Ambiguous "Labor" column with small fractional production rates (0.05 hrs/LF) -> maps to labor_hours_per_unit
       const hoursDataRows = [
@@ -687,6 +688,7 @@ describe('Excel & CSV Import Edge Cases (US-031 / 4 Friction Points)', () => {
       const normalizedHours = normalizeRowsWithMapping(hoursDataRows, hoursMapping.mapping, null, 65.0);
       assert.strictEqual(normalizedHours.items[0].laborHoursPerUnit, 0.06);
       assert.strictEqual(normalizedHours.items[0].laborUnitCost, 3.9);
+      assert.strictEqual(normalizedHours.detectedLaborMode, 'hours', 'Labor hrs/unit column should auto-detect hours mode');
     });
   });
 });
