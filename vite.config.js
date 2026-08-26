@@ -44,20 +44,23 @@ export default defineConfig({
             }
             return 'vendor-other';
           }
-          if (id.includes('/components/ExportHubPage')) {
+          if (id.includes('/components/product/ExportHubPage') || id.includes('/components/ExportHubPage')) {
             return 'export-hub';
           }
-          if (id.includes('/components/AdminPortal')) {
+          if (id.includes('/components/admin/AdminPortal') || id.includes('/components/AdminPortal')) {
             return 'admin-portal';
           }
-          if (id.includes('/components/AccountSettings')) {
+          if (id.includes('/components/auth/AccountSettings') || id.includes('/components/AccountSettings')) {
             return 'account-settings';
           }
-          if (id.includes('/components/LandingPage')) {
+          if (id.includes('/components/landing/LandingPage') || id.includes('/components/LandingPage')) {
             return 'landing-page';
           }
-          if (id.includes('/components/ClientProposalView')) {
+          if (id.includes('/components/product/ClientProposalView') || id.includes('/components/ClientProposalView')) {
             return 'client-proposal-view';
+          }
+          if (id.includes('/components/product/ProjectWorkspace') || id.includes('/components/product/TakeoffGrid') || id.includes('/components/product/ResultsStep')) {
+            return 'project-workspace';
           }
         },
       },

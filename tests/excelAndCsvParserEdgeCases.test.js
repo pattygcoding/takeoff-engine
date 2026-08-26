@@ -1,4 +1,4 @@
-import { describe, it } from 'node:test';
+import { describe, it } from 'vitest';
 import assert from 'node:assert';
 import {
   sanitizeCellString,
@@ -13,7 +13,7 @@ import {
   normalizeUnit,
   parseRawExcel,
   autoDetectColumnMapping,
-} from '../src/lib/csv.js';
+} from '@/lib/product/csv.js';
 import * as XLSX from 'xlsx';
 
 describe('Excel & CSV Import Edge Cases (US-031 / 4 Friction Points)', () => {

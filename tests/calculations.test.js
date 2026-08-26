@@ -1,4 +1,4 @@
-import { describe, it } from 'node:test';
+import { describe, it } from 'vitest';
 import assert from 'node:assert/strict';
 import {
   DEFAULT_TRENCH_WIDTH_FT,
@@ -8,7 +8,7 @@ import {
   computeEstimate,
   formatCurrency,
   formatNumber,
-} from '../src/lib/calculations.js';
+} from '@/lib/product/calculations.js';
 
 describe('Calculations Engine Tests', () => {
   describe('trenchVolumeCubicYards', () => {

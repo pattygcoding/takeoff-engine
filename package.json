@@ -3,12 +3,15 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "imports": {
+    "#*": "./src/*"
+  },
   "scripts": {
     "dev": "infisical run -- vite",
     "dev:local": "vite",
     "build": "infisical run --env=prod -- vite build",
     "build:local": "vite build",
-    "test": "node --test tests/**/*.test.js",
+    "test": "vitest run",
     "lint": "oxlint",
     "preview": "vite preview",
     "predeploy": "npm run build",
