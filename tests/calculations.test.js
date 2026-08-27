@@ -50,6 +50,46 @@ describe('Calculations Engine Tests', () => {
       assert.strictEqual(normalized.laborDailyRate, 680.0);
       assert.strictEqual(normalized.workdayHours, 8.0);
     });
+
+    it('handles extreme edge cases, string numbers, nulls, zeroes, and boundary workday hours safely', () => {
+      // Zero workday hours falls back to default 8.0
+      const zeroHours = getNormalizedLaborRates({ laborHourlyRate: 50, workdayHours: 0 });
+      assert.strictEqual(zeroHours.workdayHours, 8.0);
+      assert.strictEqual(zeroHours.laborDailyRate, 400.0);
+
+      // Negative numbers fallback gracefully
+      const negHours = getNormalizedLaborRates({ laborHourlyRate: 50, workdayHours: -5 });
+      assert.strictEqual(negHours.workdayHours, 8.0);
+
+      // String inputs for daily basis
+      const strInputs = getNormalizedLaborRates({
+        laborRateBasis: 'daily',
+        laborDailyRate: '800',
+        workdayHours: '10',
+      });
+      assert.strictEqual(strInputs.laborRateBasis, 'daily');
+      assert.strictEqual(strInputs.laborDailyRate, 800.0);
+      assert.strictEqual(strInputs.laborHourlyRate, 80.0);
+      assert.strictEqual(strInputs.workdayHours, 10.0);
+
+      // Daily basis with only hourly rate supplied falls back to calculating daily
+      const dailyBasisFallback = getNormalizedLaborRates({
+        laborRateBasis: 'daily',
+        laborHourlyRate: 90.0,
+        workdayHours: 8.0,
+      });
+      assert.strictEqual(dailyBasisFallback.laborDailyRate, 720.0);
+      assert.strictEqual(dailyBasisFallback.laborHourlyRate, 90.0);
+
+      // 24-hour shift continuous operations
+      const continuous24 = getNormalizedLaborRates({
+        laborRateBasis: 'daily',
+        laborDailyRate: 2400.0,
+        workdayHours: 24.0,
+      });
+      assert.strictEqual(continuous24.laborHourlyRate, 100.0);
+      assert.strictEqual(continuous24.laborDailyRate, 2400.0);
+    });
   });
   describe('trenchVolumeCubicYards', () => {
     it('calculates trench cubic yards accurately for Linear Foot items with depth', () => {
@@ -150,6 +190,55 @@ describe('Calculations Engine Tests', () => {
       assert.strictEqual(result.materialCost, 250);
       assert.strictEqual(result.laborCost, 150);
       assert.strictEqual(result.directCost, 400);
+    });
+
+    it('calculates identical item cost whether rates are specified via hourly or equivalent daily basis', () => {
+      const item = {
+        quantity: 100,
+        materialCostPerUnit: 12.5,
+        laborHoursPerUnit: 0.8,
+      };
+
+      const hourlyRates = {
+        laborRateBasis: 'hourly',
+        laborHourlyRate: 75.0,
+        workdayHours: 8.0,
+      };
+
+      const dailyRates = {
+        laborRateBasis: 'daily',
+        laborDailyRate: 600.0, // 600 / 8 = 75.0
+        workdayHours: 8.0,
+      };
+
+      const costHourly = computeItemCost(item, hourlyRates);
+      const costDaily = computeItemCost(item, dailyRates);
+
+      assert.strictEqual(costHourly.materialCost, costDaily.materialCost);
+      assert.strictEqual(costHourly.laborHours, costDaily.laborHours);
+      assert.strictEqual(costHourly.laborCost, costDaily.laborCost);
+      assert.strictEqual(costHourly.directCost, costDaily.directCost);
+      assert.strictEqual(costDaily.laborCost, 100 * 0.8 * 75.0); // 6000
+    });
+
+    it('handles floating point production rates and odd crew workday hours accurately', () => {
+      const item = {
+        quantity: 333.33,
+        materialCostPerUnit: 14.28,
+        laborHoursPerUnit: 0.333333,
+      };
+
+      const rates = {
+        laborRateBasis: 'daily',
+        laborDailyRate: 715.0, // 715 / 11 = 65.0
+        workdayHours: 11.0,
+      };
+
+      const result = computeItemCost(item, rates);
+      assert.ok(result.materialCost > 0);
+      assert.ok(result.laborCost > 0);
+      assert.ok(result.directCost > 0);
+      assert.strictEqual(Math.round(result.laborCost * 100) / 100, Math.round(333.33 * 0.333333 * 65.0 * 100) / 100);
     });
   });
 
@@ -405,6 +494,115 @@ describe('Calculations Engine Tests', () => {
       assert.strictEqual(estimate.totals.miscItems.length, 3);
       assert.strictEqual(estimate.totals.totalDirectCost, 3000);
       assert.strictEqual(estimate.totals.finalBidAmount, 3000);
+    });
+
+    it('produces identical overall bid estimates when switching between hourly and daily rate bases', () => {
+      const items = [
+        {
+          id: '1',
+          system: 'Water',
+          quantity: 500,
+          unit: 'LF',
+          materialCostPerUnit: 40,
+          laborHoursPerUnit: 0.5,
+        },
+        {
+          id: '2',
+          system: 'Sewer',
+          quantity: 20,
+          unit: 'EA',
+          materialCostPerUnit: 1200,
+          laborHoursPerUnit: 6,
+        },
+      ];
+
+      const hourlyConfig = {
+        laborRateBasis: 'hourly',
+        laborHourlyRate: 80.0,
+        workdayHours: 8.0,
+        overheadPct: 10,
+        overheadType: 'percent',
+        contingencyPct: 5,
+        contingencyType: 'percent',
+        profitPct: 15,
+        profitType: 'percent',
+        equipmentLumpSum: 15000,
+        equipmentType: 'fixed',
+      };
+
+      const dailyConfig = {
+        ...hourlyConfig,
+        laborRateBasis: 'daily',
+        laborDailyRate: 640.0, // 640 / 8 = 80.0
+      };
+
+      const estimateFromHourly = computeEstimate(items, hourlyConfig);
+      const estimateFromDaily = computeEstimate(items, dailyConfig);
+
+      assert.strictEqual(estimateFromHourly.totals.totalMaterialCost, estimateFromDaily.totals.totalMaterialCost);
+      assert.strictEqual(estimateFromHourly.totals.totalLaborHours, estimateFromDaily.totals.totalLaborHours);
+      assert.strictEqual(estimateFromHourly.totals.totalLaborCost, estimateFromDaily.totals.totalLaborCost);
+      assert.strictEqual(estimateFromHourly.totals.totalDirectCost, estimateFromDaily.totals.totalDirectCost);
+      assert.strictEqual(estimateFromHourly.totals.overheadAmount, estimateFromDaily.totals.overheadAmount);
+      assert.strictEqual(estimateFromHourly.totals.contingencyAmount, estimateFromDaily.totals.contingencyAmount);
+      assert.strictEqual(estimateFromHourly.totals.profitAmount, estimateFromDaily.totals.profitAmount);
+      assert.strictEqual(estimateFromHourly.totals.finalBidAmount, estimateFromDaily.totals.finalBidAmount);
+      assert.strictEqual(estimateFromHourly.totals.markupFactor, estimateFromDaily.totals.markupFactor);
+    });
+
+    it('handles composite multi-tier markup stacking and compound percentage calculation limits', () => {
+      const items = [
+        {
+          system: 'Heavy Civil',
+          quantity: 1000,
+          unit: 'CY',
+          materialCostPerUnit: 15,
+          laborHoursPerUnit: 0.25,
+        },
+      ];
+
+      const rates = {
+        laborRateBasis: 'daily',
+        laborDailyRate: 1000.0,
+        workdayHours: 10.0, // $100/hr
+        equipmentLumpSum: 20, // 20% of items direct
+        equipmentType: 'percent',
+        miscCost: 10, // 10% of items direct
+        miscType: 'percent',
+        overheadPct: 12.5,
+        overheadType: 'percent',
+        contingencyPct: 7.5,
+        contingencyType: 'percent',
+        profitPct: 18.0,
+        profitType: 'percent',
+      };
+
+      // Material: 1000 * 15 = 15000
+      // Labor: 1000 * 0.25 * 100 = 25000
+      // Items direct sum = 40000
+      // Equipment (20% of 40000) = 8000
+      // Misc (10% of 40000) = 4000
+      // Total direct cost = 40000 + 8000 + 4000 = 52000
+      // Overhead (12.5% of 52000) = 6500
+      // Contingency (7.5% of 52000) = 3900
+      // Subtotal with markups = 52000 + 6500 + 3900 = 62400
+      // Profit (18% of 62400) = 11232
+      // Final bid amount = 62400 + 11232 = 73632
+
+      const estimate = computeEstimate(items, rates);
+      assert.strictEqual(estimate.totals.totalMaterialCost, 15000);
+      assert.strictEqual(estimate.totals.totalLaborCost, 25000);
+      assert.strictEqual(estimate.totals.equipmentLumpSum, 8000);
+      assert.strictEqual(estimate.totals.miscCost, 4000);
+      assert.strictEqual(estimate.totals.totalDirectCost, 52000);
+      assert.strictEqual(estimate.totals.overheadAmount, 6500);
+      assert.strictEqual(estimate.totals.contingencyAmount, 3900);
+      assert.strictEqual(estimate.totals.profitAmount, 11232);
+      assert.strictEqual(estimate.totals.finalBidAmount, 73632);
+
+      // Verify factored system sum equals final bid amount exactly
+      const sysSum = estimate.bySystem.reduce((sum, s) => sum + s.factoredBid, 0);
+      assert.strictEqual(Math.round(sysSum * 100) / 100, 73632);
     });
   });
 
