@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const aliasesDir = path.resolve(__dirname, '../src/data/aliases');
+const aliasesDir = path.resolve(__dirname, '../../src/data/aliases');
 
 function cleanAlias(str) {
   return String(str).trim().toLowerCase().replace(/[^a-z0-9]/g, '');
