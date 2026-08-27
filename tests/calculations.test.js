@@ -2,7 +2,9 @@ import { describe, it } from 'vitest';
 import assert from 'node:assert/strict';
 import {
   DEFAULT_TRENCH_WIDTH_FT,
+  DEFAULT_WORKDAY_HOURS,
   DEFAULT_RATES,
+  getNormalizedLaborRates,
   trenchVolumeCubicYards,
   computeItemCost,
   computeEstimate,
@@ -11,6 +13,44 @@ import {
 } from '@/lib/product/calculations.js';
 
 describe('Calculations Engine Tests', () => {
+  describe('getNormalizedLaborRates', () => {
+    it('returns default hourly and daily rates when rates object is empty', () => {
+      const normalized = getNormalizedLaborRates({});
+      assert.strictEqual(normalized.laborRateBasis, 'hourly');
+      assert.strictEqual(normalized.laborHourlyRate, 65.0);
+      assert.strictEqual(normalized.laborDailyRate, 520.0);
+      assert.strictEqual(normalized.workdayHours, 8.0);
+    });
+
+    it('calculates daily rate from custom hourly rate with default 8 hours', () => {
+      const normalized = getNormalizedLaborRates({ laborHourlyRate: 75.0 });
+      assert.strictEqual(normalized.laborRateBasis, 'hourly');
+      assert.strictEqual(normalized.laborHourlyRate, 75.0);
+      assert.strictEqual(normalized.laborDailyRate, 600.0);
+      assert.strictEqual(normalized.workdayHours, 8.0);
+    });
+
+    it('calculates hourly rate from daily rate in daily basis mode', () => {
+      const normalized = getNormalizedLaborRates({
+        laborRateBasis: 'daily',
+        laborDailyRate: 600.0,
+        workdayHours: 10.0,
+      });
+      assert.strictEqual(normalized.laborRateBasis, 'daily');
+      assert.strictEqual(normalized.laborDailyRate, 600.0);
+      assert.strictEqual(normalized.laborHourlyRate, 60.0);
+      assert.strictEqual(normalized.workdayHours, 10.0);
+    });
+
+    it('provides backward compatibility for legacy estimates with only laborHourlyRate', () => {
+      const legacy = { laborHourlyRate: 85.0 };
+      const normalized = getNormalizedLaborRates(legacy);
+      assert.strictEqual(normalized.laborRateBasis, 'hourly');
+      assert.strictEqual(normalized.laborHourlyRate, 85.0);
+      assert.strictEqual(normalized.laborDailyRate, 680.0);
+      assert.strictEqual(normalized.workdayHours, 8.0);
+    });
+  });
   describe('trenchVolumeCubicYards', () => {
     it('calculates trench cubic yards accurately for Linear Foot items with depth', () => {
       const item = {

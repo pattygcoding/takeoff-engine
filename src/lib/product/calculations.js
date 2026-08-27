@@ -1,9 +1,13 @@
 // Core cost calculation engine for takeoff items and pricing rates.
 
 export const DEFAULT_TRENCH_WIDTH_FT = 2;
+export const DEFAULT_WORKDAY_HOURS = 8.0;
 
 export const DEFAULT_RATES = {
+  laborRateBasis: 'hourly', // 'hourly' | 'daily'
   laborHourlyRate: 65.0,
+  laborDailyRate: 520.0,
+  workdayHours: DEFAULT_WORKDAY_HOURS,
   laborMode: 'hours', // 'hours' | 'cost'
   overheadPct: 10,
   overheadType: 'percent', // 'percent' | 'fixed'
@@ -18,6 +22,37 @@ export const DEFAULT_RATES = {
   miscType: 'fixed', // 'fixed' | 'percent'
   trenchWidthFt: DEFAULT_TRENCH_WIDTH_FT,
 };
+
+/**
+ * Normalizes labor rate properties (hourly rate, daily rate, workday hours, and rate basis).
+ * Handles backward compatibility when only laborHourlyRate or laborDailyRate is present.
+ */
+export function getNormalizedLaborRates(rates = DEFAULT_RATES) {
+  const workdayHours = Number(rates?.workdayHours) > 0 ? Number(rates.workdayHours) : DEFAULT_WORKDAY_HOURS;
+  const basis = rates?.laborRateBasis === 'daily' ? 'daily' : 'hourly';
+
+  let hourly = Number(rates?.laborHourlyRate);
+  let daily = Number(rates?.laborDailyRate);
+
+  if (basis === 'daily') {
+    if (!Number.isFinite(daily) || daily <= 0) {
+      daily = (Number.isFinite(hourly) && hourly > 0) ? hourly * workdayHours : 520.0;
+    }
+    hourly = workdayHours > 0 ? daily / workdayHours : 0;
+  } else {
+    if (!Number.isFinite(hourly) || hourly <= 0) {
+      hourly = (Number.isFinite(daily) && daily > 0) ? daily / workdayHours : 65.0;
+    }
+    daily = hourly * workdayHours;
+  }
+
+  return {
+    laborRateBasis: basis,
+    workdayHours,
+    laborHourlyRate: Math.round(hourly * 100) / 100,
+    laborDailyRate: Math.round(daily * 100) / 100,
+  };
+}
 
 /**
  * Calculates the trench volume (cubic yards) for a takeoff item, if applicable.
@@ -40,6 +75,8 @@ export function computeItemCost(item, rates = DEFAULT_RATES) {
   const qty = Number(item.quantity) || 0;
   const materialUnitCost = Number(item.materialCostPerUnit) || 0;
   const isLaborCostMode = rates.laborMode === 'cost';
+  const normalizedLabor = getNormalizedLaborRates(rates);
+  const effectiveHourlyRate = normalizedLabor.laborHourlyRate;
 
   const materialCost = qty * materialUnitCost;
   let laborHours = 0;
@@ -49,12 +86,11 @@ export function computeItemCost(item, rates = DEFAULT_RATES) {
     const laborUnitCost = Number(item.laborUnitCost) || 0;
     laborCost = qty * laborUnitCost;
     // Retain or derive hours for crew scheduling metrics if hourly rate is present
-    const hourlyRate = Number(rates.laborHourlyRate) || 0;
-    laborHours = Number(item.laborHoursPerUnit) || (hourlyRate > 0 ? (laborCost / hourlyRate) : 0);
+    laborHours = Number(item.laborHoursPerUnit) || (effectiveHourlyRate > 0 ? (laborCost / effectiveHourlyRate) : 0);
   } else {
     const laborHoursPerUnit = Number(item.laborHoursPerUnit) || 0;
     laborHours = qty * laborHoursPerUnit;
-    laborCost = laborHours * (Number(rates.laborHourlyRate) || 0);
+    laborCost = laborHours * effectiveHourlyRate;
   }
 
   return {

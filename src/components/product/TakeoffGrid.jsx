@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { createBlankItem } from '@/lib/product/csv';
 import { useTranslation } from '@/context/I18nContext';
+import { getNormalizedLaborRates } from '@/lib/product/calculations';
 
 const DEFAULT_SYSTEMS = ['Sanitary', 'Storm', 'Domestic Water'];
 const DEFAULT_UNITS = ['LF', 'EA', 'SF', 'CY', 'SY', 'TON', 'LS', 'HR'];
@@ -8,7 +9,8 @@ const DEFAULT_UNITS = ['LF', 'EA', 'SF', 'CY', 'SY', 'TON', 'LS', 'HR'];
 export default function TakeoffGrid({ items, onChange, readOnly = false, rates = {}, onRatesChange }) {
   const { t } = useTranslation();
   const laborInputMode = rates?.laborMode === 'cost' ? 'cost' : 'hours';
-  const hourlyRate = Number(rates?.laborHourlyRate) > 0 ? Number(rates.laborHourlyRate) : 65.0;
+  const normalizedLabor = getNormalizedLaborRates(rates);
+  const hourlyRate = normalizedLabor.laborHourlyRate;
 
   const handleSetLaborInputMode = (mode) => {
     if (onRatesChange) {

@@ -3,6 +3,7 @@ import { ratesApi } from '@/lib/product/rates';
 import { useAuth } from '@/context/AuthContext';
 import { useModal } from '@/context/ModalContext';
 import { useTranslation } from '@/context/I18nContext';
+import { DEFAULT_WORKDAY_HOURS, getNormalizedLaborRates } from '@/lib/product/calculations';
 import UpgradeModal from '@/components/billing/UpgradeModal';
 
 export default function RatesDrawer({ open, onClose, rates, onChange, readOnly = false }) {
@@ -116,6 +117,96 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
 
   const updateType = (field, type) => {
     onChange({ ...rates, [field]: type });
+  };
+
+  const laborBasis = rates.laborRateBasis === 'daily' ? 'daily' : 'hourly';
+  const workdayHours = Number(rates.workdayHours) > 0 ? Number(rates.workdayHours) : DEFAULT_WORKDAY_HOURS;
+  const normalizedLabor = getNormalizedLaborRates(rates);
+
+  const handleLaborBasisChange = (newBasis) => {
+    if (readOnly) return;
+    const currentHourly = Number(rates.laborHourlyRate) || normalizedLabor.laborHourlyRate;
+    const currentDaily = Number(rates.laborDailyRate) || normalizedLabor.laborDailyRate;
+    const currentHours = Number(rates.workdayHours) || workdayHours;
+
+    if (newBasis === 'daily') {
+      const derivedDaily = currentDaily > 0 ? currentDaily : Math.round(currentHourly * currentHours * 100) / 100;
+      onChange({
+        ...rates,
+        laborRateBasis: 'daily',
+        laborDailyRate: derivedDaily,
+        laborHourlyRate: currentHours > 0 ? Math.round((derivedDaily / currentHours) * 100) / 100 : currentHourly,
+        workdayHours: currentHours,
+      });
+    } else {
+      const derivedHourly = currentHourly > 0 ? currentHourly : (currentHours > 0 ? Math.round((currentDaily / currentHours) * 100) / 100 : 65.0);
+      onChange({
+        ...rates,
+        laborRateBasis: 'hourly',
+        laborHourlyRate: derivedHourly,
+        laborDailyRate: Math.round(derivedHourly * currentHours * 100) / 100,
+        workdayHours: currentHours,
+      });
+    }
+  };
+
+  const handleHourlyRateChange = (e) => {
+    if (readOnly) return;
+    const val = e.target.value;
+    if (val === '') {
+      onChange({ ...rates, laborHourlyRate: '', laborDailyRate: '' });
+      return;
+    }
+    const hourly = Number(val);
+    const daily = Math.round(hourly * workdayHours * 100) / 100;
+    onChange({
+      ...rates,
+      laborHourlyRate: hourly,
+      laborDailyRate: daily,
+    });
+  };
+
+  const handleDailyRateChange = (e) => {
+    if (readOnly) return;
+    const val = e.target.value;
+    if (val === '') {
+      onChange({ ...rates, laborDailyRate: '', laborHourlyRate: '' });
+      return;
+    }
+    const daily = Number(val);
+    const hourly = workdayHours > 0 ? Math.round((daily / workdayHours) * 100) / 100 : 0;
+    onChange({
+      ...rates,
+      laborDailyRate: daily,
+      laborHourlyRate: hourly,
+    });
+  };
+
+  const handleWorkdayHoursChange = (e) => {
+    if (readOnly) return;
+    const val = e.target.value;
+    if (val === '') {
+      onChange({ ...rates, workdayHours: '' });
+      return;
+    }
+    const hours = Number(val);
+    if (laborBasis === 'daily') {
+      const daily = Number(rates.laborDailyRate) || normalizedLabor.laborDailyRate;
+      const hourly = hours > 0 ? Math.round((daily / hours) * 100) / 100 : 0;
+      onChange({
+        ...rates,
+        workdayHours: hours,
+        laborHourlyRate: hourly,
+      });
+    } else {
+      const hourly = Number(rates.laborHourlyRate) || normalizedLabor.laborHourlyRate;
+      const daily = Math.round(hourly * hours * 100) / 100;
+      onChange({
+        ...rates,
+        workdayHours: hours,
+        laborDailyRate: daily,
+      });
+    }
   };
 
   const miscItems = Array.isArray(rates.miscItems) ? rates.miscItems : [];
@@ -267,8 +358,88 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
           </div>
 
           <section>
-            <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-3">{t('ratesDrawer.baseLaborRate')}</h3>
-            <Field label={t('ratesDrawer.baseLaborHourlyRate')} value={rates.laborHourlyRate} onChange={update('laborHourlyRate')} disabled={readOnly} />
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">{t('ratesDrawer.baseLaborRate')}</h3>
+              <div className="inline-flex rounded-lg border border-slate-200 bg-slate-100 p-0.5 text-xs font-medium">
+                <button
+                  type="button"
+                  disabled={readOnly}
+                  onClick={() => handleLaborBasisChange('hourly')}
+                  className={`px-2 py-0.5 rounded-md transition-colors ${
+                    laborBasis === 'hourly'
+                      ? 'bg-white text-indigo-600 shadow-xs font-semibold'
+                      : 'text-slate-500 hover:text-slate-700'
+                  } disabled:cursor-not-allowed`}
+                >
+                  {t('ratesDrawer.hourlyBasis', 'Hourly ($/hr)')}
+                </button>
+                <button
+                  type="button"
+                  disabled={readOnly}
+                  onClick={() => handleLaborBasisChange('daily')}
+                  className={`px-2 py-0.5 rounded-md transition-colors ${
+                    laborBasis === 'daily'
+                      ? 'bg-white text-indigo-600 shadow-xs font-semibold'
+                      : 'text-slate-500 hover:text-slate-700'
+                  } disabled:cursor-not-allowed`}
+                >
+                  {t('ratesDrawer.dailyBasis', 'Daily ($/day)')}
+                </button>
+              </div>
+            </div>
+
+            {laborBasis === 'hourly' ? (
+              <>
+                <Field
+                  label={t('ratesDrawer.baseLaborHourlyRate')}
+                  value={rates.laborHourlyRate}
+                  onChange={handleHourlyRateChange}
+                  disabled={readOnly}
+                  prefix="$"
+                  suffix="/ hr"
+                />
+                <div className="flex items-center justify-between px-2.5 py-1.5 -mt-2 mb-3 bg-indigo-50/60 border border-indigo-100/80 rounded-lg text-xs text-indigo-700">
+                  <span className="font-medium">
+                    {t('ratesDrawer.effectiveDailyRateBadge', {
+                      rate: normalizedLabor.laborDailyRate.toFixed(2),
+                      hours: workdayHours,
+                    })}
+                  </span>
+                  <span className="text-[11px] text-indigo-500">
+                    ({workdayHours} hrs/day)
+                  </span>
+                </div>
+              </>
+            ) : (
+              <>
+                <Field
+                  label={t('ratesDrawer.baseLaborDailyRate', 'Base Labor Daily Rate ($/day)')}
+                  value={rates.laborDailyRate}
+                  onChange={handleDailyRateChange}
+                  disabled={readOnly}
+                  prefix="$"
+                  suffix="/ day"
+                />
+                <div className="flex items-center justify-between px-2.5 py-1.5 -mt-2 mb-3 bg-indigo-50/60 border border-indigo-100/80 rounded-lg text-xs text-indigo-700">
+                  <span className="font-medium">
+                    {t('ratesDrawer.effectiveHourlyRateBadge', {
+                      rate: normalizedLabor.laborHourlyRate.toFixed(2),
+                    })}
+                  </span>
+                  <span className="text-[11px] text-indigo-500">
+                    ({workdayHours} hrs/day)
+                  </span>
+                </div>
+              </>
+            )}
+
+            <Field
+              label={t('ratesDrawer.workdayHours', 'Hours per Workday (hrs/day)')}
+              value={rates.workdayHours ?? DEFAULT_WORKDAY_HOURS}
+              onChange={handleWorkdayHoursChange}
+              disabled={readOnly}
+              suffix="hrs"
+            />
           </section>
 
           <section>
