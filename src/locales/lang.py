@@ -15,7 +15,7 @@ target_languages = [
     "pt"
 ]
 
-skip_existing = "-skip" in sys.argv
+skip_existing = "-skip" in sys.argv or "--skip" in sys.argv
 
 def get_locale_path(lang_code):
     return os.path.join(SCRIPT_DIR, f"{lang_code}.json")

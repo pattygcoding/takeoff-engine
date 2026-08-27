@@ -14,6 +14,9 @@ import AdminPortal from '@/components/admin/AdminPortal';
 import ClientGuidePage from '@/components/product/ClientGuidePage';
 import UsagePolicyPage from '@/components/legal/UsagePolicyPage';
 import LegalDisclaimerPage from '@/components/legal/LegalDisclaimerPage';
+import PrivacyPolicyPage from '@/components/legal/PrivacyPolicyPage';
+import RefundPolicyPage from '@/components/legal/RefundPolicyPage';
+import TermsOfServicePage from '@/components/legal/TermsOfServicePage';
 import AcceptInvitePage from '@/components/auth/AcceptInvitePage';
 import UpgradeModal from '@/components/billing/UpgradeModal';
 import AppFooter from '@/components/shared/AppFooter';
@@ -421,10 +424,30 @@ function AppContent() {
           element={<ClientGuidePage />}
         />
 
-        {/* Acceptable Use & Account Suspension Policy (US-033) */}
+        {/* Terms of Service & Acceptable Use Policy */}
         <Route
           path="/terms"
-          element={<UsagePolicyPage />}
+          element={<TermsOfServicePage />}
+        />
+        <Route
+          path="/terms-of-service"
+          element={<TermsOfServicePage />}
+        />
+        <Route
+          path="/privacy"
+          element={<PrivacyPolicyPage />}
+        />
+        <Route
+          path="/privacy-policy"
+          element={<PrivacyPolicyPage />}
+        />
+        <Route
+          path="/refund"
+          element={<RefundPolicyPage />}
+        />
+        <Route
+          path="/refund-policy"
+          element={<RefundPolicyPage />}
         />
         <Route
           path="/policy"
@@ -464,6 +487,18 @@ function AppContent() {
         />
         <Route
           path="/:username/terms"
+          element={<TermsOfServicePage />}
+        />
+        <Route
+          path="/:username/privacy"
+          element={<PrivacyPolicyPage />}
+        />
+        <Route
+          path="/:username/refund"
+          element={<RefundPolicyPage />}
+        />
+        <Route
+          path="/:username/acceptable-use"
           element={<UsagePolicyPage />}
         />
         <Route
