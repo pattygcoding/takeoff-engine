@@ -1429,3 +1429,58 @@ export function createBlankItem(customT = null) {
     laborHoursPerUnit: 0,
   };
 }
+
+/**
+ * Builds ColumnMappingModal data directly from existing takeoff items in state.
+ * Allows opening the column mapping modal on Step 2 without needing an uploaded file.
+ */
+export function buildMappingModalDataFromItems(items = [], customT = null) {
+  const t = customT || getTranslation;
+  const targetFields = getTargetFields(t);
+  const headers = targetFields.map((f) => f.label);
+
+  const keyToHeader = {};
+  const currentMapping = {};
+  const matchConfidences = {};
+
+  targetFields.forEach((f) => {
+    keyToHeader[f.key] = f.label;
+    currentMapping[f.key] = f.label;
+    matchConfidences[f.key] = 1.0;
+  });
+
+  const rawRows = (items || []).map((it) => {
+    const row = {};
+    row[keyToHeader['system']] = it.system || '';
+    row[keyToHeader['item_description']] = it.description || '';
+    row[keyToHeader['size_spec']] = it.sizeSpec || '';
+    row[keyToHeader['quantity']] = it.quantity !== undefined && it.quantity !== null ? String(it.quantity) : '';
+    row[keyToHeader['unit']] = it.unit || 'LF';
+    row[keyToHeader['avg_depth_ft']] = it.avgDepthFt !== undefined && it.avgDepthFt !== null ? String(it.avgDepthFt) : '';
+    row[keyToHeader['material_cost_per_unit']] = it.materialCostPerUnit !== undefined && it.materialCostPerUnit !== null ? String(it.materialCostPerUnit) : '';
+    row[keyToHeader['labor_hours_per_unit']] = it.laborHoursPerUnit !== undefined && it.laborHoursPerUnit !== null ? String(it.laborHoursPerUnit) : '';
+    row[keyToHeader['labor_unit_cost']] = it.laborUnitCost !== undefined && it.laborUnitCost !== null ? String(it.laborUnitCost) : '';
+    return row;
+  });
+
+  const sampleMatrix = [
+    headers,
+    ...rawRows.map((r) => headers.map((h) => r[h])),
+  ];
+
+  return {
+    requiresMappingModal: true,
+    headers,
+    rawRows,
+    mapping: currentMapping,
+    currentMapping,
+    matchConfidences,
+    overallConfidence: 1.0,
+    sampleMatrix,
+    headerRowIndex: 0,
+    sheetNames: [],
+    activeSheetName: '',
+    subTables: [],
+    activeTableId: null,
+  };
+}

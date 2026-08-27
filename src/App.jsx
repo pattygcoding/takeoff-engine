@@ -30,6 +30,7 @@ function UserWorkspace({ items, setItems, rates, setRates, currentProject, setCu
   const { username } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [importContext, setImportContext] = useState({ file: null, mappingData: null });
 
   // Redirect if URL username doesn't match authenticated username
   if (user && username !== user.username) {
@@ -91,11 +92,16 @@ function UserWorkspace({ items, setItems, rates, setRates, currentProject, setCu
   const handleNewTakeoff = () => {
     setCurrentProject(null);
     setItems([]);
+    setImportContext({ file: null, mappingData: null });
     navigate(`/${username}/upload`);
   };
 
   const handleItemsParsed = (parsedItems, options = {}) => {
     setItems(parsedItems);
+    setImportContext({
+      file: options?.file || null,
+      mappingData: options?.mappingData || null,
+    });
     if (options?.detectedLaborMode) {
       setRates((prevRates) => ({
         ...prevRates,
@@ -164,6 +170,8 @@ function UserWorkspace({ items, setItems, rates, setRates, currentProject, setCu
             setRates={setRates}
             currentProject={currentProject}
             setCurrentProject={setCurrentProject}
+            importContext={importContext}
+            setImportContext={setImportContext}
           />
         }
       />
@@ -178,6 +186,8 @@ function UserWorkspace({ items, setItems, rates, setRates, currentProject, setCu
             setRates={setRates}
             currentProject={currentProject}
             setCurrentProject={setCurrentProject}
+            importContext={importContext}
+            setImportContext={setImportContext}
           />
         }
       />
@@ -192,6 +202,8 @@ function UserWorkspace({ items, setItems, rates, setRates, currentProject, setCu
             setRates={setRates}
             currentProject={currentProject}
             setCurrentProject={setCurrentProject}
+            importContext={importContext}
+            setImportContext={setImportContext}
           />
         }
       />
@@ -208,6 +220,8 @@ function UserWorkspace({ items, setItems, rates, setRates, currentProject, setCu
             setRates={setRates}
             currentProject={currentProject}
             setCurrentProject={setCurrentProject}
+            importContext={importContext}
+            setImportContext={setImportContext}
           />
         }
       />
@@ -223,6 +237,8 @@ function UserWorkspace({ items, setItems, rates, setRates, currentProject, setCu
             setRates={setRates}
             currentProject={currentProject}
             setCurrentProject={setCurrentProject}
+            importContext={importContext}
+            setImportContext={setImportContext}
           />
         }
       />
@@ -238,6 +254,8 @@ function UserWorkspace({ items, setItems, rates, setRates, currentProject, setCu
             setRates={setRates}
             currentProject={currentProject}
             setCurrentProject={setCurrentProject}
+            importContext={importContext}
+            setImportContext={setImportContext}
           />
         }
       />

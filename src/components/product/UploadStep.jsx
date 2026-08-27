@@ -39,7 +39,11 @@ export default function UploadStep({ onItemsParsed }) {
         }
 
         if (items && items.length > 0) {
-          onItemsParsed(items, { detectedLaborMode });
+          onItemsParsed(items, {
+            detectedLaborMode,
+            file,
+            mappingData: result,
+          });
         }
       } catch (err) {
         console.error('Failed to parse takeoff file:', err);
@@ -70,7 +74,11 @@ export default function UploadStep({ onItemsParsed }) {
       setChecksumSummary(checksum);
     }
     if (items && items.length > 0) {
-      onItemsParsed(items, { detectedLaborMode });
+      onItemsParsed(items, {
+        detectedLaborMode,
+        file: currentUploadedFile,
+        mappingData: mappingModalData,
+      });
     }
   };
 

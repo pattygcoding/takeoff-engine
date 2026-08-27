@@ -1,11 +1,27 @@
 import { useState } from 'react';
 import { useTranslation } from '@/context/I18nContext';
+import { parseTakeoffFile, buildMappingModalDataFromItems } from '@/lib/product/csv';
 import TakeoffGrid from './TakeoffGrid';
 import RatesDrawer from './RatesDrawer';
+import ColumnMappingModal from './ColumnMappingModal';
 
-export default function EditStep({ items, onItemsChange, rates, onRatesChange, onCalculate, readOnly = false, projectStatus = 'awarded', onDuplicate }) {
+export default function EditStep({
+  items,
+  onItemsChange,
+  rates,
+  onRatesChange,
+  onCalculate,
+  readOnly = false,
+  projectStatus = 'awarded',
+  onDuplicate,
+  importContext = { file: null, mappingData: null },
+  onImportContextChange,
+}) {
   const { t } = useTranslation();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [mappingModalData, setMappingModalData] = useState(null);
+  const [successToast, setSuccessToast] = useState('');
+  const [isReparsing, setIsReparsing] = useState(false);
 
   const statusLabel =
     projectStatus === 'submitted'
@@ -25,8 +41,73 @@ export default function EditStep({ items, onItemsChange, rates, onRatesChange, o
       ? t('editStep.declinedDesc')
       : t('editStep.awardedDesc');
 
+  const handleOpenRemapModal = () => {
+    if (readOnly) return;
+    if (importContext?.mappingData) {
+      setMappingModalData(importContext.mappingData);
+    } else if (importContext?.file) {
+      handleParseForRemap(importContext.file);
+    } else {
+      // Direct opening: construct mapping modal data directly from existing items
+      const directModalData = buildMappingModalDataFromItems(items, t);
+      setMappingModalData(directModalData);
+    }
+  };
+
+  const handleParseForRemap = async (file, explicitSheetName = null, explicitTableId = null) => {
+    if (!file) return;
+    setIsReparsing(true);
+    try {
+      const result = await parseTakeoffFile(file, explicitSheetName, explicitTableId);
+      setMappingModalData(result);
+      if (onImportContextChange) {
+        onImportContextChange({
+          file,
+          mappingData: result,
+        });
+      }
+    } catch (err) {
+      console.error('Failed to parse file for remapping:', err);
+      // Fallback: open directly using item rows
+      const directModalData = buildMappingModalDataFromItems(items, t);
+      setMappingModalData(directModalData);
+    } finally {
+      setIsReparsing(false);
+    }
+  };
+
+  const handleSheetChange = (sheetName) => {
+    if (importContext?.file) {
+      handleParseForRemap(importContext.file, sheetName, null);
+    }
+  };
+
+  const handleTableChange = (tableId) => {
+    if (importContext?.file) {
+      handleParseForRemap(importContext.file, mappingModalData?.activeSheetName || null, tableId);
+    }
+  };
+
+  const handleMappingConfirm = ({ items: newItems, detectedLaborMode }) => {
+    setMappingModalData(null);
+    if (newItems && newItems.length > 0) {
+      onItemsChange(newItems);
+      if (detectedLaborMode && onRatesChange) {
+        onRatesChange({ ...rates, laborMode: detectedLaborMode });
+      }
+      setSuccessToast(t('editStep.remapSuccessToast', 'Column mappings successfully applied!'));
+      setTimeout(() => setSuccessToast(''), 3500);
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
+      {successToast && (
+        <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl flex items-center gap-2 text-sm font-semibold shadow-xs animate-fade-in">
+          <span>✓</span>
+          <span>{successToast}</span>
+        </div>
+      )}
       {readOnly && (
         <div className="mb-6 rounded-2xl bg-amber-50 border border-amber-200 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
           <div className="flex items-center gap-3">
@@ -72,21 +153,42 @@ export default function EditStep({ items, onItemsChange, rates, onRatesChange, o
               : t('editStep.editDesc')}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => setDrawerOpen(true)}
-          className="inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 cursor-pointer"
-        >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.5}
-              d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"
-            />
-          </svg>
-          {readOnly ? t('editStep.viewPricingBtn') : t('editStep.pricingBtn')}
-        </button>
+        <div className="flex items-center gap-2.5">
+          {!readOnly && (
+            <button
+              type="button"
+              onClick={handleOpenRemapModal}
+              disabled={isReparsing}
+              className="inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-indigo-600 transition shadow-xs cursor-pointer disabled:opacity-50"
+              title={t('editStep.remapColumnsDesc', 'Re-open column mapping to adjust how spreadsheet headers map to takeoff attributes.')}
+            >
+              <svg className="h-4 w-4 text-indigo-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"
+                />
+              </svg>
+              <span>{isReparsing ? '...' : t('editStep.remapColumnsBtn', 'Match Columns')}</span>
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => setDrawerOpen(true)}
+            className="inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 cursor-pointer"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"
+              />
+            </svg>
+            {readOnly ? t('editStep.viewPricingBtn') : t('editStep.pricingBtn')}
+          </button>
+        </div>
       </div>
 
       <TakeoffGrid
@@ -118,6 +220,26 @@ export default function EditStep({ items, onItemsChange, rates, onRatesChange, o
         onChange={onRatesChange}
         readOnly={readOnly}
       />
+
+      {mappingModalData && (
+        <ColumnMappingModal
+          headers={mappingModalData.headers}
+          rawRows={mappingModalData.rawRows}
+          initialMapping={mappingModalData.mapping}
+          matchConfidences={mappingModalData.matchConfidences}
+          overallConfidence={mappingModalData.overallConfidence}
+          sampleMatrix={mappingModalData.sampleMatrix}
+          initialHeaderRowIndex={mappingModalData.headerRowIndex}
+          sheetNames={mappingModalData.sheetNames}
+          activeSheetName={mappingModalData.activeSheetName}
+          subTables={mappingModalData.subTables}
+          activeTableId={mappingModalData.activeTableId}
+          onSheetChange={handleSheetChange}
+          onTableChange={handleTableChange}
+          onConfirm={handleMappingConfirm}
+          onCancel={() => setMappingModalData(null)}
+        />
+      )}
     </div>
   );
 }

@@ -690,5 +690,40 @@ describe('Excel & CSV Import Edge Cases (US-031 / 4 Friction Points)', () => {
       assert.strictEqual(normalizedHours.items[0].laborUnitCost, 3.9);
       assert.strictEqual(normalizedHours.detectedLaborMode, 'hours', 'Labor hrs/unit column should auto-detect hours mode');
     });
+
+    it('10. Remapping and dynamic column reassignment (US-043)', () => {
+      // Simulate raw CSV rows with initial misassigned mapping
+      const rawHeaders = ['Item', 'Quantity', 'Unit', 'Unit Cost', 'Labor Hours'];
+      const rawDataRows = [
+        { 'Item': '8" PVC Pipe', 'Quantity': '120', 'Unit': 'LF', 'Unit Cost': '$14.50', 'Labor Hours': '0.15' },
+        { 'Item': 'Gate Valve', 'Quantity': '2', 'Unit': 'EA', 'Unit Cost': '$450.00', 'Labor Hours': '1.50' },
+      ];
+
+      // Initial Mapping: Unit Cost assigned to labor_unit_cost mistakenly
+      const initialMapping = {
+        item_description: 'Item',
+        quantity: 'Quantity',
+        unit: 'Unit',
+        labor_unit_cost: 'Unit Cost',
+        labor_hours_per_unit: 'Labor Hours',
+      };
+      const initialResult = normalizeRowsWithMapping(rawDataRows, initialMapping);
+      assert.strictEqual(initialResult.items[0].materialCostPerUnit, 0);
+      assert.strictEqual(initialResult.items[0].laborUnitCost, 14.5);
+
+      // Re-mapped Mapping: Unit Cost properly assigned to material_cost_per_unit on Step 2
+      const correctedMapping = {
+        item_description: 'Item',
+        quantity: 'Quantity',
+        unit: 'Unit',
+        material_cost_per_unit: 'Unit Cost',
+        labor_hours_per_unit: 'Labor Hours',
+      };
+      const remappedResult = normalizeRowsWithMapping(rawDataRows, correctedMapping);
+      assert.strictEqual(remappedResult.items[0].materialCostPerUnit, 14.5);
+      assert.strictEqual(remappedResult.items[0].laborHoursPerUnit, 0.15);
+      assert.strictEqual(remappedResult.items[1].materialCostPerUnit, 450);
+      assert.strictEqual(remappedResult.items[1].quantity, 2);
+    });
   });
 });

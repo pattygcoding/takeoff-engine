@@ -7,7 +7,17 @@ import ExportHubPage from './ExportHubPage';
 import { projectsApi } from '@/lib/product/projects';
 import { useTranslation } from '@/context/I18nContext';
 
-export default function ProjectWorkspace({ step = 2, items, setItems, rates, setRates, currentProject, setCurrentProject }) {
+export default function ProjectWorkspace({
+  step = 2,
+  items,
+  setItems,
+  rates,
+  setRates,
+  currentProject,
+  setCurrentProject,
+  importContext = { file: null, mappingData: null },
+  setImportContext,
+}) {
   const { username, projectId } = useParams();
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -236,6 +246,8 @@ export default function ProjectWorkspace({ step = 2, items, setItems, rates, set
           readOnly={isLocked}
           projectStatus={currentProject?.status}
           onDuplicate={isLocked ? handleDuplicate : undefined}
+          importContext={importContext}
+          onImportContextChange={setImportContext}
         />
       )}
 
