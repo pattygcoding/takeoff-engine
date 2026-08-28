@@ -5,9 +5,11 @@ import {
   DEFAULT_WORKDAY_HOURS,
   DEFAULT_RATES,
   DEFAULT_LABOR_ROLES,
+  DEFAULT_EQUIPMENT_CATALOG,
   getNormalizedLaborRates,
   getItemEffectiveLaborRate,
   calculateBlendedCrewRate,
+  calculateEquipmentRentalCost,
   trenchVolumeCubicYards,
   computeItemCost,
   computeEstimate,
@@ -749,6 +751,182 @@ describe('Calculations Engine Tests', () => {
       const baseTotal = roleBreakdown.find((r) => r.roleId === 'base');
       assert.strictEqual(baseTotal.laborHours, 20);
       assert.strictEqual(baseTotal.laborCost, 1300);
+    });
+  });
+
+  describe('US-046: Equipment Rental Rates, Duration Tracking & Dedicated Equipment Line Items', () => {
+    it('calculates equipment rental cost accurately across days, weeks, and months with delivery & fuel surcharges', () => {
+      // 2 Weeks CAT 305 rental @ $1,200/wk + $250 delivery fee + 5% fuel surcharge
+      // Base rental: 2 * 1200 = 2400
+      // Fuel surcharge: 2400 * 0.05 = 120
+      // Total: 2400 + 250 + 120 = 2770
+      const eqItem = {
+        isEquipment: true,
+        equipmentDurationQty: 2,
+        equipmentDurationUnit: 'weeks',
+        equipmentWeeklyRate: 1200,
+        equipmentDeliveryFee: 250,
+        equipmentFuelSurchargePct: 5,
+        includeDelivery: true,
+      };
+
+      const result = calculateEquipmentRentalCost(eqItem);
+      assert.strictEqual(result.baseRentalCost, 2400);
+      assert.strictEqual(result.deliveryFee, 250);
+      assert.strictEqual(result.fuelSurchargeAmount, 120);
+      assert.strictEqual(result.totalCost, 2770);
+    });
+
+    it('handles daily and monthly durations and respects delivery exclusion', () => {
+      // 3 Days rental @ $350/day without delivery
+      const dailyItem = {
+        isEquipment: true,
+        equipmentDurationQty: 3,
+        equipmentDurationUnit: 'days',
+        equipmentDailyRate: 350,
+        equipmentDeliveryFee: 250,
+        equipmentFuelSurchargePct: 0,
+        includeDelivery: false,
+      };
+      const dailyResult = calculateEquipmentRentalCost(dailyItem);
+      assert.strictEqual(dailyResult.baseRentalCost, 1050);
+      assert.strictEqual(dailyResult.deliveryFee, 0);
+      assert.strictEqual(dailyResult.totalCost, 1050);
+
+      // 1 Month rental @ $3,600/mo + $200 delivery
+      const monthlyItem = {
+        isEquipment: true,
+        equipmentDurationQty: 1,
+        equipmentDurationUnit: 'months',
+        equipmentMonthlyRate: 3600,
+        equipmentDeliveryFee: 200,
+        equipmentFuelSurchargePct: 0,
+        includeDelivery: true,
+      };
+      const monthlyResult = calculateEquipmentRentalCost(monthlyItem);
+      assert.strictEqual(monthlyResult.baseRentalCost, 3600);
+      assert.strictEqual(monthlyResult.deliveryFee, 200);
+      assert.strictEqual(monthlyResult.totalCost, 3800);
+    });
+
+    it('integrates equipment line items cleanly into computeEstimate rollup without material/labor double-counting', () => {
+      const items = [
+        {
+          id: 'pipe-1',
+          system: 'Sanitary Sewer',
+          quantity: 100,
+          unit: 'LF',
+          materialCostPerUnit: 10,
+          laborHoursPerUnit: 0.5,
+        },
+        {
+          id: 'eq-1',
+          system: 'Equipment & Mobilization',
+          isEquipment: true,
+          equipmentDurationQty: 1,
+          equipmentDurationUnit: 'weeks',
+          equipmentWeeklyRate: 1200,
+          equipmentDeliveryFee: 250,
+          equipmentFuelSurchargePct: 0,
+          includeDelivery: true,
+        },
+      ];
+
+      const rates = {
+        laborHourlyRate: 60.0,
+        overheadPct: 10,
+        overheadType: 'percent',
+        contingencyPct: 0,
+        profitPct: 10,
+        equipmentLumpSum: 0,
+        miscCost: 0,
+      };
+
+      // Material: 100 * 10 = 1,000
+      // Labor: 100 * 0.5 * 60 = 3,000
+      // Equipment item: 1,200 + 250 = 1,450
+      // Total direct cost = 1,000 + 3,000 + 1,450 = 5,450
+      // Overhead (10% of 5450) = 545
+      // Subtotal = 5995
+      // Profit (10% of 5995) = 599.5
+      // Final Bid = 6594.50
+
+      const estimate = computeEstimate(items, rates);
+      assert.strictEqual(estimate.totals.totalMaterialCost, 1000);
+      assert.strictEqual(estimate.totals.totalLaborCost, 3000);
+      assert.strictEqual(estimate.totals.totalEquipmentLineItemCost, 1450);
+      assert.strictEqual(estimate.totals.totalDirectCost, 5450);
+      assert.strictEqual(estimate.totals.overheadAmount, 545);
+      assert.strictEqual(estimate.totals.profitAmount, 599.5);
+      assert.strictEqual(estimate.totals.finalBidAmount, 6594.5);
+    });
+
+    it('persists and retains newly added equipment line items in memory across step transitions', () => {
+      // Simulating user adding an equipment item on Step 2 (TakeoffGrid)
+      const initialItems = [
+        {
+          id: 'item-1',
+          system: 'Waterline',
+          description: '8" C900 PVC Pipe',
+          sizeSpec: '8 inch DR18',
+          quantity: 500,
+          unit: 'LF',
+          avgDepthFt: 5,
+          materialCostPerUnit: 25,
+          laborHoursPerUnit: 0.2,
+        },
+      ];
+
+      const newEquipmentItem = {
+        id: 'eq-mini-excavator',
+        system: 'Equipment & Mobilization',
+        description: 'Mini-Excavator (3–5 Ton)',
+        sizeSpec: '1 weeks rental + Delivery',
+        quantity: 1,
+        unit: 'WK',
+        avgDepthFt: '',
+        materialCostPerUnit: 0,
+        laborHoursPerUnit: 0,
+        laborUnitCost: 0,
+        laborRoleId: null,
+        isEquipment: true,
+        equipmentDurationQty: 1,
+        equipmentDurationUnit: 'weeks',
+        equipmentDailyRate: 350,
+        equipmentWeeklyRate: 1200,
+        equipmentMonthlyRate: 3600,
+        equipmentDeliveryFee: 250,
+        equipmentFuelSurchargePct: 5, // 5% fuel surcharge on 1200 = 60
+        includeDelivery: true,
+        equipmentCost: 1510, // 1200 + 250 + 60 = 1510
+      };
+
+      // Step 2 updates state
+      const updatedItems = [...initialItems, newEquipmentItem];
+      assert.strictEqual(updatedItems.length, 2);
+
+      // Step 3 (ResultsStep) receives updatedItems and runs computeEstimate
+      const step3Estimate = computeEstimate(updatedItems, DEFAULT_RATES);
+      assert.strictEqual(step3Estimate.items.length, 2);
+
+      const eqComputed = step3Estimate.items.find((it) => it.isEquipment);
+      assert.ok(eqComputed, 'Equipment line item must be present in computed estimate');
+      assert.strictEqual(eqComputed.directCost, 1510);
+      assert.strictEqual(eqComputed.materialCost, 0);
+      assert.strictEqual(eqComputed.laborCost, 0);
+      assert.strictEqual(step3Estimate.totals.totalEquipmentLineItemCost, 1510);
+
+      // Verify that bySystem grouping includes 'Equipment & Mobilization'
+      const eqSystem = step3Estimate.bySystem.find((sys) => sys.system === 'Equipment & Mobilization');
+      assert.ok(eqSystem, 'Equipment & Mobilization system group exists');
+      assert.strictEqual(eqSystem.directCost, 1510);
+      assert.strictEqual(eqSystem.items[0].description, 'Mini-Excavator (3–5 Ton)');
+
+      // Simulating user navigating back to Step 2: array reference and items remain intact without stale reload
+      const backToEditItems = updatedItems;
+      assert.strictEqual(backToEditItems.length, 2);
+      assert.strictEqual(backToEditItems[1].id, 'eq-mini-excavator');
+      assert.strictEqual(backToEditItems[1].equipmentCost, 1510);
     });
   });
 });

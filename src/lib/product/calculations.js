@@ -11,6 +11,17 @@ export const DEFAULT_LABOR_ROLES = [
   { id: 'laborer', title: 'General Laborer', hourlyRate: 35.0, dailyRate: 280.0 },
 ];
 
+export const DEFAULT_EQUIPMENT_CATALOG = [
+  { id: 'mini-excavator', title: 'Mini-Excavator (3–5 Ton)', dailyRate: 350.0, weeklyRate: 1200.0, monthlyRate: 3600.0, deliveryFee: 250.0, fuelSurchargePct: 5 },
+  { id: 'backhoe', title: 'Backhoe Loader', dailyRate: 450.0, weeklyRate: 1550.0, monthlyRate: 4650.0, deliveryFee: 300.0, fuelSurchargePct: 5 },
+  { id: 'skid-steer', title: 'Skid Steer / Track Loader', dailyRate: 300.0, weeklyRate: 1050.0, monthlyRate: 3150.0, deliveryFee: 200.0, fuelSurchargePct: 5 },
+  { id: 'trench-box', title: 'Trench Shoring Box & Shield', dailyRate: 150.0, weeklyRate: 500.0, monthlyRate: 1500.0, deliveryFee: 200.0, fuelSurchargePct: 0 },
+  { id: 'plate-compactor', title: 'Tamping Rammer / Plate Compactor', dailyRate: 95.0, weeklyRate: 325.0, monthlyRate: 975.0, deliveryFee: 75.0, fuelSurchargePct: 0 },
+  { id: 'propress-threader', title: 'Pipe Threader / ProPress Tool', dailyRate: 120.0, weeklyRate: 400.0, monthlyRate: 1200.0, deliveryFee: 50.0, fuelSurchargePct: 0 },
+  { id: 'generator-lights', title: 'Generator & Light Tower', dailyRate: 140.0, weeklyRate: 480.0, monthlyRate: 1440.0, deliveryFee: 100.0, fuelSurchargePct: 5 },
+  { id: 'scissor-lift', title: 'Scissor / Boom Lift', dailyRate: 220.0, weeklyRate: 750.0, monthlyRate: 2250.0, deliveryFee: 175.0, fuelSurchargePct: 0 },
+];
+
 export const DEFAULT_RATES = {
   laborRateBasis: 'hourly', // 'hourly' | 'daily'
   laborHourlyRate: 65.0,
@@ -19,6 +30,7 @@ export const DEFAULT_RATES = {
   laborMode: 'hours', // 'hours' | 'cost'
   laborRoles: DEFAULT_LABOR_ROLES,
   defaultLaborRoleId: 'journeyman',
+  equipmentCatalog: DEFAULT_EQUIPMENT_CATALOG,
   overheadPct: 10,
   overheadType: 'percent', // 'percent' | 'fixed'
   contingencyPct: 5,
@@ -93,6 +105,55 @@ export function getNormalizedLaborRates(rates = DEFAULT_RATES) {
     laborDailyRate: Math.round(daily * 100) / 100,
     laborRoles: normalizedRoles,
     defaultLaborRoleId: rates?.defaultLaborRoleId || 'journeyman',
+    equipmentCatalog: Array.isArray(rates?.equipmentCatalog) && rates.equipmentCatalog.length > 0
+      ? rates.equipmentCatalog
+      : DEFAULT_EQUIPMENT_CATALOG,
+  };
+}
+
+/**
+ * Calculates rental cost for an equipment item based on duration and rate tiers.
+ * item: {
+ *   isEquipment: true,
+ *   equipmentDurationQty: number,
+ *   equipmentDurationUnit: 'days' | 'weeks' | 'months',
+ *   equipmentDailyRate: number,
+ *   equipmentWeeklyRate: number,
+ *   equipmentMonthlyRate: number,
+ *   equipmentDeliveryFee: number,
+ *   equipmentFuelSurchargePct: number,
+ *   includeDelivery: boolean,
+ * }
+ */
+export function calculateEquipmentRentalCost(item) {
+  const durationQty = Math.max(0, Number(item?.equipmentDurationQty ?? item?.quantity) || 1);
+  const durationUnit = item?.equipmentDurationUnit || 'weeks';
+  const dailyRate = Number(item?.equipmentDailyRate) || 0;
+  const weeklyRate = Number(item?.equipmentWeeklyRate) || (dailyRate * 4);
+  const monthlyRate = Number(item?.equipmentMonthlyRate) || (weeklyRate * 3);
+  const deliveryFee = item?.includeDelivery === false ? 0 : (Number(item?.equipmentDeliveryFee) || 0);
+  const fuelPct = Number(item?.equipmentFuelSurchargePct) || 0;
+
+  let baseRentalCost = 0;
+  if (durationUnit === 'days') {
+    baseRentalCost = durationQty * dailyRate;
+  } else if (durationUnit === 'months') {
+    baseRentalCost = durationQty * monthlyRate;
+  } else {
+    // default 'weeks'
+    baseRentalCost = durationQty * weeklyRate;
+  }
+
+  const fuelSurchargeAmount = baseRentalCost * (fuelPct / 100);
+  const totalCost = baseRentalCost + deliveryFee + fuelSurchargeAmount;
+
+  return {
+    baseRentalCost: Math.round(baseRentalCost * 100) / 100,
+    deliveryFee: Math.round(deliveryFee * 100) / 100,
+    fuelSurchargeAmount: Math.round(fuelSurchargeAmount * 100) / 100,
+    totalCost: Math.round(totalCost * 100) / 100,
+    durationQty,
+    durationUnit,
   };
 }
 
@@ -179,8 +240,25 @@ export function trenchVolumeCubicYards(item, trenchWidthFt = DEFAULT_TRENCH_WIDT
  * If rates.laborMode === 'cost', labor is computed directly from item.laborUnitCost * quantity
  * without factoring in rates.laborHourlyRate.
  * If item.laborRoleId is present, resolves against rates.laborRoles.
+ * If item.isEquipment is true, calculates machinery rental cost.
  */
 export function computeItemCost(item, rates = DEFAULT_RATES) {
+  if (item?.isEquipment) {
+    const eq = calculateEquipmentRentalCost(item);
+    return {
+      materialCost: 0,
+      laborHours: 0,
+      laborCost: 0,
+      directCost: eq.totalCost,
+      equipmentCost: eq.totalCost,
+      isEquipment: true,
+      equipmentDetails: eq,
+      laborRoleId: null,
+      laborRoleTitle: 'N/A (Equipment)',
+      effectiveHourlyRate: 0,
+    };
+  }
+
   const qty = Number(item.quantity) || 0;
   const materialUnitCost = Number(item.materialCostPerUnit) || 0;
   const isLaborCostMode = rates.laborMode === 'cost';
@@ -207,6 +285,8 @@ export function computeItemCost(item, rates = DEFAULT_RATES) {
     laborHours,
     laborCost,
     directCost: materialCost + laborCost,
+    equipmentCost: 0,
+    isEquipment: false,
     laborRoleId: effectiveLabor.roleId,
     laborRoleTitle: effectiveLabor.roleTitle,
     effectiveHourlyRate,
@@ -223,19 +303,23 @@ export function computeEstimate(items, rates = DEFAULT_RATES) {
   let totalMaterialCost = 0;
   let totalLaborHours = 0;
   let totalLaborCost = 0;
+  let totalEquipmentLineItemCost = 0;
   let totalTrenchCubicYards = 0;
 
   const itemBreakdowns = items.map((item) => {
-    const { materialCost, laborHours, laborCost, directCost } = computeItemCost(item, rates);
+    const costResult = computeItemCost(item, rates);
+    const { materialCost, laborHours, laborCost, directCost, equipmentCost } = costResult;
     const trenchCubicYards = trenchVolumeCubicYards(item, trenchWidthFt);
 
     totalMaterialCost += materialCost;
     totalLaborHours += laborHours;
     totalLaborCost += laborCost;
+    totalEquipmentLineItemCost += (equipmentCost || 0);
     totalTrenchCubicYards += trenchCubicYards;
 
     return {
       ...item,
+      ...costResult,
       materialCost,
       laborHours,
       laborCost,
@@ -300,7 +384,7 @@ export function computeEstimate(items, rates = DEFAULT_RATES) {
     ? rawDirectItems * (rawMiscValue / 100)
     : rawMiscValue;
 
-  const totalDirectCost = totalMaterialCost + totalLaborCost + equipmentLumpSum + miscCost;
+  const totalDirectCost = totalMaterialCost + totalLaborCost + totalEquipmentLineItemCost + equipmentLumpSum + miscCost;
 
   const overheadType = rates.overheadType || 'percent';
   const rawOverheadValue = Number(rates.overheadPct ?? rates.overheadValue ?? rates.overheadCost) || 0;
@@ -335,7 +419,7 @@ export function computeEstimate(items, rates = DEFAULT_RATES) {
 
   // Compute factored / fully-burdened bid amount for each system and item
   // so client-facing proposals and contracts always sum up to finalBidAmount (100% balance).
-  const rawItemsDirectSum = totalMaterialCost + totalLaborCost;
+  const rawItemsDirectSum = totalMaterialCost + totalLaborCost + totalEquipmentLineItemCost;
   const markupFactor = rawItemsDirectSum > 0 ? finalBidAmount / rawItemsDirectSum : (items.length > 0 ? 1 : 0);
 
   const bySystemFactored = Object.values(bySystem).map((sys) => {
@@ -372,6 +456,7 @@ export function computeEstimate(items, rates = DEFAULT_RATES) {
       laborHours: totalLaborHours,
       totalLaborCost,
       laborCost: totalLaborCost,
+      totalEquipmentLineItemCost,
       laborByRole: Object.values(laborByRole),
       totalTrenchCubicYards,
       equipmentLumpSum,

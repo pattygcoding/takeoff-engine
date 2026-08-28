@@ -6,6 +6,7 @@ import { useTranslation } from '@/context/I18nContext';
 import {
   DEFAULT_WORKDAY_HOURS,
   DEFAULT_LABOR_ROLES,
+  DEFAULT_EQUIPMENT_CATALOG,
   getNormalizedLaborRates,
   calculateBlendedCrewRate,
 } from '@/lib/product/calculations';
@@ -28,6 +29,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [activeSection, setActiveSection] = useState('all'); // 'all' | 'templates' | 'labor' | 'equipment' | 'trenching' | 'markups'
 
   useEffect(() => {
     if (open && user) {
@@ -294,6 +296,56 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
     });
   };
 
+  const equipmentCatalog = Array.isArray(rates?.equipmentCatalog) && rates.equipmentCatalog.length > 0
+    ? rates.equipmentCatalog
+    : DEFAULT_EQUIPMENT_CATALOG;
+
+  const handleUpdateEquipmentCatalogItem = (eqId, field, val) => {
+    if (readOnly) return;
+    const updated = equipmentCatalog.map((eq) => {
+      if (eq.id !== eqId) return eq;
+      if (field === 'title') {
+        return { ...eq, title: val };
+      }
+      return {
+        ...eq,
+        [field]: val === '' ? '' : Number(val),
+      };
+    });
+    onChange({
+      ...rates,
+      equipmentCatalog: updated,
+    });
+  };
+
+  const handleAddCustomEquipment = () => {
+    if (readOnly) return;
+    const newId = `eq-${Date.now()}`;
+    const newEq = {
+      id: newId,
+      title: t('ratesDrawer.newEquipmentPlaceholder', 'Custom Equipment / Tool'),
+      dailyRate: 150.0,
+      weeklyRate: 500.0,
+      monthlyRate: 1500.0,
+      deliveryFee: 100.0,
+      fuelSurchargePct: 0,
+    };
+    onChange({
+      ...rates,
+      equipmentCatalog: [...equipmentCatalog, newEq],
+    });
+  };
+
+  const handleRemoveEquipmentCatalogItem = (eqId) => {
+    if (readOnly) return;
+    if (equipmentCatalog.length <= 1) return;
+    const filtered = equipmentCatalog.filter((eq) => eq.id !== eqId);
+    onChange({
+      ...rates,
+      equipmentCatalog: filtered,
+    });
+  };
+
   const miscItems = Array.isArray(rates?.miscItems) ? rates.miscItems : [];
 
   const handleAddMiscItem = () => {
@@ -343,25 +395,99 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
     <>
       {open && <div className="fixed inset-0 bg-black/40 backdrop-blur-xs z-20" onClick={onClose} />}
       <aside
-        className={`fixed top-0 right-0 h-full w-full sm:w-[420px] bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 shadow-2xl z-30 transform transition-transform overflow-y-auto text-slate-900 dark:text-slate-100
+        className={`fixed top-0 right-0 h-full w-full sm:w-[440px] bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 shadow-2xl z-30 transform transition-transform flex flex-col text-slate-900 dark:text-slate-100
           ${open ? 'translate-x-0' : 'translate-x-full'}`}
       >
-        <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800">
-          <div className="flex items-center gap-2">
-            <span className="text-xl">⚙️</span>
-            <div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">{t('ratesDrawer.title')}</h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400">{t('ratesDrawer.subtitle')}</p>
+        {/* Fixed / Sticky Header with Title and Section Filter Pills */}
+        <div className="shrink-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 z-10">
+          <div className="flex items-center justify-between p-4 sm:p-5 pb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xl">⚙️</span>
+              <div>
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white leading-tight">{t('ratesDrawer.title')}</h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{t('ratesDrawer.subtitle')}</p>
+              </div>
             </div>
+            <button onClick={onClose} className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition" type="button">
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer" type="button">
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+
+          {/* Section Filter Pills */}
+          <div className="px-4 sm:px-5 pb-3 flex flex-wrap items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setActiveSection('all')}
+              className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer shrink-0 ${
+                activeSection === 'all'
+                  ? 'bg-indigo-600 text-white shadow-xs font-bold'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+              }`}
+            >
+              🌐 {t('ratesDrawer.sectionAll', 'All Settings')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveSection('templates')}
+              className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer shrink-0 ${
+                activeSection === 'templates'
+                  ? 'bg-indigo-600 text-white shadow-xs font-bold'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+              }`}
+            >
+              📚 {t('ratesDrawer.sectionTemplates', 'Templates')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveSection('labor')}
+              className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer shrink-0 ${
+                activeSection === 'labor'
+                  ? 'bg-indigo-600 text-white shadow-xs font-bold'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+              }`}
+            >
+              👷 {t('ratesDrawer.sectionLabor', 'Labor & Crew')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveSection('equipment')}
+              className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer shrink-0 ${
+                activeSection === 'equipment'
+                  ? 'bg-indigo-600 text-white shadow-xs font-bold'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+              }`}
+            >
+              🚜 {t('ratesDrawer.sectionEquipment', 'Equipment')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveSection('trenching')}
+              className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer shrink-0 ${
+                activeSection === 'trenching'
+                  ? 'bg-indigo-600 text-white shadow-xs font-bold'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+              }`}
+            >
+              📐 {t('ratesDrawer.sectionTrenching', 'Trenching')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveSection('markups')}
+              className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer shrink-0 ${
+                activeSection === 'markups'
+                  ? 'bg-indigo-600 text-white shadow-xs font-bold'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+              }`}
+            >
+              💰 {t('ratesDrawer.sectionMarkups', 'Markups & Misc')}
+            </button>
+          </div>
         </div>
 
-        <div className="p-5 space-y-6">
+        {/* Scrollable Body Content */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-6">
           {readOnly && (
             <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl text-amber-800 dark:text-amber-300 text-xs font-medium flex items-center gap-2">
               <svg className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -372,356 +498,77 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
           )}
 
           {/* Rate Template Switcher */}
-          <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                {t('ratesDrawer.rateLibraryTemplate')}
-              </span>
-              {user && !readOnly && (
-                <button
-                  type="button"
-                  onClick={() => setShowSaveModal(true)}
-                  className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition cursor-pointer"
-                >
-                  {t('ratesDrawer.saveCurrentAsNew')}
-                </button>
-              )}
-            </div>
-
-            {successMsg && (
-              <div className="mb-3 p-2 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs rounded-lg font-medium">
-                ✓ {successMsg}
-              </div>
-            )}
-
-            <select
-              value={selectedTemplateId}
-              onChange={(e) => handleApplyTemplate(e.target.value)}
-              disabled={readOnly}
-              className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none disabled:opacity-80 disabled:cursor-not-allowed cursor-pointer"
-            >
-              <option value="">{t('ratesDrawer.chooseRateTemplate')}</option>
-              {libraries.userLibraries?.length > 0 && (
-                <optgroup label={t('ratesDrawer.yourCustomLibraries')}>
-                  {libraries.userLibraries.map((lib) => (
-                    <option key={lib.id} value={lib.id}>
-                      {lib.name}
-                    </option>
-                  ))}
-                </optgroup>
-              )}
-              <optgroup label={t('ratesDrawer.systemDefaultLibraries')}>
-                {libraries.systemDefaults?.map((sys) => (
-                  <option key={sys.id} value={sys.id}>
-                    {sys.name}
-                  </option>
-                ))}
-              </optgroup>
-            </select>
-
-            {/* Custom Libraries manager pill */}
-            {libraries.userLibraries?.length > 0 && (
-              <div className="mt-3 space-y-1.5 border-t border-slate-200 dark:border-slate-700 pt-2.5">
-                <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">{t('ratesDrawer.savedLibraries')}</p>
-                {libraries.userLibraries.map((lib) => (
-                  <div key={lib.id} className="flex items-center justify-between text-xs py-1 px-2 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                    <span className="truncate font-medium text-slate-700 dark:text-slate-200 max-w-[220px]">{lib.name}</span>
-                    {!readOnly && (
-                      <button
-                        type="button"
-                        onClick={(e) => handleDeleteTemplate(lib.id, e)}
-                        className="text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition ml-2 cursor-pointer"
-                        title={t('ratesDrawer.deleteLibrary')}
-                      >
-                        🗑️
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <section>
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">{t('ratesDrawer.baseLaborRate')}</h3>
-              <div className="inline-flex rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 p-0.5 text-xs font-medium">
-                <button
-                  type="button"
-                  disabled={readOnly}
-                  onClick={() => handleLaborBasisChange('hourly')}
-                  className={`px-2 py-0.5 rounded-md transition-colors cursor-pointer ${
-                    laborBasis === 'hourly'
-                      ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs font-semibold'
-                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
-                  } disabled:cursor-not-allowed`}
-                >
-                  {t('ratesDrawer.hourlyBasis', 'Hourly ($/hr)')}
-                </button>
-                <button
-                  type="button"
-                  disabled={readOnly}
-                  onClick={() => handleLaborBasisChange('daily')}
-                  className={`px-2 py-0.5 rounded-md transition-colors cursor-pointer ${
-                    laborBasis === 'daily'
-                      ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs font-semibold'
-                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
-                  } disabled:cursor-not-allowed`}
-                >
-                  {t('ratesDrawer.dailyBasis', 'Daily ($/day)')}
-                </button>
-              </div>
-            </div>
-
-            {laborBasis === 'hourly' ? (
-              <>
-                <Field
-                  label={t('ratesDrawer.baseLaborHourlyRate')}
-                  value={rates.laborHourlyRate}
-                  onChange={handleHourlyRateChange}
-                  disabled={readOnly}
-                  prefix="$"
-                  suffix="/ hr"
-                />
-                <div className="flex items-center justify-between px-2.5 py-1.5 -mt-2 mb-3 bg-indigo-50/60 dark:bg-indigo-950/40 border border-indigo-100/80 dark:border-indigo-900/60 rounded-lg text-xs text-indigo-700 dark:text-indigo-300">
-                  <span className="font-medium">
-                    {t('ratesDrawer.effectiveDailyRateBadge', {
-                      rate: normalizedLabor.laborDailyRate.toFixed(2),
-                      hours: workdayHours,
-                    })}
-                  </span>
-                  <span className="text-[11px] text-indigo-500 dark:text-indigo-400">
-                    ({workdayHours} hrs/day)
-                  </span>
-                </div>
-              </>
-            ) : (
-              <>
-                <Field
-                  label={t('ratesDrawer.baseLaborDailyRate', 'Base Labor Daily Rate ($/day)')}
-                  value={rates.laborDailyRate}
-                  onChange={handleDailyRateChange}
-                  disabled={readOnly}
-                  prefix="$"
-                  suffix="/ day"
-                />
-                <div className="flex items-center justify-between px-2.5 py-1.5 -mt-2 mb-3 bg-indigo-50/60 dark:bg-indigo-950/40 border border-indigo-100/80 dark:border-indigo-900/60 rounded-lg text-xs text-indigo-700 dark:text-indigo-300">
-                  <span className="font-medium">
-                    {t('ratesDrawer.effectiveHourlyRateBadge', {
-                      rate: normalizedLabor.laborHourlyRate.toFixed(2),
-                    })}
-                  </span>
-                  <span className="text-[11px] text-indigo-500 dark:text-indigo-400">
-                    ({workdayHours} hrs/day)
-                  </span>
-                </div>
-              </>
-            )}
-
-            <Field
-              label={t('ratesDrawer.workdayHours', 'Hours per Workday (hrs/day)')}
-              value={rates.workdayHours ?? DEFAULT_WORKDAY_HOURS}
-              onChange={handleWorkdayHoursChange}
-              disabled={readOnly}
-              suffix="hrs"
-            />
-          </section>
-
-          {/* US-045: Labor Roles & Crew Rankings */}
-          <section className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl p-4">
-            <div className="flex items-center justify-between mb-2">
-              <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                  {t('ratesDrawer.laborRolesHeader', 'Labor Roles & Crew Rankings')}
-                </h3>
-                <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
-                  {t('ratesDrawer.laborRolesDesc', 'Set trade tier billing rates and assign them to individual line items.')}
-                </p>
-              </div>
-              {!readOnly && (
-                <button
-                  type="button"
-                  onClick={() => setShowCrewCalculator(true)}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 rounded-lg transition-colors border border-indigo-100 dark:border-indigo-900 cursor-pointer"
-                  title={t('ratesDrawer.blendedCrewTooltip', 'Calculate composite blended hourly rate based on crew composition')}
-                >
-                  👥 {t('ratesDrawer.blendedCrewBtn', 'Crew Blend')}
-                </button>
-              )}
-            </div>
-
-            <div className="mt-3 space-y-2">
-              {laborRoles.map((role) => (
-                <div
-                  key={role.id}
-                  className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl space-y-2"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <input
-                      type="text"
-                      value={role.title}
-                      disabled={readOnly}
-                      onChange={(e) => handleUpdateRole(role.id, 'title', e.target.value)}
-                      className="flex-1 min-w-0 font-semibold text-xs text-slate-900 dark:text-slate-100 bg-transparent border-b border-transparent focus:border-indigo-500 focus:outline-none"
-                    />
-                    {!readOnly && laborRoles.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveRole(role.id)}
-                        className="text-slate-400 hover:text-red-500 dark:hover:text-red-400 text-xs p-1 cursor-pointer"
-                        title={t('ratesDrawer.removeRole', 'Remove Role')}
-                      >
-                        ✕
-                      </button>
-                    )}
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="flex items-center bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1">
-                      <span className="text-slate-400 dark:text-slate-500 mr-1">$</span>
-                      <input
-                        type="number"
-                        step="any"
-                        value={role.hourlyRate}
-                        disabled={readOnly}
-                        onChange={(e) => handleUpdateRole(role.id, 'hourlyRate', e.target.value)}
-                        className="w-full bg-transparent text-right outline-none text-slate-900 dark:text-slate-100"
-                        placeholder="0.00"
-                      />
-                      <span className="text-[10px] text-slate-400 dark:text-slate-500 ml-1">/hr</span>
-                    </div>
-                    <div className="flex items-center bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1">
-                      <span className="text-slate-400 dark:text-slate-500 mr-1">$</span>
-                      <input
-                        type="number"
-                        step="any"
-                        value={role.dailyRate}
-                        disabled={readOnly}
-                        onChange={(e) => handleUpdateRole(role.id, 'dailyRate', e.target.value)}
-                        className="w-full bg-transparent text-right outline-none text-slate-900 dark:text-slate-100"
-                        placeholder="0.00"
-                      />
-                      <span className="text-[10px] text-slate-400 dark:text-slate-500 ml-1">/day</span>
-                    </div>
+          {(activeSection === 'all' || activeSection === 'templates') && (
+            <div className="relative overflow-hidden bg-gradient-to-br from-indigo-50/90 via-indigo-50/40 to-slate-50 dark:from-indigo-950/40 dark:via-slate-800/80 dark:to-slate-800/60 border-2 border-indigo-200/80 dark:border-indigo-800/80 rounded-2xl p-4 shadow-xs">
+              <div className="flex items-center justify-between mb-2.5">
+                <div className="flex items-center gap-2">
+                  <span className="p-1 bg-indigo-600 text-white rounded-lg text-xs font-bold">📚</span>
+                  <div>
+                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-950 dark:text-indigo-200 block">
+                      {t('ratesDrawer.rateLibraryTemplate')}
+                    </span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 block -mt-0.5">
+                      {t('ratesDrawer.subtitle')}
+                    </span>
                   </div>
                 </div>
-              ))}
-            </div>
-
-            {!readOnly && (
-              <button
-                type="button"
-                onClick={handleAddCustomRole}
-                className="mt-3 w-full py-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 bg-white dark:bg-slate-800 border border-dashed border-indigo-200 dark:border-indigo-800/80 rounded-xl transition cursor-pointer"
-              >
-                + {t('ratesDrawer.addCustomRole', 'Add Custom Labor Role')}
-              </button>
-            )}
-          </section>
-
-          <section>
-            <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-3">{t('ratesDrawer.trenchingEarthwork')}</h3>
-            <Field label={t('ratesDrawer.trenchWidth')} value={rates.trenchWidthFt} onChange={update('trenchWidthFt')} disabled={readOnly} />
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
-              {t('ratesDrawer.trenchVolumeFormula')}
-            </p>
-          </section>
-
-          <section>
-            <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-3">{t('ratesDrawer.markupBusinessConstants')}</h3>
-            <DualModeField
-              label={t('ratesDrawer.overhead')}
-              value={rates.overheadPct}
-              onChange={update('overheadPct')}
-              type={rates.overheadType || 'percent'}
-              onTypeChange={(t) => updateType('overheadType', t)}
-              disabled={readOnly}
-            />
-            <DualModeField
-              label={t('ratesDrawer.contingency')}
-              value={rates.contingencyPct}
-              onChange={update('contingencyPct')}
-              type={rates.contingencyType || 'percent'}
-              onTypeChange={(t) => updateType('contingencyType', t)}
-              disabled={readOnly}
-            />
-            <DualModeField
-              label={t('ratesDrawer.profitMargin')}
-              value={rates.profitPct}
-              onChange={update('profitPct')}
-              type={rates.profitType || 'percent'}
-              onTypeChange={(t) => updateType('profitType', t)}
-              disabled={readOnly}
-            />
-            <DualModeField
-              label={t('ratesDrawer.mobilizationEquipment')}
-              value={rates.equipmentLumpSum}
-              onChange={update('equipmentLumpSum')}
-              type={rates.equipmentType || 'fixed'}
-              onTypeChange={(t) => updateType('equipmentType', t)}
-              disabled={readOnly}
-            />
-
-            {/* Itemized Miscellaneous Costs Section */}
-            <div className="mb-4 pt-2 border-t border-slate-100 dark:border-slate-800">
-              <div className="flex items-center justify-between mb-2">
-                <div>
-                  <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 block">
-                    {t('ratesDrawer.miscellaneousCosts')}
-                  </span>
-                  <span className="text-[11px] text-slate-400 dark:text-slate-500">
-                    {t('ratesDrawer.miscTotal')} ${(rates.miscCost ?? 0).toLocaleString()}
-                  </span>
-                </div>
-                {!readOnly && (
+                {user && !readOnly && (
                   <button
                     type="button"
-                    onClick={handleAddMiscItem}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 rounded-lg transition-colors border border-indigo-100 dark:border-indigo-900 cursor-pointer"
+                    onClick={() => setShowSaveModal(true)}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-xs transition cursor-pointer"
                   >
-                    {t('ratesDrawer.addMiscItem')}
+                    {t('ratesDrawer.saveCurrentAsNew')}
                   </button>
                 )}
               </div>
 
-              {miscItems.length === 0 ? (
-                <div className="p-3 text-center bg-slate-50 dark:bg-slate-800/60 border border-dashed border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-400 dark:text-slate-500">
-                  {t('ratesDrawer.noMiscItems')}
+              {successMsg && (
+                <div className="mb-3 p-2 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs rounded-lg font-medium">
+                  ✓ {successMsg}
                 </div>
-              ) : (
-                <div className="space-y-2">
-                  {miscItems.map((item, idx) => (
-                    <div
-                      key={item.id || idx}
-                      className="flex items-center gap-2 p-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl"
-                    >
-                      <input
-                        type="text"
-                        placeholder={t('ratesDrawer.miscItemTitlePlaceholder')}
-                        value={item.title || ''}
-                        disabled={readOnly}
-                        onChange={(e) => handleUpdateMiscItem(item.id, 'title', e.target.value)}
-                        className="flex-1 min-w-0 px-2.5 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
-                      />
-                      <div className="flex items-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden w-28 shrink-0 focus-within:ring-1 focus-within:ring-indigo-500">
-                        <span className="pl-2 text-xs text-slate-400 dark:text-slate-500">$</span>
-                        <input
-                          type="number"
-                          placeholder={t('ratesDrawer.miscItemAmountPlaceholder')}
-                          value={item.amount === 0 ? 0 : item.amount || ''}
-                          disabled={readOnly}
-                          onChange={(e) => handleUpdateMiscItem(item.id, 'amount', e.target.value)}
-                          className="w-full px-2 py-1.5 text-xs text-right outline-none bg-transparent text-slate-900 dark:text-slate-100"
-                          step="any"
-                        />
-                      </div>
+              )}
+
+              <select
+                value={selectedTemplateId}
+                onChange={(e) => handleApplyTemplate(e.target.value)}
+                disabled={readOnly}
+                className="w-full px-3 py-2 text-sm border border-indigo-300/80 dark:border-indigo-700/80 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-medium focus:ring-2 focus:ring-indigo-500 focus:outline-none disabled:opacity-80 disabled:cursor-not-allowed cursor-pointer"
+              >
+                <option value="">{t('ratesDrawer.chooseRateTemplate')}</option>
+                {libraries.userLibraries?.length > 0 && (
+                  <optgroup label={t('ratesDrawer.yourCustomLibraries')}>
+                    {libraries.userLibraries.map((lib) => (
+                      <option key={lib.id} value={lib.id}>
+                        {lib.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
+                <optgroup label={t('ratesDrawer.systemDefaultLibraries')}>
+                  {libraries.systemDefaults?.map((sys) => (
+                    <option key={sys.id} value={sys.id}>
+                      {sys.name}
+                    </option>
+                  ))}
+                </optgroup>
+              </select>
+
+              {/* Custom Libraries manager pill */}
+              {libraries.userLibraries?.length > 0 && (
+                <div className="mt-3 space-y-1.5 border-t border-indigo-100 dark:border-indigo-900/60 pt-2.5">
+                  <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">{t('ratesDrawer.savedLibraries')}</p>
+                  {libraries.userLibraries.map((lib) => (
+                    <div key={lib.id} className="flex items-center justify-between text-xs py-1 px-2 rounded-lg bg-white dark:bg-slate-900 border border-indigo-100 dark:border-indigo-900/60 shadow-2xs">
+                      <span className="truncate font-medium text-slate-700 dark:text-slate-200 max-w-[220px]">{lib.name}</span>
                       {!readOnly && (
                         <button
                           type="button"
-                          onClick={() => handleRemoveMiscItem(item.id)}
-                          aria-label="Remove item"
-                          className="p-1 text-slate-400 hover:text-red-500 dark:hover:text-red-400 rounded-md transition-colors cursor-pointer"
+                          onClick={(e) => handleDeleteTemplate(lib.id, e)}
+                          className="text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition ml-2 cursor-pointer"
+                          title={t('ratesDrawer.deleteLibrary')}
                         >
-                          ✕
+                          🗑️
                         </button>
                       )}
                     </div>
@@ -729,7 +576,437 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                 </div>
               )}
             </div>
-          </section>
+          )}
+
+          {/* Base Labor & Labor Roles Section */}
+          {(activeSection === 'all' || activeSection === 'labor') && (
+            <div className="space-y-4">
+              <section className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">{t('ratesDrawer.baseLaborRate')}</h3>
+                  <div className="inline-flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 text-xs font-medium">
+                    <button
+                      type="button"
+                      disabled={readOnly}
+                      onClick={() => handleLaborBasisChange('hourly')}
+                      className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
+                        laborBasis === 'hourly'
+                          ? 'bg-indigo-600 text-white shadow-xs font-semibold'
+                          : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                      } disabled:cursor-not-allowed`}
+                    >
+                      {t('ratesDrawer.hourlyBasis', 'Hourly ($/hr)')}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={readOnly}
+                      onClick={() => handleLaborBasisChange('daily')}
+                      className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
+                        laborBasis === 'daily'
+                          ? 'bg-indigo-600 text-white shadow-xs font-semibold'
+                          : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                      } disabled:cursor-not-allowed`}
+                    >
+                      {t('ratesDrawer.dailyBasis', 'Daily ($/day)')}
+                    </button>
+                  </div>
+                </div>
+
+                {laborBasis === 'hourly' ? (
+                  <>
+                    <Field
+                      label={t('ratesDrawer.baseLaborHourlyRate')}
+                      value={rates.laborHourlyRate}
+                      onChange={handleHourlyRateChange}
+                      disabled={readOnly}
+                      prefix="$"
+                      suffix="/ hr"
+                    />
+                    <div className="flex items-center justify-between px-2.5 py-1.5 -mt-2 mb-3 bg-indigo-50/60 dark:bg-indigo-950/40 border border-indigo-100/80 dark:border-indigo-900/60 rounded-lg text-xs text-indigo-700 dark:text-indigo-300">
+                      <span className="font-medium">
+                        {t('ratesDrawer.effectiveDailyRateBadge', {
+                          rate: normalizedLabor.laborDailyRate.toFixed(2),
+                          hours: workdayHours,
+                        })}
+                      </span>
+                      <span className="text-[11px] text-indigo-500 dark:text-indigo-400">
+                        ({workdayHours} hrs/day)
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <Field
+                      label={t('ratesDrawer.baseLaborDailyRate', 'Base Labor Daily Rate ($/day)')}
+                      value={rates.laborDailyRate}
+                      onChange={handleDailyRateChange}
+                      disabled={readOnly}
+                      prefix="$"
+                      suffix="/ day"
+                    />
+                    <div className="flex items-center justify-between px-2.5 py-1.5 -mt-2 mb-3 bg-indigo-50/60 dark:bg-indigo-950/40 border border-indigo-100/80 dark:border-indigo-900/60 rounded-lg text-xs text-indigo-700 dark:text-indigo-300">
+                      <span className="font-medium">
+                        {t('ratesDrawer.effectiveHourlyRateBadge', {
+                          rate: normalizedLabor.laborHourlyRate.toFixed(2),
+                        })}
+                      </span>
+                      <span className="text-[11px] text-indigo-500 dark:text-indigo-400">
+                        ({workdayHours} hrs/day)
+                      </span>
+                    </div>
+                  </>
+                )}
+
+                <Field
+                  label={t('ratesDrawer.workdayHours', 'Hours per Workday (hrs/day)')}
+                  value={rates.workdayHours ?? DEFAULT_WORKDAY_HOURS}
+                  onChange={handleWorkdayHoursChange}
+                  disabled={readOnly}
+                  suffix="hrs"
+                />
+              </section>
+
+              {/* US-045: Labor Roles & Crew Rankings */}
+              <section className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div>
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                      {t('ratesDrawer.laborRolesHeader', 'Labor Roles & Crew Rankings')}
+                    </h3>
+                    <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
+                      {t('ratesDrawer.laborRolesDesc', 'Set trade tier billing rates and assign them to individual line items.')}
+                    </p>
+                  </div>
+                  {!readOnly && (
+                    <button
+                      type="button"
+                      onClick={() => setShowCrewCalculator(true)}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 rounded-lg transition-colors border border-indigo-100 dark:border-indigo-900 cursor-pointer"
+                      title={t('ratesDrawer.blendedCrewTooltip', 'Calculate composite blended hourly rate based on crew composition')}
+                    >
+                      👥 {t('ratesDrawer.blendedCrewBtn', 'Crew Blend')}
+                    </button>
+                  )}
+                </div>
+
+                <div className="mt-3 space-y-2">
+                  {laborRoles.map((role) => (
+                    <div
+                      key={role.id}
+                      className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl space-y-2"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <input
+                          type="text"
+                          value={role.title}
+                          disabled={readOnly}
+                          onChange={(e) => handleUpdateRole(role.id, 'title', e.target.value)}
+                          className="flex-1 min-w-0 font-semibold text-xs text-slate-900 dark:text-slate-100 bg-transparent border-b border-transparent focus:border-indigo-500 focus:outline-none"
+                        />
+                        {!readOnly && laborRoles.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveRole(role.id)}
+                            className="text-slate-400 hover:text-red-500 dark:hover:text-red-400 text-xs p-1 cursor-pointer"
+                            title={t('ratesDrawer.removeRole', 'Remove Role')}
+                          >
+                            ✕
+                          </button>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div className="flex items-center bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1">
+                          <span className="text-slate-400 dark:text-slate-500 mr-1">$</span>
+                          <input
+                            type="number"
+                            step="any"
+                            value={role.hourlyRate}
+                            disabled={readOnly}
+                            onChange={(e) => handleUpdateRole(role.id, 'hourlyRate', e.target.value)}
+                            className="w-full bg-transparent text-right outline-none text-slate-900 dark:text-slate-100"
+                            placeholder="0.00"
+                          />
+                          <span className="text-[10px] text-slate-400 dark:text-slate-500 ml-1">/hr</span>
+                        </div>
+                        <div className="flex items-center bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1">
+                          <span className="text-slate-400 dark:text-slate-500 mr-1">$</span>
+                          <input
+                            type="number"
+                            step="any"
+                            value={role.dailyRate}
+                            disabled={readOnly}
+                            onChange={(e) => handleUpdateRole(role.id, 'dailyRate', e.target.value)}
+                            className="w-full bg-transparent text-right outline-none text-slate-900 dark:text-slate-100"
+                            placeholder="0.00"
+                          />
+                          <span className="text-[10px] text-slate-400 dark:text-slate-500 ml-1">/day</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {!readOnly && (
+                  <button
+                    type="button"
+                    onClick={handleAddCustomRole}
+                    className="mt-3 w-full py-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 bg-white dark:bg-slate-800 border border-dashed border-indigo-200 dark:border-indigo-800/80 rounded-xl transition cursor-pointer"
+                  >
+                    + {t('ratesDrawer.addCustomRole', 'Add Custom Labor Role')}
+                  </button>
+                )}
+              </section>
+            </div>
+          )}
+
+          {/* US-046: Equipment & Machinery Rentals Catalog */}
+          {(activeSection === 'all' || activeSection === 'equipment') && (
+            <section className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl p-4">
+              <div className="flex items-center justify-between mb-2">
+                <div>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                    {t('ratesDrawer.equipmentCatalogHeader', 'Equipment & Machinery Rentals')}
+                  </h3>
+                  <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
+                    {t('ratesDrawer.equipmentCatalogDesc', 'Standard machinery rental rates (day/wk/mo), mobilization fees, and fuel surcharges.')}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-3 space-y-2.5">
+                {equipmentCatalog.map((eq) => (
+                  <div
+                    key={eq.id}
+                    className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl space-y-2"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-sm">🚜</span>
+                      <input
+                        type="text"
+                        value={eq.title}
+                        disabled={readOnly}
+                        onChange={(e) => handleUpdateEquipmentCatalogItem(eq.id, 'title', e.target.value)}
+                        className="flex-1 min-w-0 font-semibold text-xs text-slate-900 dark:text-slate-100 bg-transparent border-b border-transparent focus:border-indigo-500 focus:outline-none"
+                      />
+                      {!readOnly && equipmentCatalog.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveEquipmentCatalogItem(eq.id)}
+                          className="text-slate-400 hover:text-red-500 dark:hover:text-red-400 text-xs p-1 cursor-pointer"
+                          title={t('ratesDrawer.removeEquipment', 'Remove Equipment')}
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-3 gap-1.5 text-xs">
+                      <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-1 text-center">
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500 block">{t('ratesDrawer.daily', 'Day')}</span>
+                        <div className="flex items-center justify-center">
+                          <span className="text-slate-400 dark:text-slate-500 text-[11px] mr-0.5">$</span>
+                          <input
+                            type="number"
+                            step="any"
+                            value={eq.dailyRate}
+                            disabled={readOnly}
+                            onChange={(e) => handleUpdateEquipmentCatalogItem(eq.id, 'dailyRate', e.target.value)}
+                            className="w-full bg-transparent text-center outline-none text-slate-900 dark:text-slate-100 text-xs"
+                          />
+                        </div>
+                      </div>
+                      <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-1 text-center">
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500 block">{t('ratesDrawer.weekly', 'Wk')}</span>
+                        <div className="flex items-center justify-center">
+                          <span className="text-slate-400 dark:text-slate-500 text-[11px] mr-0.5">$</span>
+                          <input
+                            type="number"
+                            step="any"
+                            value={eq.weeklyRate}
+                            disabled={readOnly}
+                            onChange={(e) => handleUpdateEquipmentCatalogItem(eq.id, 'weeklyRate', e.target.value)}
+                            className="w-full bg-transparent text-center outline-none text-slate-900 dark:text-slate-100 text-xs"
+                          />
+                        </div>
+                      </div>
+                      <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-1 text-center">
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500 block">{t('ratesDrawer.monthly', 'Mo')}</span>
+                        <div className="flex items-center justify-center">
+                          <span className="text-slate-400 dark:text-slate-500 text-[11px] mr-0.5">$</span>
+                          <input
+                            type="number"
+                            step="any"
+                            value={eq.monthlyRate}
+                            disabled={readOnly}
+                            onChange={(e) => handleUpdateEquipmentCatalogItem(eq.id, 'monthlyRate', e.target.value)}
+                            className="w-full bg-transparent text-center outline-none text-slate-900 dark:text-slate-100 text-xs"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-xs pt-1 border-t border-slate-100 dark:border-slate-700/60">
+                      <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1">
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500">{t('ratesDrawer.deliveryFee', 'Delivery:')}</span>
+                        <div className="flex items-center">
+                          <span className="text-slate-400 dark:text-slate-500 text-[11px] mr-0.5">$</span>
+                          <input
+                            type="number"
+                            step="any"
+                            value={eq.deliveryFee}
+                            disabled={readOnly}
+                            onChange={(e) => handleUpdateEquipmentCatalogItem(eq.id, 'deliveryFee', e.target.value)}
+                            className="w-14 bg-transparent text-right outline-none text-slate-900 dark:text-slate-100 text-xs"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1">
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500">{t('ratesDrawer.fuelSurcharge', 'Fuel %:')}</span>
+                        <div className="flex items-center">
+                          <input
+                            type="number"
+                            step="any"
+                            value={eq.fuelSurchargePct}
+                            disabled={readOnly}
+                            onChange={(e) => handleUpdateEquipmentCatalogItem(eq.id, 'fuelSurchargePct', e.target.value)}
+                            className="w-10 bg-transparent text-right outline-none text-slate-900 dark:text-slate-100 text-xs"
+                          />
+                          <span className="text-slate-400 dark:text-slate-500 text-[11px] ml-0.5">%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {!readOnly && (
+                <button
+                  type="button"
+                  onClick={handleAddCustomEquipment}
+                  className="mt-3 w-full py-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 bg-white dark:bg-slate-800 border border-dashed border-indigo-200 dark:border-indigo-800/80 rounded-xl transition cursor-pointer"
+                >
+                  + {t('ratesDrawer.addCustomEquipment', 'Add Custom Equipment Preset')}
+                </button>
+              )}
+            </section>
+          )}
+
+          {/* Trenching & Earthwork */}
+          {(activeSection === 'all' || activeSection === 'trenching') && (
+            <section className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl p-4">
+              <h3 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-3">{t('ratesDrawer.trenchingEarthwork')}</h3>
+              <Field label={t('ratesDrawer.trenchWidth')} value={rates.trenchWidthFt} onChange={update('trenchWidthFt')} disabled={readOnly} />
+              <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                {t('ratesDrawer.trenchVolumeFormula')}
+              </p>
+            </section>
+          )}
+
+          {/* Markups & Business Constants */}
+          {(activeSection === 'all' || activeSection === 'markups') && (
+            <section className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl p-4">
+              <h3 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-3">{t('ratesDrawer.markupBusinessConstants')}</h3>
+              <DualModeField
+                label={t('ratesDrawer.overhead')}
+                value={rates.overheadPct}
+                onChange={update('overheadPct')}
+                type={rates.overheadType || 'percent'}
+                onTypeChange={(t) => updateType('overheadType', t)}
+                disabled={readOnly}
+              />
+              <DualModeField
+                label={t('ratesDrawer.contingency')}
+                value={rates.contingencyPct}
+                onChange={update('contingencyPct')}
+                type={rates.contingencyType || 'percent'}
+                onTypeChange={(t) => updateType('contingencyType', t)}
+                disabled={readOnly}
+              />
+              <DualModeField
+                label={t('ratesDrawer.profitMargin')}
+                value={rates.profitPct}
+                onChange={update('profitPct')}
+                type={rates.profitType || 'percent'}
+                onTypeChange={(t) => updateType('profitType', t)}
+                disabled={readOnly}
+              />
+              <DualModeField
+                label={t('ratesDrawer.mobilizationEquipment')}
+                value={rates.equipmentLumpSum}
+                onChange={update('equipmentLumpSum')}
+                type={rates.equipmentType || 'fixed'}
+                onTypeChange={(t) => updateType('equipmentType', t)}
+                disabled={readOnly}
+              />
+
+              {/* Itemized Miscellaneous Costs Section */}
+              <div className="mb-2 pt-3 border-t border-slate-200 dark:border-slate-700">
+                <div className="flex items-center justify-between mb-2">
+                  <div>
+                    <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider block">
+                      {t('ratesDrawer.miscellaneousCosts')}
+                    </span>
+                    <span className="text-[11px] text-slate-400 dark:text-slate-500">
+                      {t('ratesDrawer.miscTotal')} ${(rates.miscCost ?? 0).toLocaleString()}
+                    </span>
+                  </div>
+                  {!readOnly && (
+                    <button
+                      type="button"
+                      onClick={handleAddMiscItem}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 rounded-lg transition-colors border border-indigo-100 dark:border-indigo-900 cursor-pointer"
+                    >
+                      {t('ratesDrawer.addMiscItem')}
+                    </button>
+                  )}
+                </div>
+
+                {miscItems.length === 0 ? (
+                  <div className="p-3 text-center bg-white dark:bg-slate-900 border border-dashed border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-400 dark:text-slate-500">
+                    {t('ratesDrawer.noMiscItems')}
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {miscItems.map((item, idx) => (
+                      <div
+                        key={item.id || idx}
+                        className="flex items-center gap-2 p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl"
+                      >
+                        <input
+                          type="text"
+                          placeholder={t('ratesDrawer.miscItemTitlePlaceholder')}
+                          value={item.title || ''}
+                          disabled={readOnly}
+                          onChange={(e) => handleUpdateMiscItem(item.id, 'title', e.target.value)}
+                          className="flex-1 min-w-0 px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                        />
+                        <div className="flex items-center bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden w-28 shrink-0 focus-within:ring-1 focus-within:ring-indigo-500">
+                          <span className="pl-2 text-xs text-slate-400 dark:text-slate-500">$</span>
+                          <input
+                            type="number"
+                            placeholder={t('ratesDrawer.miscItemAmountPlaceholder')}
+                            value={item.amount === 0 ? 0 : item.amount || ''}
+                            disabled={readOnly}
+                            onChange={(e) => handleUpdateMiscItem(item.id, 'amount', e.target.value)}
+                            className="w-full px-2 py-1.5 text-xs text-right outline-none bg-transparent text-slate-900 dark:text-slate-100"
+                            step="any"
+                          />
+                        </div>
+                        {!readOnly && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveMiscItem(item.id)}
+                            aria-label="Remove item"
+                            className="p-1 text-slate-400 hover:text-red-500 dark:hover:text-red-400 rounded-md transition-colors cursor-pointer"
+                          >
+                            ✕
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
         </div>
 
         {/* Save Template Modal */}

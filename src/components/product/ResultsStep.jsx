@@ -720,7 +720,15 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
               value={formatCurrency(totals.totalLaborCost)}
               sub={t('resultsStep.laborHrs', { count: formatNumber(totals.totalLaborHours) })}
             />
-            <SummaryCard label={t('resultsStep.equipmentMobilization')} value={formatCurrency(totals.equipmentLumpSum)} />
+            {totals.totalEquipmentLineItemCost > 0 ? (
+              <SummaryCard
+                label={t('resultsStep.equipmentLineItems', 'Equipment & Machinery')}
+                value={formatCurrency(totals.totalEquipmentLineItemCost + totals.equipmentLumpSum)}
+                sub={totals.equipmentLumpSum > 0 ? `Incl. ${formatCurrency(totals.equipmentLumpSum)} mob` : undefined}
+              />
+            ) : (
+              <SummaryCard label={t('resultsStep.equipmentMobilization')} value={formatCurrency(totals.equipmentLumpSum)} />
+            )}
             {totals.miscCost > 0 && (
               <SummaryCard label={t('resultsStep.miscellaneousCosts')} value={formatCurrency(totals.miscCost)} />
             )}
@@ -767,13 +775,46 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {sys.items.map((item) => (
                     <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition">
-                      <td className="py-1.5 pr-3 text-slate-800 dark:text-slate-200">{item.description}</td>
+                      <td className="py-1.5 pr-3 text-slate-800 dark:text-slate-200">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {item.isEquipment && (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
+                              🚜 {t('takeoffGrid.equipmentBadge', 'Equipment Rental')}
+                            </span>
+                          )}
+                          <span>{item.description}</span>
+                        </div>
+                      </td>
                       <td className="py-1.5 pr-3 text-slate-500 dark:text-slate-400">{item.sizeSpec}</td>
                       <td className="py-1.5 pr-3 text-right text-slate-800 dark:text-slate-200 font-mono">{formatNumber(item.quantity, 0)}</td>
                       <td className="py-1.5 pr-3 text-slate-600 dark:text-slate-400">{item.unit}</td>
-                      {!proposalMode && <td className="py-1.5 pr-3 text-right text-slate-700 dark:text-slate-300 font-mono">{formatCurrency(item.materialCost)}</td>}
-                      {!proposalMode && <td className="py-1.5 pr-3 text-right text-slate-700 dark:text-slate-300 font-mono">{formatNumber(item.laborHours)}</td>}
-                      {!proposalMode && <td className="py-1.5 pr-3 text-right text-slate-700 dark:text-slate-300 font-mono">{formatCurrency(item.laborCost)}</td>}
+                      {!proposalMode && (
+                        <td className="py-1.5 pr-3 text-right text-slate-700 dark:text-slate-300 font-mono">
+                          {item.isEquipment ? (
+                            <span className="text-xs text-slate-400 dark:text-slate-500 italic">—</span>
+                          ) : (
+                            formatCurrency(item.materialCost)
+                          )}
+                        </td>
+                      )}
+                      {!proposalMode && (
+                        <td className="py-1.5 pr-3 text-right text-slate-700 dark:text-slate-300 font-mono">
+                          {item.isEquipment ? (
+                            <span className="text-xs text-slate-400 dark:text-slate-500 italic">—</span>
+                          ) : (
+                            formatNumber(item.laborHours)
+                          )}
+                        </td>
+                      )}
+                      {!proposalMode && (
+                        <td className="py-1.5 pr-3 text-right text-slate-700 dark:text-slate-300 font-mono">
+                          {item.isEquipment ? (
+                            <span className="text-xs text-slate-400 dark:text-slate-500 italic">—</span>
+                          ) : (
+                            formatCurrency(item.laborCost)
+                          )}
+                        </td>
+                      )}
                       <td className="py-1.5 pr-3 text-right font-medium text-slate-900 dark:text-slate-100 font-mono">{formatCurrency(item.directCost)}</td>
                     </tr>
                   ))}

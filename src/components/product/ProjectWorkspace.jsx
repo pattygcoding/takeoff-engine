@@ -24,14 +24,11 @@ export default function ProjectWorkspace({
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState(null);
 
-  // When projectId is in the URL, make sure the project and its items are fresh from the backend
+  // When projectId is in the URL, only fetch if current project is not loaded or does not match
   useEffect(() => {
     let isMounted = true;
-    if (projectId) {
-      // If current project is not yet loaded in memory, show full-screen spinner
-      if (!currentProject || currentProject.id !== projectId) {
-        setLoading(true);
-      }
+    if (projectId && (!currentProject || currentProject.id !== projectId)) {
+      setLoading(true);
       setLoadError(null);
 
       projectsApi.getById(projectId)
@@ -66,7 +63,7 @@ export default function ProjectWorkspace({
     return () => {
       isMounted = false;
     };
-  }, [projectId, step]);
+  }, [projectId]);
 
   // Scroll to the top of the page whenever the workspace step changes
   useEffect(() => {

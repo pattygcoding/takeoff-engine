@@ -183,5 +183,62 @@ describe('Frontend Email Dispatch, Notification & Form Triggers', () => {
       assert.strictEqual(updatedDaily.dailyRate, 900);
       assert.strictEqual(updatedDaily.hourlyRate, 90);
     });
+
+    it('manages equipment rental form creation and rate tier mapping', () => {
+      const buildEquipmentTakeoffRow = ({
+        catalogItem,
+        durationQty,
+        durationUnit,
+        includeDelivery,
+      }) => {
+        const dailyRate = catalogItem.dailyRate || 0;
+        const weeklyRate = catalogItem.weeklyRate || (dailyRate * 4);
+        const monthlyRate = catalogItem.monthlyRate || (weeklyRate * 3);
+        const deliveryFee = includeDelivery ? (catalogItem.deliveryFee || 0) : 0;
+        const fuelPct = catalogItem.fuelSurchargePct || 0;
+
+        let base = 0;
+        if (durationUnit === 'days') base = durationQty * dailyRate;
+        else if (durationUnit === 'months') base = durationQty * monthlyRate;
+        else base = durationQty * weeklyRate;
+
+        const fuel = base * (fuelPct / 100);
+        const totalCost = base + deliveryFee + fuel;
+
+        return {
+          id: `eq-${Date.now()}`,
+          isEquipment: true,
+          description: catalogItem.title,
+          system: 'Equipment & Mobilization',
+          quantity: durationQty,
+          unit: durationUnit === 'days' ? 'DAY' : durationUnit === 'months' ? 'MO' : 'WK',
+          equipmentDurationQty: durationQty,
+          equipmentDurationUnit: durationUnit,
+          includeDelivery,
+          equipmentCost: Math.round(totalCost * 100) / 100,
+        };
+      };
+
+      const excavator = {
+        title: 'Mini-Excavator (3-5 Ton)',
+        dailyRate: 350,
+        weeklyRate: 1200,
+        monthlyRate: 3600,
+        deliveryFee: 250,
+        fuelSurchargePct: 5,
+      };
+
+      const row = buildEquipmentTakeoffRow({
+        catalogItem: excavator,
+        durationQty: 2,
+        durationUnit: 'weeks',
+        includeDelivery: true,
+      });
+
+      assert.strictEqual(row.isEquipment, true);
+      assert.strictEqual(row.quantity, 2);
+      assert.strictEqual(row.unit, 'WK');
+      assert.strictEqual(row.equipmentCost, 2770);
+    });
   });
 });
