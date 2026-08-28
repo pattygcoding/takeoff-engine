@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from '@/context/I18nContext';
-import LanguageSelector from '@/components/shared/LanguageSelector';
 import SeoHead from '@/components/shared/SeoHead';
 import { downloadSampleCsv, downloadSampleExcel } from '@/lib/product/csv';
 
@@ -317,7 +316,6 @@ export default function ClientGuidePage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <LanguageSelector variant="light" />
             <button
               type="button"
               onClick={() => downloadSampleCsv()}

@@ -79,7 +79,17 @@ export default function AppFooter() {
               <li>
                 <button
                   type="button"
-                  onClick={() => navigate('/onboarding')}
+                  onClick={() => {
+                    if (isAuthenticated) {
+                      navigate('/onboarding');
+                    } else {
+                      navigate('/home');
+                      setTimeout(() => {
+                        const el = document.getElementById('pricing');
+                        if (el) el.scrollIntoView({ behavior: 'smooth' });
+                      }, 100);
+                    }
+                  }}
                   className="hover:text-white transition cursor-pointer"
                 >
                   {t('footer.pricing', 'Pricing & Plans')}

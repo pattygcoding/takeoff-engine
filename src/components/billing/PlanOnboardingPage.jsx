@@ -15,6 +15,9 @@ export default function PlanOnboardingPage() {
 
   const isAnnual = billingInterval === 'annually';
   const targetUsername = user?.username || '';
+  const currentTier = (user?.subscription_status === 'active' || user?.has_unlimited_bypass || user?.role === 'payment_exempt')
+    ? (user?.subscription_tier || 'free')
+    : 'free';
 
   const handleSelectFree = () => {
     if (targetUsername) {
@@ -155,20 +158,31 @@ export default function PlanOnboardingPage() {
               </ul>
             </div>
 
-            <button
-              type="button"
-              disabled={checkoutLoadingPlan === 'starter'}
-              onClick={() => handleSelectPaidPlan('starter')}
-              className="mt-6 w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition cursor-pointer disabled:opacity-50"
-            >
-              {checkoutLoadingPlan === 'starter' ? t('loginPage.launchingCheckout', 'Launching Checkout...') : t('landing.pricing.starter.cta', 'Choose Starter')}
-            </button>
+            {/* Button */}
+            {currentTier === 'starter' ? (
+              <button
+                type="button"
+                disabled
+                className="mt-6 w-full py-2.5 bg-slate-800 text-slate-400 text-xs font-bold rounded-xl border border-slate-700 cursor-not-allowed opacity-75"
+              >
+                {t('upgradeModal.currentPlanBadge', 'Current Plan')}
+              </button>
+            ) : (
+              <button
+                type="button"
+                disabled={checkoutLoadingPlan === 'starter'}
+                onClick={() => handleSelectPaidPlan('starter')}
+                className="mt-6 w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition cursor-pointer disabled:opacity-50"
+              >
+                {checkoutLoadingPlan === 'starter' ? t('loginPage.launchingCheckout', 'Launching Checkout...') : t('landing.pricing.starter.cta', 'Choose Starter')}
+              </button>
+            )}
           </div>
 
           {/* 2. Pro Tier (Most Popular) */}
           <div className="bg-gradient-to-b from-indigo-950/90 to-slate-900 p-6 rounded-3xl border-2 border-indigo-500 shadow-2xl relative flex flex-col justify-between">
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-wider px-3 py-0.5 rounded-full shadow">
-              {t('landing.pricing.pro.mostPopular', 'MOST POPULAR')}
+              {currentTier === 'pro' ? t('upgradeModal.currentPlanBadge', 'Current Plan') : t('landing.pricing.pro.mostPopular', 'MOST POPULAR')}
             </div>
 
             <div>
@@ -199,22 +213,39 @@ export default function PlanOnboardingPage() {
               </ul>
             </div>
 
-            <button
-              type="button"
-              disabled={checkoutLoadingPlan === 'pro'}
-              onClick={() => handleSelectPaidPlan('pro')}
-              className="mt-6 w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition cursor-pointer disabled:opacity-50"
-            >
-              {checkoutLoadingPlan === 'pro' ? t('loginPage.launchingCheckout', 'Launching Checkout...') : t('landing.pricing.pro.cta', 'Upgrade to Pro')}
-            </button>
+            {currentTier === 'pro' ? (
+              <button
+                type="button"
+                disabled
+                className="mt-6 w-full py-2.5 bg-indigo-900/60 text-indigo-300 text-xs font-bold rounded-xl border border-indigo-700/60 cursor-not-allowed opacity-75"
+              >
+                {t('upgradeModal.currentPlanBadge', 'Current Plan')}
+              </button>
+            ) : (
+              <button
+                type="button"
+                disabled={checkoutLoadingPlan === 'pro'}
+                onClick={() => handleSelectPaidPlan('pro')}
+                className="mt-6 w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition cursor-pointer disabled:opacity-50"
+              >
+                {checkoutLoadingPlan === 'pro' ? t('loginPage.launchingCheckout', 'Launching Checkout...') : t('landing.pricing.pro.cta', 'Upgrade to Pro')}
+              </button>
+            )}
           </div>
 
           {/* 3. Enterprise Tier */}
           <div className="bg-gradient-to-b from-amber-950/50 via-slate-900 to-slate-900 p-6 rounded-3xl border border-amber-500/40 shadow-xl flex flex-col justify-between">
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-amber-400">
-                {t('landing.pricing.enterprise.tier', 'ENTERPRISE')}
-              </span>
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-xs font-bold uppercase tracking-wider text-amber-400">
+                  {t('landing.pricing.enterprise.tier', 'ENTERPRISE')}
+                </span>
+                {currentTier === 'enterprise' && (
+                  <span className="bg-emerald-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider">
+                    {t('upgradeModal.currentPlanBadge', 'Current Plan')}
+                  </span>
+                )}
+              </div>
               <div className="mt-4 flex items-baseline gap-1">
                 <span className="text-3xl font-black text-white">
                   ${isAnnual ? '1999.99' : '199.99'}
@@ -239,14 +270,24 @@ export default function PlanOnboardingPage() {
               </ul>
             </div>
 
-            <button
-              type="button"
-              disabled={checkoutLoadingPlan === 'enterprise'}
-              onClick={() => handleSelectPaidPlan('enterprise')}
-              className="mt-6 w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold rounded-xl shadow-lg shadow-amber-500/20 transition cursor-pointer disabled:opacity-50"
-            >
-              {checkoutLoadingPlan === 'enterprise' ? t('loginPage.launchingCheckout', 'Launching Checkout...') : t('landing.pricing.enterprise.cta', 'Choose Enterprise')}
-            </button>
+            {currentTier === 'enterprise' ? (
+              <button
+                type="button"
+                disabled
+                className="mt-6 w-full py-2.5 bg-amber-950/60 text-amber-300 text-xs font-bold rounded-xl border border-amber-700/60 cursor-not-allowed opacity-75"
+              >
+                {t('upgradeModal.currentPlanBadge', 'Current Plan')}
+              </button>
+            ) : (
+              <button
+                type="button"
+                disabled={checkoutLoadingPlan === 'enterprise'}
+                onClick={() => handleSelectPaidPlan('enterprise')}
+                className="mt-6 w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold rounded-xl shadow-lg shadow-amber-500/20 transition cursor-pointer disabled:opacity-50"
+              >
+                {checkoutLoadingPlan === 'enterprise' ? t('loginPage.launchingCheckout', 'Launching Checkout...') : t('landing.pricing.enterprise.cta', 'Choose Enterprise')}
+              </button>
+            )}
           </div>
         </div>
 

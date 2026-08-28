@@ -318,10 +318,10 @@ function AppContent() {
                 if (isAuthenticated && user?.username) {
                   navigate(`/${user.username}`);
                 } else {
-                  navigate('/login');
+                  navigate('/home');
                 }
               }}
-              title={isAuthenticated ? 'Go to Projects Dashboard' : 'Go to Login'}
+              title={isAuthenticated ? 'Go to Projects Dashboard' : 'Go to Home'}
             >
               <span className="text-xl font-bold text-indigo-600 dark:text-indigo-400">Takeoff Engine</span>
               <span className="hidden sm:inline text-sm text-slate-400 dark:text-slate-500">Construction Estimating</span>

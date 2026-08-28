@@ -278,7 +278,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
     }
 
     try {
-      const recordResult = await authApi.recordExport();
+      const recordResult = await authApi.recordExport(currentFormat.id);
       if (recordResult?.trial_uses_remaining !== undefined) {
         if (setUser) {
           setUser((prev) => (prev ? { ...prev, trial_uses_remaining: recordResult.trial_uses_remaining } : prev));
@@ -287,7 +287,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
       if (refreshProfile) await refreshProfile();
       await actionFn();
     } catch (err) {
-      if (err.code === 'TRIAL_EXHAUSTED' || err.status === 403) {
+      if (err.code === 'TRIAL_EXHAUSTED' || err.code === 'FORBIDDEN_TIER_FEATURE' || err.status === 403) {
         setShowUpgradeModal(true);
       } else {
         console.error('[Export Metering Error]', err);

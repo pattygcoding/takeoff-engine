@@ -71,8 +71,8 @@ export default function LanguageSelector({ variant = 'light' }) {
         <div
           className={`absolute right-0 mt-1.5 w-36 rounded-xl border shadow-xl z-50 py-1 overflow-hidden animate-fade-in ${
             isDark
-              ? 'bg-slate-800 border-slate-700 text-slate-200 divide-y divide-slate-700/50'
-              : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 divide-y divide-slate-100 dark:divide-slate-700'
+              ? 'bg-slate-900 border-slate-700 text-slate-100 divide-y divide-slate-800'
+              : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 divide-y divide-slate-100 dark:divide-slate-800'
           }`}
         >
           {LANGUAGES.map((lang) => {
@@ -88,18 +88,18 @@ export default function LanguageSelector({ variant = 'light' }) {
                 className={`w-full flex items-center justify-between px-3 py-2 text-xs font-semibold transition cursor-pointer text-left ${
                   isDark
                     ? isSelected
-                      ? 'bg-indigo-600/30 text-indigo-300 font-bold'
-                      : 'hover:bg-slate-700/70 text-slate-300'
+                      ? 'bg-indigo-600/40 text-white font-bold'
+                      : 'hover:bg-slate-800 text-slate-100 hover:text-white'
                     : isSelected
-                    ? 'bg-indigo-50 text-indigo-700 font-bold'
-                    : 'hover:bg-slate-50 text-slate-700'
+                    ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-bold'
+                    : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-100 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 <div className="flex items-center gap-2">
                   <span>{lang.label}</span>
                 </div>
                 {isSelected && (
-                  <svg className="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                   </svg>
                 )}

@@ -140,16 +140,18 @@ export const authApi = {
     return data;
   },
 
-  async recordExport() {
+  async recordExport(formatId = null) {
     const res = await fetch(`${API_BASE_URL}/takeoffs/record-export`, {
       method: 'POST',
       headers: getAuthHeaders(),
+      body: formatId ? JSON.stringify({ formatId }) : undefined,
     });
     const data = await res.json();
     if (!res.ok) {
       const err = new Error(data.error || getTranslation('apiErrors.exportRecordingFailed'));
       err.code = data.code;
       err.trial_uses_remaining = data.trial_uses_remaining;
+      err.requiredTier = data.requiredTier;
       throw err;
     }
     return data;

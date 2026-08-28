@@ -2,8 +2,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from '@/context/I18nContext';
-import LanguageSelector from '@/components/shared/LanguageSelector';
-import ThemeToggle from '@/components/shared/ThemeToggle';
 import SeoHead from '@/components/shared/SeoHead';
 
 export default function UsagePolicyPage() {
@@ -48,11 +46,6 @@ export default function UsagePolicyPage() {
                 {t('usagePolicy.title')}
               </h1>
             </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <ThemeToggle variant="header" />
-            <LanguageSelector variant="light" />
           </div>
         </div>
       </header>
