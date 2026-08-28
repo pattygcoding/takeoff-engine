@@ -5,6 +5,8 @@ import { formatCurrency, formatNumber, computeEstimate } from '@/lib/product/cal
 import { useModal } from '@/context/ModalContext';
 import { useTranslation } from '@/context/I18nContext';
 import LanguageSelector from '@/components/shared/LanguageSelector';
+import ClientCounterOfferModal from './ClientCounterOfferModal';
+import { SCOPE_STATUS } from '@/lib/product/scope';
 
 export default function ClientProposalView() {
   const { publicToken } = useParams();
@@ -26,6 +28,10 @@ export default function ClientProposalView() {
   const [showDeclineModal, setShowDeclineModal] = useState(false);
   const [declineReason, setDeclineReason] = useState('');
   const [declining, setDeclining] = useState(false);
+
+  // Counter-Offer / Inclusions Modal States
+  const [showCounterModal, setShowCounterModal] = useState(false);
+  const [submittingCounter, setSubmittingCounter] = useState(false);
 
   useEffect(() => {
     if (publicToken) {
@@ -96,6 +102,33 @@ export default function ClientProposalView() {
       });
     } finally {
       setDeclining(false);
+    }
+  };
+
+  const handleCounterOffer = async ({ counterNotes, scopeChanges, clientName: cName, signerEmail: cEmail }) => {
+    setSubmittingCounter(true);
+    try {
+      await proposalsApi.submitPublicCounterOffer(publicToken, {
+        counterNotes,
+        scopeChanges,
+        clientName: cName || signerName,
+        signerEmail: cEmail || signerEmail,
+      });
+      setShowCounterModal(false);
+      await showAlert({
+        title: t('clientProposal.counterSuccessTitle', 'Counter-Offer Submitted'),
+        message: t('clientProposal.counterSuccessMsg', 'Your scope counter-offer has been sent directly to the contractor. They will review your notes and updated inclusions/exclusions.'),
+        variant: 'success',
+      });
+      await loadProposal();
+    } catch (err) {
+      await showAlert({
+        title: t('clientProposal.counterErrorTitle', 'Submission Error'),
+        message: err.message || t('clientProposal.counterError', 'Failed to submit counter-offer.'),
+        variant: 'error',
+      });
+    } finally {
+      setSubmittingCounter(false);
     }
   };
 
@@ -309,6 +342,43 @@ export default function ClientProposalView() {
               <p className="text-sm text-slate-500 italic">{t('clientProposal.noItemsFound')}</p>
             )}
 
+            {/* Scope Inclusions & Exclusions */}
+            {snapshot?.rates?.scopeItems && snapshot.rates.scopeItems.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+                <div className="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-4">
+                  <h3 className="text-xs font-bold text-emerald-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                    <span>✓</span> {t('clientProposal.inclusionsHeader', 'Included by Contractor')}
+                  </h3>
+                  <ul className="text-xs text-emerald-950 space-y-1.5">
+                    {snapshot.rates.scopeItems
+                      .filter((i) => i.status === SCOPE_STATUS.INCLUDED)
+                      .map((item) => (
+                        <li key={item.id} className="flex items-start gap-1.5">
+                          <span className="text-emerald-600 font-bold">•</span>
+                          <span><strong>{item.title}</strong>: {item.description}</span>
+                        </li>
+                      ))}
+                  </ul>
+                </div>
+
+                <div className="bg-rose-50/70 border border-rose-200 rounded-2xl p-4">
+                  <h3 className="text-xs font-bold text-rose-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                    <span>✕</span> {t('clientProposal.exclusionsHeader', 'Excluded (By Owner / Others)')}
+                  </h3>
+                  <ul className="text-xs text-rose-950 space-y-1.5">
+                    {snapshot.rates.scopeItems
+                      .filter((i) => i.status === SCOPE_STATUS.EXCLUDED)
+                      .map((item) => (
+                        <li key={item.id} className="flex items-start gap-1.5">
+                          <span className="text-rose-600 font-bold">•</span>
+                          <span><strong>{item.title}</strong>: {item.description}</span>
+                        </li>
+                      ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+
             {/* Standard Terms / Acceptance Notes */}
             <div className="mt-8 pt-6 border-t border-slate-200 text-xs text-slate-500 space-y-2">
               <p className="font-semibold text-slate-700">{t('clientProposal.termsTitle')}</p>
@@ -377,20 +447,29 @@ export default function ClientProposalView() {
                     </span>
                   </label>
 
-                  <div className="flex items-center justify-between pt-4 gap-3">
+                  <div className="flex flex-wrap items-center justify-between pt-4 gap-3">
                     <button
                       type="button"
                       disabled={!agreedToTerms}
                       onClick={() => setShowDeclineModal(true)}
-                      className="px-5 py-2.5 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold rounded-xl text-sm shadow-md transition"
+                      className="px-4 py-2.5 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs sm:text-sm shadow-md transition cursor-pointer"
                     >
                       {t('clientProposal.declineButton')}
                     </button>
 
                     <button
+                      type="button"
+                      onClick={() => setShowCounterModal(true)}
+                      className="px-4 py-2.5 bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold rounded-xl text-xs sm:text-sm border border-amber-500 shadow-md transition flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <span>⚖️</span>
+                      <span>{t('clientProposal.counterOfferBtn', 'Exclusions / Inclusions Counter-Offer')}</span>
+                    </button>
+
+                    <button
                       type="submit"
                       disabled={submitting || !agreedToTerms || !signerName.trim()}
-                      className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold rounded-xl text-sm shadow-md transition"
+                      className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs sm:text-sm shadow-md transition cursor-pointer ml-auto"
                     >
                       {submitting ? t('clientProposal.submittingSignature') : t('clientProposal.acceptSignButton')}
                     </button>
@@ -408,6 +487,18 @@ export default function ClientProposalView() {
           </a>
         </div>
       </div>
+
+      {/* Scope Inclusions / Counter Offer Modal */}
+      {showCounterModal && (
+        <ClientCounterOfferModal
+          currentScope={snapshot?.scopeItems || []}
+          clientName={signerName}
+          signerEmail={signerEmail}
+          submitting={submittingCounter}
+          onClose={() => setShowCounterModal(false)}
+          onSubmit={handleCounterOffer}
+        />
+      )}
 
       {/* Decline Confirmation Modal */}
       {showDeclineModal && (

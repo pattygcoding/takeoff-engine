@@ -21,6 +21,7 @@ export const DEFAULT_RATES = {
   miscItems: [], // [{ id: '1', title: 'Permits & Fees', amount: 500 }]
   miscType: 'fixed', // 'fixed' | 'percent'
   trenchWidthFt: DEFAULT_TRENCH_WIDTH_FT,
+  scopeItems: [], // US-044: Scope Inclusions, Exclusions & Alternates
 };
 
 /**

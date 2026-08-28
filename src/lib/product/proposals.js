@@ -109,4 +109,20 @@ export const proposalsApi = {
     }
     return data;
   },
+
+  /**
+   * Submit client scope counter-offer / revision request (US-044)
+   */
+  async submitPublicCounterOffer(token, { counterNotes, scopeChanges, clientName, signerEmail } = {}) {
+    const res = await fetch(`${API_BASE_URL}/proposals/public/${token}/counter`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ counterNotes, scopeChanges, clientName, signerEmail }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || getTranslation('apiErrors.counterOfferFailed', 'Failed to submit counter-offer request.'));
+    }
+    return data;
+  },
 };

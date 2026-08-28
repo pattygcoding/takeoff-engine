@@ -2,13 +2,15 @@ import React from 'react';
 import { formatCurrency, formatNumber } from '@/lib/product/calculations';
 import { DocumentBrandingHeader, DocumentSignOff } from './DocumentHeaderSignoff';
 import { useTranslation } from '@/context/I18nContext';
+import { categorizeScope } from '@/lib/product/scope';
 
 /**
  * 2. Standard Client Proposal Document Layout
  */
 export default function ClientProposalDocument({ estimate, branding, currentProject }) {
-  const { totals, bySystem } = estimate;
+  const { totals, bySystem, rates } = estimate;
   const { t } = useTranslation();
+  const { included, excluded } = categorizeScope(rates?.scopeItems || []);
 
   return (
     <div className="space-y-6">
@@ -17,6 +19,39 @@ export default function ClientProposalDocument({ estimate, branding, currentProj
       <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs text-slate-600 leading-relaxed">
         {t('templates.clientProposal.proposalIntro')}
       </div>
+
+      {/* Scope Inclusions & Exclusions */}
+      {(included.length > 0 || excluded.length > 0) && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-4">
+            <h4 className="text-xs font-bold text-emerald-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <span>✓</span> {t('templates.clientProposal.inclusions', 'Scope Inclusions (Included by Contractor)')}
+            </h4>
+            <ul className="text-xs text-emerald-950 space-y-1">
+              {included.map((item) => (
+                <li key={item.id} className="flex items-start gap-1.5">
+                  <span className="text-emerald-600 font-bold">•</span>
+                  <span><strong>{item.title}</strong>: {item.description}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="bg-rose-50/70 border border-rose-200 rounded-2xl p-4">
+            <h4 className="text-xs font-bold text-rose-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <span>✕</span> {t('templates.clientProposal.exclusions', 'Scope Exclusions (By Owner / Others)')}
+            </h4>
+            <ul className="text-xs text-rose-950 space-y-1">
+              {excluded.map((item) => (
+                <li key={item.id} className="flex items-start gap-1.5">
+                  <span className="text-rose-600 font-bold">•</span>
+                  <span><strong>{item.title}</strong>: {item.description}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
 
       <div className="space-y-4">
         {bySystem.map((sys) => (

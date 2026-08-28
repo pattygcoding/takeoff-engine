@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useTranslation } from '@/context/I18nContext';
 import { parseTakeoffFile, buildMappingModalDataFromItems } from '@/lib/product/csv';
+import { DEFAULT_SCOPE_ITEMS, summarizeScope } from '@/lib/product/scope';
 import TakeoffGrid from './TakeoffGrid';
 import RatesDrawer from './RatesDrawer';
 import ColumnMappingModal from './ColumnMappingModal';
+import ScopeInclusionsModal from './ScopeInclusionsModal';
 
 export default function EditStep({
   items,
@@ -19,6 +21,7 @@ export default function EditStep({
 }) {
   const { t } = useTranslation();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [scopeModalOpen, setScopeModalOpen] = useState(false);
   const [mappingModalData, setMappingModalData] = useState(null);
   const [successToast, setSuccessToast] = useState('');
   const [isReparsing, setIsReparsing] = useState(false);
@@ -175,6 +178,15 @@ export default function EditStep({
           )}
           <button
             type="button"
+            onClick={() => setScopeModalOpen(true)}
+            className="inline-flex items-center gap-2 rounded-md border border-amber-400 bg-amber-400/90 px-3.5 py-2 text-sm font-bold text-slate-950 hover:bg-amber-400 shadow-xs transition cursor-pointer"
+            title={t('editStep.scopeInclusionsDesc', 'Manage scope inclusions, trade exclusions (fixtures, earthwork, permits), and client counter-offer rules.')}
+          >
+            <span>⚖️</span>
+            <span>{t('editStep.scopeInclusionsBtn', 'Exclusions / Inclusions')}</span>
+          </button>
+          <button
+            type="button"
             onClick={() => setDrawerOpen(true)}
             className="inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 cursor-pointer"
           >
@@ -220,6 +232,19 @@ export default function EditStep({
         onChange={onRatesChange}
         readOnly={readOnly}
       />
+
+      {scopeModalOpen && (
+        <ScopeInclusionsModal
+          scopeItems={rates?.scopeItems || DEFAULT_SCOPE_ITEMS}
+          readOnly={readOnly}
+          onSave={(newScopeItems) => {
+            onRatesChange({ ...rates, scopeItems: newScopeItems });
+            setSuccessToast(t('ratesDrawer.scopeSavedSuccess', 'Scope exclusions & inclusions updated.'));
+            setTimeout(() => setSuccessToast(''), 3000);
+          }}
+          onClose={() => setScopeModalOpen(false)}
+        />
+      )}
 
       {mappingModalData && (
         <ColumnMappingModal

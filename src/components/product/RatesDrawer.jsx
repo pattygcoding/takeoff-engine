@@ -4,6 +4,8 @@ import { useAuth } from '@/context/AuthContext';
 import { useModal } from '@/context/ModalContext';
 import { useTranslation } from '@/context/I18nContext';
 import { DEFAULT_WORKDAY_HOURS, getNormalizedLaborRates } from '@/lib/product/calculations';
+import { DEFAULT_SCOPE_ITEMS, summarizeScope } from '@/lib/product/scope';
+import ScopeInclusionsModal from '@/components/product/ScopeInclusionsModal';
 import UpgradeModal from '@/components/billing/UpgradeModal';
 
 export default function RatesDrawer({ open, onClose, rates, onChange, readOnly = false }) {
@@ -15,6 +17,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
   const [templateNameInput, setTemplateNameInput] = useState('');
   const [templateDescInput, setTemplateDescInput] = useState('');
   const [showSaveModal, setShowSaveModal] = useState(false);
+  const [showScopeModal, setShowScopeModal] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
   const [loadLoading, setLoadLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -357,6 +360,41 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
             )}
           </div>
 
+          {/* Scope Inclusions & Exclusions Section (US-044) */}
+          <div className="bg-amber-50/70 border border-amber-200/90 rounded-2xl p-4 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-base">⚖️</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-amber-950">
+                  {t('ratesDrawer.scopeInclusionsTitle', 'Scope Inclusions & Exclusions')}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowScopeModal(true)}
+                className="text-xs font-bold px-2.5 py-1 bg-amber-400 hover:bg-amber-500 text-slate-950 rounded-lg border border-amber-500 shadow-2xs transition cursor-pointer"
+              >
+                {t('ratesDrawer.manageScopeBtn', 'Exclusions / Inclusions')}
+              </button>
+            </div>
+            <p className="text-[11px] text-amber-900 leading-relaxed">
+              {t('ratesDrawer.scopeSubtitle', 'Configure fixture provisions (toilets, faucets, sinks), trench earthwork, and permit boundaries.')}
+            </p>
+            {(() => {
+              const scopeSummary = summarizeScope(rates?.scopeItems || DEFAULT_SCOPE_ITEMS);
+              return (
+                <div className="flex items-center gap-2 text-[11px] pt-1">
+                  <span className="font-semibold text-emerald-800 bg-emerald-100/90 px-2 py-0.5 rounded-md">
+                    ✓ {scopeSummary.includedCount} {t('scopeModal.included', 'Included')}
+                  </span>
+                  <span className="font-semibold text-rose-800 bg-rose-100/90 px-2 py-0.5 rounded-md">
+                    ✕ {scopeSummary.excludedCount} {t('scopeModal.excluded', 'Excluded')}
+                  </span>
+                </div>
+              );
+            })()}
+          </div>
+
           <section>
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">{t('ratesDrawer.baseLaborRate')}</h3>
@@ -621,10 +659,23 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
           </div>
         )}
 
-        <UpgradeModal
+          <UpgradeModal
           isOpen={showUpgradeModal}
           onClose={() => setShowUpgradeModal(false)}
         />
+
+        {showScopeModal && (
+          <ScopeInclusionsModal
+            scopeItems={rates?.scopeItems || DEFAULT_SCOPE_ITEMS}
+            readOnly={readOnly}
+            onSave={(newScopeItems) => {
+              onChange({ ...rates, scopeItems: newScopeItems });
+              setSuccessMsg(t('ratesDrawer.scopeSavedSuccess', 'Scope exclusions & inclusions updated.'));
+              setTimeout(() => setSuccessMsg(''), 3000);
+            }}
+            onClose={() => setShowScopeModal(false)}
+          />
+        )}
       </aside>
     </>
   );
