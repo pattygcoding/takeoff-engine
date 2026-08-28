@@ -3,12 +3,22 @@
 export const DEFAULT_TRENCH_WIDTH_FT = 2;
 export const DEFAULT_WORKDAY_HOURS = 8.0;
 
+export const DEFAULT_LABOR_ROLES = [
+  { id: 'foreman', title: 'Foreman / Supervisor', hourlyRate: 95.0, dailyRate: 760.0 },
+  { id: 'journeyman', title: 'Journeyman / Plumber', hourlyRate: 75.0, dailyRate: 600.0 },
+  { id: 'apprentice', title: 'Apprentice / Helper', hourlyRate: 45.0, dailyRate: 360.0 },
+  { id: 'operator', title: 'Equipment Operator', hourlyRate: 70.0, dailyRate: 560.0 },
+  { id: 'laborer', title: 'General Laborer', hourlyRate: 35.0, dailyRate: 280.0 },
+];
+
 export const DEFAULT_RATES = {
   laborRateBasis: 'hourly', // 'hourly' | 'daily'
   laborHourlyRate: 65.0,
   laborDailyRate: 520.0,
   workdayHours: DEFAULT_WORKDAY_HOURS,
   laborMode: 'hours', // 'hours' | 'cost'
+  laborRoles: DEFAULT_LABOR_ROLES,
+  defaultLaborRoleId: 'journeyman',
   overheadPct: 10,
   overheadType: 'percent', // 'percent' | 'fixed'
   contingencyPct: 5,
@@ -27,6 +37,7 @@ export const DEFAULT_RATES = {
 /**
  * Normalizes labor rate properties (hourly rate, daily rate, workday hours, and rate basis).
  * Handles backward compatibility when only laborHourlyRate or laborDailyRate is present.
+ * Also synchronizes labor roles list with workday hours.
  */
 export function getNormalizedLaborRates(rates = DEFAULT_RATES) {
   const workdayHours = Number(rates?.workdayHours) > 0 ? Number(rates.workdayHours) : DEFAULT_WORKDAY_HOURS;
@@ -47,11 +58,107 @@ export function getNormalizedLaborRates(rates = DEFAULT_RATES) {
     daily = hourly * workdayHours;
   }
 
+  const rawRoles = Array.isArray(rates?.laborRoles) && rates.laborRoles.length > 0
+    ? rates.laborRoles
+    : DEFAULT_LABOR_ROLES;
+
+  const normalizedRoles = rawRoles.map((role) => {
+    let rHourly = Number(role.hourlyRate);
+    let rDaily = Number(role.dailyRate);
+
+    if (basis === 'daily') {
+      if (!Number.isFinite(rDaily) || rDaily <= 0) {
+        rDaily = (Number.isFinite(rHourly) && rHourly > 0) ? rHourly * workdayHours : 600.0;
+      }
+      rHourly = workdayHours > 0 ? rDaily / workdayHours : 0;
+    } else {
+      if (!Number.isFinite(rHourly) || rHourly <= 0) {
+        rHourly = (Number.isFinite(rDaily) && rDaily > 0) ? rDaily / workdayHours : 75.0;
+      }
+      rDaily = rHourly * workdayHours;
+    }
+
+    return {
+      id: role.id || `role-${Math.random().toString(36).substr(2, 9)}`,
+      title: role.title || 'Standard Role',
+      hourlyRate: Math.round(rHourly * 100) / 100,
+      dailyRate: Math.round(rDaily * 100) / 100,
+    };
+  });
+
   return {
     laborRateBasis: basis,
     workdayHours,
     laborHourlyRate: Math.round(hourly * 100) / 100,
     laborDailyRate: Math.round(daily * 100) / 100,
+    laborRoles: normalizedRoles,
+    defaultLaborRoleId: rates?.defaultLaborRoleId || 'journeyman',
+  };
+}
+
+/**
+ * Resolves the effective hourly labor rate for a specific takeoff item.
+ * If the item specifies a laborRoleId, resolves against rates.laborRoles.
+ * Otherwise, falls back to rates.laborHourlyRate (or the base normalized rate).
+ */
+export function getItemEffectiveLaborRate(item, rates = DEFAULT_RATES) {
+  const normalized = getNormalizedLaborRates(rates);
+  const roleId = item?.laborRoleId;
+  if (roleId) {
+    const matchedRole = normalized.laborRoles.find((r) => r.id === roleId);
+    if (matchedRole && Number.isFinite(matchedRole.hourlyRate) && matchedRole.hourlyRate > 0) {
+      return {
+        hourlyRate: matchedRole.hourlyRate,
+        dailyRate: matchedRole.dailyRate,
+        roleId: matchedRole.id,
+        roleTitle: matchedRole.title,
+      };
+    }
+  }
+  return {
+    hourlyRate: normalized.laborHourlyRate,
+    dailyRate: normalized.laborDailyRate,
+    roleId: null,
+    roleTitle: 'Project Base Rate',
+  };
+}
+
+/**
+ * Calculates a composite / blended crew rate given a crew composition.
+ * crewComposition: array of { roleId, count } or { title, hourlyRate, count }
+ */
+export function calculateBlendedCrewRate(crewComposition = [], laborRoles = DEFAULT_LABOR_ROLES) {
+  if (!Array.isArray(crewComposition) || crewComposition.length === 0) {
+    return {
+      totalCrewMembers: 0,
+      blendedHourlyRate: 0,
+      totalCrewCostPerHour: 0,
+    };
+  }
+
+  let totalMembers = 0;
+  let totalCostPerHour = 0;
+
+  for (const member of crewComposition) {
+    const count = Number(member.count) || 0;
+    if (count <= 0) continue;
+
+    let rate = Number(member.hourlyRate);
+    if (!Number.isFinite(rate) || rate <= 0) {
+      const matched = laborRoles.find((r) => r.id === member.roleId);
+      rate = matched ? Number(matched.hourlyRate) || 0 : 0;
+    }
+
+    totalMembers += count;
+    totalCostPerHour += count * rate;
+  }
+
+  const blendedHourlyRate = totalMembers > 0 ? Math.round((totalCostPerHour / totalMembers) * 100) / 100 : 0;
+
+  return {
+    totalCrewMembers: totalMembers,
+    blendedHourlyRate,
+    totalCrewCostPerHour: Math.round(totalCostPerHour * 100) / 100,
   };
 }
 
@@ -71,13 +178,14 @@ export function trenchVolumeCubicYards(item, trenchWidthFt = DEFAULT_TRENCH_WIDT
  * Computes the material and labor cost for a single takeoff item.
  * If rates.laborMode === 'cost', labor is computed directly from item.laborUnitCost * quantity
  * without factoring in rates.laborHourlyRate.
+ * If item.laborRoleId is present, resolves against rates.laborRoles.
  */
 export function computeItemCost(item, rates = DEFAULT_RATES) {
   const qty = Number(item.quantity) || 0;
   const materialUnitCost = Number(item.materialCostPerUnit) || 0;
   const isLaborCostMode = rates.laborMode === 'cost';
-  const normalizedLabor = getNormalizedLaborRates(rates);
-  const effectiveHourlyRate = normalizedLabor.laborHourlyRate;
+  const effectiveLabor = getItemEffectiveLaborRate(item, rates);
+  const effectiveHourlyRate = effectiveLabor.hourlyRate;
 
   const materialCost = qty * materialUnitCost;
   let laborHours = 0;
@@ -99,6 +207,9 @@ export function computeItemCost(item, rates = DEFAULT_RATES) {
     laborHours,
     laborCost,
     directCost: materialCost + laborCost,
+    laborRoleId: effectiveLabor.roleId,
+    laborRoleTitle: effectiveLabor.roleTitle,
+    effectiveHourlyRate,
   };
 }
 
@@ -152,6 +263,23 @@ export function computeEstimate(items, rates = DEFAULT_RATES) {
     bySystem[system].laborCost += item.laborCost;
     bySystem[system].laborHours += item.laborHours;
     bySystem[system].directCost += item.directCost;
+  }
+
+  // Rollup labor breakdown by role
+  const laborByRole = {};
+  for (const item of itemBreakdowns) {
+    const roleKey = item.laborRoleId || 'base';
+    const roleTitle = item.laborRoleTitle || 'Project Base Rate';
+    if (!laborByRole[roleKey]) {
+      laborByRole[roleKey] = {
+        roleId: roleKey,
+        roleTitle,
+        laborHours: 0,
+        laborCost: 0,
+      };
+    }
+    laborByRole[roleKey].laborHours += item.laborHours;
+    laborByRole[roleKey].laborCost += item.laborCost;
   }
 
   const equipmentType = rates.equipmentType || 'fixed';
@@ -244,6 +372,7 @@ export function computeEstimate(items, rates = DEFAULT_RATES) {
       laborHours: totalLaborHours,
       totalLaborCost,
       laborCost: totalLaborCost,
+      laborByRole: Object.values(laborByRole),
       totalTrenchCubicYards,
       equipmentLumpSum,
       equipmentCost: equipmentLumpSum,

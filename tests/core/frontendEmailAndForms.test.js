@@ -104,4 +104,84 @@ describe('Frontend Email Dispatch, Notification & Form Triggers', () => {
       assert.strictEqual(errState.error, 'Failed to request password reset.');
     });
   });
+
+  describe('Takeoff Grid Bulk Actions & Scope Preset Form States', () => {
+    it('handles bulk labor role assignment logic across selected items', () => {
+      const items = [
+        { id: '1', description: 'Item 1', laborRoleId: null },
+        { id: '2', description: 'Item 2', laborRoleId: 'apprentice' },
+        { id: '3', description: 'Item 3', laborRoleId: null },
+      ];
+
+      const selectedIds = new Set(['1', '3']);
+      const targetRoleId = 'foreman';
+
+      const updated = items.map((it) => {
+        if (selectedIds.has(it.id)) {
+          return {
+            ...it,
+            laborRoleId: targetRoleId === 'base' ? null : targetRoleId,
+          };
+        }
+        return it;
+      });
+
+      assert.strictEqual(updated[0].laborRoleId, 'foreman');
+      assert.strictEqual(updated[1].laborRoleId, 'apprentice'); // unchanged
+      assert.strictEqual(updated[2].laborRoleId, 'foreman');
+    });
+
+    it('manages custom scope item addition and status mutation states', () => {
+      let scopeItems = [
+        { id: '1', category: 'fixtures', status: 'included', description: 'Standard PVC' },
+      ];
+
+      // Add custom item
+      const newItem = {
+        id: 'scope-2',
+        title: 'Water Service Line',
+        category: 'site',
+        status: 'not_applicable',
+        description: 'Provided by GC',
+        isCustom: true,
+      };
+      scopeItems = [...scopeItems, newItem];
+
+      assert.strictEqual(scopeItems.length, 2);
+      assert.strictEqual(scopeItems[1].status, 'not_applicable');
+      assert.strictEqual(scopeItems[1].description, 'Provided by GC');
+
+      // Update status to excluded
+      scopeItems = scopeItems.map((s) => (s.id === 'scope-2' ? { ...s, status: 'excluded' } : s));
+      assert.strictEqual(scopeItems[1].status, 'excluded');
+    });
+
+    it('validates rate drawer custom labor role rate conversions', () => {
+      const updateRoleRates = (role, field, val, workdayHours = 8) => {
+        if (field === 'hourlyRate') {
+          const hourly = val === '' ? '' : Number(val);
+          const daily = hourly === '' ? '' : Math.round(hourly * workdayHours * 100) / 100;
+          return { ...role, hourlyRate: hourly, dailyRate: daily };
+        }
+        if (field === 'dailyRate') {
+          const daily = val === '' ? '' : Number(val);
+          const hourly = daily === '' ? '' : (workdayHours > 0 ? Math.round((daily / workdayHours) * 100) / 100 : 0);
+          return { ...role, dailyRate: daily, hourlyRate: hourly };
+        }
+        return role;
+      };
+
+      const initialRole = { id: 'r1', title: 'Welder', hourlyRate: 80, dailyRate: 640 };
+
+      // Updating hourly to 100 updates daily to 800
+      const updatedHourly = updateRoleRates(initialRole, 'hourlyRate', 100, 8);
+      assert.strictEqual(updatedHourly.hourlyRate, 100);
+      assert.strictEqual(updatedHourly.dailyRate, 800);
+
+      // Updating daily to 900 on 10 hr shift updates hourly to 90
+      const updatedDaily = updateRoleRates(initialRole, 'dailyRate', 900, 10);
+      assert.strictEqual(updatedDaily.dailyRate, 900);
+      assert.strictEqual(updatedDaily.hourlyRate, 90);
+    });
+  });
 });

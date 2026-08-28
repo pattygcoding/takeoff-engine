@@ -3,7 +3,12 @@ import { ratesApi } from '@/lib/product/rates';
 import { useAuth } from '@/context/AuthContext';
 import { useModal } from '@/context/ModalContext';
 import { useTranslation } from '@/context/I18nContext';
-import { DEFAULT_WORKDAY_HOURS, getNormalizedLaborRates } from '@/lib/product/calculations';
+import {
+  DEFAULT_WORKDAY_HOURS,
+  DEFAULT_LABOR_ROLES,
+  getNormalizedLaborRates,
+  calculateBlendedCrewRate,
+} from '@/lib/product/calculations';
 import { DEFAULT_SCOPE_ITEMS, summarizeScope } from '@/lib/product/scope';
 import ScopeInclusionsModal from '@/components/product/ScopeInclusionsModal';
 import UpgradeModal from '@/components/billing/UpgradeModal';
@@ -212,7 +217,84 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
     }
   };
 
-  const miscItems = Array.isArray(rates.miscItems) ? rates.miscItems : [];
+  const laborRoles = Array.isArray(rates.laborRoles) && rates.laborRoles.length > 0
+    ? rates.laborRoles
+    : normalizedLabor.laborRoles;
+
+  const [showCrewCalculator, setShowCrewCalculator] = useState(false);
+  const [crewComposition, setCrewComposition] = useState(() =>
+    laborRoles.map((r) => ({ roleId: r.id, title: r.title, hourlyRate: r.hourlyRate, count: r.id === 'journeyman' ? 2 : r.id === 'foreman' ? 1 : r.id === 'apprentice' ? 1 : 0 }))
+  );
+
+  const blendedResult = calculateBlendedCrewRate(crewComposition, laborRoles);
+
+  const handleApplyBlendedRate = () => {
+    if (readOnly || blendedResult.blendedHourlyRate <= 0) return;
+    const blendedHourly = blendedResult.blendedHourlyRate;
+    const blendedDaily = Math.round(blendedHourly * workdayHours * 100) / 100;
+
+    onChange({
+      ...rates,
+      laborHourlyRate: blendedHourly,
+      laborDailyRate: blendedDaily,
+    });
+    setShowCrewCalculator(false);
+    setSuccessMsg(t('ratesDrawer.appliedBlendedCrewRate', { rate: blendedHourly.toFixed(2) }));
+    setTimeout(() => setSuccessMsg(''), 3500);
+  };
+
+  const handleUpdateRole = (roleId, field, val) => {
+    if (readOnly) return;
+    const updated = laborRoles.map((r) => {
+      if (r.id !== roleId) return r;
+      if (field === 'title') {
+        return { ...r, title: val };
+      }
+      if (field === 'hourlyRate') {
+        const hourly = val === '' ? '' : Number(val);
+        const daily = hourly === '' ? '' : Math.round(hourly * workdayHours * 100) / 100;
+        return { ...r, hourlyRate: hourly, dailyRate: daily };
+      }
+      if (field === 'dailyRate') {
+        const daily = val === '' ? '' : Number(val);
+        const hourly = daily === '' ? '' : (workdayHours > 0 ? Math.round((daily / workdayHours) * 100) / 100 : 0);
+        return { ...r, dailyRate: daily, hourlyRate: hourly };
+      }
+      return r;
+    });
+
+    onChange({
+      ...rates,
+      laborRoles: updated,
+    });
+  };
+
+  const handleAddCustomRole = () => {
+    if (readOnly) return;
+    const newId = `role-${Date.now()}`;
+    const newRole = {
+      id: newId,
+      title: t('ratesDrawer.newRolePlaceholder', 'Specialty Trade Role'),
+      hourlyRate: 65.0,
+      dailyRate: Math.round(65.0 * workdayHours * 100) / 100,
+    };
+    onChange({
+      ...rates,
+      laborRoles: [...laborRoles, newRole],
+    });
+  };
+
+  const handleRemoveRole = (roleId) => {
+    if (readOnly) return;
+    if (laborRoles.length <= 1) return;
+    const filtered = laborRoles.filter((r) => r.id !== roleId);
+    onChange({
+      ...rates,
+      laborRoles: filtered,
+    });
+  };
+
+  const miscItems = Array.isArray(rates?.miscItems) ? rates.miscItems : [];
 
   const handleAddMiscItem = () => {
     const newItem = {
@@ -445,6 +527,97 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
             />
           </section>
 
+          {/* US-045: Labor Roles & Crew Rankings */}
+          <section className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl p-4">
+            <div className="flex items-center justify-between mb-2">
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                  {t('ratesDrawer.laborRolesHeader', 'Labor Roles & Crew Rankings')}
+                </h3>
+                <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
+                  {t('ratesDrawer.laborRolesDesc', 'Set trade tier billing rates and assign them to individual line items.')}
+                </p>
+              </div>
+              {!readOnly && (
+                <button
+                  type="button"
+                  onClick={() => setShowCrewCalculator(true)}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 rounded-lg transition-colors border border-indigo-100 dark:border-indigo-900 cursor-pointer"
+                  title={t('ratesDrawer.blendedCrewTooltip', 'Calculate composite blended hourly rate based on crew composition')}
+                >
+                  👥 {t('ratesDrawer.blendedCrewBtn', 'Crew Blend')}
+                </button>
+              )}
+            </div>
+
+            <div className="mt-3 space-y-2">
+              {laborRoles.map((role) => (
+                <div
+                  key={role.id}
+                  className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl space-y-2"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <input
+                      type="text"
+                      value={role.title}
+                      disabled={readOnly}
+                      onChange={(e) => handleUpdateRole(role.id, 'title', e.target.value)}
+                      className="flex-1 min-w-0 font-semibold text-xs text-slate-900 dark:text-slate-100 bg-transparent border-b border-transparent focus:border-indigo-500 focus:outline-none"
+                    />
+                    {!readOnly && laborRoles.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveRole(role.id)}
+                        className="text-slate-400 hover:text-red-500 dark:hover:text-red-400 text-xs p-1 cursor-pointer"
+                        title={t('ratesDrawer.removeRole', 'Remove Role')}
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="flex items-center bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1">
+                      <span className="text-slate-400 dark:text-slate-500 mr-1">$</span>
+                      <input
+                        type="number"
+                        step="any"
+                        value={role.hourlyRate}
+                        disabled={readOnly}
+                        onChange={(e) => handleUpdateRole(role.id, 'hourlyRate', e.target.value)}
+                        className="w-full bg-transparent text-right outline-none text-slate-900 dark:text-slate-100"
+                        placeholder="0.00"
+                      />
+                      <span className="text-[10px] text-slate-400 dark:text-slate-500 ml-1">/hr</span>
+                    </div>
+                    <div className="flex items-center bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1">
+                      <span className="text-slate-400 dark:text-slate-500 mr-1">$</span>
+                      <input
+                        type="number"
+                        step="any"
+                        value={role.dailyRate}
+                        disabled={readOnly}
+                        onChange={(e) => handleUpdateRole(role.id, 'dailyRate', e.target.value)}
+                        className="w-full bg-transparent text-right outline-none text-slate-900 dark:text-slate-100"
+                        placeholder="0.00"
+                      />
+                      <span className="text-[10px] text-slate-400 dark:text-slate-500 ml-1">/day</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {!readOnly && (
+              <button
+                type="button"
+                onClick={handleAddCustomRole}
+                className="mt-3 w-full py-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 bg-white dark:bg-slate-800 border border-dashed border-indigo-200 dark:border-indigo-800/80 rounded-xl transition cursor-pointer"
+              >
+                + {t('ratesDrawer.addCustomRole', 'Add Custom Labor Role')}
+              </button>
+            )}
+          </section>
+
           <section>
             <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-3">{t('ratesDrawer.trenchingEarthwork')}</h3>
             <Field label={t('ratesDrawer.trenchWidth')} value={rates.trenchWidthFt} onChange={update('trenchWidthFt')} disabled={readOnly} />
@@ -620,6 +793,125 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* Blended Crew Rate Calculator Modal */}
+        {showCrewCalculator && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-5 text-slate-900 dark:text-slate-100 animate-in fade-in zoom-in-95 duration-150">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">👥</span>
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                      {t('ratesDrawer.crewCalcTitle', 'Blended Crew Rate Calculator')}
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      {t('ratesDrawer.crewCalcSubtitle', 'Compose your standard jobsite crew to compute an accurate weighted average billing rate.')}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowCrewCalculator(false)}
+                  className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer text-lg p-1"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="py-4 space-y-3 max-h-[60vh] overflow-y-auto">
+                <p className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 tracking-wide">
+                  {t('ratesDrawer.crewHeadcount', 'Crew Headcount by Role')}
+                </p>
+                {laborRoles.map((role) => {
+                  const compItem = crewComposition.find((c) => c.roleId === role.id) || { count: 0 };
+                  const countVal = compItem.count ?? 0;
+
+                  return (
+                    <div
+                      key={role.id}
+                      className="flex items-center justify-between gap-3 p-2.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">{role.title}</p>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+                          ${role.hourlyRate}/hr (${role.dailyRate}/day)
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newCount = Math.max(0, countVal - 1);
+                            setCrewComposition((prev) =>
+                              prev.some((c) => c.roleId === role.id)
+                                ? prev.map((c) => (c.roleId === role.id ? { ...c, count: newCount } : c))
+                                : [...prev, { roleId: role.id, title: role.title, hourlyRate: role.hourlyRate, count: newCount }]
+                            );
+                          }}
+                          className="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-bold text-sm flex items-center justify-center transition cursor-pointer"
+                        >
+                          -
+                        </button>
+                        <span className="w-6 text-center font-bold text-sm text-slate-900 dark:text-white">
+                          {countVal}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newCount = countVal + 1;
+                            setCrewComposition((prev) =>
+                              prev.some((c) => c.roleId === role.id)
+                                ? prev.map((c) => (c.roleId === role.id ? { ...c, count: newCount } : c))
+                                : [...prev, { roleId: role.id, title: role.title, hourlyRate: role.hourlyRate, count: newCount }]
+                            );
+                          }}
+                          className="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-bold text-sm flex items-center justify-center transition cursor-pointer"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Live Composite Calculation Result */}
+                <div className="p-3.5 bg-indigo-50/80 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 rounded-xl space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-indigo-800 dark:text-indigo-300 font-medium">{t('ratesDrawer.totalCrewHeadcount', 'Total Crew Size:')}</span>
+                    <span className="font-bold text-indigo-950 dark:text-indigo-100">{blendedResult.totalCrewMembers} {t('ratesDrawer.workers', 'workers')}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-indigo-800 dark:text-indigo-300 font-medium">{t('ratesDrawer.totalCrewCostHour', 'Total Crew Cost / Hour:')}</span>
+                    <span className="font-bold text-indigo-950 dark:text-indigo-100">${blendedResult.totalCrewCostPerHour.toFixed(2)}/hr</span>
+                  </div>
+                  <div className="flex items-center justify-between pt-1 border-t border-indigo-200/60 dark:border-indigo-800/60">
+                    <span className="text-sm font-bold text-indigo-900 dark:text-indigo-200">{t('ratesDrawer.blendedHourlyRate', 'Blended Hourly Rate:')}</span>
+                    <span className="text-base font-extrabold text-indigo-600 dark:text-indigo-400">${blendedResult.blendedHourlyRate.toFixed(2)}/hr</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setShowCrewCalculator(false)}
+                  className="px-3.5 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer"
+                >
+                  {t('common.cancel')}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleApplyBlendedRate}
+                  disabled={blendedResult.blendedHourlyRate <= 0}
+                  className="px-4 py-1.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-xs disabled:opacity-50 cursor-pointer"
+                >
+                  {t('ratesDrawer.applyAsBaseRate', 'Apply as Base Labor Rate')}
+                </button>
+              </div>
             </div>
           </div>
         )}

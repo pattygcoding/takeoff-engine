@@ -4,7 +4,10 @@ import {
   DEFAULT_TRENCH_WIDTH_FT,
   DEFAULT_WORKDAY_HOURS,
   DEFAULT_RATES,
+  DEFAULT_LABOR_ROLES,
   getNormalizedLaborRates,
+  getItemEffectiveLaborRate,
+  calculateBlendedCrewRate,
   trenchVolumeCubicYards,
   computeItemCost,
   computeEstimate,
@@ -618,6 +621,134 @@ describe('Calculations Engine Tests', () => {
       assert.strictEqual(formatNumber(1234.5678, 2), '1,234.57');
       assert.strictEqual(formatNumber(1234.5, 3), '1,234.500');
       assert.strictEqual(formatNumber(100, 0), '100');
+    });
+  });
+
+  describe('US-045: Labor Role Hierarchy, Crew Rankings & Blended Crew Rates', () => {
+    it('initializes default labor roles with correct hourly and daily rates', () => {
+      const normalized = getNormalizedLaborRates();
+      assert.ok(Array.isArray(normalized.laborRoles));
+      assert.strictEqual(normalized.laborRoles.length, 5);
+
+      const foreman = normalized.laborRoles.find((r) => r.id === 'foreman');
+      assert.strictEqual(foreman.hourlyRate, 95.0);
+      assert.strictEqual(foreman.dailyRate, 760.0);
+
+      const journeyman = normalized.laborRoles.find((r) => r.id === 'journeyman');
+      assert.strictEqual(journeyman.hourlyRate, 75.0);
+      assert.strictEqual(journeyman.dailyRate, 600.0);
+
+      const apprentice = normalized.laborRoles.find((r) => r.id === 'apprentice');
+      assert.strictEqual(apprentice.hourlyRate, 45.0);
+      assert.strictEqual(apprentice.dailyRate, 360.0);
+    });
+
+    it('resolves item effective labor rate based on assigned laborRoleId vs default project rate', () => {
+      const rates = {
+        laborHourlyRate: 65.0,
+        laborRoles: DEFAULT_LABOR_ROLES,
+      };
+
+      // Item with Foreman role
+      const foremanItem = { laborRoleId: 'foreman', quantity: 10, laborHoursPerUnit: 2 };
+      const foremanRate = getItemEffectiveLaborRate(foremanItem, rates);
+      assert.strictEqual(foremanRate.hourlyRate, 95.0);
+      assert.strictEqual(foremanRate.roleId, 'foreman');
+
+      // Item without role assigned falls back to project base rate
+      const defaultItem = { quantity: 10, laborHoursPerUnit: 2 };
+      const defaultRate = getItemEffectiveLaborRate(defaultItem, rates);
+      assert.strictEqual(defaultRate.hourlyRate, 65.0);
+      assert.strictEqual(defaultRate.roleId, null);
+    });
+
+    it('computes line-item cost with role rate overrides', () => {
+      const rates = {
+        laborHourlyRate: 60.0,
+        laborRoles: [
+          { id: 'master', title: 'Master Plumber', hourlyRate: 110.0, dailyRate: 880.0 },
+          { id: 'helper', title: 'Helper', hourlyRate: 40.0, dailyRate: 320.0 },
+        ],
+      };
+
+      // Item A: 10 qty * 2 hrs/unit = 20 hrs @ $110/hr (Master) = $2,200
+      const itemA = { quantity: 10, laborHoursPerUnit: 2, laborRoleId: 'master' };
+      const costA = computeItemCost(itemA, rates);
+      assert.strictEqual(costA.laborHours, 20);
+      assert.strictEqual(costA.laborCost, 2200);
+      assert.strictEqual(costA.laborRoleId, 'master');
+
+      // Item B: 10 qty * 2 hrs/unit = 20 hrs @ $40/hr (Helper) = $800
+      const itemB = { quantity: 10, laborHoursPerUnit: 2, laborRoleId: 'helper' };
+      const costB = computeItemCost(itemB, rates);
+      assert.strictEqual(costB.laborHours, 20);
+      assert.strictEqual(costB.laborCost, 800);
+      assert.strictEqual(costB.laborRoleId, 'helper');
+
+      // Item C: Default base rate: 10 qty * 2 hrs/unit = 20 hrs @ $60/hr = $1,200
+      const itemC = { quantity: 10, laborHoursPerUnit: 2 };
+      const costC = computeItemCost(itemC, rates);
+      assert.strictEqual(costC.laborHours, 20);
+      assert.strictEqual(costC.laborCost, 1200);
+      assert.strictEqual(costC.laborRoleId, null);
+    });
+
+    it('calculates blended crew rates accurately for standard crew configurations', () => {
+      // Crew: 1 Foreman ($95) + 2 Journeymen ($75 each) + 1 Helper ($45)
+      // Total cost/hr = 95 + (2 * 75) + 45 = 95 + 150 + 45 = $290/hr
+      // Total members = 4
+      // Blended hourly rate = 290 / 4 = $72.50/hr
+      const crewComp = [
+        { roleId: 'foreman', count: 1 },
+        { roleId: 'journeyman', count: 2 },
+        { roleId: 'apprentice', count: 1 },
+      ];
+
+      const blended = calculateBlendedCrewRate(crewComp, DEFAULT_LABOR_ROLES);
+      assert.strictEqual(blended.totalCrewMembers, 4);
+      assert.strictEqual(blended.totalCrewCostPerHour, 290.0);
+      assert.strictEqual(blended.blendedHourlyRate, 72.5);
+    });
+
+    it('aggregates labor cost and hours breakdown by role in computeEstimate totals', () => {
+      const items = [
+        { id: '1', system: 'Plumbing', quantity: 10, laborHoursPerUnit: 5, laborRoleId: 'foreman', materialCostPerUnit: 50 },
+        { id: '2', system: 'Plumbing', quantity: 20, laborHoursPerUnit: 3, laborRoleId: 'apprentice', materialCostPerUnit: 20 },
+        { id: '3', system: 'Plumbing', quantity: 5, laborHoursPerUnit: 4, materialCostPerUnit: 10 },
+      ];
+
+      const rates = {
+        laborHourlyRate: 65.0,
+        laborRoles: DEFAULT_LABOR_ROLES,
+        overheadPct: 0,
+        contingencyPct: 0,
+        profitPct: 0,
+        equipmentLumpSum: 0,
+        miscCost: 0,
+      };
+
+      // Item 1: 50 hrs @ $95 = $4,750
+      // Item 2: 60 hrs @ $45 = $2,700
+      // Item 3: 20 hrs @ $65 = $1,300
+      // Total Labor: 130 hrs, $8,750 cost
+      const estimate = computeEstimate(items, rates);
+      assert.strictEqual(estimate.totals.totalLaborHours, 130);
+      assert.strictEqual(estimate.totals.totalLaborCost, 8750);
+
+      const roleBreakdown = estimate.totals.laborByRole;
+      assert.ok(Array.isArray(roleBreakdown));
+
+      const foremanTotal = roleBreakdown.find((r) => r.roleId === 'foreman');
+      assert.strictEqual(foremanTotal.laborHours, 50);
+      assert.strictEqual(foremanTotal.laborCost, 4750);
+
+      const apprenticeTotal = roleBreakdown.find((r) => r.roleId === 'apprentice');
+      assert.strictEqual(apprenticeTotal.laborHours, 60);
+      assert.strictEqual(apprenticeTotal.laborCost, 2700);
+
+      const baseTotal = roleBreakdown.find((r) => r.roleId === 'base');
+      assert.strictEqual(baseTotal.laborHours, 20);
+      assert.strictEqual(baseTotal.laborCost, 1300);
     });
   });
 });
