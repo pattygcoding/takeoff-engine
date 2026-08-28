@@ -23,7 +23,7 @@ function MarkdownRenderer({ content }) {
     }
     if (currentList.type === 'ol') {
       elements.push(
-        <ol key={`ol-${key++}`} className="list-decimal list-outside ml-6 space-y-1.5 my-3 text-xs sm:text-sm text-slate-700 leading-relaxed">
+        <ol key={`ol-${key++}`} className="list-decimal list-outside ml-6 space-y-1.5 my-3 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
           {currentList.items.map((it, idx) => (
             <li key={idx}>{it}</li>
           ))}
@@ -31,7 +31,7 @@ function MarkdownRenderer({ content }) {
       );
     } else {
       elements.push(
-        <ul key={`ul-${key++}`} className="list-disc list-outside ml-6 space-y-1.5 my-3 text-xs sm:text-sm text-slate-700 leading-relaxed">
+        <ul key={`ul-${key++}`} className="list-disc list-outside ml-6 space-y-1.5 my-3 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
           {currentList.items.map((it, idx) => (
             <li key={idx}>{it}</li>
           ))}
@@ -47,9 +47,9 @@ function MarkdownRenderer({ content }) {
     const dataRows = tableRows.slice(2);
 
     elements.push(
-      <div key={`table-${key++}`} className="overflow-x-auto my-5 rounded-xl border border-slate-200">
+      <div key={`table-${key++}`} className="overflow-x-auto my-5 rounded-xl border border-slate-200 dark:border-slate-800">
         <table className="w-full text-left text-xs border-collapse">
-          <thead className="bg-slate-100 text-slate-800 border-b border-slate-200">
+          <thead className="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-b border-slate-200 dark:border-slate-700">
             <tr>
               {headerRow.map((cell, cIdx) => (
                 <th key={cIdx} className="px-3 py-2.5 font-bold uppercase tracking-wider">
@@ -58,11 +58,11 @@ function MarkdownRenderer({ content }) {
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200 bg-white">
+          <tbody className="divide-y divide-slate-200 dark:divide-slate-800 bg-white dark:bg-slate-900">
             {dataRows.map((row, rIdx) => (
-              <tr key={rIdx} className="hover:bg-slate-50 transition">
+              <tr key={rIdx} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
                 {row.map((cell, cIdx) => (
-                  <td key={cIdx} className="px-3 py-2 text-slate-700">
+                  <td key={cIdx} className="px-3 py-2 text-slate-700 dark:text-slate-300">
                     {renderInlineMarkdown(cell)}
                   </td>
                 ))}
@@ -101,14 +101,14 @@ function MarkdownRenderer({ content }) {
 
     if (trimmed === '---' || trimmed === '***' || trimmed === '___') {
       flushList();
-      elements.push(<hr key={key++} className="my-6 border-t border-slate-200" />);
+      elements.push(<hr key={key++} className="my-6 border-t border-slate-200 dark:border-slate-800" />);
       continue;
     }
 
     if (trimmed.startsWith('# ')) {
       flushList();
       elements.push(
-        <h1 key={key++} className="text-2xl sm:text-3xl font-black text-slate-900 mt-2 mb-3 pb-2 border-b border-slate-200">
+        <h1 key={key++} className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-2 mb-3 pb-2 border-b border-slate-200 dark:border-slate-800">
           {renderInlineMarkdown(trimmed.slice(2))}
         </h1>
       );
@@ -117,7 +117,7 @@ function MarkdownRenderer({ content }) {
     if (trimmed.startsWith('## ')) {
       flushList();
       elements.push(
-        <h2 key={key++} className="text-lg sm:text-xl font-bold text-slate-900 mt-6 mb-3">
+        <h2 key={key++} className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mt-6 mb-3">
           {renderInlineMarkdown(trimmed.slice(3))}
         </h2>
       );
@@ -126,7 +126,7 @@ function MarkdownRenderer({ content }) {
     if (trimmed.startsWith('### ')) {
       flushList();
       elements.push(
-        <h3 key={key++} className="text-sm sm:text-base font-bold text-slate-800 mt-4 mb-2">
+        <h3 key={key++} className="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-100 mt-4 mb-2">
           {renderInlineMarkdown(trimmed.slice(4))}
         </h3>
       );
@@ -156,7 +156,7 @@ function MarkdownRenderer({ content }) {
 
     if (trimmed.startsWith('> ')) {
       elements.push(
-        <blockquote key={key++} className="border-l-4 border-indigo-500 pl-4 py-1.5 my-3 bg-indigo-50/50 rounded-r-lg text-xs sm:text-sm text-slate-700 italic">
+        <blockquote key={key++} className="border-l-4 border-indigo-500 pl-4 py-1.5 my-3 bg-indigo-50/50 dark:bg-indigo-950/40 rounded-r-lg text-xs sm:text-sm text-slate-700 dark:text-slate-300 italic">
           {renderInlineMarkdown(trimmed.slice(2))}
         </blockquote>
       );
@@ -164,7 +164,7 @@ function MarkdownRenderer({ content }) {
     }
 
     elements.push(
-      <p key={key++} className="text-xs sm:text-sm text-slate-700 leading-relaxed my-2">
+      <p key={key++} className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed my-2">
         {renderInlineMarkdown(trimmed)}
       </p>
     );
@@ -200,7 +200,7 @@ function renderInlineMarkdown(text) {
   return parts.map((part, idx) => {
     if (part.type === 'code') {
       return (
-        <code key={idx} className="bg-slate-100 text-indigo-700 border border-slate-200 px-1.5 py-0.5 rounded font-mono text-xs">
+        <code key={idx} className="bg-slate-100 dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 border border-slate-200 dark:border-slate-700 px-1.5 py-0.5 rounded font-mono text-xs">
           {part.content}
         </code>
       );
@@ -218,7 +218,7 @@ function renderInlineMarkdown(text) {
       }
 
       if (fMatch[1].startsWith('**')) {
-        formattedElements.push(<strong key={`b-${fMatch.index}`} className="font-bold text-slate-900">{fMatch[2]}</strong>);
+        formattedElements.push(<strong key={`b-${fMatch.index}`} className="font-bold text-slate-900 dark:text-white">{fMatch[2]}</strong>);
       } else if (fMatch[1].startsWith('*')) {
         formattedElements.push(<em key={`i-${fMatch.index}`} className="italic">{fMatch[3]}</em>);
       } else if (fMatch[4] && fMatch[5]) {
@@ -228,7 +228,7 @@ function renderInlineMarkdown(text) {
             href={fMatch[5]}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-indigo-600 hover:text-indigo-800 underline font-medium"
+            className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline font-medium"
           >
             {fMatch[4]}
           </a>
@@ -286,20 +286,20 @@ export default function ClientGuidePage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900 pb-20">
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 pb-20 transition-colors">
       <SeoHead
         title={t('seo.guide.title', 'Takeoff Import & Formatting Documentation — Takeoff Engine')}
         description={t('seo.guide.description', 'Learn how to format CSV/Excel takeoffs from Bluebeam, PlanSwift, and Trimble Agtek for automated ingestion, trench calculations, and client proposals.')}
         canonicalUrl="https://takeoffengine.com/guide"
       />
       {/* Header Bar */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-2xs">
+      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 shadow-2xs transition-colors">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={handleBack}
-              className="p-2 hover:bg-slate-100 text-slate-600 rounded-xl transition cursor-pointer"
+              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl transition cursor-pointer"
               title={t('common.goBack')}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -307,10 +307,10 @@ export default function ClientGuidePage() {
               </svg>
             </button>
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
                 {t('clientGuide.documentation')}
               </span>
-              <h1 className="text-base sm:text-lg font-black text-slate-900 leading-tight">
+              <h1 className="text-base sm:text-lg font-black text-slate-900 dark:text-white leading-tight">
                 {t('clientGuide.title')}
               </h1>
             </div>
@@ -321,14 +321,14 @@ export default function ClientGuidePage() {
             <button
               type="button"
               onClick={() => downloadSampleCsv()}
-              className="px-3 py-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl transition cursor-pointer"
+              className="px-3 py-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800 rounded-xl transition cursor-pointer"
             >
               {t('clientGuide.csvTemplate')}
             </button>
             <button
               type="button"
               onClick={() => downloadSampleExcel()}
-              className="px-3 py-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl transition cursor-pointer"
+              className="px-3 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-200 dark:border-emerald-800 rounded-xl transition cursor-pointer"
             >
               {t('clientGuide.excelTemplate')}
             </button>
@@ -338,9 +338,9 @@ export default function ClientGuidePage() {
 
       {/* Main Container - Renders CLIENT_GUIDE.md directly in a clean page container */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 pt-8">
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 sm:p-10 min-h-[500px]">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs p-6 sm:p-10 min-h-[500px] transition-colors">
           {loading ? (
-            <div className="flex items-center justify-center py-20 text-slate-400">
+            <div className="flex items-center justify-center py-20 text-slate-400 dark:text-slate-500">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
               <span className="ml-3 text-sm">{t('clientGuide.loadingGuide')}</span>
             </div>

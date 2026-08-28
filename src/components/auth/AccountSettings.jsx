@@ -292,18 +292,18 @@ export default function AccountSettings() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 py-8 text-slate-900 dark:text-slate-100">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-200">
+      <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-200 dark:border-slate-800">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">{t('accountSettings.title')}</h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{t('accountSettings.title')}</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             {t('accountSettings.subtitle')}
           </p>
         </div>
         <button
           onClick={() => navigate(`/${user?.username}`)}
-          className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition"
+          className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition cursor-pointer"
         >
           {t('accountSettings.backButton')}
         </button>
@@ -311,17 +311,17 @@ export default function AccountSettings() {
 
       <div className="space-y-8">
         {/* Subscription & Billing Card (US-021) */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs">
           <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+              <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                 </svg>
               </div>
               <div>
-                <h2 className="text-lg font-bold text-slate-900">{t('accountSettings.subscriptionBillingTitle')}</h2>
-                <p className="text-xs text-slate-500">{t('accountSettings.subscriptionBillingSubtitle')}</p>
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">{t('accountSettings.subscriptionBillingTitle')}</h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{t('accountSettings.subscriptionBillingSubtitle')}</p>
               </div>
             </div>
 
@@ -329,10 +329,10 @@ export default function AccountSettings() {
               <span
                 className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
                   ['pro', 'enterprise'].includes(user?.subscription_tier) || user?.role === 'payment_exempt' || user?.has_unlimited_bypass
-                    ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                    ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700'
                     : user?.subscription_tier === 'starter'
-                    ? 'bg-blue-100 text-blue-800 border border-blue-300'
-                    : 'bg-slate-100 text-slate-700 border border-slate-200'
+                    ? 'bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border border-blue-300 dark:border-blue-700'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
                 }`}
               >
                 {user?.role === 'payment_exempt' || user?.has_unlimited_bypass
@@ -349,21 +349,21 @@ export default function AccountSettings() {
           </div>
 
           {cancelMsg && (
-            <div className="mb-4 p-3 rounded-xl bg-amber-50 text-amber-800 text-sm border border-amber-200">
+            <div className="mb-4 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-sm border border-amber-200 dark:border-amber-800">
               ℹ️ {cancelMsg}
             </div>
           )}
 
           {/* Payment Exempt / VIP Notice (US-016) */}
           {(user?.role === 'payment_exempt' || user?.has_unlimited_bypass) && (
-            <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-start gap-3">
+            <div className="mb-6 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 flex items-start gap-3">
               <span className="text-xl">👑</span>
               <div>
-                <h3 className="text-sm font-bold text-emerald-900">{t('accountSettings.vipAccessTitle')}</h3>
-                <p className="text-xs text-emerald-700 mt-1">
+                <h3 className="text-sm font-bold text-emerald-900 dark:text-emerald-200">{t('accountSettings.vipAccessTitle')}</h3>
+                <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-1">
                   {t('accountSettings.vipAccessMessage')}
                   {subDetails?.exemptionReason && (
-                    <span className="block mt-0.5 text-emerald-800 font-medium">
+                    <span className="block mt-0.5 text-emerald-800 dark:text-emerald-400 font-medium">
                       {t('accountSettings.reason')}: {subDetails.exemptionReason}
                     </span>
                   )}
@@ -374,11 +374,11 @@ export default function AccountSettings() {
 
           {/* Cancellation Notice Banner if scheduled */}
           {subDetails?.cancelsAtPeriodEnd && (
-            <div className="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-3">
+            <div className="mb-6 p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 flex items-start gap-3">
               <span className="text-xl">⚠️</span>
               <div>
-                <h3 className="text-sm font-bold text-amber-900">{t('accountSettings.cancellationScheduledTitle')}</h3>
-                <p className="text-xs text-amber-700 mt-1">
+                <h3 className="text-sm font-bold text-amber-900 dark:text-amber-200">{t('accountSettings.cancellationScheduledTitle')}</h3>
+                <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
                   {t('accountSettings.cancellationScheduledMessage', {
                     date: subDetails?.subscriptionRenewsAt
                       ? new Date(subDetails.subscriptionRenewsAt).toLocaleDateString('en-US', {
@@ -395,13 +395,13 @@ export default function AccountSettings() {
 
           {/* Scheduled Downgrade Notice Banner (Accounting & Billing Cycle Safeguard) */}
           {subDetails?.scheduledTier && !subDetails?.cancelsAtPeriodEnd && (
-            <div className="mb-6 p-4 rounded-xl bg-blue-50 border border-blue-200 flex items-start gap-3">
+            <div className="mb-6 p-4 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 flex items-start gap-3">
               <span className="text-xl">📅</span>
               <div>
-                <h3 className="text-sm font-bold text-blue-900">
+                <h3 className="text-sm font-bold text-blue-900 dark:text-blue-200">
                   {t('accountSettings.downgradeScheduledTitle', 'Downgrade Scheduled for Next Billing Cycle')}
                 </h3>
-                <p className="text-xs text-blue-700 mt-1">
+                <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
                   {t('accountSettings.downgradeScheduledMessage', {
                     plan: subDetails.scheduledTier.toUpperCase(),
                     date: subDetails?.scheduledChangeEffectiveAt || subDetails?.subscriptionRenewsAt
@@ -414,7 +414,7 @@ export default function AccountSettings() {
                     currentPlan: (user?.subscription_tier || 'Pro').toUpperCase(),
                   })}
                 </p>
-                <p className="text-[11px] text-blue-600 mt-1">
+                <p className="text-[11px] text-blue-600 dark:text-blue-400 mt-1">
                   {t('accountSettings.downgradeAccountingNote', 'To avoid prorated billing and accounting discrepancies, your account retains all current plan features and seats through the end of the current paid billing period.')}
                 </p>
               </div>
@@ -422,9 +422,9 @@ export default function AccountSettings() {
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-1.5">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t('accountSettings.currentStatusLabel')}</span>
-              <p className="text-sm font-bold text-slate-800 capitalize">
+            <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1.5">
+              <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{t('accountSettings.currentStatusLabel')}</span>
+              <p className="text-sm font-bold text-slate-800 dark:text-slate-200 capitalize">
                 {subDetails?.cancelsAtPeriodEnd
                   ? t('accountSettings.activeCancelingAtPeriodEnd')
                   : subDetails?.subscriptionStatus === 'active'
@@ -433,7 +433,7 @@ export default function AccountSettings() {
                   ? t('accountSettings.vipLifetimeAccess')
                   : t('accountSettings.freeAccess')}
               </p>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 {subDetails?.subscriptionRenewsAt
                   ? `${subDetails?.cancelsAtPeriodEnd ? t('accountSettings.accessEndsOn') : t('accountSettings.renewsOn')} ${new Date(
                       subDetails.subscriptionRenewsAt
@@ -448,24 +448,24 @@ export default function AccountSettings() {
               </p>
             </div>
 
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-1.5">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t('accountSettings.billingProviderLabel')}</span>
-              <p className="text-sm font-bold text-slate-800">
+            <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1.5">
+              <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{t('accountSettings.billingProviderLabel')}</span>
+              <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
                 {t('accountSettings.paddleMerchantOfRecord')}
               </p>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 {t('accountSettings.billingProviderDescription')}
               </p>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100">
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
             <div>
               {!isProOrExempt && (
                 <button
                   type="button"
                   onClick={() => setShowUpgradeModal(true)}
-                  className="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition shadow-xs"
+                  className="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition shadow-xs cursor-pointer"
                 >
                   {t('accountSettings.upgradeToPro')}
                 </button>
@@ -474,7 +474,7 @@ export default function AccountSettings() {
                 <button
                   type="button"
                   onClick={() => setShowUpgradeModal(true)}
-                  className="px-4 py-2 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition"
+                  className="px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition cursor-pointer"
                 >
                   {t('accountSettings.changePlanOrRedeemCode')}
                 </button>
@@ -488,7 +488,7 @@ export default function AccountSettings() {
                   type="button"
                   disabled={portalLoading}
                   onClick={handleOpenCustomerPortal}
-                  className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition"
+                  className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition cursor-pointer"
                 >
                   {portalLoading ? t('accountSettings.openingPortal') : t('accountSettings.manageInvoicesAndPayment')}
                 </button>
@@ -504,7 +504,7 @@ export default function AccountSettings() {
                     setCancelReasonDetails('');
                     setShowCancelModal(true);
                   }}
-                  className="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200 rounded-xl transition"
+                  className="px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/40 border border-red-200 dark:border-red-900/60 rounded-xl transition cursor-pointer"
                 >
                   {t('accountSettings.cancelSubscription')}
                 </button>
@@ -516,7 +516,7 @@ export default function AccountSettings() {
                   type="button"
                   disabled={restoreLoading}
                   onClick={handleRestoreSubscription}
-                  className="px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 border border-emerald-600 rounded-xl shadow-xs transition flex items-center gap-1.5"
+                  className="px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 border border-emerald-600 rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
                 >
                   <span>✓</span>
                   <span>{restoreLoading ? t('accountSettings.restoringSubscription', 'Restoring...') : t('accountSettings.restoreSubscription', 'Restore Subscription')}</span>
@@ -527,26 +527,26 @@ export default function AccountSettings() {
         </div>
 
         {/* Contact Info Card */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900">{t('accountSettings.contactInfoTitle')}</h2>
-              <p className="text-xs text-slate-500">{t('accountSettings.contactInfoSubtitle')}</p>
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">{t('accountSettings.contactInfoTitle')}</h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{t('accountSettings.contactInfoSubtitle')}</p>
             </div>
           </div>
 
           {profileMsg && (
-            <div className="mb-4 p-3 rounded-xl bg-emerald-50 text-emerald-800 text-sm border border-emerald-200">
+            <div className="mb-4 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 text-sm border border-emerald-200 dark:border-emerald-800">
               ✓ {profileMsg}
             </div>
           )}
           {profileErr && (
-            <div className="mb-4 p-3 rounded-xl bg-red-50 text-red-800 text-sm border border-red-200">
+            <div className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-300 text-sm border border-red-200 dark:border-red-800">
               ✕ {profileErr}
             </div>
           )}
@@ -554,7 +554,7 @@ export default function AccountSettings() {
           <form onSubmit={handleUpdateProfile} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                   {t('accountSettings.firstNameLabel')}
                 </label>
                 <input
@@ -562,12 +562,12 @@ export default function AccountSettings() {
                   required
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full px-3.5 py-2.5 text-sm border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                   {t('accountSettings.lastNameLabel')}
                 </label>
                 <input
@@ -575,41 +575,41 @@ export default function AccountSettings() {
                   required
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full px-3.5 py-2.5 text-sm border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                   {t('accountSettings.usernameLabel')}
                 </label>
                 <input
                   type="text"
                   disabled
                   value={user?.username || ''}
-                  className="w-full px-3.5 py-2.5 text-sm border border-slate-200 bg-slate-50 text-slate-500 rounded-xl cursor-not-allowed"
+                  className="w-full px-3.5 py-2.5 text-sm border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 rounded-xl cursor-not-allowed"
                 />
-                <span className="text-[11px] text-slate-400 mt-1 block">{t('accountSettings.usernameCannotChange')}</span>
+                <span className="text-[11px] text-slate-400 dark:text-slate-500 mt-1 block">{t('accountSettings.usernameCannotChange')}</span>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                   {t('accountSettings.emailAddressLabel')}
                 </label>
                 <input
                   type="email"
                   disabled
                   value={user?.email || ''}
-                  className="w-full px-3.5 py-2.5 text-sm border border-slate-200 bg-slate-50 text-slate-500 rounded-xl cursor-not-allowed"
+                  className="w-full px-3.5 py-2.5 text-sm border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 rounded-xl cursor-not-allowed"
                 />
-                <span className="text-[11px] text-slate-400 mt-1 block">{t('accountSettings.emailManagedBySupabase')}</span>
+                <span className="text-[11px] text-slate-400 dark:text-slate-500 mt-1 block">{t('accountSettings.emailManagedBySupabase')}</span>
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 {t('accountSettings.phoneNumberLabel')}
               </label>
               <input
@@ -617,7 +617,7 @@ export default function AccountSettings() {
                 placeholder={t('accountSettings.phoneNumberPlaceholder')}
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
-                className="w-full sm:w-1/2 px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full sm:w-1/2 px-3.5 py-2.5 text-sm border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               />
             </div>
 
@@ -625,7 +625,7 @@ export default function AccountSettings() {
               <button
                 type="submit"
                 disabled={profileLoading}
-                className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-sm font-semibold shadow-xs transition"
+                className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-sm font-semibold shadow-xs transition cursor-pointer"
               >
                 {profileLoading ? t('accountSettings.savingChanges') : t('accountSettings.saveProfileChanges')}
               </button>
@@ -634,31 +634,31 @@ export default function AccountSettings() {
         </div>
 
         {/* Company Branding & Proposal Customization Card (US-008) */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs relative">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs relative">
           {!isProOrExempt && (
             <div className="absolute top-4 right-4">
-              <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-full">
+              <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-700 rounded-full">
                 👑 Pro Feature
               </span>
             </div>
           )}
 
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center font-bold">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
               </svg>
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900">{t('accountSettings.brandingTitle')}</h2>
-              <p className="text-xs text-slate-500">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">{t('accountSettings.brandingTitle')}</h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 {t('accountSettings.brandingSubtitle')}
               </p>
             </div>
           </div>
 
           {!isProOrExempt && (
-            <div className="mb-5 p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600">
+            <div className="mb-5 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300">
               {t('accountSettings.brandingProFeatureMessage')}
             </div>
           )}
@@ -666,7 +666,7 @@ export default function AccountSettings() {
           <form onSubmit={handleUpdateProfile} className="space-y-4">
             {/* Logo Upload */}
             <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
                 {t('accountSettings.companyLogoLabel')}
               </label>
               <div className="flex items-center gap-4">
@@ -675,26 +675,26 @@ export default function AccountSettings() {
                     <img
                       src={companyLogoUrl}
                       alt={t('accountSettings.companyLogoPreview')}
-                      className="w-24 h-16 object-contain border border-slate-200 rounded-xl p-1 bg-slate-50"
+                      className="w-24 h-16 object-contain border border-slate-200 dark:border-slate-700 rounded-xl p-1 bg-slate-50 dark:bg-slate-800"
                     />
                     <button
                       type="button"
                       onClick={() => setCompanyLogoUrl('')}
-                      className="absolute -top-2 -right-2 bg-red-600 text-white p-1 rounded-full text-xs opacity-0 group-hover:opacity-100 transition shadow"
+                      className="absolute -top-2 -right-2 bg-red-600 text-white p-1 rounded-full text-xs opacity-0 group-hover:opacity-100 transition shadow cursor-pointer"
                       title={t('accountSettings.removeLogoTitle')}
                     >
                       ✕
                     </button>
                   </div>
                 ) : (
-                  <div className="w-24 h-16 border-2 border-dashed border-slate-300 rounded-xl flex items-center justify-center text-xs text-slate-400">
+                  <div className="w-24 h-16 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl flex items-center justify-center text-xs text-slate-400 dark:text-slate-500">
                     {t('accountSettings.noLogo')}
                   </div>
                 )}
 
                 <div>
-                  <label className="inline-flex items-center gap-2 px-3.5 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 cursor-pointer transition">
-                    <svg className="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <label className="inline-flex items-center gap-2 px-3.5 py-2 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer transition">
+                    <svg className="w-4 h-4 text-slate-500 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                     </svg>
                     <span>{logoUploading ? t('accountSettings.uploadingLogo') : t('accountSettings.uploadImageButton')}</span>
@@ -707,7 +707,7 @@ export default function AccountSettings() {
                     />
                   </label>
                   {logoError && (
-                    <p className="text-xs text-red-600 mt-1">{logoError}</p>
+                    <p className="text-xs text-red-600 dark:text-red-400 mt-1">{logoError}</p>
                   )}
                 </div>
               </div>
@@ -715,7 +715,7 @@ export default function AccountSettings() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                   {t('accountSettings.companyNameLabel')}
                 </label>
                 <input
@@ -723,12 +723,12 @@ export default function AccountSettings() {
                   placeholder={t('accountSettings.companyNamePlaceholder')}
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full px-3.5 py-2.5 text-sm border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                   {t('accountSettings.licenseNumberLabel')}
                 </label>
                 <input
@@ -736,14 +736,14 @@ export default function AccountSettings() {
                   placeholder={t('accountSettings.licenseNumberPlaceholder')}
                   value={licenseNumber}
                   onChange={(e) => setLicenseNumber(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full px-3.5 py-2.5 text-sm border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="sm:col-span-2">
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                   {t('accountSettings.companyAddressLabel')}
                 </label>
                 <input
@@ -751,12 +751,12 @@ export default function AccountSettings() {
                   placeholder={t('accountSettings.companyAddressPlaceholder')}
                   value={companyAddress}
                   onChange={(e) => setCompanyAddress(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full px-3.5 py-2.5 text-sm border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                   {t('accountSettings.brandColorLabel')}
                 </label>
                 <div className="flex items-center gap-2">
@@ -764,13 +764,13 @@ export default function AccountSettings() {
                     type="color"
                     value={brandColor || '#0284c7'}
                     onChange={(e) => setBrandColor(e.target.value)}
-                    className="w-10 h-10 p-0.5 border border-slate-300 rounded-lg cursor-pointer"
+                    className="w-10 h-10 p-0.5 border border-slate-300 dark:border-slate-700 rounded-lg cursor-pointer bg-transparent"
                   />
                   <input
                     type="text"
                     value={brandColor || '#0284c7'}
                     onChange={(e) => setBrandColor(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none font-mono"
+                    className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none font-mono"
                   />
                 </div>
               </div>
@@ -780,7 +780,7 @@ export default function AccountSettings() {
               <button
                 type="submit"
                 disabled={profileLoading}
-                className="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 disabled:opacity-50 text-white text-sm font-semibold shadow-xs transition"
+                className="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 disabled:opacity-50 text-white text-sm font-semibold shadow-xs transition cursor-pointer"
               >
                 {profileLoading ? t('accountSettings.savingBranding') : t('accountSettings.saveBrandingSettings')}
               </button>
@@ -789,33 +789,33 @@ export default function AccountSettings() {
         </div>
 
         {/* Change Password Card */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center font-bold">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900">{t('accountSettings.changePasswordTitle')}</h2>
-              <p className="text-xs text-slate-500">{t('accountSettings.changePasswordSubtitle')}</p>
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">{t('accountSettings.changePasswordTitle')}</h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{t('accountSettings.changePasswordSubtitle')}</p>
             </div>
           </div>
 
           {passwordMsg && (
-            <div className="mb-4 p-3 rounded-xl bg-emerald-50 text-emerald-800 text-sm border border-emerald-200">
+            <div className="mb-4 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 text-sm border border-emerald-200 dark:border-emerald-800">
               ✓ {passwordMsg}
             </div>
           )}
           {passwordErr && (
-            <div className="mb-4 p-3 rounded-xl bg-red-50 text-red-800 text-sm border border-red-200">
+            <div className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-300 text-sm border border-red-200 dark:border-red-800">
               ✕ {passwordErr}
             </div>
           )}
 
           <form onSubmit={handleUpdatePassword} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 {t('accountSettings.currentPasswordLabel', 'Current Password')}
               </label>
               <div className="relative">
@@ -825,12 +825,12 @@ export default function AccountSettings() {
                   value={oldPassword}
                   onChange={(e) => setOldPassword(e.target.value)}
                   placeholder={t('accountSettings.currentPasswordPlaceholder', '••••••••')}
-                  className="w-full px-3.5 py-2.5 pr-10 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full px-3.5 py-2.5 pr-10 text-sm border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 />
                 <button
                   type="button"
                   onClick={() => setShowOldPassword(!showOldPassword)}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 text-sm focus:outline-none"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 text-sm focus:outline-none cursor-pointer"
                   aria-label={showOldPassword ? t('loginPage.hidePassword', 'Hide password') : t('loginPage.showPassword', 'Show password')}
                 >
                   {showOldPassword ? (
@@ -849,7 +849,7 @@ export default function AccountSettings() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                   {t('accountSettings.newPasswordLabel')}
                 </label>
                 <div className="relative">
@@ -860,12 +860,12 @@ export default function AccountSettings() {
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder={t('accountSettings.newPasswordPlaceholder', '••••••••')}
-                    className="w-full px-3.5 py-2.5 pr-10 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    className="w-full px-3.5 py-2.5 pr-10 text-sm border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                   />
                   <button
                     type="button"
                     onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 text-sm focus:outline-none"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 text-sm focus:outline-none cursor-pointer"
                     aria-label={showNewPassword ? t('loginPage.hidePassword', 'Hide password') : t('loginPage.showPassword', 'Show password')}
                   >
                     {showNewPassword ? (
@@ -883,7 +883,7 @@ export default function AccountSettings() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                   {t('accountSettings.confirmPasswordLabel')}
                 </label>
                 <div className="relative">
@@ -894,12 +894,12 @@ export default function AccountSettings() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder={t('accountSettings.confirmPasswordPlaceholder', '••••••••')}
-                    className="w-full px-3.5 py-2.5 pr-10 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    className="w-full px-3.5 py-2.5 pr-10 text-sm border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 text-sm focus:outline-none"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 text-sm focus:outline-none cursor-pointer"
                     aria-label={showConfirmPassword ? t('loginPage.hidePassword', 'Hide password') : t('loginPage.showPassword', 'Show password')}
                   >
                     {showConfirmPassword ? (
@@ -921,7 +921,7 @@ export default function AccountSettings() {
               <button
                 type="submit"
                 disabled={passwordLoading || !oldPassword || !newPassword || !confirmPassword}
-                className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 disabled:opacity-50 text-white text-sm font-semibold shadow-xs transition"
+                className="px-5 py-2.5 rounded-xl bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 disabled:opacity-50 text-white text-sm font-semibold shadow-xs transition cursor-pointer"
               >
                 {passwordLoading ? t('accountSettings.updatingPassword') : t('accountSettings.updatePasswordButton')}
               </button>
@@ -933,11 +933,11 @@ export default function AccountSettings() {
         <TeamWorkspaceManager />
 
         {/* Danger Zone: Delete Account */}
-        <div className="bg-red-50/50 rounded-2xl border border-red-200 p-6">
+        <div className="bg-red-50/50 dark:bg-red-950/20 rounded-2xl border border-red-200 dark:border-red-900/40 p-6">
           <div className="flex items-start justify-between flex-wrap gap-4">
             <div>
-              <h2 className="text-lg font-bold text-red-900">{t('accountSettings.deleteAccountTitle')}</h2>
-              <p className="text-xs text-red-700 mt-1 max-w-xl">
+              <h2 className="text-lg font-bold text-red-900 dark:text-red-200">{t('accountSettings.deleteAccountTitle')}</h2>
+              <p className="text-xs text-red-700 dark:text-red-300 mt-1 max-w-xl">
                 {t('accountSettings.deleteAccountDescription')}
               </p>
             </div>
@@ -948,7 +948,7 @@ export default function AccountSettings() {
                 setDeleteErr('');
                 setShowDeleteModal(true);
               }}
-              className="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl shadow-xs transition"
+              className="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl shadow-xs transition cursor-pointer"
             >
               {t('accountSettings.deleteAccountButton')}
             </button>
@@ -970,20 +970,20 @@ export default function AccountSettings() {
       {/* Subscription Cancellation & Retention Modal (US-021) */}
       {showCancelModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/75 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-lg w-full p-6 sm:p-7 relative">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 max-w-lg w-full p-6 sm:p-7 relative text-slate-900 dark:text-slate-100">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center text-lg">
+              <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400 flex items-center justify-center text-lg">
                 ⚠️
               </div>
               <div>
-                <h3 className="text-lg font-bold text-slate-900">{t('accountSettings.cancelSubscriptionTitle')}</h3>
-                <p className="text-xs text-slate-500">{t('accountSettings.cancelSubscriptionSubtitle')}</p>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t('accountSettings.cancelSubscriptionTitle')}</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{t('accountSettings.cancelSubscriptionSubtitle')}</p>
               </div>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 mb-4 leading-relaxed">
-              <p className="font-semibold text-slate-800 mb-1">{t('accountSettings.whatHappensWhenCancelLabel')}:</p>
-              <ul className="list-disc list-inside space-y-1 text-slate-600">
+            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300 mb-4 leading-relaxed">
+              <p className="font-semibold text-slate-800 dark:text-slate-200 mb-1">{t('accountSettings.whatHappensWhenCancelLabel')}:</p>
+              <ul className="list-disc list-inside space-y-1 text-slate-600 dark:text-slate-300">
                 <li>{t('accountSettings.keepAccessUntilEnd')}</li>
                 <li>{t('accountSettings.projectsWillNeverDelete')}</li>
                 <li>{t('accountSettings.notChargedAgain')}</li>
@@ -991,20 +991,20 @@ export default function AccountSettings() {
             </div>
 
             {cancelErr && (
-              <div className="mb-4 p-2.5 rounded-lg bg-red-50 text-red-700 text-xs border border-red-200">
+              <div className="mb-4 p-2.5 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 text-xs border border-red-200 dark:border-red-900">
                 ✕ {cancelErr}
               </div>
             )}
 
             <form onSubmit={handleCancelSubscription} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                   {t('accountSettings.cancellationReasonLabel')}
                 </label>
                 <select
                   value={cancelReason}
                   onChange={(e) => setCancelReason(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white"
+                  className="w-full px-3.5 py-2.5 text-sm border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                 >
                   <option value="Project completed">{t('accountSettings.reasonProjectCompleted')}</option>
                   <option value="Too expensive">{t('accountSettings.reasonTooExpensive')}</option>
@@ -1016,7 +1016,7 @@ export default function AccountSettings() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                   {t('accountSettings.feedbackLabel')}
                 </label>
                 <textarea
@@ -1024,7 +1024,7 @@ export default function AccountSettings() {
                   placeholder={t('accountSettings.feedbackPlaceholder')}
                   value={cancelReasonDetails}
                   onChange={(e) => setCancelReasonDetails(e.target.value)}
-                  className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full px-3.5 py-2 text-sm border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 />
               </div>
 
@@ -1032,14 +1032,14 @@ export default function AccountSettings() {
                 <button
                   type="button"
                   onClick={() => setShowCancelModal(false)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition"
+                  className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition cursor-pointer"
                 >
                   {t('accountSettings.keepSubscriptionButton')}
                 </button>
                 <button
                   type="submit"
                   disabled={cancelLoading}
-                  className="px-4 py-2 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 rounded-xl transition shadow-xs"
+                  className="px-4 py-2 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 rounded-xl transition shadow-xs cursor-pointer"
                 >
                   {cancelLoading ? t('accountSettings.cancelingSubscription') : t('accountSettings.confirmCancellation')}
                 </button>
@@ -1052,34 +1052,34 @@ export default function AccountSettings() {
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/75 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-md w-full p-6 relative">
-            <h3 className="text-xl font-bold text-slate-900 mb-2">{t('accountSettings.deleteConfirmTitle')}</h3>
-            <p className="text-xs text-slate-600 mb-4 leading-relaxed">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-6 relative text-slate-900 dark:text-slate-100">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{t('accountSettings.deleteConfirmTitle')}</h3>
+            <p className="text-xs text-slate-600 dark:text-slate-300 mb-4 leading-relaxed">
               {t('accountSettings.deleteConfirmMessage', { username: user?.username })}
             </p>
 
             {deleteErr && (
-              <div className="mb-4 p-2.5 rounded-lg bg-red-50 text-red-700 text-xs border border-red-200">
+              <div className="mb-4 p-2.5 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 text-xs border border-red-200 dark:border-red-900">
                 ✕ {deleteErr}
               </div>
             )}
 
             <div className="mb-4">
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Type your username <span className="font-bold text-slate-900">{user?.username}</span> to confirm:
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                Type your username <span className="font-bold text-slate-900 dark:text-white">{user?.username}</span> to confirm:
               </label>
               <input
                 type="text"
                 placeholder={user?.username}
                 value={deleteConfirmText}
                 onChange={(e) => setDeleteConfirmText(e.target.value)}
-                className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:outline-none font-mono"
+                className="w-full px-3.5 py-2 text-sm border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-red-500 focus:outline-none font-mono"
               />
             </div>            <div className="flex gap-2 justify-end">
               <button
                 type="button"
                 onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition"
+                className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition cursor-pointer"
               >
                 {t('accountSettings.cancelButton')}
               </button>
@@ -1087,7 +1087,7 @@ export default function AccountSettings() {
                 type="button"
                 disabled={deleteConfirmText !== user?.username || deleteLoading}
                 onClick={handleDeleteAccount}
-                className="px-4 py-2 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 rounded-xl transition"
+                className="px-4 py-2 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 rounded-xl transition cursor-pointer"
               >
                 {deleteLoading ? t('accountSettings.deletingAccount') : t('accountSettings.permanentlyDeleteButton')}
               </button>

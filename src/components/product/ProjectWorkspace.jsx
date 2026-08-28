@@ -194,38 +194,38 @@ export default function ProjectWorkspace({
 
   return (
     <>
-      <div className="max-w-6xl mx-auto px-4 pt-4 pb-0 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-4 pt-5 pb-3 flex flex-wrap items-center justify-between gap-3">
         <Link
           to={`/${username}`}
-          className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-indigo-600 transition"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
         >
           {t('projectWorkspace.backToProjects')}
         </Link>
         {currentProject?.name && (
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-slate-700 bg-slate-200/70 px-2.5 py-1 rounded-lg">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-200/70 dark:bg-slate-800 border border-slate-300/60 dark:border-slate-700 px-2.5 py-1 rounded-lg">
               {t('projectWorkspace.projectPrefix', { name: currentProject.name })}
             </span>
             {currentProject?.status === 'awarded' && (
-              <span className="text-xs font-bold text-emerald-800 bg-emerald-100 border border-emerald-300 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+              <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/70 border border-emerald-300 dark:border-emerald-800 px-2.5 py-0.5 rounded-full flex items-center gap-1">
                 <span>🔒</span>
                 <span>{t('projectWorkspace.statusAwarded')}</span>
               </span>
             )}
             {currentProject?.status === 'submitted' && (
-              <span className="text-xs font-bold text-blue-800 bg-blue-100 border border-blue-300 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+              <span className="text-xs font-bold text-blue-800 dark:text-blue-300 bg-blue-100 dark:bg-blue-950/70 border border-blue-300 dark:border-blue-800 px-2.5 py-0.5 rounded-full flex items-center gap-1">
                 <span>🔒</span>
                 <span>{t('projectWorkspace.statusSubmitted')}</span>
               </span>
             )}
             {currentProject?.status === 'archived' && (
-              <span className="text-xs font-bold text-amber-800 bg-amber-100 border border-amber-300 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+              <span className="text-xs font-bold text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/70 border border-amber-300 dark:border-amber-800 px-2.5 py-0.5 rounded-full flex items-center gap-1">
                 <span>🔒</span>
                 <span>{t('projectWorkspace.statusArchived')}</span>
               </span>
             )}
             {currentProject?.status === 'declined' && (
-              <span className="text-xs font-bold text-red-800 bg-red-100 border border-red-300 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+              <span className="text-xs font-bold text-red-800 dark:text-red-300 bg-red-100 dark:bg-red-950/70 border border-red-300 dark:border-red-800 px-2.5 py-0.5 rounded-full flex items-center gap-1">
                 <span>🔒</span>
                 <span>{t('projectWorkspace.statusDeclined')}</span>
               </span>

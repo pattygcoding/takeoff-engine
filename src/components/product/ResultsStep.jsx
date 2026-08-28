@@ -305,18 +305,18 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
       : t('resultsStep.statusDescAwarded');
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="max-w-6xl mx-auto px-4 py-8 text-slate-900 dark:text-slate-100">
       {readOnly && (
-        <div className="no-print mb-6 rounded-2xl bg-amber-50 border border-amber-200 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+        <div className="no-print mb-6 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300 flex items-center justify-center shrink-0">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
             <div>
-              <h4 className="text-sm font-bold text-amber-900">{statusLabel} Project ({t('resultsStep.lockedReadOnly')})</h4>
-              <p className="text-xs text-amber-700 mt-0.5">
+              <h4 className="text-sm font-bold text-amber-900 dark:text-amber-200">{statusLabel} Project ({t('resultsStep.lockedReadOnly')})</h4>
+              <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
                 {statusDescription}
               </p>
             </div>
@@ -325,7 +325,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
             <button
               type="button"
               onClick={onDuplicate}
-              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold rounded-lg shadow-xs transition shrink-0 cursor-pointer"
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 dark:bg-amber-500 dark:hover:bg-amber-600 text-white text-xs font-semibold rounded-lg shadow-xs transition shrink-0 cursor-pointer"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -338,10 +338,10 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
 
       <div className="no-print flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
             {proposalMode ? t('resultsStep.clientProposalTitle') : t('resultsStep.internalCostBreakdownTitle')}
           </h1>
-          <p className="text-slate-500 text-sm mt-1">
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
             {proposalMode
               ? t('resultsStep.clientProposalSubtitle')
               : t('resultsStep.internalCostBreakdownSubtitle')}
@@ -352,19 +352,19 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
           <button
             type="button"
             onClick={onBack}
-            className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            className="rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer"
           >
             {t('resultsStep.backToEdit')}
           </button>
-          <label className="flex items-center gap-2 text-sm font-medium text-slate-700 select-none cursor-pointer">
+          <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200 select-none cursor-pointer">
             <span>{t('resultsStep.clientFacingProposalMode')}</span>
             <button
               type="button"
               role="switch"
               aria-checked={proposalMode}
               onClick={() => setProposalMode((v) => !v)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                proposalMode ? 'bg-indigo-600' : 'bg-slate-300'
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
+                proposalMode ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-slate-700'
               }`}
             >
               <span
@@ -377,7 +377,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
         </div>
       </div>
 
-      <div className="no-print flex flex-wrap items-center justify-between gap-3 mb-6 bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+      <div className="no-print flex flex-wrap items-center justify-between gap-3 mb-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs transition-colors">
         <div className="flex flex-wrap items-center gap-2">
           {!readOnly && (
             <button
@@ -389,7 +389,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
                 setShowSaveModal(true);
               }}
               disabled={isSavingProject}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 shadow-xs transition"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-xs transition cursor-pointer"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
@@ -402,7 +402,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
             type="button"
             onClick={handleGenerateShareableProposal}
             disabled={isGeneratingShareLink}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 shadow-xs transition"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 px-4 py-2 text-sm font-semibold text-white shadow-xs transition cursor-pointer"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
@@ -411,7 +411,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
           </button>
 
           {saveSuccessMsg && (
-            <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg">
+            <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 rounded-lg">
               ✓ {saveSuccessMsg}
             </span>
           )}
@@ -431,7 +431,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
           <button
             type="button"
             onClick={exportCsv}
-            className="rounded-xl border border-emerald-600 bg-white px-3.5 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50 transition cursor-pointer"
+            className="rounded-xl border border-emerald-600 dark:border-emerald-500 bg-white dark:bg-slate-800 px-3.5 py-2 text-sm font-semibold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-slate-700 transition cursor-pointer"
           >
             {t('resultsStep.exportCsvExcel')}
           </button>
@@ -440,18 +440,18 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
 
       {/* Save Project Modal */}
       {showSaveModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 border border-slate-200">
-            <h3 className="text-lg font-bold text-slate-900 mb-1">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
               {currentProject?.id ? t('resultsStep.updateProjectDetails') : t('resultsStep.saveProjectToCloud')}
             </h3>
-            <p className="text-xs text-slate-500 mb-4">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
               {t('resultsStep.modalSaveDescription')}
             </p>
             <form onSubmit={handleSaveToCloud}>
               <div className="space-y-3 mb-5">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                     {t('resultsStep.projectNameLabel')}
                   </label>
                   <input
@@ -460,12 +460,12 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
                     value={projectNameInput}
                     onChange={(e) => setProjectNameInput(e.target.value)}
                     placeholder={t('resultsStep.projectNamePlaceholder')}
-                    className="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3.5 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     autoFocus
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                     {t('resultsStep.clientNameLabel')}
                   </label>
                   <input
@@ -473,11 +473,11 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
                     value={clientNameInput}
                     onChange={(e) => setClientNameInput(e.target.value)}
                     placeholder={t('resultsStep.clientNamePlaceholder')}
-                    className="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3.5 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                     {t('resultsStep.locationLabel')}
                   </label>
                   <input
@@ -485,7 +485,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
                     value={locationInput}
                     onChange={(e) => setLocationInput(e.target.value)}
                     placeholder={t('resultsStep.locationPlaceholder')}
-                    className="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3.5 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
               </div>
@@ -494,14 +494,14 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
                 <button
                   type="button"
                   onClick={() => setShowSaveModal(false)}
-                  className="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-xl"
+                  className="px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer"
                 >
                   {t('resultsStep.cancel')}
                 </button>
                 <button
                   type="submit"
                   disabled={isSavingProject}
-                  className="px-5 py-2 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-xs disabled:opacity-50"
+                  className="px-5 py-2 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-xs disabled:opacity-50 cursor-pointer"
                 >
                   {isSavingProject ? t('resultsStep.saving') : t('resultsStep.saveEstimate')}
                 </button>
@@ -513,22 +513,22 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
 
       {/* Share Proposal & E-Sign Modal */}
       {shareProposalModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 animate-fade-in">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full p-6 sm:p-8 border border-slate-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 animate-fade-in">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl max-w-lg w-full p-6 sm:p-8 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl">
+                <div className="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xl">
                   🔗
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900">{t('resultsStep.portalLinkModalTitle')}</h3>
-                  <p className="text-xs text-slate-500">{t('resultsStep.portalLinkModalSubtitle')}</p>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t('resultsStep.portalLinkModalTitle')}</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{t('resultsStep.portalLinkModalSubtitle')}</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setShareProposalModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 text-xl font-bold p-1"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold p-1 cursor-pointer"
               >
                 ✕
               </button>
@@ -536,16 +536,16 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
 
             <div className="space-y-4 my-6">
               {/* Direct Email Submission Section */}
-              <form onSubmit={handleSendProposalEmail} className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+              <form onSubmit={handleSendProposalEmail} className="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-700">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-sm font-bold text-slate-800">✉️ {t('resultsStep.emailDirectlyToClient')}</span>
+                  <span className="text-sm font-bold text-slate-800 dark:text-slate-200">✉️ {t('resultsStep.emailDirectlyToClient')}</span>
                 </div>
-                <p className="text-xs text-slate-500 mb-3">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
                   {t('resultsStep.emailDirectlyDescription')}
                 </p>
 
                 {emailSentSuccess && (
-                  <div className="mb-3 p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-800">
+                  <div className="mb-3 p-2.5 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs font-semibold text-emerald-800 dark:text-emerald-300">
                     ✓ {emailSentSuccess}
                   </div>
                 )}
@@ -553,24 +553,24 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
                 <div className="space-y-2">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div>
-                      <label className="block text-[11px] font-medium text-slate-600 mb-1">{t('resultsStep.clientAttentionLabel')}</label>
+                      <label className="block text-[11px] font-medium text-slate-600 dark:text-slate-300 mb-1">{t('resultsStep.clientAttentionLabel')}</label>
                       <input
                         type="text"
                         value={clientRecipientName}
                         onChange={(e) => setClientRecipientName(e.target.value)}
                         placeholder={t('resultsStep.clientAttentionPlaceholder')}
-                        className="w-full bg-white px-3 py-1.5 border border-slate-300 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        className="w-full bg-white dark:bg-slate-800 px-3 py-1.5 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                       />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-medium text-slate-600 mb-1">{t('resultsStep.clientEmailLabel')}</label>
+                      <label className="block text-[11px] font-medium text-slate-600 dark:text-slate-300 mb-1">{t('resultsStep.clientEmailLabel')}</label>
                       <input
                         type="email"
                         required
                         value={clientRecipientEmail}
                         onChange={(e) => setClientRecipientEmail(e.target.value)}
                         placeholder={t('resultsStep.clientEmailPlaceholder')}
-                        className="w-full bg-white px-3 py-1.5 border border-slate-300 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        className="w-full bg-white dark:bg-slate-800 px-3 py-1.5 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                       />
                     </div>
                   </div>
@@ -578,7 +578,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
                   <button
                     type="submit"
                     disabled={isSendingEmail}
-                    className="w-full mt-2 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center justify-center gap-1.5 disabled:opacity-50"
+                    className="w-full mt-2 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
                   >
                     {isSendingEmail ? (
                       <>
@@ -597,10 +597,10 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
                 </div>
               </form>
 
-              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                <div className="flex items-center justify-between text-xs text-slate-600 mb-2">
-                  <span className="font-semibold text-slate-700">{t('resultsStep.orCopyPublicLink')}</span>
-                  <span className="text-[10px] bg-indigo-100 text-indigo-700 font-bold px-2 py-0.5 rounded-full">
+              <div className="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-700">
+                <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 mb-2">
+                  <span className="font-semibold text-slate-700 dark:text-slate-300">{t('resultsStep.orCopyPublicLink')}</span>
+                  <span className="text-[10px] bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-bold px-2 py-0.5 rounded-full">
                     {t('resultsStep.statusTag', { status: shareProposalData?.client_status || 'sent' })}
                   </span>
                 </div>
@@ -609,7 +609,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
                     type="text"
                     readOnly
                     value={publicShareUrl}
-                    className="w-full bg-white px-3 py-2 border border-slate-300 rounded-xl text-xs font-mono text-slate-800 focus:outline-none"
+                    className="w-full bg-white dark:bg-slate-800 px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-800 dark:text-slate-100 focus:outline-none"
                     onClick={(e) => e.target.select()}
                   />
                   <button
@@ -619,18 +619,18 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
                       setShareCopied(true);
                       setTimeout(() => setShareCopied(false), 3000);
                     }}
-                    className="px-3.5 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold whitespace-nowrap shadow-xs transition"
+                    className="px-3.5 py-2 bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white rounded-xl text-xs font-bold whitespace-nowrap shadow-xs transition cursor-pointer"
                   >
                     {shareCopied ? t('resultsStep.copied') : t('resultsStep.copyLink')}
                   </button>
                 </div>
               </div>
 
-              <div className="bg-indigo-50/60 p-4 rounded-2xl text-xs text-indigo-900 space-y-1.5 border border-indigo-100">
+              <div className="bg-indigo-50/60 dark:bg-indigo-950/40 p-4 rounded-2xl text-xs text-indigo-900 dark:text-indigo-300 space-y-1.5 border border-indigo-100 dark:border-indigo-900">
                 <p className="font-bold flex items-center gap-1.5">
                   <span>✨</span> {t('resultsStep.whatClientSees')}
                 </p>
-                <ul className="list-disc pl-4 space-y-1 text-slate-600">
+                <ul className="list-disc pl-4 space-y-1 text-slate-600 dark:text-slate-400">
                   <li>{t('resultsStep.benefitBranding')}</li>
                   <li>{t('resultsStep.benefitScope')}</li>
                   <li>{t('resultsStep.benefitSignature')}</li>
@@ -643,7 +643,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
                 href={publicShareUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 underline"
+                className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline"
               >
                 {t('resultsStep.previewClientPortal')}
               </a>
@@ -651,7 +651,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
               <button
                 type="button"
                 onClick={() => setShareProposalModalOpen(false)}
-                className="px-5 py-2 text-sm font-semibold bg-slate-900 hover:bg-slate-800 text-white rounded-xl shadow-xs transition"
+                className="px-5 py-2 text-sm font-semibold bg-slate-900 hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600 text-white rounded-xl shadow-xs transition cursor-pointer"
               >
                 {t('resultsStep.done')}
               </button>
@@ -660,7 +660,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
         </div>
       )}
 
-      <div id="print-area" className="print-area bg-white rounded-lg border border-slate-200 p-6 relative overflow-hidden">
+      <div id="print-area" className="print-area bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 relative overflow-hidden shadow-sm transition-colors text-slate-900 dark:text-slate-100">
         {/* Custom Company Header for Pro / Paid Users */}
         {branding && (branding.companyName || branding.companyLogoUrl) ? (
           <div className="flex flex-wrap items-center justify-between border-b-2 pb-4 mb-6" style={{ borderColor: branding.brandColor || '#0284c7' }}>
@@ -680,17 +680,17 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
                   </h2>
                 )}
                 {branding.companyAddress && (
-                  <p className="text-xs text-slate-500 mt-0.5">{branding.companyAddress}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{branding.companyAddress}</p>
                 )}
-                <div className="flex items-center gap-3 text-xs text-slate-500 mt-1">
+                <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 mt-1">
                   {branding.companyPhone && <span>{t('resultsStep.phoneLabel', { phone: branding.companyPhone })}</span>}
                   {branding.licenseNumber && <span>{t('resultsStep.licLabel', { license: branding.licenseNumber })}</span>}
                 </div>
               </div>
             </div>
 
-            <div className="text-right text-xs text-slate-500 mt-2 sm:mt-0">
-              <p className="font-semibold text-slate-800 text-sm">
+            <div className="text-right text-xs text-slate-500 dark:text-slate-400 mt-2 sm:mt-0">
+              <p className="font-semibold text-slate-800 dark:text-slate-200 text-sm">
                 {currentProject?.name || t('resultsStep.defaultProposalTitle')}
               </p>
               {currentProject?.client_name && (
@@ -701,14 +701,14 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
           </div>
         ) : (
           /* Default Watermark/Header for Free Users */
-          <div className="flex items-center justify-between border-b border-slate-200 pb-3 mb-6">
+          <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 mb-6">
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 rounded bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">
                 T
               </div>
-              <span className="text-sm font-semibold text-slate-700">{t('resultsStep.appWatermark')}</span>
+              <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('resultsStep.appWatermark')}</span>
             </div>
-            <span className="text-xs text-slate-400">{t('resultsStep.appWatermarkGenerated')}</span>
+            <span className="text-xs text-slate-400 dark:text-slate-500">{t('resultsStep.appWatermarkGenerated')}</span>
           </div>
         )}
 
@@ -740,20 +740,20 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
 
         {proposalMode && (
           <div className="mb-8 text-center">
-            <p className="text-sm uppercase tracking-wide text-slate-400 font-medium">{t('resultsStep.totalProjectInvestment')}</p>
-            <p className="text-4xl font-bold text-slate-900 mt-1">{formatCurrency(totals.finalBidAmount)}</p>
+            <p className="text-sm uppercase tracking-wide text-slate-400 dark:text-slate-500 font-medium">{t('resultsStep.totalProjectInvestment')}</p>
+            <p className="text-4xl font-bold text-slate-900 dark:text-white mt-1">{formatCurrency(totals.finalBidAmount)}</p>
           </div>
         )}
 
         <div className="space-y-8">
           {bySystem.map((sys) => (
             <div key={sys.system}>
-              <h2 className="text-lg font-semibold text-slate-800 border-b border-slate-200 pb-2 mb-3">
+              <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-800 pb-2 mb-3">
                 {sys.system}
               </h2>
               <table className="min-w-full text-sm">
                 <thead>
-                  <tr className="text-left text-xs uppercase tracking-wide text-slate-400">
+                  <tr className="text-left text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">
                     <th className="py-1 pr-3">{t('resultsStep.colDescription')}</th>
                     <th className="py-1 pr-3">{t('resultsStep.colSizeSpec')}</th>
                     <th className="py-1 pr-3 text-right">{t('resultsStep.colQty')}</th>
@@ -764,26 +764,26 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
                     <th className="py-1 pr-3 text-right">{proposalMode ? t('resultsStep.colLineTotal') : t('resultsStep.colDirectCost')}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {sys.items.map((item) => (
-                    <tr key={item.id}>
-                      <td className="py-1.5 pr-3">{item.description}</td>
-                      <td className="py-1.5 pr-3 text-slate-500">{item.sizeSpec}</td>
-                      <td className="py-1.5 pr-3 text-right">{formatNumber(item.quantity, 0)}</td>
-                      <td className="py-1.5 pr-3">{item.unit}</td>
-                      {!proposalMode && <td className="py-1.5 pr-3 text-right">{formatCurrency(item.materialCost)}</td>}
-                      {!proposalMode && <td className="py-1.5 pr-3 text-right">{formatNumber(item.laborHours)}</td>}
-                      {!proposalMode && <td className="py-1.5 pr-3 text-right">{formatCurrency(item.laborCost)}</td>}
-                      <td className="py-1.5 pr-3 text-right font-medium">{formatCurrency(item.directCost)}</td>
+                    <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition">
+                      <td className="py-1.5 pr-3 text-slate-800 dark:text-slate-200">{item.description}</td>
+                      <td className="py-1.5 pr-3 text-slate-500 dark:text-slate-400">{item.sizeSpec}</td>
+                      <td className="py-1.5 pr-3 text-right text-slate-800 dark:text-slate-200 font-mono">{formatNumber(item.quantity, 0)}</td>
+                      <td className="py-1.5 pr-3 text-slate-600 dark:text-slate-400">{item.unit}</td>
+                      {!proposalMode && <td className="py-1.5 pr-3 text-right text-slate-700 dark:text-slate-300 font-mono">{formatCurrency(item.materialCost)}</td>}
+                      {!proposalMode && <td className="py-1.5 pr-3 text-right text-slate-700 dark:text-slate-300 font-mono">{formatNumber(item.laborHours)}</td>}
+                      {!proposalMode && <td className="py-1.5 pr-3 text-right text-slate-700 dark:text-slate-300 font-mono">{formatCurrency(item.laborCost)}</td>}
+                      <td className="py-1.5 pr-3 text-right font-medium text-slate-900 dark:text-slate-100 font-mono">{formatCurrency(item.directCost)}</td>
                     </tr>
                   ))}
                 </tbody>
                 <tfoot>
-                  <tr className="font-semibold border-t border-slate-200">
+                  <tr className="font-semibold border-t border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
                     <td className="py-2 pr-3" colSpan={proposalMode ? 4 : 7}>
                       {t('resultsStep.subtotal')}
                     </td>
-                    <td className="py-2 pr-3 text-right">{formatCurrency(sys.directCost)}</td>
+                    <td className="py-2 pr-3 text-right font-mono">{formatCurrency(sys.directCost)}</td>
                   </tr>
                 </tfoot>
               </table>
@@ -792,15 +792,15 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
         </div>
 
         {proposalMode && (
-          <div className="mt-8 pt-4 border-t border-slate-200 flex justify-end">
+          <div className="mt-8 pt-4 border-t border-slate-200 dark:border-slate-800 flex justify-end">
             <div className="w-full sm:w-64 text-right">
-              <div className="flex justify-between text-slate-600 text-sm py-1">
+              <div className="flex justify-between text-slate-600 dark:text-slate-400 text-sm py-1">
                 <span>{t('resultsStep.subtotal')}</span>
-                <span>{formatCurrency(totals.totalDirectCost)}</span>
+                <span className="font-mono">{formatCurrency(totals.totalDirectCost)}</span>
               </div>
-              <div className="flex justify-between text-xl font-bold text-slate-900 pt-2 border-t border-slate-200 mt-2">
+              <div className="flex justify-between text-xl font-bold text-slate-900 dark:text-white pt-2 border-t border-slate-200 dark:border-slate-800 mt-2">
                 <span>{t('resultsStep.totalBid')}</span>
-                <span>{formatCurrency(totals.finalBidAmount)}</span>
+                <span className="font-mono">{formatCurrency(totals.finalBidAmount)}</span>
               </div>
             </div>
           </div>
@@ -818,13 +818,15 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
 function SummaryCard({ label, value, sub, highlight }) {
   return (
     <div
-      className={`rounded-lg border p-4 ${
-        highlight ? 'border-indigo-300 bg-indigo-50' : 'border-slate-200 bg-slate-50'
+      className={`rounded-2xl border p-4 transition-colors ${
+        highlight
+          ? 'border-indigo-300 dark:border-indigo-700 bg-indigo-50/80 dark:bg-indigo-950/60 shadow-xs'
+          : 'border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/60'
       }`}
     >
-      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</p>
-      <p className={`mt-1 text-xl font-bold ${highlight ? 'text-indigo-700' : 'text-slate-900'}`}>{value}</p>
-      {sub && <p className="text-xs text-slate-400 mt-0.5">{sub}</p>}
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{label}</p>
+      <p className={`mt-1 text-xl font-bold font-mono tracking-tight ${highlight ? 'text-indigo-700 dark:text-indigo-300' : 'text-slate-900 dark:text-white'}`}>{value}</p>
+      {sub && <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{sub}</p>}
     </div>
   );
 }

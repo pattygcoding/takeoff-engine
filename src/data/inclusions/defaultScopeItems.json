@@ -1,0 +1,128 @@
+[
+  {
+    "id": "fix_toilets",
+    "category": "fixtures",
+    "title": "Water Closets & Commercial Toilets",
+    "description": "Furnishing porcelain fixture bowls, flush valves, and carrier mounts (Installation included, supply excluded unless specified).",
+    "status": "excluded",
+    "costImpact": 0,
+    "isStandard": true
+  },
+  {
+    "id": "fix_faucets",
+    "category": "fixtures",
+    "title": "Lavatory & Kitchen Faucets",
+    "description": "Furnishing finish sensor/manual faucets and aerators (Rough-in valves and trim labor included, fixture hardware excluded).",
+    "status": "excluded",
+    "costImpact": 0,
+    "isStandard": true
+  },
+  {
+    "id": "fix_sinks",
+    "category": "fixtures",
+    "title": "Sinks, Basins & Utility Troughs",
+    "description": "Furnishing undermount, drop-in, or mop basins (Plumbing carrier & trap included, fixture basin excluded).",
+    "status": "excluded",
+    "costImpact": 0,
+    "isStandard": true
+  },
+  {
+    "id": "fix_water_heaters",
+    "category": "fixtures",
+    "title": "Commercial / Residential Water Heaters",
+    "description": "Furnishing gas/electric domestic hot water tanks or tankless units, expansion tanks, and safety pans.",
+    "status": "included",
+    "costImpact": 0,
+    "isStandard": true
+  },
+  {
+    "id": "fix_backflow",
+    "category": "fixtures",
+    "title": "Backflow Preventers & Certification",
+    "description": "Furnishing RPZ / double-check assemblies, test cocks, and initial municipal backflow certification testing.",
+    "status": "included",
+    "costImpact": 0,
+    "isStandard": true
+  },
+  {
+    "id": "site_trench_excavation",
+    "category": "site",
+    "title": "Trench Excavation & Geometric Earthwork",
+    "description": "Machine trenching, rough grading, and spoils placement along utility alignment.",
+    "status": "included",
+    "costImpact": 0,
+    "isStandard": true
+  },
+  {
+    "id": "site_rock_sawing",
+    "category": "site",
+    "title": "Rock Sawing & Hard Rock Excavation",
+    "description": "Mechanical rock breaking, trench blasting, or pneumatic hammer work in unforeseen subsurface rock.",
+    "status": "excluded",
+    "costImpact": 0,
+    "isStandard": true
+  },
+  {
+    "id": "site_backfill_compaction",
+    "category": "site",
+    "title": "Trench Backfill & Aggregate Bedding",
+    "description": "Imported granular pipe bedding, native spoils backfill, and standard mechanical lift compaction.",
+    "status": "included",
+    "costImpact": 0,
+    "isStandard": true
+  },
+  {
+    "id": "site_pavement_patching",
+    "category": "site",
+    "title": "Asphalt & Concrete Pavement Restoration",
+    "description": "Saw-cutting, asphalt binder/wear course patching, or curb/gutter restoration over utility cuts.",
+    "status": "excluded",
+    "costImpact": 0,
+    "isStandard": true
+  },
+  {
+    "id": "site_utility_markouts",
+    "category": "site",
+    "title": "811 Public Utility Markouts & Soft Dig Potholing",
+    "description": "Standard 811 municipal callout (Potholing / vacuum excavation of unlocatable lines is excluded).",
+    "status": "included",
+    "costImpact": 0,
+    "isStandard": true
+  },
+  {
+    "id": "adm_permits",
+    "category": "admin",
+    "title": "Municipal Building & Plumbing Permits",
+    "description": "Procuring local jurisdiction trade permits (City / County filing fees paid directly by Owner or reimbursed).",
+    "status": "excluded",
+    "costImpact": 0,
+    "isStandard": true
+  },
+  {
+    "id": "adm_eng_stamps",
+    "category": "admin",
+    "title": "Professional Engineering (PE) Stamps & Calcs",
+    "description": "Third-party structural, hydraulic, or civil engineering calculations and sealed drawings.",
+    "status": "excluded",
+    "costImpact": 0,
+    "isStandard": true
+  },
+  {
+    "id": "adm_traffic_control",
+    "category": "admin",
+    "title": "Traffic Control Plans & Flagging Crew",
+    "description": "Certified lane closure crews, arrow boards, attenuator trucks, and DOT permit submittals.",
+    "status": "excluded",
+    "costImpact": 0,
+    "isStandard": true
+  },
+  {
+    "id": "adm_testing_inspection",
+    "category": "admin",
+    "title": "Third-Party Pressure & Compaction Testing",
+    "description": "Hydrostatic pressure testing, chlorination/bacteriological water testing, and mandrel deflection testing.",
+    "status": "included",
+    "costImpact": 0,
+    "isStandard": true
+  }
+]

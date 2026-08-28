@@ -209,11 +209,11 @@ export default function LoginPage({ initialView = 'login' }) {
         canonicalUrl={seoData.canonicalUrl}
       />
       {/* Back to Home / Public site navigation banner */}
-      <div className={`w-full mb-4 flex items-center justify-between text-xs font-medium text-slate-500 ${view === 'plan-select' ? 'max-w-5xl' : 'max-w-md'}`}>
+      <div className={`w-full mb-4 flex items-center justify-between text-xs font-medium text-slate-500 dark:text-slate-400 ${view === 'plan-select' ? 'max-w-5xl' : 'max-w-md'}`}>
         <button
           type="button"
           onClick={() => navigate('/home')}
-          className="inline-flex items-center gap-1.5 hover:text-indigo-600 transition cursor-pointer"
+          className="inline-flex items-center gap-1.5 hover:text-indigo-600 dark:hover:text-indigo-400 transition cursor-pointer"
         >
           <span>←</span>
           <span>{t('loginPage.backToHome')}</span>
@@ -228,11 +228,11 @@ export default function LoginPage({ initialView = 'login' }) {
                 if (el) el.scrollIntoView({ behavior: 'smooth' });
               }, 100);
             }}
-            className="hover:text-indigo-600 transition cursor-pointer"
+            className="hover:text-indigo-600 dark:hover:text-indigo-400 transition cursor-pointer"
           >
             {t('loginPage.freeCalculator')}
           </button>
-          <span className="text-slate-300">•</span>
+          <span className="text-slate-300 dark:text-slate-700">•</span>
           <button
             type="button"
             onClick={() => {
@@ -242,7 +242,7 @@ export default function LoginPage({ initialView = 'login' }) {
                 if (el) el.scrollIntoView({ behavior: 'smooth' });
               }, 100);
             }}
-            className="hover:text-indigo-600 transition cursor-pointer"
+            className="hover:text-indigo-600 dark:hover:text-indigo-400 transition cursor-pointer"
           >
             {t('loginPage.pricing')}
           </button>
@@ -252,21 +252,21 @@ export default function LoginPage({ initialView = 'login' }) {
       <div className={`rounded-3xl shadow-2xl w-full transition-all duration-300 ${
         view === 'plan-select'
           ? 'max-w-6xl p-6 sm:p-10 bg-slate-950 border border-slate-800 text-white'
-          : 'max-w-md p-6 sm:p-8 bg-white border border-slate-200 shadow-xl'
+          : 'max-w-md p-6 sm:p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl text-slate-900 dark:text-slate-100'
       }`}>
         {error && (
-          <div className="mb-4 p-3.5 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700 space-y-2">
+          <div className="mb-4 p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 text-sm text-red-700 dark:text-red-300 space-y-2">
             <div className="flex items-start gap-2">
               <span className="text-base shrink-0">⚠️</span>
               <p className="flex-1 font-medium">{error}</p>
             </div>
             {error.toLowerCase().includes('locked') && (
-              <div className="pt-2 border-t border-red-200 flex items-center justify-between">
-                <span className="text-xs text-red-600 font-semibold">{t('loginPage.forgotPasswordPrompt')}</span>
+              <div className="pt-2 border-t border-red-200 dark:border-red-900/60 flex items-center justify-between">
+                <span className="text-xs text-red-600 dark:text-red-400 font-semibold">{t('loginPage.forgotPasswordPrompt')}</span>
                 <button
                   type="button"
                   onClick={() => switchView('forgot')}
-                  className="text-xs font-bold text-indigo-600 hover:text-indigo-800 underline cursor-pointer"
+                  className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline cursor-pointer"
                 >
                   {t('loginPage.resetPasswordNow')}
                 </button>
@@ -276,7 +276,7 @@ export default function LoginPage({ initialView = 'login' }) {
         )}
 
         {message && (
-          <div className="mb-4 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-sm text-emerald-700">
+          <div className="mb-4 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/60 text-sm text-emerald-700 dark:text-emerald-300">
             {message}
           </div>
         )}
@@ -464,13 +464,13 @@ export default function LoginPage({ initialView = 'login' }) {
         {view === 'login' && (
           <div>
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-slate-800">{t('loginPage.welcomeBack')}</h2>
-              <p className="text-sm text-slate-500 mt-1">{t('loginPage.loginSubtitle')}</p>
+              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{t('loginPage.welcomeBack')}</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t('loginPage.loginSubtitle')}</p>
             </div>
 
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                   {t('loginPage.usernameOrEmail')}
                 </label>
                 <input
@@ -479,19 +479,19 @@ export default function LoginPage({ initialView = 'login' }) {
                   value={loginIdentifier}
                   onChange={(e) => setLoginIdentifier(e.target.value)}
                   placeholder={t('loginPage.usernameOrEmailPlaceholder')}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
 
               <div>
                 <div className="flex justify-between items-center mb-1">
-                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                     {t('loginPage.password')}
                   </label>
                   <button
                     type="button"
                     onClick={() => switchView('forgot')}
-                    className="text-xs text-indigo-600 hover:underline"
+                    className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline"
                   >
                     {t('loginPage.forgotPassword')}
                   </button>
@@ -503,12 +503,12 @@ export default function LoginPage({ initialView = 'login' }) {
                     value={loginPassword}
                     onChange={(e) => setLoginPassword(e.target.value)}
                     placeholder={t('loginPage.passwordPlaceholder')}
-                    className="w-full px-3 py-2 pr-10 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                    className="w-full px-3 py-2 pr-10 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                   />
                   <button
                     type="button"
                     onClick={() => setShowLoginPassword(!showLoginPassword)}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 text-sm focus:outline-none"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 p-1 text-sm focus:outline-none"
                     aria-label={showLoginPassword ? t('loginPage.hidePassword') : t('loginPage.showPassword')}
                   >
                     {showLoginPassword ? (
@@ -534,12 +534,12 @@ export default function LoginPage({ initialView = 'login' }) {
               </button>
             </form>
 
-            <div className="mt-6 text-center text-sm text-slate-500">
+            <div className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
               {t('loginPage.dontHaveAccount')}{' '}
               <button
                 type="button"
                 onClick={() => switchView('register')}
-                className="text-indigo-600 font-semibold hover:underline"
+                className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline"
               >
                 {t('loginPage.createAccount')}
               </button>
@@ -551,14 +551,14 @@ export default function LoginPage({ initialView = 'login' }) {
         {view === 'register' && (
           <div>
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-slate-800">{t('loginPage.createAccount')}</h2>
-              <p className="text-sm text-slate-500 mt-1">{t('loginPage.getStartedSubtitle')}</p>
+              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{t('loginPage.createAccount')}</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t('loginPage.getStartedSubtitle')}</p>
             </div>
 
             <form onSubmit={handleRegister} className="space-y-3.5">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                     {t('loginPage.firstName')}
                   </label>
                   <input
@@ -567,11 +567,11 @@ export default function LoginPage({ initialView = 'login' }) {
                     value={registerFirstName}
                     onChange={(e) => setRegisterFirstName(e.target.value)}
                     placeholder={t('loginPage.firstNamePlaceholder')}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                     {t('loginPage.lastName')}
                   </label>
                   <input
@@ -580,13 +580,13 @@ export default function LoginPage({ initialView = 'login' }) {
                     value={registerLastName}
                     onChange={(e) => setRegisterLastName(e.target.value)}
                     placeholder={t('loginPage.lastNamePlaceholder')}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                   {t('loginPage.username')}
                 </label>
                 <input
@@ -595,12 +595,12 @@ export default function LoginPage({ initialView = 'login' }) {
                   value={registerUsername}
                   onChange={(e) => setRegisterUsername(e.target.value)}
                   placeholder={t('loginPage.usernamePlaceholder')}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                   {t('loginPage.email')}
                 </label>
                 <input
@@ -609,12 +609,12 @@ export default function LoginPage({ initialView = 'login' }) {
                   value={registerEmail}
                   onChange={(e) => setRegisterEmail(e.target.value)}
                   placeholder={t('loginPage.emailPlaceholder')}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                   {t('loginPage.phoneOptional')}
                 </label>
                 <input
@@ -622,12 +622,12 @@ export default function LoginPage({ initialView = 'login' }) {
                   value={registerPhone}
                   onChange={(e) => setRegisterPhone(e.target.value)}
                   placeholder={t('loginPage.phonePlaceholder')}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                   {t('loginPage.passwordMinChars')}
                 </label>
                 <div className="relative">
@@ -638,12 +638,12 @@ export default function LoginPage({ initialView = 'login' }) {
                     value={registerPassword}
                     onChange={(e) => setRegisterPassword(e.target.value)}
                     placeholder={t('loginPage.passwordPlaceholder')}
-                    className="w-full px-3 py-2 pr-10 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                    className="w-full px-3 py-2 pr-10 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                   />
                   <button
                     type="button"
                     onClick={() => setShowRegisterPassword(!showRegisterPassword)}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 text-sm focus:outline-none"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 p-1 text-sm focus:outline-none"
                     aria-label={showRegisterPassword ? t('loginPage.hidePassword') : t('loginPage.showPassword')}
                   >
                     {showRegisterPassword ? (
@@ -669,12 +669,12 @@ export default function LoginPage({ initialView = 'login' }) {
               </button>
             </form>
 
-            <div className="mt-5 text-center text-sm text-slate-500">
+            <div className="mt-5 text-center text-sm text-slate-500 dark:text-slate-400">
               {t('loginPage.alreadyHaveAccount')}{' '}
               <button
                 type="button"
                 onClick={() => switchView('login')}
-                className="text-indigo-600 font-semibold hover:underline"
+                className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline"
               >
                 {t('loginPage.logIn')}
               </button>
@@ -686,15 +686,15 @@ export default function LoginPage({ initialView = 'login' }) {
         {view === 'forgot' && (
           <div>
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-slate-800">{t('loginPage.forgotPasswordTitle')}</h2>
-              <p className="text-sm text-slate-500 mt-1">
+              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{t('loginPage.forgotPasswordTitle')}</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                 {t('loginPage.forgotPasswordSubtitle')}
               </p>
             </div>
 
             <form onSubmit={handleForgotPassword} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                   {t('loginPage.emailAddress')}
                 </label>
                 <input
@@ -703,7 +703,7 @@ export default function LoginPage({ initialView = 'login' }) {
                   value={forgotEmail}
                   onChange={(e) => setForgotEmail(e.target.value)}
                   placeholder={t('loginPage.yourEmailPlaceholder')}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
 
@@ -715,11 +715,11 @@ export default function LoginPage({ initialView = 'login' }) {
                 {loading ? t('loginPage.submitting') : t('loginPage.sendResetInstructions')}
               </button>
 
-              <div className="flex justify-between items-center text-xs text-slate-500 pt-2">
+              <div className="flex justify-between items-center text-xs text-slate-500 dark:text-slate-400 pt-2">
                 <button
                   type="button"
                   onClick={() => switchView('login')}
-                  className="text-indigo-600 hover:underline"
+                  className="text-indigo-600 dark:text-indigo-400 hover:underline"
                 >
                   {t('loginPage.backToLogIn')}
                 </button>

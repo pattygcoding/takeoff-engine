@@ -48,7 +48,7 @@ export default function LanguageSelector({ variant = 'light' }) {
         className={`inline-flex items-center gap-2 px-2.5 py-1.5 text-xs font-semibold rounded-xl border transition cursor-pointer select-none ${
           isDark
             ? 'bg-slate-800/80 hover:bg-slate-800 text-slate-200 border-slate-700/80 hover:border-slate-600 shadow-xs'
-            : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200 hover:border-slate-300 shadow-2xs'
+            : 'bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 shadow-2xs'
         }`}
         aria-expanded={isOpen}
         aria-haspopup="true"
@@ -57,7 +57,7 @@ export default function LanguageSelector({ variant = 'light' }) {
         <span className="hidden sm:inline font-medium">{currentLang.label}</span>
         <svg
           className={`w-3.5 h-3.5 transition-transform duration-200 ${
-            isDark ? 'text-slate-400' : 'text-slate-500'
+            isDark ? 'text-slate-400' : 'text-slate-500 dark:text-slate-400'
           } ${isOpen ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
@@ -72,7 +72,7 @@ export default function LanguageSelector({ variant = 'light' }) {
           className={`absolute right-0 mt-1.5 w-36 rounded-xl border shadow-xl z-50 py-1 overflow-hidden animate-fade-in ${
             isDark
               ? 'bg-slate-800 border-slate-700 text-slate-200 divide-y divide-slate-700/50'
-              : 'bg-white border-slate-200 text-slate-800 divide-y divide-slate-100'
+              : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 divide-y divide-slate-100 dark:divide-slate-700'
           }`}
         >
           {LANGUAGES.map((lang) => {

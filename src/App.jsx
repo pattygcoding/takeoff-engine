@@ -21,10 +21,12 @@ import AcceptInvitePage from '@/components/auth/AcceptInvitePage';
 import UpgradeModal from '@/components/billing/UpgradeModal';
 import AppFooter from '@/components/shared/AppFooter';
 import LanguageSelector from '@/components/shared/LanguageSelector';
+import ThemeToggle from '@/components/shared/ThemeToggle';
 import ErrorBoundary from '@/components/shared/ErrorBoundary';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { ModalProvider } from '@/context/ModalContext';
 import { I18nProvider } from '@/context/I18nContext';
+import { ThemeProvider } from '@/context/ThemeContext';
 import { DEFAULT_RATES } from '@/lib/product/calculations';
 import { useLocalStorageState } from '@/lib/shared/useLocalStorageState';
 import { projectsApi } from '@/lib/product/projects';
@@ -147,10 +149,10 @@ function UserWorkspace({ items, setItems, rates, setRates, currentProject, setCu
         path="/upload"
         element={
           <>
-            <div className="max-w-6xl mx-auto px-4 pt-4 pb-0 flex items-center justify-between">
+            <div className="max-w-6xl mx-auto px-4 pt-5 pb-3 flex items-center justify-between">
               <Link
                 to={`/${username}`}
-                className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-indigo-600 transition"
+                className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
               >
                 ← Back to Projects Dashboard
               </Link>
@@ -306,9 +308,9 @@ function AppContent() {
     location.pathname.startsWith('/p/');
 
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
       {!isPublicLandingOrProposal && (
-        <header className="no-print bg-white border-b border-slate-200 py-3 sm:py-4">
+        <header className="no-print bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 py-3 sm:py-4 transition-colors duration-200">
           <div className="max-w-6xl mx-auto px-4 flex items-center justify-between">
             <div
               className="flex items-center gap-2 cursor-pointer"
@@ -321,17 +323,18 @@ function AppContent() {
               }}
               title={isAuthenticated ? 'Go to Projects Dashboard' : 'Go to Login'}
             >
-              <span className="text-xl font-bold text-indigo-600">Takeoff Engine</span>
-              <span className="hidden sm:inline text-sm text-slate-400">Construction Estimating</span>
+              <span className="text-xl font-bold text-indigo-600 dark:text-indigo-400">Takeoff Engine</span>
+              <span className="hidden sm:inline text-sm text-slate-400 dark:text-slate-500">Construction Estimating</span>
             </div>
 
             <div className="flex items-center gap-3">
+              <ThemeToggle />
               <LanguageSelector variant="light" />
 
               <button
                 type="button"
                 onClick={() => navigate('/home')}
-                className="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-indigo-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition"
+                className="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg transition"
                 title="View public marketing site & free trench calculator"
               >
                 <span>🌐</span>
@@ -573,13 +576,15 @@ function AppContent() {
 function App() {
   return (
     <ErrorBoundary>
-      <I18nProvider>
-        <AuthProvider>
-          <ModalProvider>
-            <AppContent />
-          </ModalProvider>
-        </AuthProvider>
-      </I18nProvider>
+      <ThemeProvider>
+        <I18nProvider>
+          <AuthProvider>
+            <ModalProvider>
+              <AppContent />
+            </ModalProvider>
+          </AuthProvider>
+        </I18nProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }

@@ -4,148 +4,21 @@
  * and scope calculation/normalization functions.
  */
 
+import defaultScopeItemsJson from '@/data/inclusions/defaultScopeItems.json';
+
 export const SCOPE_STATUS = {
   INCLUDED: 'included',
   EXCLUDED: 'excluded',
   OPTIONAL_ADDON: 'optional_addon',
+  NOT_APPLICABLE: 'not_applicable',
 };
+
+export const SCOPE_PRESETS_STORAGE_KEY = 'takeoff_engine_scope_presets';
 
 /**
  * Pre-defined standard scope templates across common civil, plumbing, mechanical, and commercial trades.
  */
-export const DEFAULT_SCOPE_ITEMS = [
-  // 1. Fixtures & Finishes (High-risk trade boundary)
-  {
-    id: 'fix_toilets',
-    category: 'fixtures',
-    title: 'Water Closets & Commercial Toilets',
-    description: 'Furnishing porcelain fixture bowls, flush valves, and carrier mounts (Installation included, supply excluded unless specified).',
-    status: SCOPE_STATUS.EXCLUDED, // Excluded / Owner Supplied by default in trade proposals
-    costImpact: 0,
-    isStandard: true,
-  },
-  {
-    id: 'fix_faucets',
-    category: 'fixtures',
-    title: 'Lavatory & Kitchen Faucets',
-    description: 'Furnishing finish sensor/manual faucets and aerators (Rough-in valves and trim labor included, fixture hardware excluded).',
-    status: SCOPE_STATUS.EXCLUDED,
-    costImpact: 0,
-    isStandard: true,
-  },
-  {
-    id: 'fix_sinks',
-    category: 'fixtures',
-    title: 'Sinks, Basins & Utility Troughs',
-    description: 'Furnishing undermount, drop-in, or mop basins (Plumbing carrier & trap included, fixture basin excluded).',
-    status: SCOPE_STATUS.EXCLUDED,
-    costImpact: 0,
-    isStandard: true,
-  },
-  {
-    id: 'fix_water_heaters',
-    category: 'fixtures',
-    title: 'Commercial / Residential Water Heaters',
-    description: 'Furnishing gas/electric domestic hot water tanks or tankless units, expansion tanks, and safety pans.',
-    status: SCOPE_STATUS.INCLUDED,
-    costImpact: 0,
-    isStandard: true,
-  },
-  {
-    id: 'fix_backflow',
-    category: 'fixtures',
-    title: 'Backflow Preventers & Certification',
-    description: 'Furnishing RPZ / double-check assemblies, test cocks, and initial municipal backflow certification testing.',
-    status: SCOPE_STATUS.INCLUDED,
-    costImpact: 0,
-    isStandard: true,
-  },
-
-  // 2. Site & Utilities Earthwork
-  {
-    id: 'site_trench_excavation',
-    category: 'site',
-    title: 'Trench Excavation & Geometric Earthwork',
-    description: 'Machine trenching, rough grading, and spoils placement along utility alignment.',
-    status: SCOPE_STATUS.INCLUDED,
-    costImpact: 0,
-    isStandard: true,
-  },
-  {
-    id: 'site_rock_sawing',
-    category: 'site',
-    title: 'Rock Sawing & Hard Rock Excavation',
-    description: 'Mechanical rock breaking, trench blasting, or pneumatic hammer work in unforeseen subsurface rock.',
-    status: SCOPE_STATUS.EXCLUDED,
-    costImpact: 0,
-    isStandard: true,
-  },
-  {
-    id: 'site_backfill_compaction',
-    category: 'site',
-    title: 'Trench Backfill & Aggregate Bedding',
-    description: 'Imported granular pipe bedding, native spoils backfill, and standard mechanical lift compaction.',
-    status: SCOPE_STATUS.INCLUDED,
-    costImpact: 0,
-    isStandard: true,
-  },
-  {
-    id: 'site_pavement_patching',
-    category: 'site',
-    title: 'Asphalt & Concrete Pavement Restoration',
-    description: 'Saw-cutting, asphalt binder/wear course patching, or curb/gutter restoration over utility cuts.',
-    status: SCOPE_STATUS.EXCLUDED,
-    costImpact: 0,
-    isStandard: true,
-  },
-  {
-    id: 'site_utility_markouts',
-    category: 'site',
-    title: '811 Public Utility Markouts & Soft Dig Potholing',
-    description: 'Standard 811 municipal callout (Potholing / vacuum excavation of unlocatable lines is excluded).',
-    status: SCOPE_STATUS.INCLUDED,
-    costImpact: 0,
-    isStandard: true,
-  },
-
-  // 3. Administrative, Permits & Engineering
-  {
-    id: 'adm_permits',
-    category: 'admin',
-    title: 'Municipal Building & Plumbing Permits',
-    description: 'Procuring local jurisdiction trade permits (City / County filing fees paid directly by Owner or reimbursed).',
-    status: SCOPE_STATUS.EXCLUDED,
-    costImpact: 0,
-    isStandard: true,
-  },
-  {
-    id: 'adm_eng_stamps',
-    category: 'admin',
-    title: 'Professional Engineering (PE) Stamps & Calcs',
-    description: 'Third-party structural, hydraulic, or civil engineering calculations and sealed drawings.',
-    status: SCOPE_STATUS.EXCLUDED,
-    costImpact: 0,
-    isStandard: true,
-  },
-  {
-    id: 'adm_traffic_control',
-    category: 'admin',
-    title: 'Traffic Control Plans & Flagging Crew',
-    description: 'Certified lane closure crews, arrow boards, attenuator trucks, and DOT permit submittals.',
-    status: SCOPE_STATUS.EXCLUDED,
-    costImpact: 0,
-    isStandard: true,
-  },
-  {
-    id: 'adm_testing_inspection',
-    category: 'admin',
-    title: 'Third-Party Pressure & Compaction Testing',
-    description: 'Hydrostatic pressure testing, chlorination/bacteriological water testing, and mandrel deflection testing.',
-    status: SCOPE_STATUS.INCLUDED,
-    costImpact: 0,
-    isStandard: true,
-  },
-];
+export const DEFAULT_SCOPE_ITEMS = defaultScopeItemsJson;
 
 /**
  * Returns a cloned initial scope list
@@ -155,7 +28,7 @@ export function getInitialScopeItems() {
 }
 
 /**
- * Categorizes a scope array into included, excluded, and optional add-ons
+ * Categorizes a scope array into included, excluded, optional add-ons, and not applicable
  */
 export function categorizeScope(items = []) {
   const safeItems = Array.isArray(items) ? items : [];
@@ -163,6 +36,7 @@ export function categorizeScope(items = []) {
     included: safeItems.filter((it) => it.status === SCOPE_STATUS.INCLUDED),
     excluded: safeItems.filter((it) => it.status === SCOPE_STATUS.EXCLUDED),
     optionalAddons: safeItems.filter((it) => it.status === SCOPE_STATUS.OPTIONAL_ADDON),
+    notApplicable: safeItems.filter((it) => it.status === SCOPE_STATUS.NOT_APPLICABLE),
   };
 }
 
@@ -170,12 +44,64 @@ export function categorizeScope(items = []) {
  * Returns summary count and status highlights
  */
 export function summarizeScope(items = []) {
-  const { included, excluded, optionalAddons } = categorizeScope(items);
+  const { included, excluded, optionalAddons, notApplicable } = categorizeScope(items);
   return {
     totalCount: items.length,
     includedCount: included.length,
     excludedCount: excluded.length,
     addonsCount: optionalAddons.length,
+    naCount: notApplicable.length,
     fixturesExcluded: excluded.some((it) => it.category === 'fixtures'),
   };
+}
+
+/**
+ * Loads user saved scope presets from localStorage
+ */
+export function getSavedScopePresets() {
+  try {
+    const raw = localStorage.getItem(SCOPE_PRESETS_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    console.error('Failed to load scope presets:', e);
+    return [];
+  }
+}
+
+/**
+ * Saves a new scope preset to localStorage
+ */
+export function saveScopePreset(presetName, scopeItems) {
+  if (!presetName || !presetName.trim()) return null;
+  const currentPresets = getSavedScopePresets();
+  const newPreset = {
+    id: `preset_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+    name: presetName.trim(),
+    createdAt: new Date().toISOString(),
+    items: JSON.parse(JSON.stringify(scopeItems)),
+  };
+
+  const updated = [newPreset, ...currentPresets.filter((p) => p.name.toLowerCase() !== presetName.trim().toLowerCase())];
+  try {
+    localStorage.setItem(SCOPE_PRESETS_STORAGE_KEY, JSON.stringify(updated));
+  } catch (e) {
+    console.error('Failed to save scope preset:', e);
+  }
+  return newPreset;
+}
+
+/**
+ * Deletes a saved scope preset by ID
+ */
+export function deleteScopePreset(presetId) {
+  const currentPresets = getSavedScopePresets();
+  const filtered = currentPresets.filter((p) => p.id !== presetId);
+  try {
+    localStorage.setItem(SCOPE_PRESETS_STORAGE_KEY, JSON.stringify(filtered));
+  } catch (e) {
+    console.error('Failed to delete scope preset:', e);
+  }
+  return filtered;
 }

@@ -121,25 +121,25 @@ export default function ExportFormatsModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-xs p-4 overflow-y-auto animate-fade-in">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-5xl w-full border border-slate-200 overflow-hidden my-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-xs p-4 overflow-y-auto animate-fade-in text-slate-900 dark:text-slate-100">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl max-w-5xl w-full border border-slate-200 dark:border-slate-800 overflow-hidden my-6">
         {/* Header */}
-        <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-slate-50 to-white">
+        <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-gradient-to-r from-slate-50 to-white dark:from-slate-900 dark:to-slate-850">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-indigo-600/10 text-indigo-600 flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-2xl bg-indigo-600/10 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
               </svg>
             </div>
             <div>
-              <h3 className="text-lg font-bold text-slate-900">{t('exportFormatsModal.title')}</h3>
-              <p className="text-xs text-slate-500">{t('exportFormatsModal.subtitle')}</p>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t('exportFormatsModal.title')}</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{t('exportFormatsModal.subtitle')}</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition cursor-pointer"
+            className="w-8 h-8 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition cursor-pointer"
           >
             ✕
           </button>
@@ -149,7 +149,7 @@ export default function ExportFormatsModal({
         <div className="p-6 space-y-6 max-h-[72vh] overflow-y-auto">
           {/* Row 1: 5 Formats */}
           <div>
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 px-1">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3 px-1">
               {t('exportFormatsModal.standardAndExecutive')}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
@@ -167,7 +167,7 @@ export default function ExportFormatsModal({
 
           {/* Row 2: 2 Formats */}
           <div>
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 px-1">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3 px-1">
               {t('exportFormatsModal.advancedContractorSubmittals')}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
@@ -185,8 +185,8 @@ export default function ExportFormatsModal({
         </div>
 
         {/* Footer Actions */}
-        <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-xs text-slate-500">
+        <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900/90 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
             <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
             <span>{t('exportFormatsModal.allExportsIncludeNote')}</span>
           </div>
@@ -194,7 +194,7 @@ export default function ExportFormatsModal({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 sm:flex-none px-4 py-2 text-sm font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-200/60 rounded-xl transition cursor-pointer"
+              className="flex-1 sm:flex-none px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800 rounded-xl transition cursor-pointer"
             >
               {t('exportFormatsModal.cancel')}
             </button>
@@ -229,10 +229,10 @@ function FormatCard({ format, isSelected, onClick, onUpgrade }) {
   return (
     <div
       onClick={onClick}
-      className={`group relative flex flex-col justify-between rounded-2xl border-2 p-3 text-left transition-all duration-200 cursor-pointer select-none bg-white ${
+      className={`group relative flex flex-col justify-between rounded-2xl border-2 p-3 text-left transition-all duration-200 cursor-pointer select-none bg-white dark:bg-slate-800 ${
         isSelected
-          ? 'border-indigo-600 ring-4 ring-indigo-50 shadow-md transform -translate-y-0.5'
-          : 'border-slate-200/80 hover:border-slate-300 hover:shadow-xs'
+          ? 'border-indigo-600 ring-4 ring-indigo-50 dark:ring-indigo-950 shadow-md transform -translate-y-0.5'
+          : 'border-slate-200/80 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-xs'
       }`}
     >
       {/* Top Tag / Badge */}
@@ -240,17 +240,17 @@ function FormatCard({ format, isSelected, onClick, onUpgrade }) {
         <span
           className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${
             format.tag === 'Standard'
-              ? 'bg-slate-100 text-slate-600'
+              ? 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
               : 'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-2xs'
           }`}
         >
           {format.tag}
         </span>
-        <span className="text-[10px] font-medium text-slate-400">{format.extension}</span>
+        <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">{format.extension}</span>
       </div>
 
       {/* Word-like Document Miniature Preview */}
-      <div className="relative w-full aspect-[4/5] bg-slate-50 border border-slate-200 rounded-xl overflow-hidden p-2 flex flex-col justify-between mb-2.5 shadow-2xs group-hover:bg-slate-50/80 transition">
+      <div className="relative w-full aspect-[4/5] bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden p-2 flex flex-col justify-between mb-2.5 shadow-2xs group-hover:bg-slate-50/80 dark:group-hover:bg-slate-900/80 transition">
         <MiniDocumentPreview type={format.previewType} accent={format.accentColor} />
 
         {/* Locked Overlay if not Pro */}
@@ -270,7 +270,7 @@ function FormatCard({ format, isSelected, onClick, onUpgrade }) {
       {/* Title & Description */}
       <div>
         <div className="flex items-center justify-between gap-1">
-          <h4 className="text-xs font-bold text-slate-900 line-clamp-1">{format.title}</h4>
+          <h4 className="text-xs font-bold text-slate-900 dark:text-white line-clamp-1">{format.title}</h4>
           {isSelected && (
             <span className="w-4 h-4 rounded-full bg-indigo-600 text-white flex items-center justify-center shrink-0">
               <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -279,7 +279,7 @@ function FormatCard({ format, isSelected, onClick, onUpgrade }) {
             </span>
           )}
         </div>
-        <p className="text-[10px] text-slate-500 line-clamp-2 mt-1 leading-tight">{format.description}</p>
+        <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-2 mt-1 leading-tight">{format.description}</p>
       </div>
     </div>
   );

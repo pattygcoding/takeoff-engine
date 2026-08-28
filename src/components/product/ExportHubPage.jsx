@@ -457,22 +457,22 @@ export default function ExportHubPage({ items, rates, currentProject }) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 pb-16">
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 pb-16 text-slate-900 dark:text-slate-100">
       {/* Top Breadcrumb & Controls Header (Hidden in Print) */}
-      <div className="no-print bg-white border-b border-slate-200 sticky top-0 z-30 shadow-2xs">
+      <div className="no-print bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 shadow-2xs">
         <div className="max-w-7xl mx-auto px-4 py-3 sm:py-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <Link
               to={backUrl}
-              className="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-indigo-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl transition"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-xl transition"
             >
               {t('exportHub.backToResults')}
             </Link>
             <div>
-              <h1 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
+              <h1 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <span>{t('exportHub.exportPrintCenter')}</span>
                 {currentProject?.name && (
-                  <span className="text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 rounded-md">
+                  <span className="text-xs font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 px-2.5 py-0.5 rounded-md">
                     {currentProject.name}
                   </span>
                 )}
@@ -486,9 +486,9 @@ export default function ExportHubPage({ items, rates, currentProject }) {
               type="button"
               onClick={handlePrint}
               disabled={exportingType !== null}
-              className="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
+              className="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition cursor-pointer shadow-2xs"
             >
-              <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-slate-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
               </svg>
               <span>{t('exportHub.printBtn')}</span>
@@ -511,20 +511,20 @@ export default function ExportHubPage({ items, rates, currentProject }) {
 
       <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
         {/* Template Chooser Grid (4 Rows of 5) */}
-        <div id="format-selection-grid" className="no-print bg-white rounded-3xl p-5 border border-slate-200 shadow-xs scroll-mt-20">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
+        <div id="format-selection-grid" className="no-print bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200 dark:border-slate-800 shadow-xs scroll-mt-20">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
             <div>
-              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800">
+              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
                 {t('exportHub.chooseDocFormatTitle')}
               </h2>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 {t('exportHub.chooseDocFormatDesc')}
               </p>
             </div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 shrink-0">
+            <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400 shrink-0">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
               <span>{t('exportHub.standardFormatsBadge')}</span>
-              <span className="text-slate-300">•</span>
+              <span className="text-slate-300 dark:text-slate-600">•</span>
               <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
               <span>{t('exportHub.proFormatsBadge')}</span>
             </div>
@@ -532,7 +532,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
 
           {/* Row 1 (5 items) */}
           <div className="mb-4">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 px-1">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2 px-1">
               {t('exportHub.row1Title')}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
@@ -557,7 +557,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
 
           {/* Row 2 (5 items) */}
           <div className="mb-4">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 px-1">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2 px-1">
               {t('exportHub.row2Title')}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
@@ -582,7 +582,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
 
           {/* Row 3 (5 items) */}
           <div className="mb-4">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 px-1">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2 px-1">
               {t('exportHub.row3Title')}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
@@ -607,7 +607,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
 
           {/* Row 4 (2 items) */}
           <div>
-            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 px-1">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2 px-1">
               {t('exportHub.row4Title')}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
@@ -633,16 +633,16 @@ export default function ExportHubPage({ items, rates, currentProject }) {
 
         {/* Selected Format Banner / Pro Notice */}
         {isCurrentFormatLocked && (
-          <div className="no-print rounded-2xl bg-amber-50 border border-amber-200 p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
+          <div className="no-print rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold shrink-0">
                 🔒
               </div>
               <div>
-                <h4 className="text-sm font-bold text-amber-900">
+                <h4 className="text-sm font-bold text-amber-900 dark:text-amber-200">
                   {t('exportHub.isAProFeature', { name: currentFormat.name })}
                 </h4>
-                <p className="text-xs text-amber-700">
+                <p className="text-xs text-amber-700 dark:text-amber-300">
                   {t('exportHub.isAProFeatureDesc')}
                 </p>
               </div>
@@ -666,10 +666,10 @@ export default function ExportHubPage({ items, rates, currentProject }) {
                 📄
               </div>
               <div>
-                <h2 className="text-base sm:text-lg font-bold text-slate-900 leading-tight">
-                  {t('exportHub.documentPreview')}: <span className="text-indigo-600">{currentFormat.name}</span>
+                <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-tight">
+                  {t('exportHub.documentPreview')}: <span className="text-indigo-600 dark:text-indigo-400">{currentFormat.name}</span>
                 </h2>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   {t('exportHub.previewDesc')}
                 </p>
               </div>
@@ -678,7 +678,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
             <button
               type="button"
               onClick={scrollToFormatSelection}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 hover:text-indigo-600 border border-slate-200 hover:border-indigo-200 rounded-xl text-xs font-bold transition shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 border border-slate-200 dark:border-slate-700 hover:border-indigo-200 rounded-xl text-xs font-bold transition shadow-2xs cursor-pointer"
             >
               <svg className="w-4 h-4 text-slate-400 group-hover:text-indigo-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 10l7-7m0 0l7 7m-7-7v18" />
@@ -687,7 +687,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
             </button>
           </div>
 
-          <div className="bg-slate-300/40 p-2 sm:p-6 rounded-3xl border border-slate-200/80 flex justify-center">
+          <div className="bg-slate-300/40 dark:bg-slate-900/60 p-2 sm:p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 flex justify-center">
             <div
               id="export-document-canvas"
               ref={printAreaRef}
@@ -780,21 +780,21 @@ function FormatCard({ format, isSelected, isPro, onScrollToPreview, onClick }) {
   return (
     <div
       onClick={onClick}
-      className={`group relative flex flex-col justify-between rounded-2xl border-2 p-3 text-left transition-all duration-200 cursor-pointer select-none bg-white ${
+      className={`group relative flex flex-col justify-between rounded-2xl border-2 p-3 text-left transition-all duration-200 cursor-pointer select-none bg-white dark:bg-slate-800 ${
         isSelected
-          ? 'border-indigo-600 ring-4 ring-indigo-50 shadow-md transform -translate-y-0.5'
-          : 'border-slate-200/80 hover:border-slate-300 hover:shadow-xs'
+          ? 'border-indigo-600 ring-4 ring-indigo-50 dark:ring-indigo-950 shadow-md transform -translate-y-0.5'
+          : 'border-slate-200/80 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-xs'
       }`}
     >
       <div className="flex items-center justify-between mb-2">
         <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${format.badgeColor}`}>
           {format.tag}
         </span>
-        <span className="text-[9px] font-semibold text-slate-400 line-clamp-1">{format.category}</span>
+        <span className="text-[9px] font-semibold text-slate-400 dark:text-slate-500 line-clamp-1">{format.category}</span>
       </div>
 
       {/* Mini Word-like Document Thumbnail */}
-      <div className="relative w-full aspect-[4/5] bg-slate-50 border border-slate-200 rounded-xl overflow-hidden p-2 flex flex-col justify-between mb-2.5 shadow-2xs group-hover:bg-slate-100/70 transition">
+      <div className="relative w-full aspect-[4/5] bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden p-2 flex flex-col justify-between mb-2.5 shadow-2xs group-hover:bg-slate-100/70 dark:group-hover:bg-slate-900/80 transition">
         <MiniFormatThumbnail kind={format.previewKind} />
 
         {isLocked && (
@@ -811,14 +811,14 @@ function FormatCard({ format, isSelected, isPro, onScrollToPreview, onClick }) {
 
       <div>
         <div className="flex items-center justify-between gap-1.5">
-          <h4 className="text-xs font-bold text-slate-900 line-clamp-1 flex-1">{format.name}</h4>
+          <h4 className="text-xs font-bold text-slate-900 dark:text-white line-clamp-1 flex-1">{format.name}</h4>
           
           <div className="flex items-center gap-1 shrink-0">
             {isSelected && (
               <button
                 type="button"
                 onClick={handlePreviewClick}
-                className="px-1.5 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 hover:text-indigo-900 border border-indigo-200 rounded-md text-[9px] font-extrabold tracking-tight transition cursor-pointer shadow-2xs flex items-center gap-0.5"
+                className="px-1.5 py-0.5 bg-indigo-50 dark:bg-indigo-950/80 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 hover:text-indigo-900 border border-indigo-200 dark:border-indigo-800 rounded-md text-[9px] font-extrabold tracking-tight transition cursor-pointer shadow-2xs flex items-center gap-0.5"
                 title={t('exportHub.jumpToPreviewTitle')}
               >
                 <span>{t('exportHub.seePreviewBtn')}</span>
@@ -837,7 +837,7 @@ function FormatCard({ format, isSelected, isPro, onScrollToPreview, onClick }) {
             )}
           </div>
         </div>
-        <p className="text-[10px] text-slate-500 line-clamp-2 mt-1 leading-tight">{format.description}</p>
+        <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-2 mt-1 leading-tight">{format.description}</p>
       </div>
     </div>
   );

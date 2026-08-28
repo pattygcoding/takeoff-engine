@@ -74,9 +74,9 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
   };
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+    <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 transition-colors">
       <table className="min-w-full text-sm">
-        <thead className="bg-slate-50 border-b border-slate-200">
+        <thead className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800">
           <tr>
             <Th>{t('takeoffGrid.system')}</Th>
             <Th>{t('takeoffGrid.description')}</Th>
@@ -88,14 +88,14 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
             <Th align="right">
               <div className="flex items-center justify-end gap-1.5">
                 <span>{laborInputMode === 'hours' ? t('takeoffGrid.laborHoursPerUnit') : t('takeoffGrid.laborUnitCost')}</span>
-                <div className="inline-flex rounded border border-slate-200 bg-slate-100 p-0.5 text-[10px]">
+                <div className="inline-flex rounded border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 p-0.5 text-[10px]">
                   <button
                     type="button"
                     onClick={() => handleSetLaborInputMode('hours')}
-                    className={`px-1.5 py-0.2 rounded font-semibold transition-colors ${
+                    className={`px-1.5 py-0.2 rounded font-semibold transition-colors cursor-pointer ${
                       laborInputMode === 'hours'
-                        ? 'bg-white text-indigo-600 shadow-xs'
-                        : 'text-slate-500 hover:text-slate-700'
+                        ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
                     }`}
                     title={t('takeoffGrid.laborHoursPerUnit')}
                   >
@@ -104,10 +104,10 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                   <button
                     type="button"
                     onClick={() => handleSetLaborInputMode('cost')}
-                    className={`px-1.5 py-0.2 rounded font-semibold transition-colors ${
+                    className={`px-1.5 py-0.2 rounded font-semibold transition-colors cursor-pointer ${
                       laborInputMode === 'cost'
-                        ? 'bg-white text-indigo-600 shadow-xs'
-                        : 'text-slate-500 hover:text-slate-700'
+                        ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
                     }`}
                     title={t('takeoffGrid.laborUnitCost')}
                   >
@@ -119,18 +119,18 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
             <Th></Th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100">
+        <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-800 dark:text-slate-200">
           {items.map((item) => (
-            <tr key={item.id} className={`hover:bg-slate-50 ${item.hasMissingScope ? 'bg-amber-50/40' : ''}`}>
+            <tr key={item.id} className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 ${item.hasMissingScope ? 'bg-amber-50/40 dark:bg-amber-950/20' : ''}`}>
               <Td>
                 <select
                   value={item.system ?? ''}
                   onChange={textField(item, 'system')}
                   disabled={readOnly}
-                  className="w-full bg-transparent outline-none text-slate-700 disabled:opacity-80 disabled:cursor-not-allowed font-medium text-xs"
+                  className="w-full bg-transparent outline-none text-slate-700 dark:text-slate-300 disabled:opacity-80 disabled:cursor-not-allowed font-medium text-xs"
                 >
                   {systemOptions.map((s) => (
-                    <option key={s} value={s}>
+                    <option key={s} value={s} className="dark:bg-slate-900 dark:text-white">
                       {s}
                     </option>
                   ))}
@@ -142,11 +142,11 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                     value={item.description ?? ''}
                     onChange={textField(item, 'description')}
                     disabled={readOnly}
-                    className="flex-1 bg-transparent outline-none min-w-[120px] disabled:opacity-80 disabled:cursor-not-allowed"
+                    className="flex-1 bg-transparent outline-none min-w-[120px] disabled:opacity-80 disabled:cursor-not-allowed dark:text-white"
                   />
                   {item.hasMissingScope && (
                     <span
-                      className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300"
+                      className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700"
                       title={t('takeoffGrid.missingScopeTooltip', 'Scope requires field verification / pricing review')}
                     >
                       ⚠️ {item.missingScopeReason || t('takeoffGrid.missingScopeBadge', 'Missing Scope')}
@@ -159,7 +159,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                   value={item.sizeSpec ?? ''}
                   onChange={textField(item, 'sizeSpec')}
                   disabled={readOnly}
-                  className="w-full bg-transparent outline-none min-w-[120px] disabled:opacity-80 disabled:cursor-not-allowed"
+                  className="w-full bg-transparent outline-none min-w-[120px] disabled:opacity-80 disabled:cursor-not-allowed dark:text-white"
                 />
               </Td>
               <Td align="right">
@@ -168,8 +168,8 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                   value={item.quantity ?? ''}
                   onChange={numberField(item, 'quantity')}
                   disabled={readOnly}
-                  className={`w-20 bg-transparent outline-none text-right disabled:opacity-80 disabled:cursor-not-allowed ${
-                    item.quantity < 0 ? 'text-red-600 font-bold' : ''
+                  className={`w-20 bg-transparent outline-none text-right disabled:opacity-80 disabled:cursor-not-allowed dark:text-white ${
+                    item.quantity < 0 ? 'text-red-600 dark:text-red-400 font-bold' : ''
                   }`}
                 />
               </Td>
@@ -178,10 +178,10 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                   value={item.unit ?? ''}
                   onChange={textField(item, 'unit')}
                   disabled={readOnly}
-                  className="w-full bg-transparent outline-none disabled:opacity-80 disabled:cursor-not-allowed font-mono text-xs"
+                  className="w-full bg-transparent outline-none disabled:opacity-80 disabled:cursor-not-allowed font-mono text-xs dark:text-white"
                 >
                   {unitOptions.map((u) => (
-                    <option key={u} value={u}>
+                    <option key={u} value={u} className="dark:bg-slate-900 dark:text-white">
                       {u}
                     </option>
                   ))}
@@ -192,7 +192,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                   type="number"
                   value={item.avgDepthFt ?? ''}
                   onChange={numberField(item, 'avgDepthFt')}
-                  className="w-16 bg-transparent outline-none text-right disabled:opacity-80 disabled:cursor-not-allowed"
+                  className="w-16 bg-transparent outline-none text-right disabled:opacity-80 disabled:cursor-not-allowed dark:text-white"
                   disabled={readOnly || item.unit !== 'LF'}
                 />
               </Td>
@@ -203,7 +203,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                   value={item.materialCostPerUnit ?? ''}
                   onChange={numberField(item, 'materialCostPerUnit')}
                   disabled={readOnly}
-                  className="w-20 bg-transparent outline-none text-right disabled:opacity-80 disabled:cursor-not-allowed"
+                  className="w-20 bg-transparent outline-none text-right disabled:opacity-80 disabled:cursor-not-allowed dark:text-white"
                 />
               </Td>
               <Td align="right">
@@ -217,7 +217,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                   }
                   onChange={laborInputMode === 'hours' ? numberField(item, 'laborHoursPerUnit') : laborCostField(item)}
                   disabled={readOnly}
-                  className="w-20 bg-transparent outline-none text-right disabled:opacity-80 disabled:cursor-not-allowed"
+                  className="w-20 bg-transparent outline-none text-right disabled:opacity-80 disabled:cursor-not-allowed dark:text-white"
                 />
               </Td>
               <Td>
@@ -225,7 +225,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                   <button
                     type="button"
                     onClick={() => removeItem(item.id)}
-                    className="text-slate-400 hover:text-red-600"
+                    className="text-slate-400 hover:text-red-600 dark:hover:text-red-400 cursor-pointer"
                     title={t('takeoffGrid.deleteRow')}
                   >
                     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -245,11 +245,11 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
       </table>
 
       {!readOnly && (
-        <div className="p-3 border-t border-slate-200">
+        <div className="p-3 border-t border-slate-200 dark:border-slate-800">
           <button
             type="button"
             onClick={addRow}
-            className="text-sm font-medium text-indigo-600 hover:text-indigo-800"
+            className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 cursor-pointer"
           >
             + {t('takeoffGrid.addRow')}
           </button>
@@ -261,7 +261,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
 
 function Th({ children, align = 'left' }) {
   return (
-    <th className={`px-3 py-2 font-semibold text-slate-500 text-xs uppercase tracking-wide ${align === 'right' ? 'text-right' : 'text-left'}`}>
+    <th className={`px-3 py-2 font-semibold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide ${align === 'right' ? 'text-right' : 'text-left'}`}>
       {children}
     </th>
   );

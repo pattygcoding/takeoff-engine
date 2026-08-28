@@ -27,6 +27,16 @@
 
     <!-- Single Page App redirect restore for GitHub Pages custom domain routing -->
     <script>
+      (function() {
+        try {
+          var savedTheme = localStorage.getItem('takeoff_engine_theme');
+          if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        } catch (e) {}
+      })();
       (function(l) {
         if (l.search[1] === '/' ) {
           var decoded = l.search.slice(1).split('&').map(function(s) { 

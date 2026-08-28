@@ -286,32 +286,32 @@ export default function TeamWorkspaceManager() {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-4 border-b border-slate-100 pb-4">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-6 text-slate-900 dark:text-slate-100">
+      <div className="flex items-center justify-between flex-wrap gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-lg font-bold text-slate-900">{t('teamWorkspaceManager.title')}</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{t('teamWorkspaceManager.title')}</h2>
           </div>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
             {t('teamWorkspaceManager.collaborate')}
           </p>
         </div>
 
         {!isEnterpriseOrTeam && (
-          <div className="text-xs bg-amber-50 text-amber-800 border border-amber-200 px-3 py-1.5 rounded-xl">
+          <div className="text-xs bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-700 px-3 py-1.5 rounded-xl">
             👑 {t('teamWorkspaceManager.requiresEnterprise')}
           </div>
         )}
       </div>
 
       {error && (
-        <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl">
+        <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-300 text-xs rounded-xl">
           ✕ {error}
         </div>
       )}
 
       {successMsg && (
-        <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs rounded-xl">
+        <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs rounded-xl">
           ✓ {successMsg}
         </div>
       )}
@@ -323,10 +323,10 @@ export default function TeamWorkspaceManager() {
             key={org.id}
             type="button"
             onClick={() => selectOrganization(org.id)}
-            className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition ${
+            className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
               activeOrg?.id === org.id
                 ? 'bg-indigo-600 text-white shadow-xs'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
             🏢 {org.name} ({org.active_member_count || 1}/{org.max_seats} Seats)
@@ -340,12 +340,12 @@ export default function TeamWorkspaceManager() {
               placeholder={t('teamWorkspaceManager.newOrgPlaceholder')}
               value={newOrgName}
               onChange={(e) => setNewOrgName(e.target.value)}
-              className="px-3 py-1.5 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              className="px-3 py-1.5 text-xs border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
             />
             <button
               type="submit"
               disabled={creatingOrg || !newOrgName.trim()}
-              className="px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-xl disabled:opacity-50 transition"
+              className="px-3 py-1.5 bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 text-white text-xs font-semibold rounded-xl disabled:opacity-50 transition cursor-pointer"
             >
               {creatingOrg ? t('teamWorkspaceManager.creating') : t('teamWorkspaceManager.createOrgButton')}
             </button>
@@ -357,20 +357,20 @@ export default function TeamWorkspaceManager() {
       {activeOrg ? (
         <div className="space-y-4 pt-2">
           {/* Seat Capacity & Utilization Banner */}
-          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4">
+          <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                   {t('teamWorkspaceManager.subscriptionSeats')}
                 </span>
-                <span className="text-xs bg-indigo-100 text-indigo-700 font-bold px-2 py-0.5 rounded">
+                <span className="text-xs bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-bold px-2 py-0.5 rounded">
                   {tier.toUpperCase()} {t('teamWorkspaceManager.tier')}
                 </span>
               </div>
-              <div className="text-lg font-black text-slate-900 mt-1">
+              <div className="text-lg font-black text-slate-900 dark:text-white mt-1">
                 {members.length} {t('teamWorkspaceManager.of')} {activeOrg.max_seats} {t('teamWorkspaceManager.seatsUsed')}
               </div>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 {t('teamWorkspaceManager.seatsBreakdown', { baseSeats, currentAddSeats })}
               </p>
             </div>
@@ -379,7 +379,7 @@ export default function TeamWorkspaceManager() {
               <button
                 type="button"
                 onClick={handleOpenSeatModal}
-                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1.5"
+                className="px-4 py-2 bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 text-white text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
               >
                 <span>⚙️ {t('teamWorkspaceManager.manageSeatButton')}</span>
               </button>
@@ -387,18 +387,18 @@ export default function TeamWorkspaceManager() {
           </div>
 
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-slate-800">
+            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">
               {t('teamWorkspaceManager.workspaceMembers')} ({members.length} / {activeOrg.max_seats} {t('teamWorkspaceManager.seatsUsed')})
             </h3>
             <div className="flex items-center gap-3">
-              <span className="text-xs text-slate-400">
+              <span className="text-xs text-slate-400 dark:text-slate-500">
                 {t('teamWorkspaceManager.owner')}: {activeOrg.owner_email || t('teamWorkspaceManager.you')}
               </span>
               {canDeleteActiveOrg && (
                 <button
                   type="button"
                   onClick={handleDeleteOrg}
-                  className="px-2.5 py-1 text-xs font-semibold text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200 rounded-lg transition"
+                  className="px-2.5 py-1 text-xs font-semibold text-red-600 dark:text-red-400 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/40 border border-red-200 dark:border-red-900/60 rounded-lg transition cursor-pointer"
                 >
                   🗑️ {t('teamWorkspaceManager.deleteOrgButton')}
                 </button>
@@ -407,9 +407,9 @@ export default function TeamWorkspaceManager() {
           </div>
 
           {/* Member List */}
-          <div className="overflow-x-auto border border-slate-200 rounded-xl">
+          <div className="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-xl">
             <table className="min-w-full text-xs">
-              <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider">
+              <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider">
                 <tr>
                   <th className="py-2.5 px-3 text-left">{t('teamWorkspaceManager.member')}</th>
                   <th className="py-2.5 px-3 text-left">{t('teamWorkspaceManager.role')}</th>
@@ -417,25 +417,25 @@ export default function TeamWorkspaceManager() {
                   <th className="py-2.5 px-3 text-right">{t('teamWorkspaceManager.actions')}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {members.map((m) => (
-                  <tr key={m.id} className="hover:bg-slate-50/50">
-                    <td className="py-2.5 px-3 font-medium text-slate-800">
+                  <tr key={m.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50">
+                    <td className="py-2.5 px-3 font-medium text-slate-800 dark:text-slate-200">
                       <div>{m.user_email || m.invited_email}</div>
                       {m.first_name && (
-                        <div className="text-[11px] text-slate-400">{m.first_name} {m.last_name}</div>
+                        <div className="text-[11px] text-slate-400 dark:text-slate-500">{m.first_name} {m.last_name}</div>
                       )}
                     </td>
                     <td className="py-2.5 px-3">
                       {m.role === 'owner' ? (
-                        <span className="px-2 py-0.5 bg-purple-50 text-purple-700 font-bold rounded-md">
+                        <span className="px-2 py-0.5 bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 font-bold rounded-md">
                           {t('teamWorkspaceManager.roleOwner')}
                         </span>
                       ) : (
                         <select
                           value={m.role}
                           onChange={(e) => handleUpdateRole(m.id, e.target.value)}
-                          className="bg-white border border-slate-300 rounded-lg px-2 py-1 text-xs focus:ring-1 focus:ring-indigo-500"
+                          className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 text-xs focus:ring-1 focus:ring-indigo-500"
                         >
                           <option value="admin">{t('teamWorkspaceManager.roleAdmin')}</option>
                           <option value="estimator">{t('teamWorkspaceManager.roleEstimator')}</option>
@@ -448,10 +448,10 @@ export default function TeamWorkspaceManager() {
                         <span
                           className={`px-2 py-0.5 rounded-md font-semibold text-[10px] uppercase ${
                             m.status === 'active'
-                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
                               : m.status === 'revoked'
-                              ? 'bg-red-50 text-red-700 border border-red-200'
-                              : 'bg-amber-50 text-amber-700 border border-amber-200'
+                              ? 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-900'
+                              : 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
                           }`}
                         >
                           {m.status}
@@ -460,7 +460,7 @@ export default function TeamWorkspaceManager() {
                           <button
                             type="button"
                             onClick={() => handleCopyInviteLink(m.invite_token)}
-                            className="text-[11px] text-indigo-600 hover:text-indigo-800 font-medium underline"
+                            className="text-[11px] text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium underline cursor-pointer"
                             title={t('teamWorkspaceManager.copyMagicLinkTitle')}
                           >
                             {t('teamWorkspaceManager.copyLink')}
@@ -476,14 +476,14 @@ export default function TeamWorkspaceManager() {
                               <button
                                 type="button"
                                 onClick={() => handleResendInvite(m.id, m.user_email || m.invited_email)}
-                                className="text-indigo-600 hover:text-indigo-800 font-semibold text-xs"
+                                className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-semibold text-xs cursor-pointer"
                               >
                                 {t('teamWorkspaceManager.resend')}
                               </button>
                               <button
                                 type="button"
                                 onClick={() => handleRevokeInvite(m.id)}
-                                className="text-amber-600 hover:text-amber-800 font-semibold text-xs"
+                                className="text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 font-semibold text-xs cursor-pointer"
                               >
                                 {t('teamWorkspaceManager.revoke')}
                               </button>
@@ -492,7 +492,7 @@ export default function TeamWorkspaceManager() {
                           <button
                             type="button"
                             onClick={() => handleRemoveMember(m.id)}
-                            className="text-red-500 hover:text-red-700 font-semibold text-xs"
+                            className="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 font-semibold text-xs cursor-pointer"
                           >
                             {t('teamWorkspaceManager.remove')}
                           </button>
@@ -507,9 +507,9 @@ export default function TeamWorkspaceManager() {
 
           {/* Invite Form */}
           {members.length < activeOrg.max_seats && (
-            <form onSubmit={handleInviteMember} className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-wrap gap-3 items-center">
+            <form onSubmit={handleInviteMember} className="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-wrap gap-3 items-center">
               <div className="flex-1 min-w-[200px]">
-                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
                   {t('teamWorkspaceManager.inviteEmailLabel')}
                 </label>
                 <input
@@ -518,18 +518,18 @@ export default function TeamWorkspaceManager() {
                   placeholder="estimator@contractor.com"
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
-                  className="w-full px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full px-3 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 />
               </div>
 
               <div className="w-32">
-                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
                   {t('teamWorkspaceManager.roleLabel')}
                 </label>
                 <select
                   value={inviteRole}
                   onChange={(e) => setInviteRole(e.target.value)}
-                  className="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 >
                   <option value="estimator">{t('teamWorkspaceManager.roleEstimator')}</option>
                   <option value="admin">{t('teamWorkspaceManager.roleAdmin')}</option>
@@ -541,7 +541,7 @@ export default function TeamWorkspaceManager() {
                 <button
                   type="submit"
                   disabled={inviting || !inviteEmail.trim()}
-                  className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-xl disabled:opacity-50 shadow-xs transition"
+                  className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-xl disabled:opacity-50 shadow-xs transition cursor-pointer"
                 >
                   {inviting ? t('teamWorkspaceManager.inviting') : t('teamWorkspaceManager.sendInviteButton')}
                 </button>
@@ -550,7 +550,7 @@ export default function TeamWorkspaceManager() {
           )}
         </div>
       ) : (
-        <div className="text-center py-6 text-slate-400 text-xs">
+        <div className="text-center py-6 text-slate-400 dark:text-slate-500 text-xs">
           {t('teamWorkspaceManager.noWorkspaces')}
         </div>
       )}
@@ -558,48 +558,48 @@ export default function TeamWorkspaceManager() {
       {/* In-App Seat Manager Modal (US-037) */}
       {seatModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-xs animate-fade-in">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-md w-full p-6 text-slate-800 relative">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-6 text-slate-800 dark:text-slate-100 relative">
             <button
               onClick={() => setSeatModalOpen(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             >
               ✕
             </button>
-            <h3 className="text-lg font-bold text-slate-900 mb-1">{t('teamWorkspaceManager.seatModalTitle')}</h3>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">{t('teamWorkspaceManager.seatModalTitle')}</h3>
             <p
-              className="text-xs text-slate-500 mb-4"
+              className="text-xs text-slate-500 dark:text-slate-400 mb-4"
               dangerouslySetInnerHTML={{ __html: t('teamWorkspaceManager.seatModalDescription') }}
             />
 
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-4 space-y-3">
+            <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl p-4 mb-4 space-y-3">
               <div className="flex justify-between items-center text-xs">
-                <span className="text-slate-600">{t('teamWorkspaceManager.basePlanSeatsLabel', { tier: tier.toUpperCase() })}:</span>
-                <span className="font-bold text-slate-900">{baseSeats} {t('teamWorkspaceManager.seats')}</span>
+                <span className="text-slate-600 dark:text-slate-400">{t('teamWorkspaceManager.basePlanSeatsLabel', { tier: tier.toUpperCase() })}:</span>
+                <span className="font-bold text-slate-900 dark:text-white">{baseSeats} {t('teamWorkspaceManager.seats')}</span>
               </div>
               <div className="flex justify-between items-center text-xs">
-                <span className="text-slate-600">{t('teamWorkspaceManager.additionalSeatsLabel')}:</span>
+                <span className="text-slate-600 dark:text-slate-400">{t('teamWorkspaceManager.additionalSeatsLabel')}:</span>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => setTargetAddSeats(Math.max(0, targetAddSeats - 1))}
                     disabled={targetAddSeats <= 0}
-                    className="w-7 h-7 rounded bg-white border border-slate-300 font-bold hover:bg-slate-100 disabled:opacity-40"
+                    className="w-7 h-7 rounded bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 font-bold hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 cursor-pointer text-slate-900 dark:text-slate-100"
                   >
                     -
                   </button>
-                  <span className="font-mono font-bold text-sm w-6 text-center">{targetAddSeats}</span>
+                  <span className="font-mono font-bold text-sm w-6 text-center text-slate-900 dark:text-white">{targetAddSeats}</span>
                   <button
                     type="button"
                     onClick={() => setTargetAddSeats(targetAddSeats + 1)}
-                    className="w-7 h-7 rounded bg-white border border-slate-300 font-bold hover:bg-slate-100"
+                    className="w-7 h-7 rounded bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 font-bold hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer text-slate-900 dark:text-slate-100"
                   >
                     +
                   </button>
                 </div>
               </div>
-              <div className="border-t border-slate-200 pt-2 flex justify-between items-center text-sm font-bold">
-                <span className="text-indigo-950">{t('teamWorkspaceManager.newTotalCapacityLabel')}:</span>
-                <span className="text-indigo-600 font-extrabold">{baseSeats + targetAddSeats} {t('teamWorkspaceManager.seats')}</span>
+              <div className="border-t border-slate-200 dark:border-slate-700 pt-2 flex justify-between items-center text-sm font-bold">
+                <span className="text-indigo-950 dark:text-indigo-300">{t('teamWorkspaceManager.newTotalCapacityLabel')}:</span>
+                <span className="text-indigo-600 dark:text-indigo-400 font-extrabold">{baseSeats + targetAddSeats} {t('teamWorkspaceManager.seats')}</span>
               </div>
             </div>
 
@@ -607,7 +607,7 @@ export default function TeamWorkspaceManager() {
               <button
                 type="button"
                 onClick={() => setSeatModalOpen(false)}
-                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition"
+                className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-xl transition cursor-pointer"
               >
                 {t('teamWorkspaceManager.cancelButton')}
               </button>
@@ -615,7 +615,7 @@ export default function TeamWorkspaceManager() {
                 type="button"
                 onClick={handleSaveSeats}
                 disabled={updatingSeats}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition disabled:opacity-50"
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition disabled:opacity-50 cursor-pointer"
               >
                 {updatingSeats ? t('teamWorkspaceManager.savingSeats') : t('teamWorkspaceManager.saveUpdateBillingButton')}
               </button>
