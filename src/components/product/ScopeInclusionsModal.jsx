@@ -20,7 +20,6 @@ export default function ScopeInclusionsModal({
 }) {
   const { t } = useTranslation();
   const isPanel = variant === 'panel';
-  const [showSavedConfirm, setShowSavedConfirm] = useState(false);
   const [items, setItems] = useState(() => {
     return Array.isArray(scopeItems) && scopeItems.length > 0
       ? JSON.parse(JSON.stringify(scopeItems))
@@ -55,29 +54,35 @@ export default function ScopeInclusionsModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scopeItems]);
 
+  const applyItemChanges = (updater) => {
+    const nextItems = updater(items);
+    setItems(nextItems);
+    onSave?.(nextItems);
+  };
+
   const handleStatusChange = (id, newStatus) => {
     if (readOnly) return;
-    setItems((prev) =>
-      prev.map((it) => (it.id === id ? { ...it, status: newStatus } : it))
+    applyItemChanges((currentItems) =>
+      currentItems.map((it) => (it.id === id ? { ...it, status: newStatus } : it))
     );
   };
 
   const handleRemoveItem = (id) => {
     if (readOnly) return;
-    setItems((prev) => prev.filter((it) => it.id !== id));
+    applyItemChanges((currentItems) => currentItems.filter((it) => it.id !== id));
   };
 
   // Add-on pricing stays negotiable even when the rest of the project is locked/submitted.
   const handleCostImpactChange = (id, rawValue) => {
     const parsed = rawValue === '' ? 0 : Number(rawValue);
-    setItems((prev) =>
-      prev.map((it) => (it.id === id ? { ...it, costImpact: Number.isFinite(parsed) ? parsed : 0 } : it))
+    applyItemChanges((currentItems) =>
+      currentItems.map((it) => (it.id === id ? { ...it, costImpact: Number.isFinite(parsed) ? parsed : 0 } : it))
     );
   };
 
   const handleCostImpactTypeChange = (id, costImpactType) => {
-    setItems((prev) =>
-      prev.map((it) => (it.id === id ? { ...it, costImpactType } : it))
+    applyItemChanges((currentItems) =>
+      currentItems.map((it) => (it.id === id ? { ...it, costImpactType } : it))
     );
   };
 
@@ -96,7 +101,7 @@ export default function ScopeInclusionsModal({
       isStandard: false,
     };
 
-    setItems((prev) => [...prev, newItem]);
+    applyItemChanges((currentItems) => [...currentItems, newItem]);
     setNewTitle('');
     setNewDesc('');
   };
@@ -121,7 +126,7 @@ export default function ScopeInclusionsModal({
     if (!presetId) return;
     const found = presets.find((p) => p.id === presetId);
     if (found && Array.isArray(found.items)) {
-      setItems(JSON.parse(JSON.stringify(found.items)));
+      applyItemChanges(() => JSON.parse(JSON.stringify(found.items)));
       setPresetFeedback(t('scopeModal.presetLoaded', 'Preset applied!'));
       setTimeout(() => setPresetFeedback(''), 3000);
     }
@@ -139,20 +144,10 @@ export default function ScopeInclusionsModal({
   };
 
   const handleResetToDefault = () => {
-    setItems(JSON.parse(JSON.stringify(DEFAULT_SCOPE_ITEMS)));
+    applyItemChanges(() => JSON.parse(JSON.stringify(DEFAULT_SCOPE_ITEMS)));
     setSelectedPresetId('');
     setPresetFeedback(t('scopeModal.resetApplied', 'Reset to defaults.'));
     setTimeout(() => setPresetFeedback(''), 3000);
-  };
-
-  const handleSave = () => {
-    if (onSave) onSave(items);
-    setShowSavedConfirm(true);
-  };
-
-  const handleDismissSavedConfirm = () => {
-    setShowSavedConfirm(false);
-    if (!isPanel && onClose) onClose();
   };
 
   const filteredItems = activeCategory === 'all'
@@ -537,17 +532,9 @@ export default function ScopeInclusionsModal({
               onClick={onClose}
               className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition cursor-pointer"
             >
-              {t('common.cancel')}
+              {t('common.close', 'Close')}
             </button>
           )}
-
-          <button
-            type="button"
-            onClick={handleSave}
-            className="px-5 py-2 text-xs font-bold bg-amber-400 hover:bg-amber-500 text-slate-950 border border-amber-500 rounded-xl shadow-md transition cursor-pointer"
-          >
-            {t('scopeModal.saveAndApply', 'Save Scope Clarifications')}
-          </button>
         </div>
     </>
   );
@@ -601,7 +588,6 @@ export default function ScopeInclusionsModal({
           </div>
         </div>
 
-        {showSavedConfirm && <SavedConfirmModal t={t} onDismiss={handleDismissSavedConfirm} />}
       </div>
     );
   }
@@ -631,7 +617,6 @@ export default function ScopeInclusionsModal({
         {body}
       </div>
 
-      {showSavedConfirm && <SavedConfirmModal t={t} onDismiss={handleDismissSavedConfirm} />}
     </div>
   );
 }
