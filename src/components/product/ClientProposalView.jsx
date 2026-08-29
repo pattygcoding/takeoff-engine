@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { proposalsApi } from '@/lib/product/proposals';
 import { formatCurrency, formatNumber, computeEstimate } from '@/lib/product/calculations';
@@ -139,23 +139,35 @@ export default function ClientProposalView() {
   const brandColor = contractor?.brand_color || '#0284c7';
 
   // Compute estimate totals dynamically if snapshot.summary.finalBidAmount is missing or 0
-  const computedSummary = useMemo(() => {
-    if (snapshot?.summary && Number(snapshot.summary.finalBidAmount) > 0) {
-      return snapshot.summary;
-    }
+  // (also the only source for scopeAddonsCost, which isn't persisted in the stored summary snapshot)
+  const [computedSummary, setComputedSummary] = useState(null);
+
+  useEffect(() => {
     const items = snapshot?.items || [];
     const rates = snapshot?.rates || {};
-    if (items.length > 0) {
-      const computed = computeEstimate(items, rates);
-      return computed?.totals || null;
+    if (items.length === 0) {
+      setComputedSummary(null);
+      return;
     }
-    return null;
+    let active = true;
+    computeEstimate(items, rates)
+      .then((res) => {
+        if (active) setComputedSummary(res?.totals || null);
+      })
+      .catch(() => {
+        if (active) setComputedSummary(null);
+      });
+    return () => {
+      active = false;
+    };
   }, [snapshot]);
 
   const finalBidAmount =
     Number(snapshot?.summary?.finalBidAmount) > 0
       ? Number(snapshot.summary.finalBidAmount)
       : computedSummary?.finalBidAmount || 0;
+
+  const scopeAddonsCost = Number(computedSummary?.scopeAddonsCost) || 0;
 
   if (loading) {
     return (
@@ -299,6 +311,11 @@ export default function ClientProposalView() {
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
               {t('clientProposal.investmentSubtitle')}
             </p>
+            {scopeAddonsCost > 0 && (
+              <p className="text-[11px] text-indigo-600 dark:text-indigo-400 mt-2">
+                {t('resultsStep.scopeAddonsNote', { amount: formatCurrency(scopeAddonsCost) })}
+              </p>
+            )}
           </div>
 
           {/* Scope of Work Breakdown */}

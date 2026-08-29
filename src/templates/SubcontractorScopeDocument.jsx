@@ -2,12 +2,13 @@ import React from 'react';
 import { formatCurrency, formatNumber } from '@/lib/product/calculations';
 import { DocumentBrandingHeader, DocumentSignOff } from './DocumentHeaderSignoff';
 import { useTranslation } from '@/context/I18nContext';
+import ScopeSummaryDisplay from '@/components/product/ScopeSummaryDisplay';
 
 /**
  * 10. Subcontractor Scope Submittal Layout
  */
 export default function SubcontractorScopeDocument({ estimate, branding, currentProject }) {
-  const { totals, bySystem } = estimate;
+  const { totals, bySystem, rates } = estimate;
   const { t } = useTranslation();
 
   return (
@@ -59,6 +60,8 @@ export default function SubcontractorScopeDocument({ estimate, branding, current
           </div>
         ))}
       </div>
+
+      <ScopeSummaryDisplay scopeItems={rates?.scopeItems} forceLight />
 
       <DocumentSignOff branding={branding} clientSignBlock />
     </div>

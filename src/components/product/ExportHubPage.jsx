@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useRef } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { computeEstimate, formatCurrency, formatNumber } from '@/lib/product/calculations';
 import { triggerDownload } from '@/lib/product/csv';
@@ -260,7 +260,20 @@ export default function ExportHubPage({ items, rates, currentProject }) {
       }
     : null;
 
-  const estimate = useMemo(() => computeEstimate(items, rates), [items, rates]);
+  const [estimate, setEstimate] = useState({ totals: {}, bySystem: [], items: [], rates });
+
+  useEffect(() => {
+    let active = true;
+    computeEstimate(items, rates)
+      .then((res) => {
+        if (active && res) setEstimate({ ...res, rates });
+      })
+      .catch((err) => console.error('Failed to compute estimate for export preview:', err));
+    return () => {
+      active = false;
+    };
+  }, [items, rates]);
+
   const { totals, bySystem } = estimate;
 
   const currentFormat = useMemo(

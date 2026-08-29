@@ -443,7 +443,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                         title={t('takeoffGrid.assignedLaborRoleTooltip', { role: itemRoleTitle, rate: itemHourlyRate })}
                       >
                         <option value="" className="dark:bg-slate-900 dark:text-white">
-                          {t('takeoffGrid.defaultRoleOption', `Default ($${hourlyRate}/hr)`)}
+                          {t('takeoffGrid.defaultRoleOption', { rate: hourlyRate, defaultValue: `Default ($${hourlyRate}/hr)` })}
                         </option>
                         {laborRoles.map((role) => (
                           <option key={role.id} value={role.id} className="dark:bg-slate-900 dark:text-white">

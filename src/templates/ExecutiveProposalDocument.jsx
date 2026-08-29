@@ -2,12 +2,13 @@ import React from 'react';
 import { formatCurrency } from '@/lib/product/calculations';
 import { DocumentBrandingHeader, DocumentSignOff } from './DocumentHeaderSignoff';
 import { useTranslation } from '@/context/I18nContext';
+import ScopeSummaryDisplay from '@/components/product/ScopeSummaryDisplay';
 
 /**
  * 3. Executive Proposal Document Layout
  */
 export default function ExecutiveProposalDocument({ estimate, branding, currentProject }) {
-  const { totals, bySystem } = estimate;
+  const { totals, bySystem, rates } = estimate;
   const { t } = useTranslation();
 
   return (
@@ -66,6 +67,8 @@ export default function ExecutiveProposalDocument({ estimate, branding, currentP
           </tfoot>
         </table>
       </div>
+
+      <ScopeSummaryDisplay scopeItems={rates?.scopeItems} forceLight />
 
       <DocumentSignOff branding={branding} clientSignBlock />
     </div>

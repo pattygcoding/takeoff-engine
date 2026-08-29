@@ -2,12 +2,13 @@ import React from 'react';
 import { formatCurrency, formatNumber } from '@/lib/product/calculations';
 import { DocumentBrandingHeader, DocumentSignOff } from './DocumentHeaderSignoff';
 import { useTranslation } from '@/context/I18nContext';
+import ScopeSummaryDisplay from '@/components/product/ScopeSummaryDisplay';
 
 /**
  * 1. Internal Cost Estimate Document Layout
  */
 export default function StandardEstimateDocument({ estimate, branding, currentProject }) {
-  const { totals, bySystem } = estimate;
+  const { totals, bySystem, rates } = estimate;
   const { t } = useTranslation();
 
   return (
@@ -77,6 +78,8 @@ export default function StandardEstimateDocument({ estimate, branding, currentPr
           </div>
         ))}
       </div>
+
+      <ScopeSummaryDisplay scopeItems={rates?.scopeItems} forceLight />
 
       <DocumentSignOff branding={branding} />
     </div>

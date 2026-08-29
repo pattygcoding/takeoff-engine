@@ -2,12 +2,13 @@ import React from 'react';
 import { formatCurrency } from '@/lib/product/calculations';
 import { DocumentSignOff } from './DocumentHeaderSignoff';
 import { useTranslation } from '@/context/I18nContext';
+import ScopeSummaryDisplay from '@/components/product/ScopeSummaryDisplay';
 
 /**
  * 13. Owner-Contractor Formal Agreement Layout
  */
 export default function FormalContractAgreementDocument({ estimate, branding, currentProject }) {
-  const { totals, bySystem } = estimate;
+  const { totals, bySystem, rates } = estimate;
   const { t } = useTranslation();
 
   return (
@@ -67,6 +68,8 @@ export default function FormalContractAgreementDocument({ estimate, branding, cu
           </tfoot>
         </table>
       </div>
+
+      <ScopeSummaryDisplay scopeItems={rates?.scopeItems} forceLight />
 
       <DocumentSignOff branding={branding} clientSignBlock />
     </div>

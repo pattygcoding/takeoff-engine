@@ -20,7 +20,7 @@ export default function ClientProposalDocument({ estimate, branding, currentProj
       </div>
 
       {/* Scope Inclusions & Exclusions */}
-      <ScopeSummaryDisplay scopeItems={rates?.scopeItems} />
+      <ScopeSummaryDisplay scopeItems={rates?.scopeItems} forceLight />
 
       <div className="space-y-4">
         {bySystem.map((sys) => (

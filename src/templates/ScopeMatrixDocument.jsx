@@ -2,12 +2,13 @@ import React from 'react';
 import { formatCurrency, formatNumber } from '@/lib/product/calculations';
 import { DocumentBrandingHeader, DocumentSignOff } from './DocumentHeaderSignoff';
 import { useTranslation } from '@/context/I18nContext';
+import ScopeSummaryDisplay from '@/components/product/ScopeSummaryDisplay';
 
 /**
  * 7. Commercial Scope & Spec Matrix Document Layout
  */
 export default function ScopeMatrixDocument({ estimate, branding, currentProject }) {
-  const { totals, bySystem } = estimate;
+  const { totals, bySystem, rates } = estimate;
   const { t } = useTranslation();
 
   return (
@@ -37,6 +38,8 @@ export default function ScopeMatrixDocument({ estimate, branding, currentProject
         <span className="text-xs font-bold uppercase tracking-wider">{t('templates.scopeMatrix.totalCombinedBid')}</span>
         <span className="text-lg font-bold font-mono text-emerald-400">{formatCurrency(totals.finalBidAmount)}</span>
       </div>
+
+      <ScopeSummaryDisplay scopeItems={rates?.scopeItems} forceLight />
 
       <DocumentSignOff branding={branding} clientSignBlock />
     </div>
