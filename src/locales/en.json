@@ -501,6 +501,7 @@
     "dragDropMessage": "Drag & drop your CSV or Excel file here, or",
     "browseLink": "browse",
     "fileTypeHint": "Accepts .csv, .xlsx, .xls, and .xlsm files",
+    "fileTooLarge": "File size exceeds the {{maxSize}} limit. Please upload a smaller file.",
     "checksumVerified": "✓ Subtotal Checksum Verified",
     "checksumNote": "⚠️ Subtotal Checksum Note",
     "checksumPrefix": "Detected Spreadsheet Subtotal:",

@@ -47,7 +47,8 @@ export default function UploadStep({ onItemsParsed }) {
         }
       } catch (err) {
         console.error('Failed to parse takeoff file:', err);
-        setErrors([t('uploadStep.parseError')]);
+        const errMsg = err?.message || t('uploadStep.parseError');
+        setErrors([errMsg]);
       } finally {
         setIsParsing(false);
       }

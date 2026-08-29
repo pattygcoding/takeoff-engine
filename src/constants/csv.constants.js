@@ -1,16 +1,6 @@
 /**
  * CSV / Takeoff Ingestion & Parser Constants
  */
-import systemAliases from '../data/aliases/systemAliases.json' with { type: 'json' };
-import itemDescriptionAliases from '../data/aliases/itemDescriptionAliases.json' with { type: 'json' };
-import sizeSpecAliases from '../data/aliases/sizeSpecAliases.json' with { type: 'json' };
-import quantityAliases from '../data/aliases/quantityAliases.json' with { type: 'json' };
-import unitAliases from '../data/aliases/unitAliases.json' with { type: 'json' };
-import avgDepthAliases from '../data/aliases/avgDepthAliases.json' with { type: 'json' };
-import materialCostPerUnitAliases from '../data/aliases/materialCostPerUnitAliases.json' with { type: 'json' };
-import laborHoursPerUnitAliases from '../data/aliases/laborHoursPerUnitAliases.json' with { type: 'json' };
-import laborUnitCostAliases from '../data/aliases/laborUnitCostAliases.json' with { type: 'json' };
-import ignoredIndexAliasesData from '../data/aliases/ignoredIndexAliases.json' with { type: 'json' };
 
 export const CSV_COLUMNS = [
   'system',
@@ -37,18 +27,18 @@ export const TARGET_FIELDS = [
 ];
 
 export const COLUMN_ALIASES = {
-  system: systemAliases,
-  item_description: itemDescriptionAliases,
-  size_spec: sizeSpecAliases,
-  quantity: quantityAliases,
-  unit: unitAliases,
-  avg_depth_ft: avgDepthAliases,
-  material_cost_per_unit: materialCostPerUnitAliases,
-  labor_hours_per_unit: laborHoursPerUnitAliases,
-  labor_unit_cost: laborUnitCostAliases,
+  system: ['system', 'systems', 'trade', 'trades', 'division', 'category', 'csi'],
+  item_description: ['item', 'item description', 'description', 'scope', 'material'],
+  size_spec: ['size', 'spec', 'size/spec', 'dimension'],
+  quantity: ['quantity', 'qty', 'count', 'amount', 'est qty'],
+  unit: ['unit', 'uom', 'unit of measure'],
+  avg_depth_ft: ['avg depth', 'avg depth (ft)', 'depth', 'trench depth'],
+  material_cost_per_unit: ['material cost', 'material $/unit', 'mat cost', 'material rate'],
+  labor_hours_per_unit: ['labor hours', 'labor hrs/unit', 'labor hours/unit', 'hrs/unit'],
+  labor_unit_cost: ['labor cost', 'labor $/unit', 'labor cost/unit', 'labor rate'],
 };
 
-export const IGNORED_INDEX_HEADER_ALIASES = ignoredIndexAliasesData;
+export const IGNORED_INDEX_HEADER_ALIASES = ['item #', 'item no', 'pos', '#', 'line #', 'no.'];
 
 /**
  * Standard MasterFormat CSI Division Lookup Table
@@ -134,4 +124,8 @@ export const UNIT_NORMALIZATIONS = {
 
 export const EXCEL_EXTENSIONS = ['.xlsx', '.xls', '.xlsm', '.xlsb'];
 
+export const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024; // 15MB limit
+export const MAX_FILE_SIZE_LABEL = '15 MB';
+
 export const PRESETS_STORAGE_KEY = 'takeoff_engine_vendor_presets';
+

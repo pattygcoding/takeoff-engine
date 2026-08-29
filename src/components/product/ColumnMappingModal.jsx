@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   getTargetFields,
   normalizeRowsWithMapping,
@@ -6,7 +6,6 @@ import {
   deleteVendorPreset,
   getSavedVendorPresets,
   extractHeadersAndRowsAtHeaderRow,
-  autoDetectColumnMapping,
 } from '@/lib/product/csv';
 import { useTranslation } from '@/context/I18nContext';
 import { useModal } from '@/context/ModalContext';
@@ -47,22 +46,25 @@ export default function ColumnMappingModal({
   const maxHeaderOptions = Math.min(sampleMatrix?.length || 1, 30);
   const headerRowOptions = Array.from({ length: maxHeaderOptions }, (_, i) => i);
 
-  const handleHeaderRowChange = (newRowIndex) => {
+  const handleHeaderRowChange = async (newRowIndex) => {
     const rIdx = Number(newRowIndex);
     setHeaderRowIndex(rIdx);
 
     if (sampleMatrix && sampleMatrix.length > 0) {
-      const { headers: newHeaders, rows: newRows } = extractHeadersAndRowsAtHeaderRow(sampleMatrix, rIdx);
-      setCurrentHeaders(newHeaders);
-      setCurrentRawRows(newRows);
+      const { headers: newHeaders, rows: newRows, mapping: newAutoMapping, matchConfidences: newConfidences, confidence: newOverallConf } =
+        await extractHeadersAndRowsAtHeaderRow(sampleMatrix, rIdx);
+      setCurrentHeaders(newHeaders || []);
+      setCurrentRawRows(newRows || []);
 
-      // Re-run auto-detection with newly extracted headers
-      const { mapping: newAutoMapping, matchConfidences: newConfidences, overallConfidence: newOverallConf } =
-        autoDetectColumnMapping(newHeaders, newRows);
-
-      setMapping(newAutoMapping);
-      setMatchConfidences(newConfidences);
-      setOverallConfidence(newOverallConf);
+      if (newAutoMapping) {
+        setMapping(newAutoMapping);
+      }
+      if (newConfidences) {
+        setMatchConfidences(newConfidences);
+      }
+      if (newOverallConf !== undefined) {
+        setOverallConfidence(newOverallConf);
+      }
     }
   };
 
@@ -100,7 +102,7 @@ export default function ColumnMappingModal({
     setTimeout(() => setShowPresetSaved(false), 2500);
   };
 
-  const handleApply = (e) => {
+  const handleApply = async (e) => {
     e.preventDefault();
     setValidationError('');
 
@@ -113,7 +115,7 @@ export default function ColumnMappingModal({
       return;
     }
 
-    const { items, errors, checksum, detectedLaborMode } = normalizeRowsWithMapping(currentRawRows, mapping, t);
+    const { items = [], errors = [], checksum, detectedLaborMode } = await normalizeRowsWithMapping(currentRawRows, mapping);
     if (items.length === 0 && errors.length > 0) {
       setValidationError(t('columnMappingModal.validationErrorParsing', { error: errors[0] }));
       return;
