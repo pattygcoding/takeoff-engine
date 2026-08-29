@@ -74,8 +74,9 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Background auto-sync: polls every 4 seconds when user is logged in
-  // so any tier/status change in the DB (via Webhooks, admin, or sandbox) reflects instantly without manual refresh
+  // Background auto-sync: polls every 60 seconds when user is logged in
+  // so any tier/status change in the DB (via Webhooks, admin, or sandbox) reflects without a manual refresh.
+  // (Previously polled every 4s, which hammered the auth verification round-trip to Supabase on every tab.)
   useEffect(() => {
     if (!user?.id) return;
 
@@ -103,7 +104,7 @@ export const AuthProvider = ({ children }) => {
           }
         }).catch(() => {});
       }
-    }, 4000);
+    }, 60000);
 
     // Also re-check immediately whenever window gains focus
     const handleFocus = () => {

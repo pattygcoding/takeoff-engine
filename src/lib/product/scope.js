@@ -105,3 +105,16 @@ export function deleteScopePreset(presetId) {
   }
   return filtered;
 }
+
+/**
+ * Formats an optional add-on's price impact as a short "+$500.00" or "+5%" label.
+ * Returns null when there is no priced impact to show.
+ */
+export function formatScopeAddonImpact(item) {
+  const raw = Number(item?.costImpact) || 0;
+  if (!raw) return null;
+  if (item?.costImpactType === 'percent') {
+    return `+${raw}%`;
+  }
+  return `+$${raw.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}

@@ -1220,11 +1220,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
           <ScopeInclusionsModal
             scopeItems={rates?.scopeItems || DEFAULT_SCOPE_ITEMS}
             readOnly={readOnly}
-            onSave={(newScopeItems) => {
-              onChange({ ...rates, scopeItems: newScopeItems });
-              setSuccessMsg(t('ratesDrawer.scopeSavedSuccess', 'Scope exclusions & inclusions updated.'));
-              setTimeout(() => setSuccessMsg(''), 3000);
-            }}
+            onSave={(newScopeItems) => onChange({ ...rates, scopeItems: newScopeItems })}
             onClose={() => setShowScopeModal(false)}
           />
         )}

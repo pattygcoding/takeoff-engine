@@ -6,7 +6,7 @@ import { useModal } from '@/context/ModalContext';
 import { useTranslation } from '@/context/I18nContext';
 import LanguageSelector from '@/components/shared/LanguageSelector';
 import ClientCounterOfferModal from './ClientCounterOfferModal';
-import { SCOPE_STATUS } from '@/lib/product/scope';
+import ScopeSummaryDisplay from './ScopeSummaryDisplay';
 
 export default function ClientProposalView() {
   const { publicToken } = useParams();
@@ -343,41 +343,7 @@ export default function ClientProposalView() {
             )}
 
             {/* Scope Inclusions & Exclusions */}
-            {snapshot?.rates?.scopeItems && snapshot.rates.scopeItems.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
-                <div className="bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 rounded-2xl p-4">
-                  <h3 className="text-xs font-bold text-emerald-900 dark:text-emerald-200 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                    <span>✓</span> {t('clientProposal.inclusionsHeader', 'Included by Contractor')}
-                  </h3>
-                  <ul className="text-xs text-emerald-950 dark:text-emerald-100 space-y-1.5">
-                    {snapshot.rates.scopeItems
-                      .filter((i) => i.status === SCOPE_STATUS.INCLUDED)
-                      .map((item) => (
-                        <li key={item.id} className="flex items-start gap-1.5">
-                          <span className="text-emerald-600 dark:text-emerald-400 font-bold">•</span>
-                          <span><strong>{item.title}</strong>: {item.description}</span>
-                        </li>
-                      ))}
-                  </ul>
-                </div>
-
-                <div className="bg-rose-50/70 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/60 rounded-2xl p-4">
-                  <h3 className="text-xs font-bold text-rose-900 dark:text-rose-200 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                    <span>✕</span> {t('clientProposal.exclusionsHeader', 'Excluded (By Owner / Others)')}
-                  </h3>
-                  <ul className="text-xs text-rose-950 dark:text-rose-100 space-y-1.5">
-                    {snapshot.rates.scopeItems
-                      .filter((i) => i.status === SCOPE_STATUS.EXCLUDED)
-                      .map((item) => (
-                        <li key={item.id} className="flex items-start gap-1.5">
-                          <span className="text-rose-600 dark:text-rose-400 font-bold">•</span>
-                          <span><strong>{item.title}</strong>: {item.description}</span>
-                        </li>
-                      ))}
-                  </ul>
-                </div>
-              </div>
-            )}
+            <ScopeSummaryDisplay scopeItems={snapshot?.rates?.scopeItems} className="mt-6" />
 
             {/* Standard Terms / Acceptance Notes */}
             <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 space-y-2">

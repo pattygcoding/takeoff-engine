@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SCOPE_STATUS, DEFAULT_SCOPE_ITEMS, categorizeScope } from '@/lib/product/scope';
+import { SCOPE_STATUS, DEFAULT_SCOPE_ITEMS, categorizeScope, formatScopeAddonImpact } from '@/lib/product/scope';
 import { useTranslation } from '@/context/I18nContext';
 
 export default function ClientCounterOfferModal({
@@ -92,8 +92,37 @@ export default function ClientCounterOfferModal({
               {t('counterOfferModal.itemsHeader', 'Scope Boundaries & Fixtures')}
             </h4>
             <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
-              {scopeList.map((item) => {
+              {scopeList
+                .filter((item) => item.status !== SCOPE_STATUS.NOT_APPLICABLE)
+                .map((item) => {
                 const isInc = item.status === SCOPE_STATUS.INCLUDED;
+                const isAddon = item.status === SCOPE_STATUS.OPTIONAL_ADDON;
+                const addonImpact = isAddon ? formatScopeAddonImpact(item) : null;
+
+                if (isAddon) {
+                  return (
+                    <div
+                      key={item.id}
+                      className="p-2.5 rounded-xl border border-indigo-300 dark:border-indigo-800 bg-indigo-50/60 dark:bg-indigo-950/30 flex items-center justify-between gap-3"
+                    >
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-slate-900 dark:text-slate-100">{item.title}</span>
+                          <span className="text-[10px] font-bold bg-indigo-100 dark:bg-indigo-950 text-indigo-900 dark:text-indigo-300 px-1.5 py-0.2 rounded">
+                            + {t('counterOfferModal.addonTag', 'Optional Add-On')}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">{item.description}</p>
+                      </div>
+                      {addonImpact && (
+                        <span className="text-xs font-bold px-2.5 py-1 rounded-lg shrink-0 bg-indigo-600 text-white shadow-2xs">
+                          {addonImpact}
+                        </span>
+                      )}
+                    </div>
+                  );
+                }
+
                 return (
                   <div
                     key={item.id}

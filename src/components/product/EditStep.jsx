@@ -21,7 +21,7 @@ export default function EditStep({
 }) {
   const { t } = useTranslation();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [scopeModalOpen, setScopeModalOpen] = useState(false);
+  const [scopeExpanded, setScopeExpanded] = useState(false);
   const [mappingModalData, setMappingModalData] = useState(null);
   const [successToast, setSuccessToast] = useState('');
   const [isReparsing, setIsReparsing] = useState(false);
@@ -178,17 +178,6 @@ export default function EditStep({
           )}
           <button
             type="button"
-            onClick={() => setScopeModalOpen(true)}
-            className="inline-flex items-center gap-2 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition shadow-xs cursor-pointer"
-            title={t('editStep.scopeInclusionsDesc', 'Manage scope inclusions, trade exclusions (fixtures, earthwork, permits), and client counter-offer rules.')}
-          >
-            <svg className="h-4 w-4 text-indigo-600 dark:text-indigo-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-            </svg>
-            <span>{t('editStep.scopeInclusionsBtn', 'Inclusions / Exclusions')}</span>
-          </button>
-          <button
-            type="button"
             onClick={() => setDrawerOpen(true)}
             className="inline-flex items-center gap-2 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer"
           >
@@ -213,7 +202,18 @@ export default function EditStep({
         onRatesChange={onRatesChange}
       />
 
-      <div className="mt-8 flex justify-end">
+      <div className="mt-6">
+        <ScopeInclusionsModal
+          variant="panel"
+          expanded={scopeExpanded}
+          onToggleExpanded={() => setScopeExpanded((prev) => !prev)}
+          scopeItems={rates?.scopeItems || DEFAULT_SCOPE_ITEMS}
+          readOnly={readOnly}
+          onSave={(newScopeItems) => onRatesChange({ ...rates, scopeItems: newScopeItems })}
+        />
+      </div>
+
+      <div className="mt-6 flex justify-end">
         <button
           type="button"
           onClick={onCalculate}
@@ -234,19 +234,6 @@ export default function EditStep({
         onChange={onRatesChange}
         readOnly={readOnly}
       />
-
-      {scopeModalOpen && (
-        <ScopeInclusionsModal
-          scopeItems={rates?.scopeItems || DEFAULT_SCOPE_ITEMS}
-          readOnly={readOnly}
-          onSave={(newScopeItems) => {
-            onRatesChange({ ...rates, scopeItems: newScopeItems });
-            setSuccessToast(t('ratesDrawer.scopeSavedSuccess', 'Scope exclusions & inclusions updated.'));
-            setTimeout(() => setSuccessToast(''), 3000);
-          }}
-          onClose={() => setScopeModalOpen(false)}
-        />
-      )}
 
       {mappingModalData && (
         <ColumnMappingModal

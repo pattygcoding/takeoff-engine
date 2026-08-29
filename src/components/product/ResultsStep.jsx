@@ -9,6 +9,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useModal } from '@/context/ModalContext';
 import { useTranslation } from '@/context/I18nContext';
 import UpgradeModal from '@/components/billing/UpgradeModal';
+import ScopeSummaryDisplay from './ScopeSummaryDisplay';
 import Papa from 'papaparse';
 
 export default function ResultsStep({ items, rates, currentProject, onProjectSaved, onBack, readOnly = false, projectStatus = 'awarded', onDuplicate }) {
@@ -755,6 +756,13 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
             {totals.miscCost > 0 && (
               <SummaryCard label={t('resultsStep.miscellaneousCosts')} value={formatCurrency(totals.miscCost)} />
             )}
+            {totals.scopeAddonsCost > 0 && (
+              <SummaryCard
+                label={t('resultsStep.scopeAddonsCost', 'Scope Add-Ons')}
+                value={formatCurrency(totals.scopeAddonsCost)}
+                sub={t('resultsStep.scopeAddonsExcludedSub', 'Not included in total')}
+              />
+            )}
             <SummaryCard label={t('resultsStep.totalDirectCost')} value={formatCurrency(totals.totalDirectCost)} />
             <SummaryCard
               label={t('resultsStep.overhead', { pct: totals.overheadPct })}
@@ -857,18 +865,37 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
 
         {proposalMode && (
           <div className="mt-8 pt-4 border-t border-slate-200 dark:border-slate-800 flex justify-end">
-            <div className="w-full sm:w-64 text-right">
+            <div className="w-full sm:w-80 text-right">
               <div className="flex justify-between text-slate-600 dark:text-slate-400 text-sm py-1">
                 <span>{t('resultsStep.subtotal')}</span>
                 <span className="font-mono">{formatCurrency(totals.totalDirectCost)}</span>
+              </div>
+              <div className="flex justify-between text-slate-600 dark:text-slate-400 text-sm py-1">
+                <span>{t('resultsStep.overhead', { pct: totals.overheadPct })}</span>
+                <span className="font-mono">{formatCurrency(totals.overheadAmount)}</span>
+              </div>
+              <div className="flex justify-between text-slate-600 dark:text-slate-400 text-sm py-1">
+                <span>{t('resultsStep.contingency', { pct: totals.contingencyPct })}</span>
+                <span className="font-mono">{formatCurrency(totals.contingencyAmount)}</span>
+              </div>
+              <div className="flex justify-between text-slate-600 dark:text-slate-400 text-sm py-1">
+                <span>{t('resultsStep.profit', { pct: totals.profitPct })}</span>
+                <span className="font-mono">{formatCurrency(totals.profitAmount)}</span>
               </div>
               <div className="flex justify-between text-xl font-bold text-slate-900 dark:text-white pt-2 border-t border-slate-200 dark:border-slate-800 mt-2">
                 <span>{t('resultsStep.totalBid')}</span>
                 <span className="font-mono">{formatCurrency(totals.finalBidAmount)}</span>
               </div>
+              {totals.scopeAddonsCost > 0 && (
+                <p className="text-[11px] text-indigo-600 dark:text-indigo-400 mt-2">
+                  {t('resultsStep.scopeAddonsNote', { amount: formatCurrency(totals.scopeAddonsCost) })}
+                </p>
+              )}
             </div>
           </div>
         )}
+
+        <ScopeSummaryDisplay scopeItems={rates?.scopeItems} className="mt-8" />
       </div>
 
       <UpgradeModal
