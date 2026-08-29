@@ -501,6 +501,7 @@
     "dragDropMessage": "Arrastre y suelte su archivo CSV o Excel aquí, o",
     "browseLink": "navegar",
     "fileTypeHint": "Acepta archivos .csv, .xlsx, .xls y .xlsm",
+    "fileTooLarge": "File size exceeds the {{maxSize}} limit. Please upload a smaller file.",
     "checksumVerified": "✓ Suma de verificación subtotal verificada",
     "checksumNote": "⚠️ Nota de suma de comprobación del subtotal",
     "checksumPrefix": "Subtotal de hoja de cálculo detectado:",

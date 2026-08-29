@@ -501,6 +501,7 @@
     "dragDropMessage": "Faites glisser et déposez votre fichier CSV ou Excel ici, ou",
     "browseLink": "parcourir",
     "fileTypeHint": "Accepte les fichiers .csv, .xlsx, .xls et .xlsm",
+    "fileTooLarge": "La taille du fichier dépasse la limite de {{maxSize}}. Veuillez télécharger un fichier plus petit.",
     "checksumVerified": "✓ Somme de contrôle du sous-total vérifiée",
     "checksumNote": "⚠️ Note sur la somme de contrôle du sous-total",
     "checksumPrefix": "Sous-total détecté de la feuille de calcul :",

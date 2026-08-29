@@ -7,9 +7,8 @@ import {
   DEFAULT_WORKDAY_HOURS,
   DEFAULT_LABOR_ROLES,
   DEFAULT_EQUIPMENT_CATALOG,
-  getNormalizedLaborRates,
-  calculateBlendedCrewRate,
-} from '@/lib/product/calculations';
+} from '@/constants/calculations.constants';
+import { calculationsApi } from '@/lib/product/calculations';
 import { DEFAULT_SCOPE_ITEMS, summarizeScope } from '@/lib/product/scope';
 import ScopeInclusionsModal from '@/components/product/ScopeInclusionsModal';
 import UpgradeModal from '@/components/billing/UpgradeModal';
@@ -131,12 +130,13 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
 
   const laborBasis = rates.laborRateBasis === 'daily' ? 'daily' : 'hourly';
   const workdayHours = Number(rates.workdayHours) > 0 ? Number(rates.workdayHours) : DEFAULT_WORKDAY_HOURS;
-  const normalizedLabor = getNormalizedLaborRates(rates);
+  const currentHourlyRate = Number(rates.laborHourlyRate) || (laborBasis === 'daily' && Number(rates.laborDailyRate) > 0 ? Number(rates.laborDailyRate) / workdayHours : 65.0);
+  const currentDailyRate = Number(rates.laborDailyRate) || (Number(rates.laborHourlyRate) > 0 ? Number(rates.laborHourlyRate) * workdayHours : 520.0);
 
   const handleLaborBasisChange = (newBasis) => {
     if (readOnly) return;
-    const currentHourly = Number(rates.laborHourlyRate) || normalizedLabor.laborHourlyRate;
-    const currentDaily = Number(rates.laborDailyRate) || normalizedLabor.laborDailyRate;
+    const currentHourly = Number(rates.laborHourlyRate) || currentHourlyRate;
+    const currentDaily = Number(rates.laborDailyRate) || currentDailyRate;
     const currentHours = Number(rates.workdayHours) || workdayHours;
 
     if (newBasis === 'daily') {
@@ -201,7 +201,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
     }
     const hours = Number(val);
     if (laborBasis === 'daily') {
-      const daily = Number(rates.laborDailyRate) || normalizedLabor.laborDailyRate;
+      const daily = Number(rates.laborDailyRate) || currentDailyRate;
       const hourly = hours > 0 ? Math.round((daily / hours) * 100) / 100 : 0;
       onChange({
         ...rates,
@@ -209,7 +209,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
         laborHourlyRate: hourly,
       });
     } else {
-      const hourly = Number(rates.laborHourlyRate) || normalizedLabor.laborHourlyRate;
+      const hourly = Number(rates.laborHourlyRate) || currentHourlyRate;
       const daily = Math.round(hourly * hours * 100) / 100;
       onChange({
         ...rates,
@@ -221,14 +221,32 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
 
   const laborRoles = Array.isArray(rates.laborRoles) && rates.laborRoles.length > 0
     ? rates.laborRoles
-    : normalizedLabor.laborRoles;
+    : DEFAULT_LABOR_ROLES;
 
   const [showCrewCalculator, setShowCrewCalculator] = useState(false);
   const [crewComposition, setCrewComposition] = useState(() =>
     laborRoles.map((r) => ({ roleId: r.id, title: r.title, hourlyRate: r.hourlyRate, count: r.id === 'journeyman' ? 2 : r.id === 'foreman' ? 1 : r.id === 'apprentice' ? 1 : 0 }))
   );
 
-  const blendedResult = calculateBlendedCrewRate(crewComposition, laborRoles);
+  const [blendedResult, setBlendedResult] = useState({ blendedHourlyRate: 0, totalCrewMembers: 0, totalCrewCostPerHour: 0 });
+
+  useEffect(() => {
+    let active = true;
+    const computeCrew = async () => {
+      try {
+        const res = await calculationsApi.calculateBlendedCrewRate(crewComposition, laborRoles);
+        if (active && res) {
+          setBlendedResult(res);
+        }
+      } catch (err) {
+        console.error('Failed to compute blended crew rate:', err);
+      }
+    };
+    computeCrew();
+    return () => {
+      active = false;
+    };
+  }, [crewComposition, laborRoles]);
 
   const handleApplyBlendedRate = () => {
     if (readOnly || blendedResult.blendedHourlyRate <= 0) return;
@@ -625,7 +643,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                     <div className="flex items-center justify-between px-2.5 py-1.5 -mt-2 mb-3 bg-indigo-50/60 dark:bg-indigo-950/40 border border-indigo-100/80 dark:border-indigo-900/60 rounded-lg text-xs text-indigo-700 dark:text-indigo-300">
                       <span className="font-medium">
                         {t('ratesDrawer.effectiveDailyRateBadge', {
-                          rate: normalizedLabor.laborDailyRate.toFixed(2),
+                          rate: currentDailyRate.toFixed(2),
                           hours: workdayHours,
                         })}
                       </span>
@@ -647,7 +665,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                     <div className="flex items-center justify-between px-2.5 py-1.5 -mt-2 mb-3 bg-indigo-50/60 dark:bg-indigo-950/40 border border-indigo-100/80 dark:border-indigo-900/60 rounded-lg text-xs text-indigo-700 dark:text-indigo-300">
                       <span className="font-medium">
                         {t('ratesDrawer.effectiveHourlyRateBadge', {
-                          rate: normalizedLabor.laborHourlyRate.toFixed(2),
+                          rate: currentHourlyRate.toFixed(2),
                         })}
                       </span>
                       <span className="text-[11px] text-indigo-500 dark:text-indigo-400">

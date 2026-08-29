@@ -501,6 +501,7 @@
     "dragDropMessage": "Arraste e solte seu arquivo CSV ou Excel aqui ou",
     "browseLink": "navegar",
     "fileTypeHint": "Aceita arquivos .csv, .xlsx, .xls e .xlsm",
+    "fileTooLarge": "File size exceeds the {{maxSize}} limit. Please upload a smaller file.",
     "checksumVerified": "✓ Soma de verificação do subtotal verificada",
     "checksumNote": "⚠️ Nota de soma de verificação de subtotal",
     "checksumPrefix": "Subtotal da planilha detectada:",

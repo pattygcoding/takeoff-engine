@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { computeEstimate, formatCurrency, formatNumber } from '@/lib/product/calculations';
+import { calculationsApi, formatCurrency, formatNumber } from '@/lib/product/calculations';
 import { triggerDownload } from '@/lib/product/csv';
 import { projectsApi } from '@/lib/product/projects';
 import { proposalsApi } from '@/lib/product/proposals';
@@ -60,8 +60,31 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
       }
     : null;
 
-  const estimate = useMemo(() => computeEstimate(items, rates), [items, rates]);
-  const { totals, bySystem } = estimate;
+  const [estimate, setEstimate] = useState({ totals: {}, bySystem: [], items: [] });
+  const [isCalculating, setIsCalculating] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    const fetchEstimate = async () => {
+      try {
+        setIsCalculating(true);
+        const res = await calculationsApi.computeEstimate(items, rates);
+        if (active && res) {
+          setEstimate(res);
+        }
+      } catch (err) {
+        console.error('Failed to compute estimate on backend:', err);
+      } finally {
+        if (active) setIsCalculating(false);
+      }
+    };
+    fetchEstimate();
+    return () => {
+      active = false;
+    };
+  }, [items, rates]);
+
+  const { totals = {}, bySystem = [] } = estimate;
 
   const handleSaveToCloud = async (e) => {
     if (e) e.preventDefault();

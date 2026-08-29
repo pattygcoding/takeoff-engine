@@ -1,12 +1,12 @@
 import { useMemo, useState } from 'react';
 import { createBlankItem } from '@/lib/product/csv';
 import { useTranslation } from '@/context/I18nContext';
+import { calculationsApi } from '@/lib/product/calculations';
 import {
-  getNormalizedLaborRates,
-  getItemEffectiveLaborRate,
-  calculateEquipmentRentalCost,
   DEFAULT_EQUIPMENT_CATALOG,
-} from '@/lib/product/calculations';
+  DEFAULT_WORKDAY_HOURS,
+  DEFAULT_LABOR_ROLES,
+} from '@/constants/calculations.constants';
 
 const DEFAULT_SYSTEMS = ['Sanitary', 'Storm', 'Domestic Water', 'Equipment & Mobilization'];
 const DEFAULT_UNITS = ['LF', 'EA', 'SF', 'CY', 'SY', 'TON', 'LS', 'HR'];
@@ -14,9 +14,8 @@ const DEFAULT_UNITS = ['LF', 'EA', 'SF', 'CY', 'SY', 'TON', 'LS', 'HR'];
 export default function TakeoffGrid({ items, onChange, readOnly = false, rates = {}, onRatesChange }) {
   const { t } = useTranslation();
   const laborInputMode = rates?.laborMode === 'cost' ? 'cost' : 'hours';
-  const normalizedLabor = getNormalizedLaborRates(rates);
-  const hourlyRate = normalizedLabor.laborHourlyRate;
-  const laborRoles = normalizedLabor.laborRoles;
+  const hourlyRate = Number(rates?.laborHourlyRate) || 65.0;
+  const laborRoles = Array.isArray(rates?.laborRoles) && rates.laborRoles.length > 0 ? rates.laborRoles : DEFAULT_LABOR_ROLES;
 
   const [selectedItemIds, setSelectedItemIds] = useState(new Set());
   const [bulkRoleId, setBulkRoleId] = useState('');
@@ -127,7 +126,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
     }
   };
 
-  const handleConfirmAddEquipment = (e) => {
+  const handleConfirmAddEquipment = async (e) => {
     e.preventDefault();
     if (readOnly) return;
 
@@ -142,7 +141,20 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
       equipmentFuelSurchargePct: Number(eqCustomFuelPct) || 0,
       includeDelivery: eqIncludeDelivery,
     };
-    const costDetails = calculateEquipmentRentalCost(previewItem);
+    
+    let totalEquipmentCost = 0;
+    try {
+      const res = await calculationsApi.computeItemCost(previewItem, rates);
+      totalEquipmentCost = res.directCost || 0;
+    } catch {
+      // Fallback
+      const base = eqDurationUnit === 'days' ? (Number(eqDurationQty) || 1) * (Number(eqCustomDailyRate) || 0)
+        : eqDurationUnit === 'months' ? (Number(eqDurationQty) || 1) * (Number(eqCustomMonthlyRate) || 0)
+        : (Number(eqDurationQty) || 1) * (Number(eqCustomWeeklyRate) || 0);
+      const delivery = eqIncludeDelivery ? (Number(eqCustomDeliveryFee) || 0) : 0;
+      const fuel = base * ((Number(eqCustomFuelPct) || 0) / 100);
+      totalEquipmentCost = base + delivery + fuel;
+    }
 
     const newEquipmentItem = {
       id: `eq-item-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
@@ -165,7 +177,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
       equipmentDeliveryFee: Number(eqCustomDeliveryFee) || 0,
       equipmentFuelSurchargePct: Number(eqCustomFuelPct) || 0,
       includeDelivery: eqIncludeDelivery,
-      equipmentCost: costDetails.totalCost,
+      equipmentCost: totalEquipmentCost,
     };
 
     onChange([...items, newEquipmentItem]);
@@ -313,8 +325,9 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-800 dark:text-slate-200">
             {items.map((item) => {
-              const itemEffectiveRate = getItemEffectiveLaborRate(item, rates);
-              const itemHourlyRate = itemEffectiveRate.hourlyRate;
+              const matchedRole = item.laborRoleId ? laborRoles.find((r) => r.id === item.laborRoleId) : null;
+              const itemHourlyRate = matchedRole ? matchedRole.hourlyRate : hourlyRate;
+              const itemRoleTitle = matchedRole ? matchedRole.title : 'Project Base Rate';
 
               return (
                 <tr
@@ -427,7 +440,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                         onChange={(e) => updateItem(item.id, 'laborRoleId', e.target.value || null)}
                         disabled={readOnly}
                         className="w-full bg-transparent outline-none text-xs text-slate-700 dark:text-slate-300 font-medium disabled:opacity-80 disabled:cursor-not-allowed"
-                        title={t('takeoffGrid.assignedLaborRoleTooltip', { role: itemEffectiveRate.roleTitle, rate: itemHourlyRate })}
+                        title={t('takeoffGrid.assignedLaborRoleTooltip', { role: itemRoleTitle, rate: itemHourlyRate })}
                       >
                         <option value="" className="dark:bg-slate-900 dark:text-white">
                           {t('takeoffGrid.defaultRoleOption', `Default ($${hourlyRate}/hr)`)}
@@ -687,16 +700,13 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
 
               {/* Cost Calculation Preview Pill */}
               {(() => {
-                const preview = calculateEquipmentRentalCost({
-                  equipmentDurationQty: Number(eqDurationQty) || 1,
-                  equipmentDurationUnit: eqDurationUnit,
-                  equipmentDailyRate: Number(eqCustomDailyRate) || 0,
-                  equipmentWeeklyRate: Number(eqCustomWeeklyRate) || 0,
-                  equipmentMonthlyRate: Number(eqCustomMonthlyRate) || 0,
-                  equipmentDeliveryFee: Number(eqCustomDeliveryFee) || 0,
-                  equipmentFuelSurchargePct: Number(eqCustomFuelPct) || 0,
-                  includeDelivery: eqIncludeDelivery,
-                });
+                const baseRentalCost = eqDurationUnit === 'days' ? (Number(eqDurationQty) || 1) * (Number(eqCustomDailyRate) || 0)
+                  : eqDurationUnit === 'months' ? (Number(eqDurationQty) || 1) * (Number(eqCustomMonthlyRate) || 0)
+                  : (Number(eqDurationQty) || 1) * (Number(eqCustomWeeklyRate) || 0);
+                const deliveryFee = eqIncludeDelivery ? (Number(eqCustomDeliveryFee) || 0) : 0;
+                const fuelSurchargeAmount = baseRentalCost * ((Number(eqCustomFuelPct) || 0) / 100);
+                const totalCost = baseRentalCost + deliveryFee + fuelSurchargeAmount;
+
                 return (
                   <div className="p-3 bg-amber-50/80 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 rounded-xl flex items-center justify-between">
                     <div>
@@ -704,12 +714,12 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                         {t('takeoffGrid.totalEquipmentCost', 'Calculated Equipment Total:')}
                       </span>
                       <span className="text-[11px] text-amber-700 dark:text-amber-400">
-                        {preview.durationQty} {preview.durationUnit} @ {preview.baseRentalCost > 0 ? `$${preview.baseRentalCost.toLocaleString()}` : '$0'}
-                        {preview.deliveryFee > 0 ? ` + $${preview.deliveryFee} del` : ''}
+                        {eqDurationQty} {eqDurationUnit} @ {baseRentalCost > 0 ? `$${baseRentalCost.toLocaleString()}` : '$0'}
+                        {deliveryFee > 0 ? ` + $${deliveryFee} del` : ''}
                       </span>
                     </div>
                     <span className="text-lg font-extrabold text-amber-600 dark:text-amber-400">
-                      ${preview.totalCost.toLocaleString()}
+                      ${totalCost.toLocaleString()}
                     </span>
                   </div>
                 );
