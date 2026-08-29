@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { calculationsApi, formatCurrency, formatNumber } from '@/lib/product/calculations';
 import { triggerDownload } from '@/lib/product/csv';
