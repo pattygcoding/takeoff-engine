@@ -17,6 +17,8 @@ target_languages = [
 ]
 
 skip_existing = "-skip" in sys.argv or "--skip" in sys.argv
+retry_failed = "-retry" in sys.argv or "--retry" in sys.argv
+requested_langs = [a for a in sys.argv[1:] if a in target_languages]
 
 def get_locale_path(lang_code):
     return os.path.join(SCRIPT_DIR, f"{lang_code}.json")
@@ -160,11 +162,79 @@ def write_pretty_json(data, target_language):
     except Exception as e:
         print(f"Failed to write output file: {e}")
 
+def retry_failed_translations(base_json, existing_json, target_language):
+    """Re-attempts translation only for paths where the existing target value
+    still matches the English source (i.e. previously failed after retries)."""
+    string_paths = collect_string_paths(base_json)
+    failed_paths = []
+    for path in string_paths:
+        original = get_nested_value(base_json, path)
+        try:
+            existing_value = get_nested_value(existing_json, path)
+        except (KeyError, IndexError, TypeError):
+            failed_paths.append(path)
+            continue
+        if not original or not original.strip() or original.strip().lower().startswith("http"):
+            continue
+        if existing_value == original:
+            failed_paths.append(path)
+
+    total = len(failed_paths)
+    print(f"\nRetrying {total} previously failed translations for '{target_language}'...")
+
+    if target_language.count("_") >= 2:
+        base_lang = "_".join(target_language.split("_")[:-1])
+    elif "_" in target_language:
+        base_lang = target_language.split("_")[0]
+    else:
+        base_lang = target_language
+
+    translator = GoogleTranslator(source=source_language, target=base_lang)
+    result = deepcopy(existing_json)
+    still_failed = []
+
+    for i, path in enumerate(failed_paths, 1):
+        original = get_nested_value(base_json, path)
+        success = False
+        for attempt in range(5):
+            try:
+                translated = translate_text(translator, original)
+                if translated:
+                    set_nested_value(result, path, translated)
+                success = True
+                break
+            except Exception:
+                time.sleep(0.75 * (attempt + 1))
+
+        if not success:
+            still_failed.append(original)
+        print(f"✔️ {i}/{total} retried")
+        time.sleep(0.1)
+
+    if still_failed:
+        print(f"\nStill failed after retry ({len(still_failed)}):")
+        for text in still_failed:
+            print(f"  - {text}")
+    else:
+        print("\nAll previously failed translations recovered.")
+
+    return result
+
 if __name__ == "__main__":
     base_json = lint_json_file()
     if base_json is not None:
-        for lang_code in target_languages:
-            data_copy = deepcopy(base_json)
-            existing_translations = load_existing_translations(lang_code) if skip_existing else None
-            translated_json = translate_one_by_one(data_copy, lang_code, existing_translations)
-            write_pretty_json(translated_json, lang_code)
+        langs_to_process = requested_langs if requested_langs else target_languages
+        if retry_failed:
+            for lang_code in langs_to_process:
+                existing_translations = load_existing_translations(lang_code)
+                if existing_translations is None:
+                    print(f"No existing translation file for '{lang_code}', skipping retry.")
+                    continue
+                fixed_json = retry_failed_translations(base_json, existing_translations, lang_code)
+                write_pretty_json(fixed_json, lang_code)
+        else:
+            for lang_code in langs_to_process:
+                data_copy = deepcopy(base_json)
+                existing_translations = load_existing_translations(lang_code) if skip_existing else None
+                translated_json = translate_one_by_one(data_copy, lang_code, existing_translations)
+                write_pretty_json(translated_json, lang_code)
