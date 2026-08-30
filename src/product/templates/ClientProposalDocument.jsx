@@ -13,10 +13,10 @@ export default function ClientProposalDocument({ estimate, branding, currentProj
 
   return (
     <div className="space-y-6">
-      <DocumentBrandingHeader branding={branding} title={t('templates.clientProposal.title')} project={currentProject} />
+      <DocumentBrandingHeader branding={branding} title={t('product.templates.clientProposal.title')} project={currentProject} />
 
       <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs text-slate-600 leading-relaxed">
-        {t('templates.clientProposal.proposalIntro')}
+        {t('product.templates.clientProposal.proposalIntro')}
       </div>
 
       {/* Scope Inclusions & Exclusions */}
@@ -27,18 +27,18 @@ export default function ClientProposalDocument({ estimate, branding, currentProj
           <div key={sys.system} className="border border-slate-200 rounded-xl overflow-hidden">
             <div className="bg-slate-800 text-white px-4 py-2 flex justify-between items-center">
               <h3 className="text-xs font-bold uppercase tracking-wider">
-                {t('templates.clientProposal.scopeHeader', { system: sys.system })}
+                {t('product.templates.clientProposal.scopeHeader', { system: sys.system })}
               </h3>
               <span className="text-xs font-bold font-mono">{formatCurrency(sys.factoredBid ?? sys.directCost)}</span>
             </div>
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 text-slate-500 border-b border-slate-200">
                 <tr>
-                  <th className="p-2.5">{t('templates.clientProposal.colDescription')}</th>
-                  <th className="p-2.5">{t('templates.clientProposal.colSpec')}</th>
-                  <th className="p-2.5 text-right">{t('templates.clientProposal.colPlanQty')}</th>
-                  <th className="p-2.5">{t('templates.clientProposal.colUnit')}</th>
-                  <th className="p-2.5 text-right">{t('templates.clientProposal.colExtendedPrice')}</th>
+                  <th className="p-2.5">{t('product.templates.clientProposal.colDescription')}</th>
+                  <th className="p-2.5">{t('product.templates.clientProposal.colSpec')}</th>
+                  <th className="p-2.5 text-right">{t('product.templates.clientProposal.colPlanQty')}</th>
+                  <th className="p-2.5">{t('product.templates.clientProposal.colUnit')}</th>
+                  <th className="p-2.5 text-right">{t('product.templates.clientProposal.colExtendedPrice')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -62,11 +62,11 @@ export default function ClientProposalDocument({ estimate, branding, currentProj
       <div className="flex justify-end pt-2">
         <div className="w-full sm:w-80 bg-slate-900 text-white rounded-2xl p-4">
           <div className="flex justify-between text-xs text-slate-300 pb-1.5 border-b border-slate-800">
-            <span>{t('templates.clientProposal.totalBaseBid')}</span>
+            <span>{t('product.templates.clientProposal.totalBaseBid')}</span>
             <span>{formatCurrency(totals.finalBidAmount)}</span>
           </div>
           <div className="flex justify-between text-base font-bold text-white pt-2">
-            <span>{t('templates.clientProposal.totalLumpSum')}</span>
+            <span>{t('product.templates.clientProposal.totalLumpSum')}</span>
             <span className="text-emerald-400">{formatCurrency(totals.finalBidAmount)}</span>
           </div>
         </div>

@@ -159,7 +159,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
     const newEquipmentItem = {
       id: `eq-item-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
       system: 'Equipment & Mobilization',
-      description: eqCustomTitle || t('takeoffGrid.equipmentItemFallback', 'Machinery Rental'),
+      description: eqCustomTitle || t('product.takeoffGrid.equipmentItemFallback', 'Machinery Rental'),
       sizeSpec: `${eqDurationQty} ${eqDurationUnit} rental${eqIncludeDelivery ? ' + Delivery' : ''}`,
       quantity: Number(eqDurationQty) || 1,
       unit: eqDurationUnit === 'days' ? 'DAY' : eqDurationUnit === 'months' ? 'MO' : 'WK',
@@ -230,7 +230,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-indigo-600 dark:bg-indigo-400"></span>
             <span className="text-xs font-bold text-indigo-900 dark:text-indigo-200">
-              {t('takeoffGrid.selectedItemsCount', { count: selectedItemIds.size }, `${selectedItemIds.size} items selected`)}
+              {t('product.takeoffGrid.selectedItemsCount', { count: selectedItemIds.size }, `${selectedItemIds.size} items selected`)}
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -239,8 +239,8 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
               onChange={(e) => setBulkRoleId(e.target.value)}
               className="text-xs px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
             >
-              <option value="">{t('takeoffGrid.chooseLaborRole', 'Choose Labor Role...')}</option>
-              <option value="base">{t('takeoffGrid.projectBaseRate', 'Project Base Rate')}</option>
+              <option value="">{t('product.takeoffGrid.chooseLaborRole', 'Choose Labor Role...')}</option>
+              <option value="base">{t('product.takeoffGrid.projectBaseRate', 'Project Base Rate')}</option>
               {laborRoles.map((role) => (
                 <option key={role.id} value={role.id}>
                   {role.title} (${role.hourlyRate}/hr)
@@ -253,7 +253,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
               disabled={!bulkRoleId}
               className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-xs disabled:opacity-50 transition cursor-pointer"
             >
-              {t('takeoffGrid.applyRoleBtn', 'Apply Role')}
+              {t('product.takeoffGrid.applyRoleBtn', 'Apply Role')}
             </button>
             <button
               type="button"
@@ -277,21 +277,21 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                     checked={items.length > 0 && selectedItemIds.size === items.length}
                     onChange={handleToggleSelectAll}
                     className="rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500"
-                    title={t('takeoffGrid.selectAll', 'Select all line items')}
+                    title={t('product.takeoffGrid.selectAll', 'Select all line items')}
                   />
                 </th>
               )}
-              <Th>{t('takeoffGrid.system')}</Th>
-              <Th>{t('takeoffGrid.description')}</Th>
-              <Th>{t('takeoffGrid.sizeSpec')}</Th>
-              <Th align="right">{t('takeoffGrid.quantity')}</Th>
-              <Th>{t('takeoffGrid.unit')}</Th>
-              <Th align="right">{t('takeoffGrid.avgDepth')}</Th>
-              <Th>{t('takeoffGrid.laborRoleCol', 'Labor Role')}</Th>
-              <Th align="right">{t('takeoffGrid.materialCostPerUnit')}</Th>
+              <Th>{t('product.takeoffGrid.system')}</Th>
+              <Th>{t('product.takeoffGrid.description')}</Th>
+              <Th>{t('product.takeoffGrid.sizeSpec')}</Th>
+              <Th align="right">{t('product.takeoffGrid.quantity')}</Th>
+              <Th>{t('product.takeoffGrid.unit')}</Th>
+              <Th align="right">{t('product.takeoffGrid.avgDepth')}</Th>
+              <Th>{t('product.takeoffGrid.laborRoleCol', 'Labor Role')}</Th>
+              <Th align="right">{t('product.takeoffGrid.materialCostPerUnit')}</Th>
               <Th align="right">
                 <div className="flex items-center justify-end gap-1.5">
-                  <span>{laborInputMode === 'hours' ? t('takeoffGrid.laborHoursPerUnit') : t('takeoffGrid.laborUnitCost')}</span>
+                  <span>{laborInputMode === 'hours' ? t('product.takeoffGrid.laborHoursPerUnit') : t('product.takeoffGrid.laborUnitCost')}</span>
                   <div className="inline-flex rounded border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 p-0.5 text-[10px]">
                     <button
                       type="button"
@@ -301,7 +301,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                           ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs'
                           : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
                       }`}
-                      title={t('takeoffGrid.laborHoursPerUnit')}
+                      title={t('product.takeoffGrid.laborHoursPerUnit')}
                     >
                       hrs
                     </button>
@@ -313,7 +313,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                           ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs'
                           : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
                       }`}
-                      title={t('takeoffGrid.laborUnitCost')}
+                      title={t('product.takeoffGrid.laborUnitCost')}
                     >
                       $
                     </button>
@@ -368,7 +368,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                     <div className="flex items-center gap-1.5 flex-wrap">
                       {item.isEquipment && (
                         <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
-                          🚜 {t('takeoffGrid.equipmentBadge', 'Equipment Rental')}
+                          🚜 {t('product.takeoffGrid.equipmentBadge', 'Equipment Rental')}
                         </span>
                       )}
                       <input
@@ -380,9 +380,9 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                       {item.hasMissingScope && (
                         <span
                           className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700"
-                          title={t('takeoffGrid.missingScopeTooltip', 'Scope requires field verification / pricing review')}
+                          title={t('product.takeoffGrid.missingScopeTooltip', 'Scope requires field verification / pricing review')}
                         >
-                          ⚠️ {item.missingScopeReason || t('takeoffGrid.missingScopeBadge', 'Missing Scope')}
+                          ⚠️ {item.missingScopeReason || t('product.takeoffGrid.missingScopeBadge', 'Missing Scope')}
                         </span>
                       )}
                     </div>
@@ -432,7 +432,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                   <Td>
                     {item.isEquipment ? (
                       <span className="text-xs text-slate-400 dark:text-slate-500 italic">
-                        {t('takeoffGrid.equipmentNoLabor', 'N/A (Machinery)')}
+                        {t('product.takeoffGrid.equipmentNoLabor', 'N/A (Machinery)')}
                       </span>
                     ) : (
                       <select
@@ -440,10 +440,10 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                         onChange={(e) => updateItem(item.id, 'laborRoleId', e.target.value || null)}
                         disabled={readOnly}
                         className="w-full bg-transparent outline-none text-xs text-slate-700 dark:text-slate-300 font-medium disabled:opacity-80 disabled:cursor-not-allowed"
-                        title={t('takeoffGrid.assignedLaborRoleTooltip', { role: itemRoleTitle, rate: itemHourlyRate })}
+                        title={t('product.takeoffGrid.assignedLaborRoleTooltip', { role: itemRoleTitle, rate: itemHourlyRate })}
                       >
                         <option value="" className="dark:bg-slate-900 dark:text-white">
-                          {t('takeoffGrid.defaultRoleOption', { rate: hourlyRate, defaultValue: `Default ($${hourlyRate}/hr)` })}
+                          {t('product.takeoffGrid.defaultRoleOption', { rate: hourlyRate, defaultValue: `Default ($${hourlyRate}/hr)` })}
                         </option>
                         {laborRoles.map((role) => (
                           <option key={role.id} value={role.id} className="dark:bg-slate-900 dark:text-white">
@@ -472,7 +472,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                   <Td align="right">
                     {item.isEquipment ? (
                       <span className="text-xs text-slate-400 dark:text-slate-500 italic">
-                        {t('takeoffGrid.equipmentIncludedFee', 'Rental/Delivery')}
+                        {t('product.takeoffGrid.equipmentIncludedFee', 'Rental/Delivery')}
                       </span>
                     ) : (
                       <input
@@ -495,7 +495,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                         type="button"
                         onClick={() => removeItem(item.id)}
                         className="text-slate-400 hover:text-red-600 dark:hover:text-red-400 cursor-pointer"
-                        title={t('takeoffGrid.deleteRow')}
+                        title={t('product.takeoffGrid.deleteRow')}
                       >
                         <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path
@@ -522,14 +522,14 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                 onClick={addRow}
                 className="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 cursor-pointer"
               >
-                + {t('takeoffGrid.addRow')}
+                + {t('product.takeoffGrid.addRow')}
               </button>
               <button
                 type="button"
                 onClick={handleOpenAddEquipmentModal}
                 className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 dark:hover:bg-amber-900/60 border border-amber-200 dark:border-amber-800 rounded-lg transition cursor-pointer"
               >
-                🚜 {t('takeoffGrid.addEquipmentRental', '+ Add Equipment Rental')}
+                🚜 {t('product.takeoffGrid.addEquipmentRental', '+ Add Equipment Rental')}
               </button>
             </div>
           </div>
@@ -545,10 +545,10 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                 <span className="text-xl">🚜</span>
                 <div>
                   <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                    {t('takeoffGrid.addEquipmentTitle', 'Add Equipment / Machinery Rental')}
+                    {t('product.takeoffGrid.addEquipmentTitle', 'Add Equipment / Machinery Rental')}
                   </h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    {t('takeoffGrid.addEquipmentSubtitle', 'Select machinery type, rental duration, and delivery options.')}
+                    {t('product.takeoffGrid.addEquipmentSubtitle', 'Select machinery type, rental duration, and delivery options.')}
                   </p>
                 </div>
               </div>
@@ -564,7 +564,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
             <form onSubmit={handleConfirmAddEquipment} className="py-4 space-y-3.5">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                  {t('takeoffGrid.equipmentType', 'Equipment / Machine Type')}
+                  {t('product.takeoffGrid.equipmentType', 'Equipment / Machine Type')}
                 </label>
                 <select
                   value={selectedCatalogId}
@@ -576,14 +576,14 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                       {eq.title} (${eq.weeklyRate}/wk)
                     </option>
                   ))}
-                  <option value="custom">-- {t('takeoffGrid.customMachine', 'Custom Machine / Tool')} --</option>
+                  <option value="custom">-- {t('product.takeoffGrid.customMachine', 'Custom Machine / Tool')} --</option>
                 </select>
               </div>
 
               {selectedCatalogId === 'custom' && (
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    {t('takeoffGrid.customMachineTitle', 'Equipment Description')}
+                    {t('product.takeoffGrid.customMachineTitle', 'Equipment Description')}
                   </label>
                   <input
                     type="text"
@@ -599,7 +599,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    {t('takeoffGrid.durationQty', 'Duration Qty')}
+                    {t('product.takeoffGrid.durationQty', 'Duration Qty')}
                   </label>
                   <input
                     type="number"
@@ -613,16 +613,16 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    {t('takeoffGrid.durationUnit', 'Duration Unit')}
+                    {t('product.takeoffGrid.durationUnit', 'Duration Unit')}
                   </label>
                   <select
                     value={eqDurationUnit}
                     onChange={(e) => setEqDurationUnit(e.target.value)}
                     className="w-full px-3 py-2 text-xs border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                   >
-                    <option value="days">{t('takeoffGrid.daysUnit', 'Days')}</option>
-                    <option value="weeks">{t('takeoffGrid.weeksUnit', 'Weeks')}</option>
-                    <option value="months">{t('takeoffGrid.monthsUnit', 'Months')}</option>
+                    <option value="days">{t('product.takeoffGrid.daysUnit', 'Days')}</option>
+                    <option value="weeks">{t('product.takeoffGrid.weeksUnit', 'Weeks')}</option>
+                    <option value="months">{t('product.takeoffGrid.monthsUnit', 'Months')}</option>
                   </select>
                 </div>
               </div>
@@ -630,7 +630,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
               <div className="grid grid-cols-3 gap-2">
                 <div>
                   <label className="block text-[11px] font-medium text-slate-500 dark:text-slate-400 mb-0.5">
-                    {t('takeoffGrid.dayRate', 'Day Rate')}
+                    {t('product.takeoffGrid.dayRate', 'Day Rate')}
                   </label>
                   <div className="flex items-center px-2 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
                     <span className="text-slate-400 text-xs mr-1">$</span>
@@ -645,7 +645,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                 </div>
                 <div>
                   <label className="block text-[11px] font-medium text-slate-500 dark:text-slate-400 mb-0.5">
-                    {t('takeoffGrid.weekRate', 'Week Rate')}
+                    {t('product.takeoffGrid.weekRate', 'Week Rate')}
                   </label>
                   <div className="flex items-center px-2 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
                     <span className="text-slate-400 text-xs mr-1">$</span>
@@ -660,7 +660,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                 </div>
                 <div>
                   <label className="block text-[11px] font-medium text-slate-500 dark:text-slate-400 mb-0.5">
-                    {t('takeoffGrid.monthRate', 'Month Rate')}
+                    {t('product.takeoffGrid.monthRate', 'Month Rate')}
                   </label>
                   <div className="flex items-center px-2 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
                     <span className="text-slate-400 text-xs mr-1">$</span>
@@ -683,7 +683,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                     onChange={(e) => setEqIncludeDelivery(e.target.checked)}
                     className="rounded border-slate-300 dark:border-slate-700 text-amber-600 focus:ring-amber-500"
                   />
-                  <span>{t('takeoffGrid.includeDelivery', 'Include Delivery & Mobilization')}</span>
+                  <span>{t('product.takeoffGrid.includeDelivery', 'Include Delivery & Mobilization')}</span>
                 </label>
                 <div className="flex items-center text-xs">
                   <span className="text-slate-400 mr-1">$</span>
@@ -711,7 +711,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                   <div className="p-3 bg-amber-50/80 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 rounded-xl flex items-center justify-between">
                     <div>
                       <span className="text-xs font-bold text-amber-900 dark:text-amber-200 block">
-                        {t('takeoffGrid.totalEquipmentCost', 'Calculated Equipment Total:')}
+                        {t('product.takeoffGrid.totalEquipmentCost', 'Calculated Equipment Total:')}
                       </span>
                       <span className="text-[11px] text-amber-700 dark:text-amber-400">
                         {eqDurationQty} {eqDurationUnit} @ {baseRentalCost > 0 ? `$${baseRentalCost.toLocaleString()}` : '$0'}
@@ -737,7 +737,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                   type="submit"
                   className="px-4 py-1.5 text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white rounded-xl shadow-xs cursor-pointer transition"
                 >
-                  {t('takeoffGrid.confirmAddEquipment', 'Add Equipment Item')}
+                  {t('product.takeoffGrid.confirmAddEquipment', 'Add Equipment Item')}
                 </button>
               </div>
             </form>

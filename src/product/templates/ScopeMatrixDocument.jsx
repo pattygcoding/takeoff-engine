@@ -13,7 +13,7 @@ export default function ScopeMatrixDocument({ estimate, branding, currentProject
 
   return (
     <div className="space-y-6">
-      <DocumentBrandingHeader branding={branding} title={t('templates.scopeMatrix.title')} project={currentProject} />
+      <DocumentBrandingHeader branding={branding} title={t('product.templates.scopeMatrix.title')} project={currentProject} />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {bySystem.map((sys) => (
@@ -35,7 +35,7 @@ export default function ScopeMatrixDocument({ estimate, branding, currentProject
       </div>
 
       <div className="p-4 bg-slate-900 text-white rounded-2xl flex justify-between items-center">
-        <span className="text-xs font-bold uppercase tracking-wider">{t('templates.scopeMatrix.totalCombinedBid')}</span>
+        <span className="text-xs font-bold uppercase tracking-wider">{t('product.templates.scopeMatrix.totalCombinedBid')}</span>
         <span className="text-lg font-bold font-mono text-emerald-400">{formatCurrency(totals.finalBidAmount)}</span>
       </div>
 

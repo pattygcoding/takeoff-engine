@@ -60,7 +60,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
         ...rates,
         ...match.rates_json,
       });
-      setSuccessMsg(t('ratesDrawer.appliedTemplate', { name: match.name }));
+      setSuccessMsg(t('product.ratesDrawer.appliedTemplate', { name: match.name }));
       setTimeout(() => setSuccessMsg(''), 3000);
     }
   };
@@ -81,7 +81,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
       setTemplateNameInput('');
       setTemplateDescInput('');
       setShowSaveModal(false);
-      setSuccessMsg(t('ratesDrawer.savedNewLibrary'));
+      setSuccessMsg(t('product.ratesDrawer.savedNewLibrary'));
       setTimeout(() => setSuccessMsg(''), 3500);
       await loadRates();
     } catch (err) {
@@ -89,7 +89,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
         setShowSaveModal(false);
         setShowUpgradeModal(true);
       } else {
-        setErrorMsg(err.message || t('ratesDrawer.failedSaveTemplate'));
+        setErrorMsg(err.message || t('product.ratesDrawer.failedSaveTemplate'));
       }
     } finally {
       setSaveLoading(false);
@@ -99,9 +99,9 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
   const handleDeleteTemplate = async (templateId, e) => {
     e.stopPropagation();
     const confirmed = await showConfirm({
-      title: t('ratesDrawer.deleteTitle'),
-      message: t('ratesDrawer.deleteMessage'),
-      confirmText: t('ratesDrawer.deleteConfirmText'),
+      title: t('product.ratesDrawer.deleteTitle'),
+      message: t('product.ratesDrawer.deleteMessage'),
+      confirmText: t('product.ratesDrawer.deleteConfirmText'),
       confirmVariant: 'danger',
     });
     if (!confirmed) return;
@@ -112,8 +112,8 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
       if (selectedTemplateId === templateId) setSelectedTemplateId('');
     } catch (err) {
       await showAlert({
-        title: t('ratesDrawer.deleteErrorTitle'),
-        message: err.message || t('ratesDrawer.deleteErrorMessage'),
+        title: t('product.ratesDrawer.deleteErrorTitle'),
+        message: err.message || t('product.ratesDrawer.deleteErrorMessage'),
         variant: 'error',
       });
     }
@@ -259,7 +259,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
       laborDailyRate: blendedDaily,
     });
     setShowCrewCalculator(false);
-    setSuccessMsg(t('ratesDrawer.appliedBlendedCrewRate', { rate: blendedHourly.toFixed(2) }));
+    setSuccessMsg(t('product.ratesDrawer.appliedBlendedCrewRate', { rate: blendedHourly.toFixed(2) }));
     setTimeout(() => setSuccessMsg(''), 3500);
   };
 
@@ -294,7 +294,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
     const newId = `role-${Date.now()}`;
     const newRole = {
       id: newId,
-      title: t('ratesDrawer.newRolePlaceholder', 'Specialty Trade Role'),
+      title: t('product.ratesDrawer.newRolePlaceholder', 'Specialty Trade Role'),
       hourlyRate: 65.0,
       dailyRate: Math.round(65.0 * workdayHours * 100) / 100,
     };
@@ -341,7 +341,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
     const newId = `eq-${Date.now()}`;
     const newEq = {
       id: newId,
-      title: t('ratesDrawer.newEquipmentPlaceholder', 'Custom Equipment / Tool'),
+      title: t('product.ratesDrawer.newEquipmentPlaceholder', 'Custom Equipment / Tool'),
       dailyRate: 150.0,
       weeklyRate: 500.0,
       monthlyRate: 1500.0,
@@ -422,8 +422,8 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
             <div className="flex items-center gap-2">
               <span className="text-xl">⚙️</span>
               <div>
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white leading-tight">{t('ratesDrawer.title')}</h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{t('ratesDrawer.subtitle')}</p>
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white leading-tight">{t('product.ratesDrawer.title')}</h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{t('product.ratesDrawer.subtitle')}</p>
               </div>
             </div>
             <button onClick={onClose} className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition" type="button">
@@ -444,7 +444,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
-              🌐 {t('ratesDrawer.sectionAll', 'All Settings')}
+              🌐 {t('product.ratesDrawer.sectionAll', 'All Settings')}
             </button>
             <button
               type="button"
@@ -455,7 +455,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
-              📚 {t('ratesDrawer.sectionTemplates', 'Templates')}
+              📚 {t('product.ratesDrawer.sectionTemplates', 'Templates')}
             </button>
             <button
               type="button"
@@ -466,7 +466,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
-              👷 {t('ratesDrawer.sectionLabor', 'Labor & Crew')}
+              👷 {t('product.ratesDrawer.sectionLabor', 'Labor & Crew')}
             </button>
             <button
               type="button"
@@ -477,7 +477,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
-              🚜 {t('ratesDrawer.sectionEquipment', 'Equipment')}
+              🚜 {t('product.ratesDrawer.sectionEquipment', 'Equipment')}
             </button>
             <button
               type="button"
@@ -488,7 +488,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
-              📐 {t('ratesDrawer.sectionTrenching', 'Trenching')}
+              📐 {t('product.ratesDrawer.sectionTrenching', 'Trenching')}
             </button>
             <button
               type="button"
@@ -499,7 +499,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
-              💰 {t('ratesDrawer.sectionMarkups', 'Markups & Misc')}
+              💰 {t('product.ratesDrawer.sectionMarkups', 'Markups & Misc')}
             </button>
           </div>
         </div>
@@ -511,7 +511,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
               <svg className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
-              <span>{t('ratesDrawer.ratesLocked')}</span>
+              <span>{t('product.ratesDrawer.ratesLocked')}</span>
             </div>
           )}
 
@@ -523,10 +523,10 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                   <span className="p-1 bg-indigo-600 text-white rounded-lg text-xs font-bold">📚</span>
                   <div>
                     <span className="text-xs font-bold uppercase tracking-wider text-indigo-950 dark:text-indigo-200 block">
-                      {t('ratesDrawer.rateLibraryTemplate')}
+                      {t('product.ratesDrawer.rateLibraryTemplate')}
                     </span>
                     <span className="text-[11px] text-slate-500 dark:text-slate-400 block -mt-0.5">
-                      {t('ratesDrawer.subtitle')}
+                      {t('product.ratesDrawer.subtitle')}
                     </span>
                   </div>
                 </div>
@@ -536,7 +536,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                     onClick={() => setShowSaveModal(true)}
                     className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-xs transition cursor-pointer"
                   >
-                    {t('ratesDrawer.saveCurrentAsNew')}
+                    {t('product.ratesDrawer.saveCurrentAsNew')}
                   </button>
                 )}
               </div>
@@ -553,9 +553,9 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                 disabled={readOnly}
                 className="w-full px-3 py-2 text-sm border border-indigo-300/80 dark:border-indigo-700/80 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-medium focus:ring-2 focus:ring-indigo-500 focus:outline-none disabled:opacity-80 disabled:cursor-not-allowed cursor-pointer"
               >
-                <option value="">{t('ratesDrawer.chooseRateTemplate')}</option>
+                <option value="">{t('product.ratesDrawer.chooseRateTemplate')}</option>
                 {libraries.userLibraries?.length > 0 && (
-                  <optgroup label={t('ratesDrawer.yourCustomLibraries')}>
+                  <optgroup label={t('product.ratesDrawer.yourCustomLibraries')}>
                     {libraries.userLibraries.map((lib) => (
                       <option key={lib.id} value={lib.id}>
                         {lib.name}
@@ -563,7 +563,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                     ))}
                   </optgroup>
                 )}
-                <optgroup label={t('ratesDrawer.systemDefaultLibraries')}>
+                <optgroup label={t('product.ratesDrawer.systemDefaultLibraries')}>
                   {libraries.systemDefaults?.map((sys) => (
                     <option key={sys.id} value={sys.id}>
                       {sys.name}
@@ -575,7 +575,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
               {/* Custom Libraries manager pill */}
               {libraries.userLibraries?.length > 0 && (
                 <div className="mt-3 space-y-1.5 border-t border-indigo-100 dark:border-indigo-900/60 pt-2.5">
-                  <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">{t('ratesDrawer.savedLibraries')}</p>
+                  <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">{t('product.ratesDrawer.savedLibraries')}</p>
                   {libraries.userLibraries.map((lib) => (
                     <div key={lib.id} className="flex items-center justify-between text-xs py-1 px-2 rounded-lg bg-white dark:bg-slate-900 border border-indigo-100 dark:border-indigo-900/60 shadow-2xs">
                       <span className="truncate font-medium text-slate-700 dark:text-slate-200 max-w-[220px]">{lib.name}</span>
@@ -584,7 +584,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                           type="button"
                           onClick={(e) => handleDeleteTemplate(lib.id, e)}
                           className="text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition ml-2 cursor-pointer"
-                          title={t('ratesDrawer.deleteLibrary')}
+                          title={t('product.ratesDrawer.deleteLibrary')}
                         >
                           🗑️
                         </button>
@@ -601,7 +601,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
             <div className="space-y-4">
               <section className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">{t('ratesDrawer.baseLaborRate')}</h3>
+                  <h3 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">{t('product.ratesDrawer.baseLaborRate')}</h3>
                   <div className="inline-flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 text-xs font-medium">
                     <button
                       type="button"
@@ -613,7 +613,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                           : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
                       } disabled:cursor-not-allowed`}
                     >
-                      {t('ratesDrawer.hourlyBasis', 'Hourly ($/hr)')}
+                      {t('product.ratesDrawer.hourlyBasis', 'Hourly ($/hr)')}
                     </button>
                     <button
                       type="button"
@@ -625,7 +625,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                           : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
                       } disabled:cursor-not-allowed`}
                     >
-                      {t('ratesDrawer.dailyBasis', 'Daily ($/day)')}
+                      {t('product.ratesDrawer.dailyBasis', 'Daily ($/day)')}
                     </button>
                   </div>
                 </div>
@@ -633,7 +633,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                 {laborBasis === 'hourly' ? (
                   <>
                     <Field
-                      label={t('ratesDrawer.baseLaborHourlyRate')}
+                      label={t('product.ratesDrawer.baseLaborHourlyRate')}
                       value={rates.laborHourlyRate}
                       onChange={handleHourlyRateChange}
                       disabled={readOnly}
@@ -642,7 +642,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                     />
                     <div className="flex items-center justify-between px-2.5 py-1.5 -mt-2 mb-3 bg-indigo-50/60 dark:bg-indigo-950/40 border border-indigo-100/80 dark:border-indigo-900/60 rounded-lg text-xs text-indigo-700 dark:text-indigo-300">
                       <span className="font-medium">
-                        {t('ratesDrawer.effectiveDailyRateBadge', {
+                        {t('product.ratesDrawer.effectiveDailyRateBadge', {
                           rate: currentDailyRate.toFixed(2),
                           hours: workdayHours,
                         })}
@@ -655,7 +655,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                 ) : (
                   <>
                     <Field
-                      label={t('ratesDrawer.baseLaborDailyRate', 'Base Labor Daily Rate ($/day)')}
+                      label={t('product.ratesDrawer.baseLaborDailyRate', 'Base Labor Daily Rate ($/day)')}
                       value={rates.laborDailyRate}
                       onChange={handleDailyRateChange}
                       disabled={readOnly}
@@ -664,7 +664,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                     />
                     <div className="flex items-center justify-between px-2.5 py-1.5 -mt-2 mb-3 bg-indigo-50/60 dark:bg-indigo-950/40 border border-indigo-100/80 dark:border-indigo-900/60 rounded-lg text-xs text-indigo-700 dark:text-indigo-300">
                       <span className="font-medium">
-                        {t('ratesDrawer.effectiveHourlyRateBadge', {
+                        {t('product.ratesDrawer.effectiveHourlyRateBadge', {
                           rate: currentHourlyRate.toFixed(2),
                         })}
                       </span>
@@ -676,7 +676,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                 )}
 
                 <Field
-                  label={t('ratesDrawer.workdayHours', 'Hours per Workday (hrs/day)')}
+                  label={t('product.ratesDrawer.workdayHours', 'Hours per Workday (hrs/day)')}
                   value={rates.workdayHours ?? DEFAULT_WORKDAY_HOURS}
                   onChange={handleWorkdayHoursChange}
                   disabled={readOnly}
@@ -689,10 +689,10 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                 <div className="flex items-center justify-between mb-2">
                   <div>
                     <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                      {t('ratesDrawer.laborRolesHeader', 'Labor Roles & Crew Rankings')}
+                      {t('product.ratesDrawer.laborRolesHeader', 'Labor Roles & Crew Rankings')}
                     </h3>
                     <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
-                      {t('ratesDrawer.laborRolesDesc', 'Set trade tier billing rates and assign them to individual line items.')}
+                      {t('product.ratesDrawer.laborRolesDesc', 'Set trade tier billing rates and assign them to individual line items.')}
                     </p>
                   </div>
                   {!readOnly && (
@@ -700,9 +700,9 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                       type="button"
                       onClick={() => setShowCrewCalculator(true)}
                       className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 rounded-lg transition-colors border border-indigo-100 dark:border-indigo-900 cursor-pointer"
-                      title={t('ratesDrawer.blendedCrewTooltip', 'Calculate composite blended hourly rate based on crew composition')}
+                      title={t('product.ratesDrawer.blendedCrewTooltip', 'Calculate composite blended hourly rate based on crew composition')}
                     >
-                      👥 {t('ratesDrawer.blendedCrewBtn', 'Crew Blend')}
+                      👥 {t('product.ratesDrawer.blendedCrewBtn', 'Crew Blend')}
                     </button>
                   )}
                 </div>
@@ -726,7 +726,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                             type="button"
                             onClick={() => handleRemoveRole(role.id)}
                             className="text-slate-400 hover:text-red-500 dark:hover:text-red-400 text-xs p-1 cursor-pointer"
-                            title={t('ratesDrawer.removeRole', 'Remove Role')}
+                            title={t('product.ratesDrawer.removeRole', 'Remove Role')}
                           >
                             ✕
                           </button>
@@ -770,7 +770,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                     onClick={handleAddCustomRole}
                     className="mt-3 w-full py-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 bg-white dark:bg-slate-800 border border-dashed border-indigo-200 dark:border-indigo-800/80 rounded-xl transition cursor-pointer"
                   >
-                    + {t('ratesDrawer.addCustomRole', 'Add Custom Labor Role')}
+                    + {t('product.ratesDrawer.addCustomRole', 'Add Custom Labor Role')}
                   </button>
                 )}
               </section>
@@ -783,10 +783,10 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
               <div className="flex items-center justify-between mb-2">
                 <div>
                   <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                    {t('ratesDrawer.equipmentCatalogHeader', 'Equipment & Machinery Rentals')}
+                    {t('product.ratesDrawer.equipmentCatalogHeader', 'Equipment & Machinery Rentals')}
                   </h3>
                   <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
-                    {t('ratesDrawer.equipmentCatalogDesc', 'Standard machinery rental rates (day/wk/mo), mobilization fees, and fuel surcharges.')}
+                    {t('product.ratesDrawer.equipmentCatalogDesc', 'Standard machinery rental rates (day/wk/mo), mobilization fees, and fuel surcharges.')}
                   </p>
                 </div>
               </div>
@@ -811,7 +811,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                           type="button"
                           onClick={() => handleRemoveEquipmentCatalogItem(eq.id)}
                           className="text-slate-400 hover:text-red-500 dark:hover:text-red-400 text-xs p-1 cursor-pointer"
-                          title={t('ratesDrawer.removeEquipment', 'Remove Equipment')}
+                          title={t('product.ratesDrawer.removeEquipment', 'Remove Equipment')}
                         >
                           ✕
                         </button>
@@ -819,7 +819,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                     </div>
                     <div className="grid grid-cols-3 gap-1.5 text-xs">
                       <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-1 text-center">
-                        <span className="text-[10px] text-slate-400 dark:text-slate-500 block">{t('ratesDrawer.daily', 'Day')}</span>
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500 block">{t('product.ratesDrawer.daily', 'Day')}</span>
                         <div className="flex items-center justify-center">
                           <span className="text-slate-400 dark:text-slate-500 text-[11px] mr-0.5">$</span>
                           <input
@@ -833,7 +833,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                         </div>
                       </div>
                       <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-1 text-center">
-                        <span className="text-[10px] text-slate-400 dark:text-slate-500 block">{t('ratesDrawer.weekly', 'Wk')}</span>
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500 block">{t('product.ratesDrawer.weekly', 'Wk')}</span>
                         <div className="flex items-center justify-center">
                           <span className="text-slate-400 dark:text-slate-500 text-[11px] mr-0.5">$</span>
                           <input
@@ -847,7 +847,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                         </div>
                       </div>
                       <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-1 text-center">
-                        <span className="text-[10px] text-slate-400 dark:text-slate-500 block">{t('ratesDrawer.monthly', 'Mo')}</span>
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500 block">{t('product.ratesDrawer.monthly', 'Mo')}</span>
                         <div className="flex items-center justify-center">
                           <span className="text-slate-400 dark:text-slate-500 text-[11px] mr-0.5">$</span>
                           <input
@@ -863,7 +863,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                     </div>
                     <div className="grid grid-cols-2 gap-2 text-xs pt-1 border-t border-slate-100 dark:border-slate-700/60">
                       <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1">
-                        <span className="text-[10px] text-slate-400 dark:text-slate-500">{t('ratesDrawer.deliveryFee', 'Delivery:')}</span>
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500">{t('product.ratesDrawer.deliveryFee', 'Delivery:')}</span>
                         <div className="flex items-center">
                           <span className="text-slate-400 dark:text-slate-500 text-[11px] mr-0.5">$</span>
                           <input
@@ -877,7 +877,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                         </div>
                       </div>
                       <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1">
-                        <span className="text-[10px] text-slate-400 dark:text-slate-500">{t('ratesDrawer.fuelSurcharge', 'Fuel %:')}</span>
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500">{t('product.ratesDrawer.fuelSurcharge', 'Fuel %:')}</span>
                         <div className="flex items-center">
                           <input
                             type="number"
@@ -901,7 +901,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                   onClick={handleAddCustomEquipment}
                   className="mt-3 w-full py-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 bg-white dark:bg-slate-800 border border-dashed border-indigo-200 dark:border-indigo-800/80 rounded-xl transition cursor-pointer"
                 >
-                  + {t('ratesDrawer.addCustomEquipment', 'Add Custom Equipment Preset')}
+                  + {t('product.ratesDrawer.addCustomEquipment', 'Add Custom Equipment Preset')}
                 </button>
               )}
             </section>
@@ -910,10 +910,10 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
           {/* Trenching & Earthwork */}
           {(activeSection === 'all' || activeSection === 'trenching') && (
             <section className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl p-4">
-              <h3 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-3">{t('ratesDrawer.trenchingEarthwork')}</h3>
-              <Field label={t('ratesDrawer.trenchWidth')} value={rates.trenchWidthFt} onChange={update('trenchWidthFt')} disabled={readOnly} />
+              <h3 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-3">{t('product.ratesDrawer.trenchingEarthwork')}</h3>
+              <Field label={t('product.ratesDrawer.trenchWidth')} value={rates.trenchWidthFt} onChange={update('trenchWidthFt')} disabled={readOnly} />
               <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
-                {t('ratesDrawer.trenchVolumeFormula')}
+                {t('product.ratesDrawer.trenchVolumeFormula')}
               </p>
             </section>
           )}
@@ -921,9 +921,9 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
           {/* Markups & Business Constants */}
           {(activeSection === 'all' || activeSection === 'markups') && (
             <section className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl p-4">
-              <h3 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-3">{t('ratesDrawer.markupBusinessConstants')}</h3>
+              <h3 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-3">{t('product.ratesDrawer.markupBusinessConstants')}</h3>
               <DualModeField
-                label={t('ratesDrawer.overhead')}
+                label={t('product.ratesDrawer.overhead')}
                 value={rates.overheadPct}
                 onChange={update('overheadPct')}
                 type={rates.overheadType || 'percent'}
@@ -931,7 +931,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                 disabled={readOnly}
               />
               <DualModeField
-                label={t('ratesDrawer.contingency')}
+                label={t('product.ratesDrawer.contingency')}
                 value={rates.contingencyPct}
                 onChange={update('contingencyPct')}
                 type={rates.contingencyType || 'percent'}
@@ -939,7 +939,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                 disabled={readOnly}
               />
               <DualModeField
-                label={t('ratesDrawer.profitMargin')}
+                label={t('product.ratesDrawer.profitMargin')}
                 value={rates.profitPct}
                 onChange={update('profitPct')}
                 type={rates.profitType || 'percent'}
@@ -947,7 +947,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                 disabled={readOnly}
               />
               <DualModeField
-                label={t('ratesDrawer.mobilizationEquipment')}
+                label={t('product.ratesDrawer.mobilizationEquipment')}
                 value={rates.equipmentLumpSum}
                 onChange={update('equipmentLumpSum')}
                 type={rates.equipmentType || 'fixed'}
@@ -960,10 +960,10 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                 <div className="flex items-center justify-between mb-2">
                   <div>
                     <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider block">
-                      {t('ratesDrawer.miscellaneousCosts')}
+                      {t('product.ratesDrawer.miscellaneousCosts')}
                     </span>
                     <span className="text-[11px] text-slate-400 dark:text-slate-500">
-                      {t('ratesDrawer.miscTotal')} ${(rates.miscCost ?? 0).toLocaleString()}
+                      {t('product.ratesDrawer.miscTotal')} ${(rates.miscCost ?? 0).toLocaleString()}
                     </span>
                   </div>
                   {!readOnly && (
@@ -972,14 +972,14 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                       onClick={handleAddMiscItem}
                       className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 rounded-lg transition-colors border border-indigo-100 dark:border-indigo-900 cursor-pointer"
                     >
-                      {t('ratesDrawer.addMiscItem')}
+                      {t('product.ratesDrawer.addMiscItem')}
                     </button>
                   )}
                 </div>
 
                 {miscItems.length === 0 ? (
                   <div className="p-3 text-center bg-white dark:bg-slate-900 border border-dashed border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-400 dark:text-slate-500">
-                    {t('ratesDrawer.noMiscItems')}
+                    {t('product.ratesDrawer.noMiscItems')}
                   </div>
                 ) : (
                   <div className="space-y-2">
@@ -990,7 +990,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                       >
                         <input
                           type="text"
-                          placeholder={t('ratesDrawer.miscItemTitlePlaceholder')}
+                          placeholder={t('product.ratesDrawer.miscItemTitlePlaceholder')}
                           value={item.title || ''}
                           disabled={readOnly}
                           onChange={(e) => handleUpdateMiscItem(item.id, 'title', e.target.value)}
@@ -1000,7 +1000,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                           <span className="pl-2 text-xs text-slate-400 dark:text-slate-500">$</span>
                           <input
                             type="number"
-                            placeholder={t('ratesDrawer.miscItemAmountPlaceholder')}
+                            placeholder={t('product.ratesDrawer.miscItemAmountPlaceholder')}
                             value={item.amount === 0 ? 0 : item.amount || ''}
                             disabled={readOnly}
                             onChange={(e) => handleUpdateMiscItem(item.id, 'amount', e.target.value)}
@@ -1031,9 +1031,9 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
         {showSaveModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
             <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 max-w-sm w-full p-5 text-slate-900 dark:text-slate-100">
-              <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">{t('ratesDrawer.saveModalTitle')}</h3>
+              <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">{t('product.ratesDrawer.saveModalTitle')}</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
-                {t('ratesDrawer.saveModalSubtitle')}
+                {t('product.ratesDrawer.saveModalSubtitle')}
               </p>
 
               {errorMsg && (
@@ -1045,12 +1045,12 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
               <form onSubmit={handleSaveCurrentAsTemplate} className="space-y-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    {t('ratesDrawer.templateName')}
+                    {t('product.ratesDrawer.templateName')}
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder={t('ratesDrawer.templateNamePlaceholder')}
+                    placeholder={t('product.ratesDrawer.templateNamePlaceholder')}
                     value={templateNameInput}
                     onChange={(e) => setTemplateNameInput(e.target.value)}
                     className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -1060,11 +1060,11 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
 
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    {t('ratesDrawer.templateDescription')}
+                    {t('product.ratesDrawer.templateDescription')}
                   </label>
                   <input
                     type="text"
-                    placeholder={t('ratesDrawer.templateDescriptionPlaceholder')}
+                    placeholder={t('product.ratesDrawer.templateDescriptionPlaceholder')}
                     value={templateDescInput}
                     onChange={(e) => setTemplateDescInput(e.target.value)}
                     className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -1084,7 +1084,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                     disabled={saveLoading}
                     className="px-4 py-1.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-xs disabled:opacity-50 cursor-pointer"
                   >
-                    {saveLoading ? t('ratesDrawer.saving') : t('ratesDrawer.saveTemplate')}
+                    {saveLoading ? t('product.ratesDrawer.saving') : t('product.ratesDrawer.saveTemplate')}
                   </button>
                 </div>
               </form>
@@ -1101,10 +1101,10 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                   <span className="text-xl">👥</span>
                   <div>
                     <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                      {t('ratesDrawer.crewCalcTitle', 'Blended Crew Rate Calculator')}
+                      {t('product.ratesDrawer.crewCalcTitle', 'Blended Crew Rate Calculator')}
                     </h3>
                     <p className="text-xs text-slate-500 dark:text-slate-400">
-                      {t('ratesDrawer.crewCalcSubtitle', 'Compose your standard jobsite crew to compute an accurate weighted average billing rate.')}
+                      {t('product.ratesDrawer.crewCalcSubtitle', 'Compose your standard jobsite crew to compute an accurate weighted average billing rate.')}
                     </p>
                   </div>
                 </div>
@@ -1119,7 +1119,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
 
               <div className="py-4 space-y-3 max-h-[60vh] overflow-y-auto">
                 <p className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 tracking-wide">
-                  {t('ratesDrawer.crewHeadcount', 'Crew Headcount by Role')}
+                  {t('product.ratesDrawer.crewHeadcount', 'Crew Headcount by Role')}
                 </p>
                 {laborRoles.map((role) => {
                   const compItem = crewComposition.find((c) => c.roleId === role.id) || { count: 0 };
@@ -1176,15 +1176,15 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                 {/* Live Composite Calculation Result */}
                 <div className="p-3.5 bg-indigo-50/80 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 rounded-xl space-y-1.5">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-indigo-800 dark:text-indigo-300 font-medium">{t('ratesDrawer.totalCrewHeadcount', 'Total Crew Size:')}</span>
-                    <span className="font-bold text-indigo-950 dark:text-indigo-100">{blendedResult.totalCrewMembers} {t('ratesDrawer.workers', 'workers')}</span>
+                    <span className="text-indigo-800 dark:text-indigo-300 font-medium">{t('product.ratesDrawer.totalCrewHeadcount', 'Total Crew Size:')}</span>
+                    <span className="font-bold text-indigo-950 dark:text-indigo-100">{blendedResult.totalCrewMembers} {t('product.ratesDrawer.workers', 'workers')}</span>
                   </div>
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-indigo-800 dark:text-indigo-300 font-medium">{t('ratesDrawer.totalCrewCostHour', 'Total Crew Cost / Hour:')}</span>
+                    <span className="text-indigo-800 dark:text-indigo-300 font-medium">{t('product.ratesDrawer.totalCrewCostHour', 'Total Crew Cost / Hour:')}</span>
                     <span className="font-bold text-indigo-950 dark:text-indigo-100">${blendedResult.totalCrewCostPerHour.toFixed(2)}/hr</span>
                   </div>
                   <div className="flex items-center justify-between pt-1 border-t border-indigo-200/60 dark:border-indigo-800/60">
-                    <span className="text-sm font-bold text-indigo-900 dark:text-indigo-200">{t('ratesDrawer.blendedHourlyRate', 'Blended Hourly Rate:')}</span>
+                    <span className="text-sm font-bold text-indigo-900 dark:text-indigo-200">{t('product.ratesDrawer.blendedHourlyRate', 'Blended Hourly Rate:')}</span>
                     <span className="text-base font-extrabold text-indigo-600 dark:text-indigo-400">${blendedResult.blendedHourlyRate.toFixed(2)}/hr</span>
                   </div>
                 </div>
@@ -1204,7 +1204,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                   disabled={blendedResult.blendedHourlyRate <= 0}
                   className="px-4 py-1.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-xs disabled:opacity-50 cursor-pointer"
                 >
-                  {t('ratesDrawer.applyAsBaseRate', 'Apply as Base Labor Rate')}
+                  {t('product.ratesDrawer.applyAsBaseRate', 'Apply as Base Labor Rate')}
                 </button>
               </div>
             </div>

@@ -121,7 +121,7 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
     new Paragraph({
       children: [
         new TextRun({
-          text: branding?.companyName || t('templates.header.defaultCompanyName'),
+          text: branding?.companyName || t('product.templates.header.defaultCompanyName'),
           bold: true,
           size: 28,
           color: brandColorHex,
@@ -132,8 +132,8 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
 
   const subDetails = [];
   if (branding?.companyAddress) subDetails.push(branding.companyAddress);
-  if (branding?.companyPhone) subDetails.push(t('templates.header.phonePrefix', { phone: branding.companyPhone }));
-  if (branding?.licenseNumber) subDetails.push(t('wordExport.license', { license: branding.licenseNumber }));
+  if (branding?.companyPhone) subDetails.push(t('product.templates.header.phonePrefix', { phone: branding.companyPhone }));
+  if (branding?.licenseNumber) subDetails.push(t('product.wordExport.license', { license: branding.licenseNumber }));
 
   if (subDetails.length > 0) {
     headerChildren.push(
@@ -152,10 +152,10 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
 
   // Project Info Subheader
   const projDetails = [];
-  projDetails.push(currentProject?.name || t('templates.header.defaultProjectName'));
-  if (currentProject?.client_name) projDetails.push(t('templates.header.clientPrefix', { client: currentProject.client_name }));
-  if (currentProject?.location) projDetails.push(t('templates.header.sitePrefix', { site: currentProject.location }));
-  projDetails.push(t('templates.header.datePrefix', { date: new Date().toLocaleDateString() }));
+  projDetails.push(currentProject?.name || t('product.templates.header.defaultProjectName'));
+  if (currentProject?.client_name) projDetails.push(t('product.templates.header.clientPrefix', { client: currentProject.client_name }));
+  if (currentProject?.location) projDetails.push(t('product.templates.header.sitePrefix', { site: currentProject.location }));
+  projDetails.push(t('product.templates.header.datePrefix', { date: new Date().toLocaleDateString() }));
 
   headerChildren.push(
     new Paragraph({
@@ -179,13 +179,13 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
     children.push(
       new Paragraph({
         heading: HeadingLevel.HEADING_1,
-        children: [new TextRun(t('templates.materialProcurement.title'))],
+        children: [new TextRun(t('product.templates.materialProcurement.title'))],
       }),
       new Paragraph({
         spacing: { after: 200 },
         children: [
           new TextRun({
-            text: `${t('templates.materialProcurement.vendorNote')} ${t('templates.materialProcurement.vendorNoteText')}`,
+            text: `${t('product.templates.materialProcurement.vendorNote')} ${t('product.templates.materialProcurement.vendorNoteText')}`,
             color: '0369A1',
             size: 18,
             italics: true,
@@ -197,12 +197,12 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
     const headerRow = new TableRow({
       tableHeader: true,
       children: [
-        headerCell(t('templates.materialProcurement.colItemDescription')),
-        headerCell(t('templates.materialProcurement.colMaterialSpec')),
-        headerCell(t('templates.materialProcurement.colOrderQty'), true),
-        headerCell(t('templates.materialProcurement.colUnit')),
-        headerCell(t('templates.materialProcurement.colEstUnitMat'), true),
-        headerCell(t('templates.materialProcurement.colTotalMaterial'), true, '0C4A6E', 'FFFFFF'),
+        headerCell(t('product.templates.materialProcurement.colItemDescription')),
+        headerCell(t('product.templates.materialProcurement.colMaterialSpec')),
+        headerCell(t('product.templates.materialProcurement.colOrderQty'), true),
+        headerCell(t('product.templates.materialProcurement.colUnit')),
+        headerCell(t('product.templates.materialProcurement.colEstUnitMat'), true),
+        headerCell(t('product.templates.materialProcurement.colTotalMaterial'), true, '0C4A6E', 'FFFFFF'),
       ],
     });
 
@@ -230,7 +230,7 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
           children: [
             new Paragraph({
               alignment: AlignmentType.RIGHT,
-              children: [new TextRun({ text: t('templates.materialProcurement.totalMaterialCommitment'), bold: true, size: 20 })],
+              children: [new TextRun({ text: t('product.templates.materialProcurement.totalMaterialCommitment'), bold: true, size: 20 })],
             }),
           ],
         }),
@@ -258,23 +258,23 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
     children.push(
       new Paragraph({
         heading: HeadingLevel.HEADING_1,
-        children: [new TextRun(t('templates.aiaBidSchedule.title'))],
+        children: [new TextRun(t('product.templates.aiaBidSchedule.title'))],
       }),
       new Paragraph({
         spacing: { after: 200 },
-        children: [new TextRun({ text: t('templates.aiaBidSchedule.noteStandardSpec'), size: 18, color: '64748B' })],
+        children: [new TextRun({ text: t('product.templates.aiaBidSchedule.noteStandardSpec'), size: 18, color: '64748B' })],
       })
     );
 
     const headerRow = new TableRow({
       tableHeader: true,
       children: [
-        headerCell(t('templates.aiaBidSchedule.colItemNumber')),
-        headerCell(t('templates.aiaBidSchedule.colPayItemDesc')),
-        headerCell(t('templates.aiaBidSchedule.colEstQty'), true),
-        headerCell(t('templates.aiaBidSchedule.colUnit')),
-        headerCell(t('templates.aiaBidSchedule.colUnitPrice'), true),
-        headerCell(t('templates.aiaBidSchedule.colTotalItemBid'), true),
+        headerCell(t('product.templates.aiaBidSchedule.colItemNumber')),
+        headerCell(t('product.templates.aiaBidSchedule.colPayItemDesc')),
+        headerCell(t('product.templates.aiaBidSchedule.colEstQty'), true),
+        headerCell(t('product.templates.aiaBidSchedule.colUnit')),
+        headerCell(t('product.templates.aiaBidSchedule.colUnitPrice'), true),
+        headerCell(t('product.templates.aiaBidSchedule.colTotalItemBid'), true),
       ],
     });
 
@@ -302,7 +302,7 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
           children: [
             new Paragraph({
               alignment: AlignmentType.RIGHT,
-              children: [new TextRun({ text: t('templates.aiaBidSchedule.totalBaseBidSchedule'), bold: true, size: 20 })],
+              children: [new TextRun({ text: t('product.templates.aiaBidSchedule.totalBaseBidSchedule'), bold: true, size: 20 })],
             }),
           ],
         }),
@@ -331,20 +331,20 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
       new Paragraph({
         alignment: AlignmentType.CENTER,
         heading: HeadingLevel.HEADING_1,
-        children: [new TextRun({ text: t('templates.warrantyCloseout.title'), bold: true, color: 'B45309' })],
+        children: [new TextRun({ text: t('product.templates.warrantyCloseout.title'), bold: true, color: 'B45309' })],
       }),
       new Paragraph({
         alignment: AlignmentType.CENTER,
         spacing: { after: 200 },
-        children: [new TextRun({ text: t('templates.warrantyCloseout.certifyScopeCompleted'), size: 18, italics: true })],
+        children: [new TextRun({ text: t('product.templates.warrantyCloseout.certifyScopeCompleted'), size: 18, italics: true })],
       })
     );
 
     const rows = [
-      summaryRow(t('templates.warrantyCloseout.contractorLabel'), branding?.companyName || t('templates.warrantyCloseout.defaultContractor')),
-      summaryRow(t('templates.warrantyCloseout.clientLabel'), currentProject?.client_name || t('templates.warrantyCloseout.defaultClient')),
-      summaryRow(t('templates.warrantyCloseout.warrantyPeriodLabel'), t('templates.warrantyCloseout.warrantyPeriodValue')),
-      summaryRow(t('templates.warrantyCloseout.certifiedValueLabel'), formatCurrency(totals.finalBidAmount), true),
+      summaryRow(t('product.templates.warrantyCloseout.contractorLabel'), branding?.companyName || t('product.templates.warrantyCloseout.defaultContractor')),
+      summaryRow(t('product.templates.warrantyCloseout.clientLabel'), currentProject?.client_name || t('product.templates.warrantyCloseout.defaultClient')),
+      summaryRow(t('product.templates.warrantyCloseout.warrantyPeriodLabel'), t('product.templates.warrantyCloseout.warrantyPeriodValue')),
+      summaryRow(t('product.templates.warrantyCloseout.certifiedValueLabel'), formatCurrency(totals.finalBidAmount), true),
     ];
 
     children.push(
@@ -358,13 +358,13 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
     children.push(
       new Paragraph({
         heading: HeadingLevel.HEADING_1,
-        children: [new TextRun(t('wordExport.clientProposalTitle'))],
+        children: [new TextRun(t('product.wordExport.clientProposalTitle'))],
       }),
       new Paragraph({
         spacing: { after: 300 },
         children: [
           new TextRun({
-            text: t('wordExport.clientProposalSubtitle'),
+            text: t('product.wordExport.clientProposalSubtitle'),
             color: '64748B',
             size: 20,
           }),
@@ -373,7 +373,7 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
       new Paragraph({
         alignment: AlignmentType.CENTER,
         spacing: { after: 100 },
-        children: [new TextRun({ text: t('wordExport.totalProjectInvestment'), color: '94A3B8', size: 18, bold: true })],
+        children: [new TextRun({ text: t('product.wordExport.totalProjectInvestment'), color: '94A3B8', size: 18, bold: true })],
       }),
       new Paragraph({
         alignment: AlignmentType.CENTER,
@@ -394,11 +394,11 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
       const headerRow = new TableRow({
         tableHeader: true,
         children: [
-          headerCell(t('wordExport.colDescription')),
-          headerCell(t('wordExport.colSizeSpec')),
-          headerCell(t('wordExport.colQty'), true),
-          headerCell(t('wordExport.colUnit')),
-          headerCell(t('wordExport.colLineTotal'), true),
+          headerCell(t('product.wordExport.colDescription')),
+          headerCell(t('product.wordExport.colSizeSpec')),
+          headerCell(t('product.wordExport.colQty'), true),
+          headerCell(t('product.wordExport.colUnit')),
+          headerCell(t('product.wordExport.colLineTotal'), true),
         ],
       });
 
@@ -420,7 +420,7 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
           new TableCell({
             borders: CELL_BORDERS,
             columnSpan: 4,
-            children: [new Paragraph({ children: [new TextRun({ text: t('wordExport.subtotal'), bold: true, size: 20 })] })],
+            children: [new Paragraph({ children: [new TextRun({ text: t('product.wordExport.subtotal'), bold: true, size: 20 })] })],
           }),
           bodyCell(formatCurrency(sys.directCost), true, true),
         ],
@@ -439,8 +439,8 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
       new Table({
         width: { size: 100, type: WidthType.PERCENTAGE },
         rows: [
-          summaryRow(t('wordExport.subtotal'), formatCurrency(totals.totalDirectCost)),
-          summaryRow(t('wordExport.totalBid'), formatCurrency(totals.finalBidAmount), true),
+          summaryRow(t('product.wordExport.subtotal'), formatCurrency(totals.totalDirectCost)),
+          summaryRow(t('product.wordExport.totalBid'), formatCurrency(totals.finalBidAmount), true),
         ],
       })
     );
@@ -449,13 +449,13 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
     children.push(
       new Paragraph({
         heading: HeadingLevel.HEADING_1,
-        children: [new TextRun(t('wordExport.internalCostBreakdownTitle'))],
+        children: [new TextRun(t('product.wordExport.internalCostBreakdownTitle'))],
       }),
       new Paragraph({
         spacing: { after: 300 },
         children: [
           new TextRun({
-            text: t('wordExport.internalCostBreakdownSubtitle'),
+            text: t('product.wordExport.internalCostBreakdownSubtitle'),
             color: '64748B',
             size: 20,
           }),
@@ -464,27 +464,27 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
     );
 
     const overheadLabel = totals.overheadType === 'fixed'
-      ? t('wordExport.overheadFixed')
-      : t('wordExport.overhead', { pct: totals.overheadPct });
+      ? t('product.wordExport.overheadFixed')
+      : t('product.wordExport.overhead', { pct: totals.overheadPct });
 
     const contingencyLabel = totals.contingencyType === 'fixed'
-      ? t('wordExport.contingencyFixed')
-      : t('wordExport.contingency', { pct: totals.contingencyPct });
+      ? t('product.wordExport.contingencyFixed')
+      : t('product.wordExport.contingency', { pct: totals.contingencyPct });
 
     const profitLabel = totals.profitType === 'fixed'
-      ? t('wordExport.profitFixed')
-      : t('wordExport.profit', { pct: totals.profitPct });
+      ? t('product.wordExport.profitFixed')
+      : t('product.wordExport.profit', { pct: totals.profitPct });
 
     const summaryRows = [
-      summaryRow(t('wordExport.totalMaterialCost'), formatCurrency(totals.totalMaterialCost)),
-      summaryRow(t('wordExport.totalLaborCost'), `${formatCurrency(totals.totalLaborCost)} (${formatNumber(totals.totalLaborHours)} hrs)`),
-      summaryRow(t('wordExport.equipmentMobilization'), formatCurrency(totals.equipmentLumpSum)),
-      ...(totals.miscCost > 0 ? [summaryRow(t('wordExport.miscellaneousCosts'), formatCurrency(totals.miscCost))] : []),
-      summaryRow(t('wordExport.totalDirectCost'), formatCurrency(totals.totalDirectCost)),
+      summaryRow(t('product.wordExport.totalMaterialCost'), formatCurrency(totals.totalMaterialCost)),
+      summaryRow(t('product.wordExport.totalLaborCost'), `${formatCurrency(totals.totalLaborCost)} (${formatNumber(totals.totalLaborHours)} hrs)`),
+      summaryRow(t('product.wordExport.equipmentMobilization'), formatCurrency(totals.equipmentLumpSum)),
+      ...(totals.miscCost > 0 ? [summaryRow(t('product.wordExport.miscellaneousCosts'), formatCurrency(totals.miscCost))] : []),
+      summaryRow(t('product.wordExport.totalDirectCost'), formatCurrency(totals.totalDirectCost)),
       summaryRow(overheadLabel, formatCurrency(totals.overheadAmount)),
       summaryRow(contingencyLabel, formatCurrency(totals.contingencyAmount)),
       summaryRow(profitLabel, formatCurrency(totals.profitAmount)),
-      summaryRow(t('wordExport.finalBidAmount'), formatCurrency(totals.finalBidAmount), true),
+      summaryRow(t('product.wordExport.finalBidAmount'), formatCurrency(totals.finalBidAmount), true),
     ];
 
     children.push(
@@ -505,14 +505,14 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
       );
 
       const headerCells = [
-        t('wordExport.colDescription'),
-        t('wordExport.colSizeSpec'),
-        t('wordExport.colQty'),
-        t('wordExport.colUnit'),
-        t('wordExport.colMaterial'),
-        t('wordExport.colLaborHrs'),
-        t('wordExport.colLaborDollar'),
-        t('wordExport.colDirectCost'),
+        t('product.wordExport.colDescription'),
+        t('product.wordExport.colSizeSpec'),
+        t('product.wordExport.colQty'),
+        t('product.wordExport.colUnit'),
+        t('product.wordExport.colMaterial'),
+        t('product.wordExport.colLaborHrs'),
+        t('product.wordExport.colLaborDollar'),
+        t('product.wordExport.colDirectCost'),
       ];
 
       const headerRow = new TableRow({
@@ -543,7 +543,7 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
           new TableCell({
             borders: CELL_BORDERS,
             columnSpan: 7,
-            children: [new Paragraph({ children: [new TextRun({ text: t('wordExport.subtotal'), bold: true, size: 20 })] })],
+            children: [new Paragraph({ children: [new TextRun({ text: t('product.wordExport.subtotal'), bold: true, size: 20 })] })],
           }),
           bodyCell(formatCurrency(sys.directCost), true, true),
         ],
@@ -565,8 +565,8 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
       children: [
         new TextRun({
           text: hasBranding
-            ? t('wordExport.footerBranded', { company: branding.companyName || t('wordExport.fallbackContractor') })
-            : t('wordExport.footerDefault'),
+            ? t('product.wordExport.footerBranded', { company: branding.companyName || t('product.wordExport.fallbackContractor') })
+            : t('product.wordExport.footerDefault'),
           size: 16,
           color: '94A3B8',
           italics: true,

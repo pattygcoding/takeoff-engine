@@ -84,9 +84,9 @@ export default function ColumnMappingModal({
   const handleDeletePreset = async (name, e) => {
     e.stopPropagation();
     const confirmed = await showConfirm({
-      title: t('columnMappingModal.deletePresetTitle', 'Delete Preset'),
-      message: t('columnMappingModal.deletePresetMessage', 'Are you sure you want to delete this preset?'),
-      confirmText: t('columnMappingModal.deletePresetConfirm', 'Delete'),
+      title: t('product.columnMappingModal.deletePresetTitle', 'Delete Preset'),
+      message: t('product.columnMappingModal.deletePresetMessage', 'Are you sure you want to delete this preset?'),
+      confirmText: t('product.columnMappingModal.deletePresetConfirm', 'Delete'),
       confirmVariant: 'danger',
     });
     if (!confirmed) return;
@@ -110,14 +110,14 @@ export default function ColumnMappingModal({
     const missing = targetFields.filter((f) => f.required && !mapping[f.key]);
     if (missing.length > 0) {
       setValidationError(
-        t('columnMappingModal.validationErrorRequired', { fields: missing.map((m) => m.label).join(', ') })
+        t('product.columnMappingModal.validationErrorRequired', { fields: missing.map((m) => m.label).join(', ') })
       );
       return;
     }
 
     const { items = [], errors = [], checksum, detectedLaborMode } = await normalizeRowsWithMapping(currentRawRows, mapping);
     if (items.length === 0 && errors.length > 0) {
-      setValidationError(t('columnMappingModal.validationErrorParsing', { error: errors[0] }));
+      setValidationError(t('product.columnMappingModal.validationErrorParsing', { error: errors[0] }));
       return;
     }
 
@@ -142,9 +142,9 @@ export default function ColumnMappingModal({
               🔀
             </div>
             <div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-snug">{t('columnMappingModal.title')}</h3>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-snug">{t('product.columnMappingModal.title')}</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                {t('columnMappingModal.confidenceLabel')} <strong className="text-indigo-600 dark:text-indigo-400 font-semibold">{Math.round(overallConfidence * 100)}%</strong>. {t('columnMappingModal.confirmOrRemap')}
+                {t('product.columnMappingModal.confidenceLabel')} <strong className="text-indigo-600 dark:text-indigo-400 font-semibold">{Math.round(overallConfidence * 100)}%</strong>. {t('product.columnMappingModal.confirmOrRemap')}
               </p>
             </div>
           </div>
@@ -158,7 +158,7 @@ export default function ColumnMappingModal({
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide flex items-center gap-1.5">
                       <span className="w-2 h-2 rounded-full bg-slate-400"></span>
-                      {t('columnMappingModal.headerRowLabel', 'Headers start on Row:')}
+                      {t('product.columnMappingModal.headerRowLabel', 'Headers start on Row:')}
                     </span>
                     <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">Row selection</span>
                   </div>
@@ -174,7 +174,7 @@ export default function ColumnMappingModal({
                         .join(', ');
                       return (
                         <option key={r} value={r}>
-                          {t('columnMappingModal.headerRowOption', { row: r + 1 })} {previewText ? `(${previewText.slice(0, 24)}...)` : ''}
+                          {t('product.columnMappingModal.headerRowOption', { row: r + 1 })} {previewText ? `(${previewText.slice(0, 24)}...)` : ''}
                         </option>
                       );
                     })}
@@ -188,7 +188,7 @@ export default function ColumnMappingModal({
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold text-indigo-900 dark:text-indigo-300 uppercase tracking-wide flex items-center gap-1.5">
                       <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
-                      {t('columnMappingModal.subTableSelect', 'Table Area:')}
+                      {t('product.columnMappingModal.subTableSelect', 'Table Area:')}
                     </span>
                     <span className="text-[10px] text-indigo-500 dark:text-indigo-400 font-semibold bg-indigo-100/80 dark:bg-indigo-900/60 px-1.5 py-0.2 rounded-md">
                       Multi-table detected
@@ -214,7 +214,7 @@ export default function ColumnMappingModal({
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold text-sky-900 dark:text-sky-300 uppercase tracking-wide flex items-center gap-1.5">
                       <span className="w-2 h-2 rounded-full bg-sky-500"></span>
-                      {t('columnMappingModal.sheetTab')}
+                      {t('product.columnMappingModal.sheetTab')}
                     </span>
                   </div>
                   <select
@@ -244,7 +244,7 @@ export default function ColumnMappingModal({
           {/* Presets Bar */}
           {Object.keys(savedPresets).length > 0 && (
             <div className="p-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl flex items-center gap-2 flex-wrap text-xs">
-              <span className="font-semibold text-slate-700 dark:text-slate-300 mr-1">{t('columnMappingModal.savedPresets')}</span>
+              <span className="font-semibold text-slate-700 dark:text-slate-300 mr-1">{t('product.columnMappingModal.savedPresets')}</span>
               {Object.keys(savedPresets).map((presetKey) => (
                 <div
                   key={presetKey}
@@ -260,7 +260,7 @@ export default function ColumnMappingModal({
                   <button
                     type="button"
                     onClick={(e) => handleDeletePreset(presetKey, e)}
-                    title={t('columnMappingModal.deletePreset', 'Delete preset')}
+                    title={t('product.columnMappingModal.deletePreset', 'Delete preset')}
                     aria-label={`Delete preset ${presetKey}`}
                     className="pr-2 pl-1 py-1 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors text-xs font-bold leading-none border-l border-slate-200 dark:border-slate-700 cursor-pointer"
                   >
@@ -295,7 +295,7 @@ export default function ColumnMappingModal({
                               : 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
                           }`}
                         >
-                          {t('columnMappingModal.matchConfidence', { confidence: Math.round(confidence * 100) })}
+                          {t('product.columnMappingModal.matchConfidence', { confidence: Math.round(confidence * 100) })}
                         </span>
                       )}
                     </div>
@@ -316,7 +316,7 @@ export default function ColumnMappingModal({
                           : 'border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400'
                       }`}
                     >
-                      <option value="">{t('columnMappingModal.selectFileColumn')}</option>
+                      <option value="">{t('product.columnMappingModal.selectFileColumn')}</option>
                       {currentHeaders.map((h, i) => (
                         <option key={i} value={h}>
                           {h}
@@ -332,18 +332,18 @@ export default function ColumnMappingModal({
           {/* Live Data Preview Table (5 rows) */}
           {previewRows.length > 0 && (
             <div>
-              <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">{t('columnMappingModal.livePreviewHeader')}</h4>
+              <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">{t('product.columnMappingModal.livePreviewHeader')}</h4>
               <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-x-auto bg-slate-50 dark:bg-slate-800/40 text-xs">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-100/80 dark:bg-slate-800">
-                      <th className="p-2 text-slate-600 dark:text-slate-300 font-semibold">{t('columnMappingModal.tableHeaderSystem')}</th>
-                      <th className="p-2 text-slate-600 dark:text-slate-300 font-semibold">{t('columnMappingModal.tableHeaderDescription')}</th>
-                      <th className="p-2 text-slate-600 dark:text-slate-300 font-semibold">{t('columnMappingModal.tableHeaderSizeSpec')}</th>
-                      <th className="p-2 text-slate-600 dark:text-slate-300 font-semibold">{t('columnMappingModal.tableHeaderQuantity')}</th>
-                      <th className="p-2 text-slate-600 dark:text-slate-300 font-semibold">{t('columnMappingModal.tableHeaderUnit')}</th>
-                      <th className="p-2 text-slate-600 dark:text-slate-300 font-semibold">{t('columnMappingModal.tableHeaderDepth')}</th>
-                      <th className="p-2 text-slate-600 dark:text-slate-300 font-semibold">{t('columnMappingModal.tableHeaderMaterialCost', 'Mat $/Unit')}</th>
+                      <th className="p-2 text-slate-600 dark:text-slate-300 font-semibold">{t('product.columnMappingModal.tableHeaderSystem')}</th>
+                      <th className="p-2 text-slate-600 dark:text-slate-300 font-semibold">{t('product.columnMappingModal.tableHeaderDescription')}</th>
+                      <th className="p-2 text-slate-600 dark:text-slate-300 font-semibold">{t('product.columnMappingModal.tableHeaderSizeSpec')}</th>
+                      <th className="p-2 text-slate-600 dark:text-slate-300 font-semibold">{t('product.columnMappingModal.tableHeaderQuantity')}</th>
+                      <th className="p-2 text-slate-600 dark:text-slate-300 font-semibold">{t('product.columnMappingModal.tableHeaderUnit')}</th>
+                      <th className="p-2 text-slate-600 dark:text-slate-300 font-semibold">{t('product.columnMappingModal.tableHeaderDepth')}</th>
+                      <th className="p-2 text-slate-600 dark:text-slate-300 font-semibold">{t('product.columnMappingModal.tableHeaderMaterialCost', 'Mat $/Unit')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200/60 dark:divide-slate-800 bg-white dark:bg-slate-900">
@@ -380,10 +380,10 @@ export default function ColumnMappingModal({
 
           {/* Preset Save Section */}
           <div className="flex items-center gap-2 pt-2 text-xs">
-            <span className="text-slate-500 dark:text-slate-400 font-medium">{t('columnMappingModal.saveAsVendorPreset')}</span>
+            <span className="text-slate-500 dark:text-slate-400 font-medium">{t('product.columnMappingModal.saveAsVendorPreset')}</span>
             <input
               type="text"
-              placeholder={t('columnMappingModal.presetPlaceholder')}
+              placeholder={t('product.columnMappingModal.presetPlaceholder')}
               value={presetName}
               onChange={(e) => setPresetName(e.target.value)}
               className="px-2.5 py-1 text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-1 focus:ring-indigo-500 outline-none w-44"
@@ -393,10 +393,10 @@ export default function ColumnMappingModal({
               onClick={handleSavePreset}
               className="px-2.5 py-1 text-xs bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-lg transition cursor-pointer"
             >
-              {t('columnMappingModal.savePreset')}
+              {t('product.columnMappingModal.savePreset')}
             </button>
             {showPresetSaved && (
-              <span className="text-emerald-600 dark:text-emerald-400 font-medium text-[11px]">{t('columnMappingModal.presetSaved')}</span>
+              <span className="text-emerald-600 dark:text-emerald-400 font-medium text-[11px]">{t('product.columnMappingModal.presetSaved')}</span>
             )}
           </div>
         </div>
@@ -415,7 +415,7 @@ export default function ColumnMappingModal({
             onClick={handleApply}
             className="px-6 py-2.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-xs transition cursor-pointer"
           >
-            {t('columnMappingModal.confirmImportTakeoff')}
+            {t('product.columnMappingModal.confirmImportTakeoff')}
           </button>
         </div>
       </div>

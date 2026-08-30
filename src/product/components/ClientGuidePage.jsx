@@ -268,7 +268,7 @@ export default function ClientGuidePage() {
         const text = await res.text();
         setMarkdown(text);
       } catch (err) {
-        setMarkdown(`# ${t('clientGuide.title')}\n\n${t('clientGuide.errorLoading')}`);
+        setMarkdown(`# ${t('product.clientGuide.title')}\n\n${t('product.clientGuide.errorLoading')}`);
       } finally {
         setLoading(false);
       }
@@ -307,10 +307,10 @@ export default function ClientGuidePage() {
             </button>
             <div>
               <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
-                {t('clientGuide.documentation')}
+                {t('product.clientGuide.documentation')}
               </span>
               <h1 className="text-base sm:text-lg font-black text-slate-900 dark:text-white leading-tight">
-                {t('clientGuide.title')}
+                {t('product.clientGuide.title')}
               </h1>
             </div>
           </div>
@@ -321,14 +321,14 @@ export default function ClientGuidePage() {
               onClick={() => downloadSampleCsv()}
               className="px-3 py-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800 rounded-xl transition cursor-pointer"
             >
-              {t('clientGuide.csvTemplate')}
+              {t('product.clientGuide.csvTemplate')}
             </button>
             <button
               type="button"
               onClick={() => downloadSampleExcel()}
               className="px-3 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-200 dark:border-emerald-800 rounded-xl transition cursor-pointer"
             >
-              {t('clientGuide.excelTemplate')}
+              {t('product.clientGuide.excelTemplate')}
             </button>
           </div>
         </div>
@@ -340,7 +340,7 @@ export default function ClientGuidePage() {
           {loading ? (
             <div className="flex items-center justify-center py-20 text-slate-400 dark:text-slate-500">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-              <span className="ml-3 text-sm">{t('clientGuide.loadingGuide')}</span>
+              <span className="ml-3 text-sm">{t('product.clientGuide.loadingGuide')}</span>
             </div>
           ) : (
             <MarkdownRenderer content={markdown} />

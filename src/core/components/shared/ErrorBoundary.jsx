@@ -26,17 +26,17 @@ export default class ErrorBoundary extends React.Component {
               ⚠️
             </div>
             <h2 className="text-xl font-bold text-slate-900 mb-2">
-              {getTranslation('errorBoundary.title', {}, savedLang)}
+              {getTranslation('core.errorBoundary.title', {}, savedLang)}
             </h2>
             <p className="text-sm text-slate-600 mb-6">
-              {this.state.error?.message || getTranslation('errorBoundary.defaultMessage', {}, savedLang)}
+              {this.state.error?.message || getTranslation('core.errorBoundary.defaultMessage', {}, savedLang)}
             </p>
             <button
               type="button"
               onClick={() => window.location.reload()}
               className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold shadow-xs transition"
             >
-              {getTranslation('errorBoundary.reloadPage', {}, savedLang)}
+              {getTranslation('core.errorBoundary.reloadPage', {}, savedLang)}
             </button>
           </div>
         </div>

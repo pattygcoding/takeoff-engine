@@ -14,21 +14,21 @@ export default function ExecutiveProposalDocument({ estimate, branding, currentP
   return (
     <div className="space-y-6 font-sans">
       <div className="border-b-4 border-emerald-600 pb-4">
-        <DocumentBrandingHeader branding={branding} title={t('templates.executiveProposal.title')} project={currentProject} />
+        <DocumentBrandingHeader branding={branding} title={t('product.templates.executiveProposal.title')} project={currentProject} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl md:col-span-2">
           <h4 className="text-xs font-bold text-emerald-900 uppercase tracking-wider mb-1">
-            {t('templates.executiveProposal.guaranteeTitle')}
+            {t('product.templates.executiveProposal.guaranteeTitle')}
           </h4>
           <p className="text-xs text-emerald-800 leading-relaxed">
-            {t('templates.executiveProposal.guaranteeDesc')}
+            {t('product.templates.executiveProposal.guaranteeDesc')}
           </p>
         </div>
         <div className="p-4 bg-slate-900 text-white rounded-2xl flex flex-col justify-between">
           <span className="text-[10px] uppercase font-bold text-slate-400">
-            {t('templates.executiveProposal.totalContractValue')}
+            {t('product.templates.executiveProposal.totalContractValue')}
           </span>
           <span className="text-xl font-bold text-emerald-400">{formatCurrency(totals.finalBidAmount)}</span>
         </div>
@@ -38,10 +38,10 @@ export default function ExecutiveProposalDocument({ estimate, branding, currentP
         <table className="w-full text-left text-xs">
           <thead className="bg-emerald-800 text-white">
             <tr>
-              <th className="p-3">{t('templates.executiveProposal.colSystemPhase')}</th>
-              <th className="p-3">{t('templates.executiveProposal.colPrimaryInclusions')}</th>
-              <th className="p-3 text-right">{t('templates.executiveProposal.colItemsCount')}</th>
-              <th className="p-3 text-right">{t('templates.executiveProposal.colLumpSumTotal')}</th>
+              <th className="p-3">{t('product.templates.executiveProposal.colSystemPhase')}</th>
+              <th className="p-3">{t('product.templates.executiveProposal.colPrimaryInclusions')}</th>
+              <th className="p-3 text-right">{t('product.templates.executiveProposal.colItemsCount')}</th>
+              <th className="p-3 text-right">{t('product.templates.executiveProposal.colLumpSumTotal')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200">
@@ -61,7 +61,7 @@ export default function ExecutiveProposalDocument({ estimate, branding, currentP
           </tbody>
           <tfoot className="bg-slate-100 font-bold border-t border-slate-300">
             <tr>
-              <td colSpan={3} className="p-3 text-right text-slate-700">{t('templates.executiveProposal.totalLumpSumBid')}</td>
+              <td colSpan={3} className="p-3 text-right text-slate-700">{t('product.templates.executiveProposal.totalLumpSumBid')}</td>
               <td className="p-3 text-right text-emerald-700 font-mono text-sm">{formatCurrency(totals.finalBidAmount)}</td>
             </tr>
           </tfoot>

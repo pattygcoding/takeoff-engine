@@ -32,15 +32,15 @@ export function nextId() {
 export function getTargetFields(customT = null) {
   const t = customT || getTranslation;
   return [
-    { key: 'system', label: t('csvParser.targetFields.systemLabel'), required: true, description: t('csvParser.targetFields.systemDesc') },
-    { key: 'item_description', label: t('csvParser.targetFields.itemDescriptionLabel'), required: true, description: t('csvParser.targetFields.itemDescriptionDesc') },
-    { key: 'size_spec', label: t('csvParser.targetFields.sizeSpecLabel'), required: false, description: t('csvParser.targetFields.sizeSpecDesc') },
-    { key: 'quantity', label: t('csvParser.targetFields.quantityLabel'), required: true, description: t('csvParser.targetFields.quantityDesc') },
-    { key: 'unit', label: t('csvParser.targetFields.unitLabel'), required: true, description: t('csvParser.targetFields.unitDesc') },
-    { key: 'avg_depth_ft', label: t('csvParser.targetFields.avgDepthFtLabel'), required: false, description: t('csvParser.targetFields.avgDepthFtDesc') },
-    { key: 'material_cost_per_unit', label: t('csvParser.targetFields.materialCostPerUnitLabel', 'Material $/Unit'), required: false, description: t('csvParser.targetFields.materialCostPerUnitDesc', 'Unit material price or cost per unit') },
-    { key: 'labor_hours_per_unit', label: t('csvParser.targetFields.laborHoursPerUnitLabel', 'Labor Hrs/Unit'), required: false, description: t('csvParser.targetFields.laborHoursPerUnitDesc', 'Crew productivity hours per unit') },
-    { key: 'labor_unit_cost', label: t('csvParser.targetFields.laborUnitCostLabel', 'Labor $/Unit'), required: false, description: t('csvParser.targetFields.laborUnitCostDesc', 'Labor dollar rate per unit') },
+    { key: 'system', label: t('product.csvParser.targetFields.systemLabel'), required: true, description: t('product.csvParser.targetFields.systemDesc') },
+    { key: 'item_description', label: t('product.csvParser.targetFields.itemDescriptionLabel'), required: true, description: t('product.csvParser.targetFields.itemDescriptionDesc') },
+    { key: 'size_spec', label: t('product.csvParser.targetFields.sizeSpecLabel'), required: false, description: t('product.csvParser.targetFields.sizeSpecDesc') },
+    { key: 'quantity', label: t('product.csvParser.targetFields.quantityLabel'), required: true, description: t('product.csvParser.targetFields.quantityDesc') },
+    { key: 'unit', label: t('product.csvParser.targetFields.unitLabel'), required: true, description: t('product.csvParser.targetFields.unitDesc') },
+    { key: 'avg_depth_ft', label: t('product.csvParser.targetFields.avgDepthFtLabel'), required: false, description: t('product.csvParser.targetFields.avgDepthFtDesc') },
+    { key: 'material_cost_per_unit', label: t('product.csvParser.targetFields.materialCostPerUnitLabel', 'Material $/Unit'), required: false, description: t('product.csvParser.targetFields.materialCostPerUnitDesc', 'Unit material price or cost per unit') },
+    { key: 'labor_hours_per_unit', label: t('product.csvParser.targetFields.laborHoursPerUnitLabel', 'Labor Hrs/Unit'), required: false, description: t('product.csvParser.targetFields.laborHoursPerUnitDesc', 'Crew productivity hours per unit') },
+    { key: 'labor_unit_cost', label: t('product.csvParser.targetFields.laborUnitCostLabel', 'Labor $/Unit'), required: false, description: t('product.csvParser.targetFields.laborUnitCostDesc', 'Labor dollar rate per unit') },
   ];
 }
 
@@ -89,7 +89,7 @@ export function deleteVendorPreset(presetName) {
  */
 export async function parseTakeoffFile(file, sheetName = null, tableId = null, customPreset = null) {
   if (file?.size && file.size > MAX_FILE_SIZE_BYTES) {
-    throw new Error(getTranslation('uploadStep.fileTooLarge', `File size exceeds the ${MAX_FILE_SIZE_LABEL} limit. Please upload a smaller file.`));
+    throw new Error(getTranslation('product.uploadStep.fileTooLarge', `File size exceeds the ${MAX_FILE_SIZE_LABEL} limit. Please upload a smaller file.`));
   }
 
   let fileContent = null;
@@ -162,16 +162,16 @@ export async function extractHeadersAndRowsAtHeaderRow(matrix = [], headerRowInd
 export function getSampleCsvRows(customT = null) {
   const t = customT || getTranslation;
   return [
-    { system: t('csvParser.sampleRows.sanitary'), item_description: t('csvParser.sampleRows.pipe'), size_spec: '6" PVC SDR-35', quantity: 275, unit: 'LF', avg_depth_ft: 4, material_cost_per_unit: 18.50, labor_hours_per_unit: 0.15 },
-    { system: t('csvParser.sampleRows.sanitary'), item_description: t('csvParser.sampleRows.pipe'), size_spec: '8" PVC SDR-35', quantity: 140, unit: 'LF', avg_depth_ft: 6, material_cost_per_unit: 24.00, labor_hours_per_unit: 0.22 },
-    { system: t('csvParser.sampleRows.sanitary'), item_description: t('csvParser.sampleRows.elbow'), size_spec: '6" PVC', quantity: 6, unit: 'EA', avg_depth_ft: '', material_cost_per_unit: 45.00, labor_hours_per_unit: 0.75 },
-    { system: t('csvParser.sampleRows.sanitary'), item_description: t('csvParser.sampleRows.cleanout'), size_spec: '6" PVC', quantity: 4, unit: 'EA', avg_depth_ft: '', material_cost_per_unit: 120.00, labor_hours_per_unit: 1.20 },
-    { system: t('csvParser.sampleRows.sanitary'), item_description: t('csvParser.sampleRows.manhole'), size_spec: '48" Precast', quantity: 3, unit: 'EA', avg_depth_ft: '', material_cost_per_unit: 1850.00, labor_hours_per_unit: 6.50 },
-    { system: t('csvParser.sampleRows.storm'), item_description: t('csvParser.sampleRows.pipe'), size_spec: '12" HDPE', quantity: 320, unit: 'LF', avg_depth_ft: 3, material_cost_per_unit: 28.00, labor_hours_per_unit: 0.18 },
-    { system: t('csvParser.sampleRows.storm'), item_description: t('csvParser.sampleRows.pipe'), size_spec: '18" RCP', quantity: 95, unit: 'LF', avg_depth_ft: 5, material_cost_per_unit: 52.00, labor_hours_per_unit: 0.35 },
-    { system: t('csvParser.sampleRows.storm'), item_description: t('csvParser.sampleRows.catchBasin'), size_spec: '24" x 24"', quantity: 5, unit: 'EA', avg_depth_ft: '', material_cost_per_unit: 850.00, labor_hours_per_unit: 3.00 },
-    { system: t('csvParser.sampleRows.storm'), item_description: t('csvParser.sampleRows.flaredEndSection'), size_spec: '18" RCP', quantity: 2, unit: 'EA', avg_depth_ft: '', material_cost_per_unit: 420.00, labor_hours_per_unit: 1.50 },
-    { system: t('csvParser.sampleRows.domesticWater'), item_description: t('csvParser.sampleRows.pipe'), size_spec: '6" C900', quantity: 410, unit: 'LF', avg_depth_ft: 3.5, material_cost_per_unit: 32.00, labor_hours_per_unit: 0.20 },
+    { system: t('product.csvParser.sampleRows.sanitary'), item_description: t('product.csvParser.sampleRows.pipe'), size_spec: '6" PVC SDR-35', quantity: 275, unit: 'LF', avg_depth_ft: 4, material_cost_per_unit: 18.50, labor_hours_per_unit: 0.15 },
+    { system: t('product.csvParser.sampleRows.sanitary'), item_description: t('product.csvParser.sampleRows.pipe'), size_spec: '8" PVC SDR-35', quantity: 140, unit: 'LF', avg_depth_ft: 6, material_cost_per_unit: 24.00, labor_hours_per_unit: 0.22 },
+    { system: t('product.csvParser.sampleRows.sanitary'), item_description: t('product.csvParser.sampleRows.elbow'), size_spec: '6" PVC', quantity: 6, unit: 'EA', avg_depth_ft: '', material_cost_per_unit: 45.00, labor_hours_per_unit: 0.75 },
+    { system: t('product.csvParser.sampleRows.sanitary'), item_description: t('product.csvParser.sampleRows.cleanout'), size_spec: '6" PVC', quantity: 4, unit: 'EA', avg_depth_ft: '', material_cost_per_unit: 120.00, labor_hours_per_unit: 1.20 },
+    { system: t('product.csvParser.sampleRows.sanitary'), item_description: t('product.csvParser.sampleRows.manhole'), size_spec: '48" Precast', quantity: 3, unit: 'EA', avg_depth_ft: '', material_cost_per_unit: 1850.00, labor_hours_per_unit: 6.50 },
+    { system: t('product.csvParser.sampleRows.storm'), item_description: t('product.csvParser.sampleRows.pipe'), size_spec: '12" HDPE', quantity: 320, unit: 'LF', avg_depth_ft: 3, material_cost_per_unit: 28.00, labor_hours_per_unit: 0.18 },
+    { system: t('product.csvParser.sampleRows.storm'), item_description: t('product.csvParser.sampleRows.pipe'), size_spec: '18" RCP', quantity: 95, unit: 'LF', avg_depth_ft: 5, material_cost_per_unit: 52.00, labor_hours_per_unit: 0.35 },
+    { system: t('product.csvParser.sampleRows.storm'), item_description: t('product.csvParser.sampleRows.catchBasin'), size_spec: '24" x 24"', quantity: 5, unit: 'EA', avg_depth_ft: '', material_cost_per_unit: 850.00, labor_hours_per_unit: 3.00 },
+    { system: t('product.csvParser.sampleRows.storm'), item_description: t('product.csvParser.sampleRows.flaredEndSection'), size_spec: '18" RCP', quantity: 2, unit: 'EA', avg_depth_ft: '', material_cost_per_unit: 420.00, labor_hours_per_unit: 1.50 },
+    { system: t('product.csvParser.sampleRows.domesticWater'), item_description: t('product.csvParser.sampleRows.pipe'), size_spec: '6" C900', quantity: 410, unit: 'LF', avg_depth_ft: 3.5, material_cost_per_unit: 32.00, labor_hours_per_unit: 0.20 },
   ];
 }
 
@@ -191,7 +191,7 @@ export async function downloadSampleExcel(filename = 'takeoff_sample_template.xl
   const rows = getSampleCsvRows(customT);
   const worksheet = XLSX.utils.json_to_sheet(rows, { header: CSV_COLUMNS });
   const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, t('csvParser.errors.takeoffSheet') || 'Takeoff Estimate');
+  XLSX.utils.book_append_sheet(workbook, worksheet, t('product.csvParser.errors.takeoffSheet') || 'Takeoff Estimate');
   XLSX.writeFile(workbook, filename);
 }
 
@@ -211,7 +211,7 @@ export function createBlankItem(customT = null) {
   const t = customT || getTranslation;
   return {
     id: nextId(),
-    system: t('csvParser.sampleRows.sanitary') || 'Sanitary',
+    system: t('product.csvParser.sampleRows.sanitary') || 'Sanitary',
     description: '',
     sizeSpec: '',
     quantity: 0,

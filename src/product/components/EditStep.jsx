@@ -28,21 +28,21 @@ export default function EditStep({
 
   const statusLabel =
     projectStatus === 'submitted'
-      ? t('editStep.statusSubmitted')
+      ? t('product.editStep.statusSubmitted')
       : projectStatus === 'archived'
-      ? t('editStep.statusArchived')
+      ? t('product.editStep.statusArchived')
       : projectStatus === 'declined'
-      ? t('editStep.statusDeclined')
-      : t('editStep.statusAwarded');
+      ? t('product.editStep.statusDeclined')
+      : t('product.editStep.statusAwarded');
 
   const statusDescription =
     projectStatus === 'submitted'
-      ? t('editStep.submittedDesc')
+      ? t('product.editStep.submittedDesc')
       : projectStatus === 'archived'
-      ? t('editStep.archivedDesc')
+      ? t('product.editStep.archivedDesc')
       : projectStatus === 'declined'
-      ? t('editStep.declinedDesc')
-      : t('editStep.awardedDesc');
+      ? t('product.editStep.declinedDesc')
+      : t('product.editStep.awardedDesc');
 
   const handleOpenRemapModal = () => {
     if (readOnly) return;
@@ -98,7 +98,7 @@ export default function EditStep({
       if (detectedLaborMode && onRatesChange) {
         onRatesChange({ ...rates, laborMode: detectedLaborMode });
       }
-      setSuccessToast(t('editStep.remapSuccessToast', 'Column mappings successfully applied!'));
+      setSuccessToast(t('product.editStep.remapSuccessToast', 'Column mappings successfully applied!'));
       setTimeout(() => setSuccessToast(''), 3500);
     }
   };
@@ -121,7 +121,7 @@ export default function EditStep({
             </div>
             <div>
               <h4 className="text-sm font-bold text-amber-900 dark:text-amber-200">
-                {t('editStep.projectLockedTitle', { status: statusLabel })}
+                {t('product.editStep.projectLockedTitle', { status: statusLabel })}
               </h4>
               <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
                 {statusDescription}
@@ -137,7 +137,7 @@ export default function EditStep({
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
               </svg>
-              {t('editStep.duplicateRevisionBtn')}
+              {t('product.editStep.duplicateRevisionBtn')}
             </button>
           )}
         </div>
@@ -147,13 +147,13 @@ export default function EditStep({
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
             {readOnly
-              ? t('editStep.viewTakeoffTitle', { status: statusLabel })
-              : t('editStep.editTitle')}
+              ? t('product.editStep.viewTakeoffTitle', { status: statusLabel })
+              : t('product.editStep.editTitle')}
           </h1>
           <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
             {readOnly
-              ? t('editStep.viewTakeoffDesc', { status: statusLabel.toLowerCase() })
-              : t('editStep.editDesc')}
+              ? t('product.editStep.viewTakeoffDesc', { status: statusLabel.toLowerCase() })
+              : t('product.editStep.editDesc')}
           </p>
         </div>
         <div className="flex items-center gap-2.5">
@@ -163,7 +163,7 @@ export default function EditStep({
               onClick={handleOpenRemapModal}
               disabled={isReparsing}
               className="inline-flex items-center gap-2 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition shadow-xs cursor-pointer disabled:opacity-50"
-              title={t('editStep.remapColumnsDesc', 'Re-open column mapping to adjust how spreadsheet headers map to takeoff attributes.')}
+              title={t('product.editStep.remapColumnsDesc', 'Re-open column mapping to adjust how spreadsheet headers map to takeoff attributes.')}
             >
               <svg className="h-4 w-4 text-indigo-600 dark:text-indigo-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
@@ -173,7 +173,7 @@ export default function EditStep({
                   d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"
                 />
               </svg>
-              <span>{isReparsing ? '...' : t('editStep.remapColumnsBtn', 'Match Columns')}</span>
+              <span>{isReparsing ? '...' : t('product.editStep.remapColumnsBtn', 'Match Columns')}</span>
             </button>
           )}
           <button
@@ -189,7 +189,7 @@ export default function EditStep({
                 d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"
               />
             </svg>
-            {readOnly ? t('editStep.viewPricingBtn') : t('editStep.pricingBtn')}
+            {readOnly ? t('product.editStep.viewPricingBtn') : t('product.editStep.pricingBtn')}
           </button>
         </div>
       </div>
@@ -220,7 +220,7 @@ export default function EditStep({
           disabled={items.length === 0}
           className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-6 py-3 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm cursor-pointer"
         >
-          {readOnly ? t('editStep.viewEstimateBtn') : t('editStep.calculateBtn')}
+          {readOnly ? t('product.editStep.viewEstimateBtn') : t('product.editStep.calculateBtn')}
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
           </svg>

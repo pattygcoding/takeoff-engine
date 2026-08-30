@@ -49,7 +49,7 @@ export default function ClientProposalView() {
         setSignSuccess(true);
       }
     } catch (err) {
-      setError(err.message || t('clientProposal.notFoundMessage'));
+      setError(err.message || t('product.clientProposal.notFoundMessage'));
     } finally {
       setLoading(false);
     }
@@ -58,11 +58,11 @@ export default function ClientProposalView() {
   const handleSign = async (e) => {
     e.preventDefault();
     if (!signerName.trim()) {
-      setSignError(t('clientProposal.legalNameRequired'));
+      setSignError(t('product.clientProposal.legalNameRequired'));
       return;
     }
     if (!agreedToTerms) {
-      setSignError(t('clientProposal.agreementRequired'));
+      setSignError(t('product.clientProposal.agreementRequired'));
       return;
     }
 
@@ -77,7 +77,7 @@ export default function ClientProposalView() {
       setSignSuccess(true);
       await loadProposal();
     } catch (err) {
-      setSignError(err.message || t('clientProposal.signatureError'));
+      setSignError(err.message || t('product.clientProposal.signatureError'));
     } finally {
       setSubmitting(false);
     }
@@ -96,8 +96,8 @@ export default function ClientProposalView() {
       await loadProposal();
     } catch (err) {
       await showAlert({
-        title: t('clientProposal.declineModalTitle'),
-        message: err.message || t('clientProposal.declineError'),
+        title: t('product.clientProposal.declineModalTitle'),
+        message: err.message || t('product.clientProposal.declineError'),
         variant: 'error',
       });
     } finally {
@@ -116,15 +116,15 @@ export default function ClientProposalView() {
       });
       setShowCounterModal(false);
       await showAlert({
-        title: t('clientProposal.counterSuccessTitle', 'Counter-Offer Submitted'),
-        message: t('clientProposal.counterSuccessMsg', 'Your scope counter-offer has been sent directly to the contractor. They will review your notes and updated inclusions/exclusions.'),
+        title: t('product.clientProposal.counterSuccessTitle', 'Counter-Offer Submitted'),
+        message: t('product.clientProposal.counterSuccessMsg', 'Your scope counter-offer has been sent directly to the contractor. They will review your notes and updated inclusions/exclusions.'),
         variant: 'success',
       });
       await loadProposal();
     } catch (err) {
       await showAlert({
-        title: t('clientProposal.counterErrorTitle', 'Submission Error'),
-        message: err.message || t('clientProposal.counterError', 'Failed to submit counter-offer.'),
+        title: t('product.clientProposal.counterErrorTitle', 'Submission Error'),
+        message: err.message || t('product.clientProposal.counterError', 'Failed to submit counter-offer.'),
         variant: 'error',
       });
     } finally {
@@ -174,7 +174,7 @@ export default function ClientProposalView() {
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4">
         <div className="text-center">
           <div className="inline-block w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-3"></div>
-          <p className="text-sm font-medium text-slate-600 dark:text-slate-400">{t('clientProposal.loadingDetails')}</p>
+          <p className="text-sm font-medium text-slate-600 dark:text-slate-400">{t('product.clientProposal.loadingDetails')}</p>
         </div>
       </div>
     );
@@ -187,13 +187,13 @@ export default function ClientProposalView() {
           <div className="w-12 h-12 bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400 rounded-2xl flex items-center justify-center mx-auto mb-4 text-xl">
             ⚠️
           </div>
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{t('clientProposal.notFoundTitle')}</h2>
-          <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">{error || t('clientProposal.notFoundMessage')}</p>
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{t('product.clientProposal.notFoundTitle')}</h2>
+          <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">{error || t('product.clientProposal.notFoundMessage')}</p>
           <a
             href="https://pattygcoding.github.io/takeoff-engine"
             className="inline-block px-4 py-2 bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white rounded-xl text-sm font-medium transition"
           >
-            {t('clientProposal.goToApp')}
+            {t('product.clientProposal.goToApp')}
           </a>
         </div>
       </div>
@@ -214,9 +214,9 @@ export default function ClientProposalView() {
             <div className="flex items-center gap-3">
               <span className="text-2xl">✓</span>
               <div>
-                <p className="font-bold text-sm">{t('clientProposal.acceptedBannerTitle')}</p>
+                <p className="font-bold text-sm">{t('product.clientProposal.acceptedBannerTitle')}</p>
                 <p className="text-xs text-emerald-100">
-                  {t('clientProposal.signedByOn', {
+                  {t('product.clientProposal.signedByOn', {
                     name: proposal?.signed_by_name || 'Client',
                     date: proposal?.signed_at ? new Date(proposal.signed_at).toLocaleString() : '',
                   })}
@@ -227,7 +227,7 @@ export default function ClientProposalView() {
               onClick={() => window.print()}
               className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-800 text-xs font-semibold rounded-lg shadow transition cursor-pointer"
             >
-              {t('clientProposal.printSavePdf')}
+              {t('product.clientProposal.printSavePdf')}
             </button>
           </div>
         )}
@@ -236,9 +236,9 @@ export default function ClientProposalView() {
           <div className="bg-red-500 dark:bg-red-600 text-white p-4 rounded-2xl shadow-md flex items-center gap-3 animate-fade-in">
             <span className="text-2xl">✕</span>
             <div>
-              <p className="font-bold text-sm">{t('clientProposal.declinedBannerTitle')}</p>
+              <p className="font-bold text-sm">{t('product.clientProposal.declinedBannerTitle')}</p>
               <p className="text-xs text-red-100">
-                {t('clientProposal.declineReasonPrefix')} {proposal?.decline_reason || t('clientProposal.declinedByClient')}
+                {t('product.clientProposal.declineReasonPrefix')} {proposal?.decline_reason || t('product.clientProposal.declinedByClient')}
               </p>
             </div>
           </div>
@@ -277,7 +277,7 @@ export default function ClientProposalView() {
                     {contractor?.email && <span>✉️ {contractor.email}</span>}
                     {contractor?.license_number && (
                       <span>
-                        {t('clientProposal.license', { license: contractor.license_number }) || `License: #${contractor.license_number}`}
+                        {t('product.clientProposal.license', { license: contractor.license_number }) || `License: #${contractor.license_number}`}
                       </span>
                     )}
                   </div>
@@ -286,16 +286,16 @@ export default function ClientProposalView() {
 
               <div className="text-right sm:border-l sm:border-slate-100 dark:sm:border-slate-800 sm:pl-6">
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 block mb-1">
-                  {t('clientProposal.projectEstimate')}
+                  {t('product.clientProposal.projectEstimate')}
                 </span>
-                <p className="text-lg font-bold text-slate-900 dark:text-white">{snapshot?.projectName || t('clientProposal.civilTakeoffProposal')}</p>
+                <p className="text-lg font-bold text-slate-900 dark:text-white">{snapshot?.projectName || t('product.clientProposal.civilTakeoffProposal')}</p>
                 {snapshot?.clientName && (
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">{t('clientProposal.preparedFor')} <strong className="text-slate-800 dark:text-slate-200">{snapshot.clientName}</strong></p>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">{t('product.clientProposal.preparedFor')} <strong className="text-slate-800 dark:text-slate-200">{snapshot.clientName}</strong></p>
                 )}
                 {snapshot?.location && (
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{t('clientProposal.location')} {snapshot.location}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{t('product.clientProposal.location')} {snapshot.location}</p>
                 )}
-                <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">{t('clientProposal.date')} {proposal?.created_at ? new Date(proposal.created_at).toLocaleDateString() : new Date().toLocaleDateString()}</p>
+                <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">{t('product.clientProposal.date')} {proposal?.created_at ? new Date(proposal.created_at).toLocaleDateString() : new Date().toLocaleDateString()}</p>
               </div>
             </div>
           </div>
@@ -303,17 +303,17 @@ export default function ClientProposalView() {
           {/* Big Bid Investment Highlight */}
           <div className="bg-slate-50/80 dark:bg-slate-800/50 p-6 sm:p-8 border-b border-slate-200 dark:border-slate-800 text-center">
             <span className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 block mb-1">
-              {t('clientProposal.totalProposedInvestment')}
+              {t('product.clientProposal.totalProposedInvestment')}
             </span>
             <div className="text-4xl sm:text-5xl font-black tracking-tight" style={{ color: brandColor }}>
               {formatCurrency(finalBidAmount)}
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
-              {t('clientProposal.investmentSubtitle')}
+              {t('product.clientProposal.investmentSubtitle')}
             </p>
             {scopeAddonsCost > 0 && (
               <p className="text-[11px] text-indigo-600 dark:text-indigo-400 mt-2">
-                {t('resultsStep.scopeAddonsNote', { amount: formatCurrency(scopeAddonsCost) })}
+                {t('product.resultsStep.scopeAddonsNote', { amount: formatCurrency(scopeAddonsCost) })}
               </p>
             )}
           </div>
@@ -321,7 +321,7 @@ export default function ClientProposalView() {
           {/* Scope of Work Breakdown */}
           <div className="p-6 sm:p-8 space-y-6">
             <h2 className="text-base font-bold text-slate-900 dark:text-white uppercase tracking-wider border-b border-slate-200 dark:border-slate-800 pb-2">
-              {t('clientProposal.detailedScopeTitle')}
+              {t('product.clientProposal.detailedScopeTitle')}
             </h2>
 
             {snapshot.items && snapshot.items.length > 0 ? (
@@ -329,11 +329,11 @@ export default function ClientProposalView() {
                 <table className="min-w-full text-sm">
                   <thead>
                     <tr className="border-b border-slate-200 dark:border-slate-800 text-left text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                      <th className="py-2 pr-4">{t('clientProposal.itemAndDescription')}</th>
-                      <th className="py-2 pr-4">{t('clientProposal.systemDivision')}</th>
-                      <th className="py-2 pr-4">{t('clientProposal.sizeSpec')}</th>
-                      <th className="py-2 pr-4 text-right">{t('clientProposal.quantity')}</th>
-                      <th className="py-2 text-right">{t('clientProposal.unit')}</th>
+                      <th className="py-2 pr-4">{t('product.clientProposal.itemAndDescription')}</th>
+                      <th className="py-2 pr-4">{t('product.clientProposal.systemDivision')}</th>
+                      <th className="py-2 pr-4">{t('product.clientProposal.sizeSpec')}</th>
+                      <th className="py-2 pr-4 text-right">{t('product.clientProposal.quantity')}</th>
+                      <th className="py-2 text-right">{t('product.clientProposal.unit')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -342,7 +342,7 @@ export default function ClientProposalView() {
                         <td className="py-2.5 pr-4 font-medium text-slate-800 dark:text-slate-200">{item.description}</td>
                         <td className="py-2.5 pr-4 text-slate-500 dark:text-slate-400 text-xs">
                           <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 font-medium text-slate-700 dark:text-slate-300">
-                            {item.system || t('clientProposal.generalSystem')}
+                            {item.system || t('product.clientProposal.generalSystem')}
                           </span>
                         </td>
                         <td className="py-2.5 pr-4 text-slate-500 dark:text-slate-400 text-xs">{item.sizeSpec || '—'}</td>
@@ -356,7 +356,7 @@ export default function ClientProposalView() {
                 </table>
               </div>
             ) : (
-              <p className="text-sm text-slate-500 dark:text-slate-400 italic">{t('clientProposal.noItemsFound')}</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 italic">{t('product.clientProposal.noItemsFound')}</p>
             )}
 
             {/* Scope Inclusions & Exclusions */}
@@ -364,11 +364,11 @@ export default function ClientProposalView() {
 
             {/* Standard Terms / Acceptance Notes */}
             <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 space-y-2">
-              <p className="font-semibold text-slate-700 dark:text-slate-300">{t('clientProposal.termsTitle')}</p>
+              <p className="font-semibold text-slate-700 dark:text-slate-300">{t('product.clientProposal.termsTitle')}</p>
               <ul className="list-disc pl-5 space-y-1">
-                <li>{t('clientProposal.term1')}</li>
-                <li>{t('clientProposal.term2')}</li>
-                <li>{t('clientProposal.term3')}</li>
+                <li>{t('product.clientProposal.term1')}</li>
+                <li>{t('product.clientProposal.term2')}</li>
+                <li>{t('product.clientProposal.term3')}</li>
               </ul>
             </div>
           </div>
@@ -378,9 +378,9 @@ export default function ClientProposalView() {
             <div className="bg-slate-50 dark:bg-slate-800/50 p-6 sm:p-8 border-t border-slate-200 dark:border-slate-800">
               <div className="max-w-xl mx-auto">
                 <div className="text-center mb-6">
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white">{t('clientProposal.acceptSignTitle')}</h3>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white">{t('product.clientProposal.acceptSignTitle')}</h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                    {t('clientProposal.acceptSignSubtitle')}
+                    {t('product.clientProposal.acceptSignSubtitle')}
                   </p>
                 </div>
 
@@ -393,12 +393,12 @@ export default function ClientProposalView() {
                 <form onSubmit={handleSign} className="space-y-4">
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                      {t('clientProposal.legalNameLabel')}
+                      {t('product.clientProposal.legalNameLabel')}
                     </label>
                     <input
                       type="text"
                       required
-                      placeholder={t('clientProposal.legalNamePlaceholder')}
+                      placeholder={t('product.clientProposal.legalNamePlaceholder')}
                       value={signerName}
                       onChange={(e) => setSignerName(e.target.value)}
                       className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -407,11 +407,11 @@ export default function ClientProposalView() {
 
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                      {t('clientProposal.emailLabel')}
+                      {t('product.clientProposal.emailLabel')}
                     </label>
                     <input
                       type="email"
-                      placeholder={t('clientProposal.emailPlaceholder')}
+                      placeholder={t('product.clientProposal.emailPlaceholder')}
                       value={signerEmail}
                       onChange={(e) => setSignerEmail(e.target.value)}
                       className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -426,7 +426,7 @@ export default function ClientProposalView() {
                       className="mt-1 h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
                     />
                     <span className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                      {t('clientProposal.agreementCheckbox')}
+                      {t('product.clientProposal.agreementCheckbox')}
                     </span>
                   </label>
 
@@ -437,7 +437,7 @@ export default function ClientProposalView() {
                       onClick={() => setShowDeclineModal(true)}
                       className="px-4 py-2.5 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs sm:text-sm shadow-md transition cursor-pointer"
                     >
-                      {t('clientProposal.declineButton')}
+                      {t('product.clientProposal.declineButton')}
                     </button>
 
                     <button
@@ -446,7 +446,7 @@ export default function ClientProposalView() {
                       className="px-4 py-2.5 bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold rounded-xl text-xs sm:text-sm border border-amber-500 shadow-md transition flex items-center gap-1.5 cursor-pointer"
                     >
                       <span>⚖️</span>
-                      <span>{t('clientProposal.counterOfferBtn', 'Exclusions / Inclusions Counter-Offer')}</span>
+                      <span>{t('product.clientProposal.counterOfferBtn', 'Exclusions / Inclusions Counter-Offer')}</span>
                     </button>
 
                     <button
@@ -454,7 +454,7 @@ export default function ClientProposalView() {
                       disabled={submitting || !agreedToTerms || !signerName.trim()}
                       className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs sm:text-sm shadow-md transition cursor-pointer ml-auto"
                     >
-                      {submitting ? t('clientProposal.submittingSignature') : t('clientProposal.acceptSignButton')}
+                      {submitting ? t('product.clientProposal.submittingSignature') : t('product.clientProposal.acceptSignButton')}
                     </button>
                   </div>
                 </form>
@@ -466,7 +466,7 @@ export default function ClientProposalView() {
         {/* Footer */}
         <div className="text-center text-xs text-slate-400 dark:text-slate-500 pb-8">
           <a href="https://pattygcoding.github.io/takeoff-engine" className="underline hover:text-slate-600 dark:hover:text-slate-300">
-            {t('clientProposal.footerTagline')}
+            {t('product.clientProposal.footerTagline')}
           </a>
         </div>
       </div>
@@ -487,15 +487,15 @@ export default function ClientProposalView() {
       {showDeclineModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl max-w-sm w-full p-6 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">{t('clientProposal.declineModalTitle')}</h3>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">{t('product.clientProposal.declineModalTitle')}</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
-              {t('clientProposal.declineModalSubtitle')}
+              {t('product.clientProposal.declineModalSubtitle')}
             </p>
 
             <form onSubmit={handleDecline}>
               <textarea
                 rows={3}
-                placeholder={t('clientProposal.declineModalPlaceholder')}
+                placeholder={t('product.clientProposal.declineModalPlaceholder')}
                 value={declineReason}
                 onChange={(e) => setDeclineReason(e.target.value)}
                 className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none mb-4"
@@ -507,14 +507,14 @@ export default function ClientProposalView() {
                   onClick={() => setShowDeclineModal(false)}
                   className="px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer"
                 >
-                  {t('clientProposal.declineModalCancel')}
+                  {t('product.clientProposal.declineModalCancel')}
                 </button>
                 <button
                   type="submit"
                   disabled={declining}
                   className="px-4 py-1.5 text-xs font-semibold bg-red-600 hover:bg-red-700 text-white rounded-xl shadow-xs disabled:opacity-50 cursor-pointer"
                 >
-                  {declining ? t('clientProposal.submittingDecline') : t('clientProposal.declineModalConfirm')}
+                  {declining ? t('product.clientProposal.submittingDecline') : t('product.clientProposal.declineModalConfirm')}
                 </button>
               </div>
             </form>

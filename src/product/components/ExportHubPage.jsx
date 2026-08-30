@@ -25,7 +25,7 @@ import {
   RiskContingencyMatrixDocument,
   FieldDailyReportDocument,
   WarrantyCloseoutCertDocument,
-} from '@/templates';
+} from '@/product/templates';
 
 /**
  * 17 Distinct Estimating, Engineering & Proposal Layout Formats
@@ -413,8 +413,8 @@ export default function ExportHubPage({ items, rates, currentProject }) {
       } catch (err) {
         console.error('PDF export failed:', err);
         await showAlert({
-          title: t('exportHub.exportFailedTitle'),
-          message: t('exportHub.pdfExportFailedMsg'),
+          title: t('product.exportHub.exportFailedTitle'),
+          message: t('product.exportHub.pdfExportFailedMsg'),
           variant: 'error',
         });
       } finally {
@@ -440,8 +440,8 @@ export default function ExportHubPage({ items, rates, currentProject }) {
       } catch (err) {
         console.error('Word export failed:', err);
         await showAlert({
-          title: t('exportHub.exportFailedTitle'),
-          message: t('exportHub.wordExportFailedMsg'),
+          title: t('product.exportHub.exportFailedTitle'),
+          message: t('product.exportHub.wordExportFailedMsg'),
           variant: 'error',
         });
       } finally {
@@ -479,11 +479,11 @@ export default function ExportHubPage({ items, rates, currentProject }) {
               to={backUrl}
               className="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-xl transition"
             >
-              {t('exportHub.backToResults')}
+              {t('product.exportHub.backToResults')}
             </Link>
             <div>
               <h1 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <span>{t('exportHub.exportPrintCenter')}</span>
+                <span>{t('product.exportHub.exportPrintCenter')}</span>
                 {currentProject?.name && (
                   <span className="text-xs font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 px-2.5 py-0.5 rounded-md">
                     {currentProject.name}
@@ -504,7 +504,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
               <svg className="w-4 h-4 text-slate-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
               </svg>
-              <span>{t('exportHub.printBtn')}</span>
+              <span>{t('product.exportHub.printBtn')}</span>
             </button>
 
             <button
@@ -516,7 +516,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
               </svg>
-              <span>{exportingType === 'pdf' ? t('exportHub.generatingPdf') : t('exportHub.exportPdfBtn')}</span>
+              <span>{exportingType === 'pdf' ? t('product.exportHub.generatingPdf') : t('product.exportHub.exportPdfBtn')}</span>
             </button>
           </div>
         </div>
@@ -528,25 +528,25 @@ export default function ExportHubPage({ items, rates, currentProject }) {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
             <div>
               <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                {t('exportHub.chooseDocFormatTitle')}
+                {t('product.exportHub.chooseDocFormatTitle')}
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                {t('exportHub.chooseDocFormatDesc')}
+                {t('product.exportHub.chooseDocFormatDesc')}
               </p>
             </div>
             <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400 shrink-0">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-              <span>{t('exportHub.standardFormatsBadge')}</span>
+              <span>{t('product.exportHub.standardFormatsBadge')}</span>
               <span className="text-slate-300 dark:text-slate-600">•</span>
               <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-              <span>{t('exportHub.proFormatsBadge')}</span>
+              <span>{t('product.exportHub.proFormatsBadge')}</span>
             </div>
           </div>
 
           {/* Row 1 (5 items) */}
           <div className="mb-4">
             <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2 px-1">
-              {t('exportHub.row1Title')}
+              {t('product.exportHub.row1Title')}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
               {EXPORT_FORMATS.slice(0, 5).map((fmt) => (
@@ -571,7 +571,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
           {/* Row 2 (5 items) */}
           <div className="mb-4">
             <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2 px-1">
-              {t('exportHub.row2Title')}
+              {t('product.exportHub.row2Title')}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
               {EXPORT_FORMATS.slice(5, 10).map((fmt) => (
@@ -596,7 +596,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
           {/* Row 3 (5 items) */}
           <div className="mb-4">
             <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2 px-1">
-              {t('exportHub.row3Title')}
+              {t('product.exportHub.row3Title')}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
               {EXPORT_FORMATS.slice(10, 15).map((fmt) => (
@@ -621,7 +621,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
           {/* Row 4 (2 items) */}
           <div>
             <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2 px-1">
-              {t('exportHub.row4Title')}
+              {t('product.exportHub.row4Title')}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
               {EXPORT_FORMATS.slice(15).map((fmt) => (
@@ -653,10 +653,10 @@ export default function ExportHubPage({ items, rates, currentProject }) {
               </div>
               <div>
                 <h4 className="text-sm font-bold text-amber-900 dark:text-amber-200">
-                  {t('exportHub.isAProFeature', { name: currentFormat.name })}
+                  {t('product.exportHub.isAProFeature', { name: currentFormat.name })}
                 </h4>
                 <p className="text-xs text-amber-700 dark:text-amber-300">
-                  {t('exportHub.isAProFeatureDesc')}
+                  {t('product.exportHub.isAProFeatureDesc')}
                 </p>
               </div>
             </div>
@@ -665,7 +665,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
               onClick={() => setShowUpgradeModal(true)}
               className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold text-xs rounded-xl shadow-xs transition cursor-pointer shrink-0"
             >
-              {t('exportHub.upgradeToUnlockBtn')}
+              {t('product.exportHub.upgradeToUnlockBtn')}
             </button>
           </div>
         )}
@@ -680,10 +680,10 @@ export default function ExportHubPage({ items, rates, currentProject }) {
               </div>
               <div>
                 <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-tight">
-                  {t('exportHub.documentPreview')}: <span className="text-indigo-600 dark:text-indigo-400">{currentFormat.name}</span>
+                  {t('product.exportHub.documentPreview')}: <span className="text-indigo-600 dark:text-indigo-400">{currentFormat.name}</span>
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  {t('exportHub.previewDesc')}
+                  {t('product.exportHub.previewDesc')}
                 </p>
               </div>
             </div>
@@ -696,7 +696,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
               <svg className="w-4 h-4 text-slate-400 group-hover:text-indigo-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 10l7-7m0 0l7 7m-7-7v18" />
               </svg>
-              <span>{t('exportHub.backToDocSelection')}</span>
+              <span>{t('product.exportHub.backToDocSelection')}</span>
             </button>
           </div>
 
@@ -817,7 +817,7 @@ function FormatCard({ format, isSelected, isPro, onScrollToPreview, onClick }) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
-            <span className="text-[10px] font-bold text-amber-300">{t('exportHub.unlockWithPro')}</span>
+            <span className="text-[10px] font-bold text-amber-300">{t('product.exportHub.unlockWithPro')}</span>
           </div>
         )}
       </div>
@@ -832,9 +832,9 @@ function FormatCard({ format, isSelected, isPro, onScrollToPreview, onClick }) {
                 type="button"
                 onClick={handlePreviewClick}
                 className="px-1.5 py-0.5 bg-indigo-50 dark:bg-indigo-950/80 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 hover:text-indigo-900 border border-indigo-200 dark:border-indigo-800 rounded-md text-[9px] font-extrabold tracking-tight transition cursor-pointer shadow-2xs flex items-center gap-0.5"
-                title={t('exportHub.jumpToPreviewTitle')}
+                title={t('product.exportHub.jumpToPreviewTitle')}
               >
-                <span>{t('exportHub.seePreviewBtn')}</span>
+                <span>{t('product.exportHub.seePreviewBtn')}</span>
                 <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                 </svg>

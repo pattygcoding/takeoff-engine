@@ -54,7 +54,7 @@ export default function ProjectWorkspace({
         .catch((err) => {
           if (!isMounted) return;
           console.error('Failed to load project by URL ID:', err);
-          setLoadError(err.message || t('projectWorkspace.errLoadFailed'));
+          setLoadError(err.message || t('product.projectWorkspace.errLoadFailed'));
         })
         .finally(() => {
           if (isMounted) setLoading(false);
@@ -139,7 +139,7 @@ export default function ProjectWorkspace({
       }
     } catch (err) {
       console.error('Failed to duplicate project:', err);
-      setLoadError(err.message || t('projectWorkspace.errDuplicateFailed'));
+      setLoadError(err.message || t('product.projectWorkspace.errDuplicateFailed'));
     } finally {
       setLoading(false);
     }
@@ -151,7 +151,7 @@ export default function ProjectWorkspace({
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
           <p className="text-sm font-semibold text-slate-600">
-            {t('projectWorkspace.loadingTakeoff', { id: projectId || '' })}
+            {t('product.projectWorkspace.loadingTakeoff', { id: projectId || '' })}
           </p>
         </div>
       </div>
@@ -166,13 +166,13 @@ export default function ProjectWorkspace({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
         </div>
-        <h3 className="text-lg font-bold text-slate-900 mb-1">{t('projectWorkspace.couldNotLoadTitle')}</h3>
+        <h3 className="text-lg font-bold text-slate-900 mb-1">{t('product.projectWorkspace.couldNotLoadTitle')}</h3>
         <p className="text-sm text-slate-500 mb-5">{loadError}</p>
         <Link
           to={`/${username}`}
           className="inline-flex items-center gap-1 px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl hover:bg-indigo-700 transition"
         >
-          {t('projectWorkspace.backToProjects')}
+          {t('product.projectWorkspace.backToProjects')}
         </Link>
       </div>
     );
@@ -183,7 +183,7 @@ export default function ProjectWorkspace({
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm font-semibold text-slate-600">{t('projectWorkspace.redirecting')}</p>
+          <p className="text-sm font-semibold text-slate-600">{t('product.projectWorkspace.redirecting')}</p>
         </div>
       </div>
     );
@@ -196,35 +196,35 @@ export default function ProjectWorkspace({
           to={`/${username}`}
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
         >
-          {t('projectWorkspace.backToProjects')}
+          {t('product.projectWorkspace.backToProjects')}
         </Link>
         {currentProject?.name && (
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-200/70 dark:bg-slate-800 border border-slate-300/60 dark:border-slate-700 px-2.5 py-1 rounded-lg">
-              {t('projectWorkspace.projectPrefix', { name: currentProject.name })}
+              {t('product.projectWorkspace.projectPrefix', { name: currentProject.name })}
             </span>
             {currentProject?.status === 'awarded' && (
               <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/70 border border-emerald-300 dark:border-emerald-800 px-2.5 py-0.5 rounded-full flex items-center gap-1">
                 <span>🔒</span>
-                <span>{t('projectWorkspace.statusAwarded')}</span>
+                <span>{t('product.projectWorkspace.statusAwarded')}</span>
               </span>
             )}
             {currentProject?.status === 'submitted' && (
               <span className="text-xs font-bold text-blue-800 dark:text-blue-300 bg-blue-100 dark:bg-blue-950/70 border border-blue-300 dark:border-blue-800 px-2.5 py-0.5 rounded-full flex items-center gap-1">
                 <span>🔒</span>
-                <span>{t('projectWorkspace.statusSubmitted')}</span>
+                <span>{t('product.projectWorkspace.statusSubmitted')}</span>
               </span>
             )}
             {currentProject?.status === 'archived' && (
               <span className="text-xs font-bold text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/70 border border-amber-300 dark:border-amber-800 px-2.5 py-0.5 rounded-full flex items-center gap-1">
                 <span>🔒</span>
-                <span>{t('projectWorkspace.statusArchived')}</span>
+                <span>{t('product.projectWorkspace.statusArchived')}</span>
               </span>
             )}
             {currentProject?.status === 'declined' && (
               <span className="text-xs font-bold text-red-800 dark:text-red-300 bg-red-100 dark:bg-red-950/70 border border-red-300 dark:border-red-800 px-2.5 py-0.5 rounded-full flex items-center gap-1">
                 <span>🔒</span>
-                <span>{t('projectWorkspace.statusDeclined')}</span>
+                <span>{t('product.projectWorkspace.statusDeclined')}</span>
               </span>
             )}
           </div>

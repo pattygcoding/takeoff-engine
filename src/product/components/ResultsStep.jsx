@@ -139,7 +139,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
       }
 
       setShowSaveModal(false);
-      setSaveSuccessMsg(t('resultsStep.estimateSavedSuccess'));
+      setSaveSuccessMsg(t('product.resultsStep.estimateSavedSuccess'));
       setTimeout(() => setSaveSuccessMsg(''), 4000);
       return savedProject;
     } catch (err) {
@@ -150,8 +150,8 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
         return null;
       }
       await showAlert({
-        title: t('resultsStep.saveFailed'),
-        message: err.message || t('resultsStep.savingProject'),
+        title: t('product.resultsStep.saveFailed'),
+        message: err.message || t('product.resultsStep.savingProject'),
         variant: 'error',
       });
       return null;
@@ -163,8 +163,8 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
   const handleGenerateShareableProposal = async () => {
     if (!user) {
       await showAlert({
-        title: t('resultsStep.authRequired'),
-        message: t('resultsStep.authRequiredMessage'),
+        title: t('product.resultsStep.authRequired'),
+        message: t('product.resultsStep.authRequiredMessage'),
         variant: 'warning',
       });
       return;
@@ -203,8 +203,8 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
       setShareProposalModalOpen(true);
     } catch (err) {
       await showAlert({
-        title: t('resultsStep.proposalLinkError'),
-        message: err.message || t('resultsStep.proposalLinkErrorMessage'),
+        title: t('product.resultsStep.proposalLinkError'),
+        message: err.message || t('product.resultsStep.proposalLinkErrorMessage'),
         variant: 'error',
       });
     } finally {
@@ -216,8 +216,8 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
     e.preventDefault();
     if (!clientRecipientEmail || !clientRecipientEmail.trim()) {
       await showAlert({
-        title: t('resultsStep.missingRecipientEmail'),
-        message: t('resultsStep.missingRecipientEmailMessage'),
+        title: t('product.resultsStep.missingRecipientEmail'),
+        message: t('product.resultsStep.missingRecipientEmailMessage'),
         variant: 'warning',
       });
       return;
@@ -232,7 +232,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
         recipientName: clientRecipientName.trim(),
       });
 
-      setEmailSentSuccess(t('resultsStep.proposalSentSuccess', { email: clientRecipientEmail.trim() }));
+      setEmailSentSuccess(t('product.resultsStep.proposalSentSuccess', { email: clientRecipientEmail.trim() }));
       if (res.trial_uses_remaining !== undefined) {
         if (setUser) {
           setUser((prev) => (prev ? { ...prev, trial_uses_remaining: res.trial_uses_remaining } : prev));
@@ -244,8 +244,8 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
       }
     } catch (err) {
       await showAlert({
-        title: t('resultsStep.emailDeliveryError'),
-        message: err.message || t('resultsStep.emailDeliveryErrorMessage'),
+        title: t('product.resultsStep.emailDeliveryError'),
+        message: err.message || t('product.resultsStep.emailDeliveryErrorMessage'),
         variant: 'error',
       });
     } finally {
@@ -312,21 +312,21 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
   const activeStatus = currentProject?.status || projectStatus;
   const statusLabel =
     activeStatus === 'submitted'
-      ? t('resultsStep.statusSubmitted')
+      ? t('product.resultsStep.statusSubmitted')
       : activeStatus === 'archived'
-      ? t('resultsStep.statusArchived')
+      ? t('product.resultsStep.statusArchived')
       : activeStatus === 'declined'
-      ? t('resultsStep.statusDeclined')
-      : t('resultsStep.statusAwarded');
+      ? t('product.resultsStep.statusDeclined')
+      : t('product.resultsStep.statusAwarded');
 
   const statusDescription =
     activeStatus === 'submitted'
-      ? t('resultsStep.statusDescSubmitted')
+      ? t('product.resultsStep.statusDescSubmitted')
       : activeStatus === 'archived'
-      ? t('resultsStep.statusDescArchived')
+      ? t('product.resultsStep.statusDescArchived')
       : activeStatus === 'declined'
-      ? t('resultsStep.statusDescDeclined')
-      : t('resultsStep.statusDescAwarded');
+      ? t('product.resultsStep.statusDescDeclined')
+      : t('product.resultsStep.statusDescAwarded');
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 text-slate-900 dark:text-slate-100">
@@ -339,7 +339,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
               </svg>
             </div>
             <div>
-              <h4 className="text-sm font-bold text-amber-900 dark:text-amber-200">{statusLabel} Project ({t('resultsStep.lockedReadOnly')})</h4>
+              <h4 className="text-sm font-bold text-amber-900 dark:text-amber-200">{statusLabel} Project ({t('product.resultsStep.lockedReadOnly')})</h4>
               <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
                 {statusDescription}
               </p>
@@ -354,7 +354,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
               </svg>
-              {t('resultsStep.duplicateAsNewRevision')}
+              {t('product.resultsStep.duplicateAsNewRevision')}
             </button>
           )}
         </div>
@@ -363,12 +363,12 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
       <div className="no-print flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-            {proposalMode ? t('resultsStep.clientProposalTitle') : t('resultsStep.internalCostBreakdownTitle')}
+            {proposalMode ? t('product.resultsStep.clientProposalTitle') : t('product.resultsStep.internalCostBreakdownTitle')}
           </h1>
           <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
             {proposalMode
-              ? t('resultsStep.clientProposalSubtitle')
-              : t('resultsStep.internalCostBreakdownSubtitle')}
+              ? t('product.resultsStep.clientProposalSubtitle')
+              : t('product.resultsStep.internalCostBreakdownSubtitle')}
           </p>
         </div>
 
@@ -378,10 +378,10 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
             onClick={onBack}
             className="rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer"
           >
-            {t('resultsStep.backToEdit')}
+            {t('product.resultsStep.backToEdit')}
           </button>
           <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200 select-none cursor-pointer">
-            <span>{t('resultsStep.clientFacingProposalMode')}</span>
+            <span>{t('product.resultsStep.clientFacingProposalMode')}</span>
             <button
               type="button"
               role="switch"
@@ -418,7 +418,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
               </svg>
-              {isSavingProject ? t('resultsStep.saving') : currentProject?.id ? t('resultsStep.updateCloudEstimate') : t('resultsStep.saveToProjects')}
+              {isSavingProject ? t('product.resultsStep.saving') : currentProject?.id ? t('product.resultsStep.updateCloudEstimate') : t('product.resultsStep.saveToProjects')}
             </button>
           )}
 
@@ -431,7 +431,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
             </svg>
-            {isGeneratingShareLink ? t('resultsStep.generatingLink') : t('resultsStep.shareClientLink')}
+            {isGeneratingShareLink ? t('product.resultsStep.generatingLink') : t('product.resultsStep.shareClientLink')}
           </button>
 
           {saveSuccessMsg && (
@@ -450,14 +450,14 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
             </svg>
-            <span>{t('resultsStep.printExportFormats')}</span>
+            <span>{t('product.resultsStep.printExportFormats')}</span>
           </button>
           <button
             type="button"
             onClick={exportCsv}
             className="rounded-xl border border-emerald-600 dark:border-emerald-500 bg-white dark:bg-slate-800 px-3.5 py-2 text-sm font-semibold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-slate-700 transition cursor-pointer"
           >
-            {t('resultsStep.exportCsvExcel')}
+            {t('product.resultsStep.exportCsvExcel')}
           </button>
         </div>
       </div>
@@ -467,48 +467,48 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
-              {currentProject?.id ? t('resultsStep.updateProjectDetails') : t('resultsStep.saveProjectToCloud')}
+              {currentProject?.id ? t('product.resultsStep.updateProjectDetails') : t('product.resultsStep.saveProjectToCloud')}
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
-              {t('resultsStep.modalSaveDescription')}
+              {t('product.resultsStep.modalSaveDescription')}
             </p>
             <form onSubmit={handleSaveToCloud}>
               <div className="space-y-3 mb-5">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    {t('resultsStep.projectNameLabel')}
+                    {t('product.resultsStep.projectNameLabel')}
                   </label>
                   <input
                     type="text"
                     required
                     value={projectNameInput}
                     onChange={(e) => setProjectNameInput(e.target.value)}
-                    placeholder={t('resultsStep.projectNamePlaceholder')}
+                    placeholder={t('product.resultsStep.projectNamePlaceholder')}
                     className="w-full px-3.5 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     autoFocus
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    {t('resultsStep.clientNameLabel')}
+                    {t('product.resultsStep.clientNameLabel')}
                   </label>
                   <input
                     type="text"
                     value={clientNameInput}
                     onChange={(e) => setClientNameInput(e.target.value)}
-                    placeholder={t('resultsStep.clientNamePlaceholder')}
+                    placeholder={t('product.resultsStep.clientNamePlaceholder')}
                     className="w-full px-3.5 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    {t('resultsStep.locationLabel')}
+                    {t('product.resultsStep.locationLabel')}
                   </label>
                   <input
                     type="text"
                     value={locationInput}
                     onChange={(e) => setLocationInput(e.target.value)}
-                    placeholder={t('resultsStep.locationPlaceholder')}
+                    placeholder={t('product.resultsStep.locationPlaceholder')}
                     className="w-full px-3.5 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
@@ -520,14 +520,14 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
                   onClick={() => setShowSaveModal(false)}
                   className="px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer"
                 >
-                  {t('resultsStep.cancel')}
+                  {t('product.resultsStep.cancel')}
                 </button>
                 <button
                   type="submit"
                   disabled={isSavingProject}
                   className="px-5 py-2 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-xs disabled:opacity-50 cursor-pointer"
                 >
-                  {isSavingProject ? t('resultsStep.saving') : t('resultsStep.saveEstimate')}
+                  {isSavingProject ? t('product.resultsStep.saving') : t('product.resultsStep.saveEstimate')}
                 </button>
               </div>
             </form>
@@ -545,8 +545,8 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
                   🔗
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t('resultsStep.portalLinkModalTitle')}</h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">{t('resultsStep.portalLinkModalSubtitle')}</p>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t('product.resultsStep.portalLinkModalTitle')}</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{t('product.resultsStep.portalLinkModalSubtitle')}</p>
                 </div>
               </div>
               <button
@@ -562,10 +562,10 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
               {/* Direct Email Submission Section */}
               <form onSubmit={handleSendProposalEmail} className="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-700">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-sm font-bold text-slate-800 dark:text-slate-200">✉️ {t('resultsStep.emailDirectlyToClient')}</span>
+                  <span className="text-sm font-bold text-slate-800 dark:text-slate-200">✉️ {t('product.resultsStep.emailDirectlyToClient')}</span>
                 </div>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
-                  {t('resultsStep.emailDirectlyDescription')}
+                  {t('product.resultsStep.emailDirectlyDescription')}
                 </p>
 
                 {emailSentSuccess && (
@@ -577,23 +577,23 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
                 <div className="space-y-2">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div>
-                      <label className="block text-[11px] font-medium text-slate-600 dark:text-slate-300 mb-1">{t('resultsStep.clientAttentionLabel')}</label>
+                      <label className="block text-[11px] font-medium text-slate-600 dark:text-slate-300 mb-1">{t('product.resultsStep.clientAttentionLabel')}</label>
                       <input
                         type="text"
                         value={clientRecipientName}
                         onChange={(e) => setClientRecipientName(e.target.value)}
-                        placeholder={t('resultsStep.clientAttentionPlaceholder')}
+                        placeholder={t('product.resultsStep.clientAttentionPlaceholder')}
                         className="w-full bg-white dark:bg-slate-800 px-3 py-1.5 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                       />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-medium text-slate-600 dark:text-slate-300 mb-1">{t('resultsStep.clientEmailLabel')}</label>
+                      <label className="block text-[11px] font-medium text-slate-600 dark:text-slate-300 mb-1">{t('product.resultsStep.clientEmailLabel')}</label>
                       <input
                         type="email"
                         required
                         value={clientRecipientEmail}
                         onChange={(e) => setClientRecipientEmail(e.target.value)}
-                        placeholder={t('resultsStep.clientEmailPlaceholder')}
+                        placeholder={t('product.resultsStep.clientEmailPlaceholder')}
                         className="w-full bg-white dark:bg-slate-800 px-3 py-1.5 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                       />
                     </div>
@@ -607,14 +607,14 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
                     {isSendingEmail ? (
                       <>
                         <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        <span>{t('resultsStep.sendingEmail')}</span>
+                        <span>{t('product.resultsStep.sendingEmail')}</span>
                       </>
                     ) : (
                       <>
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                         </svg>
-                        <span>{t('resultsStep.sendProposalAndLock')}</span>
+                        <span>{t('product.resultsStep.sendProposalAndLock')}</span>
                       </>
                     )}
                   </button>
@@ -623,9 +623,9 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
 
               <div className="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-700">
                 <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 mb-2">
-                  <span className="font-semibold text-slate-700 dark:text-slate-300">{t('resultsStep.orCopyPublicLink')}</span>
+                  <span className="font-semibold text-slate-700 dark:text-slate-300">{t('product.resultsStep.orCopyPublicLink')}</span>
                   <span className="text-[10px] bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-bold px-2 py-0.5 rounded-full">
-                    {t('resultsStep.statusTag', { status: shareProposalData?.client_status || 'sent' })}
+                    {t('product.resultsStep.statusTag', { status: shareProposalData?.client_status || 'sent' })}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -645,19 +645,19 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
                     }}
                     className="px-3.5 py-2 bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white rounded-xl text-xs font-bold whitespace-nowrap shadow-xs transition cursor-pointer"
                   >
-                    {shareCopied ? t('resultsStep.copied') : t('resultsStep.copyLink')}
+                    {shareCopied ? t('product.resultsStep.copied') : t('product.resultsStep.copyLink')}
                   </button>
                 </div>
               </div>
 
               <div className="bg-indigo-50/60 dark:bg-indigo-950/40 p-4 rounded-2xl text-xs text-indigo-900 dark:text-indigo-300 space-y-1.5 border border-indigo-100 dark:border-indigo-900">
                 <p className="font-bold flex items-center gap-1.5">
-                  <span>✨</span> {t('resultsStep.whatClientSees')}
+                  <span>✨</span> {t('product.resultsStep.whatClientSees')}
                 </p>
                 <ul className="list-disc pl-4 space-y-1 text-slate-600 dark:text-slate-400">
-                  <li>{t('resultsStep.benefitBranding')}</li>
-                  <li>{t('resultsStep.benefitScope')}</li>
-                  <li>{t('resultsStep.benefitSignature')}</li>
+                  <li>{t('product.resultsStep.benefitBranding')}</li>
+                  <li>{t('product.resultsStep.benefitScope')}</li>
+                  <li>{t('product.resultsStep.benefitSignature')}</li>
                 </ul>
               </div>
             </div>
@@ -669,7 +669,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
                 rel="noreferrer"
                 className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline"
               >
-                {t('resultsStep.previewClientPortal')}
+                {t('product.resultsStep.previewClientPortal')}
               </a>
 
               <button
@@ -677,7 +677,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
                 onClick={() => setShareProposalModalOpen(false)}
                 className="px-5 py-2 text-sm font-semibold bg-slate-900 hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600 text-white rounded-xl shadow-xs transition cursor-pointer"
               >
-                {t('resultsStep.done')}
+                {t('product.resultsStep.done')}
               </button>
             </div>
           </div>
@@ -707,20 +707,20 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{branding.companyAddress}</p>
                 )}
                 <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 mt-1">
-                  {branding.companyPhone && <span>{t('resultsStep.phoneLabel', { phone: branding.companyPhone })}</span>}
-                  {branding.licenseNumber && <span>{t('resultsStep.licLabel', { license: branding.licenseNumber })}</span>}
+                  {branding.companyPhone && <span>{t('product.resultsStep.phoneLabel', { phone: branding.companyPhone })}</span>}
+                  {branding.licenseNumber && <span>{t('product.resultsStep.licLabel', { license: branding.licenseNumber })}</span>}
                 </div>
               </div>
             </div>
 
             <div className="text-right text-xs text-slate-500 dark:text-slate-400 mt-2 sm:mt-0">
               <p className="font-semibold text-slate-800 dark:text-slate-200 text-sm">
-                {currentProject?.name || t('resultsStep.defaultProposalTitle')}
+                {currentProject?.name || t('product.resultsStep.defaultProposalTitle')}
               </p>
               {currentProject?.client_name && (
-                <p>{t('resultsStep.preparedFor', { client: currentProject.client_name })}</p>
+                <p>{t('product.resultsStep.preparedFor', { client: currentProject.client_name })}</p>
               )}
-              <p>{t('resultsStep.dateLabel', { date: new Date().toLocaleDateString() })}</p>
+              <p>{t('product.resultsStep.dateLabel', { date: new Date().toLocaleDateString() })}</p>
             </div>
           </div>
         ) : (
@@ -730,56 +730,56 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
               <div className="w-6 h-6 rounded bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">
                 T
               </div>
-              <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('resultsStep.appWatermark')}</span>
+              <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('product.resultsStep.appWatermark')}</span>
             </div>
-            <span className="text-xs text-slate-400 dark:text-slate-500">{t('resultsStep.appWatermarkGenerated')}</span>
+            <span className="text-xs text-slate-400 dark:text-slate-500">{t('product.resultsStep.appWatermarkGenerated')}</span>
           </div>
         )}
 
         {!proposalMode && (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
-            <SummaryCard label={t('resultsStep.totalMaterialCost')} value={formatCurrency(totals.totalMaterialCost)} />
+            <SummaryCard label={t('product.resultsStep.totalMaterialCost')} value={formatCurrency(totals.totalMaterialCost)} />
             <SummaryCard
-              label={t('resultsStep.totalLabor')}
+              label={t('product.resultsStep.totalLabor')}
               value={formatCurrency(totals.totalLaborCost)}
-              sub={t('resultsStep.laborHrs', { count: formatNumber(totals.totalLaborHours) })}
+              sub={t('product.resultsStep.laborHrs', { count: formatNumber(totals.totalLaborHours) })}
             />
             {totals.totalEquipmentLineItemCost > 0 ? (
               <SummaryCard
-                label={t('resultsStep.equipmentLineItems', 'Equipment & Machinery')}
+                label={t('product.resultsStep.equipmentLineItems', 'Equipment & Machinery')}
                 value={formatCurrency(totals.totalEquipmentLineItemCost + totals.equipmentLumpSum)}
                 sub={totals.equipmentLumpSum > 0 ? `Incl. ${formatCurrency(totals.equipmentLumpSum)} mob` : undefined}
               />
             ) : (
-              <SummaryCard label={t('resultsStep.equipmentMobilization')} value={formatCurrency(totals.equipmentLumpSum)} />
+              <SummaryCard label={t('product.resultsStep.equipmentMobilization')} value={formatCurrency(totals.equipmentLumpSum)} />
             )}
             {totals.miscCost > 0 && (
-              <SummaryCard label={t('resultsStep.miscellaneousCosts')} value={formatCurrency(totals.miscCost)} />
+              <SummaryCard label={t('product.resultsStep.miscellaneousCosts')} value={formatCurrency(totals.miscCost)} />
             )}
             {totals.scopeAddonsCost > 0 && (
               <SummaryCard
-                label={t('resultsStep.scopeAddonsCost', 'Scope Add-Ons')}
+                label={t('product.resultsStep.scopeAddonsCost', 'Scope Add-Ons')}
                 value={formatCurrency(totals.scopeAddonsCost)}
-                sub={t('resultsStep.scopeAddonsExcludedSub', 'Not included in total')}
+                sub={t('product.resultsStep.scopeAddonsExcludedSub', 'Not included in total')}
               />
             )}
-            <SummaryCard label={t('resultsStep.totalDirectCost')} value={formatCurrency(totals.totalDirectCost)} />
+            <SummaryCard label={t('product.resultsStep.totalDirectCost')} value={formatCurrency(totals.totalDirectCost)} />
             <SummaryCard
-              label={t('resultsStep.overhead', { pct: totals.overheadPct })}
+              label={t('product.resultsStep.overhead', { pct: totals.overheadPct })}
               value={formatCurrency(totals.overheadAmount)}
             />
             <SummaryCard
-              label={t('resultsStep.contingency', { pct: totals.contingencyPct })}
+              label={t('product.resultsStep.contingency', { pct: totals.contingencyPct })}
               value={formatCurrency(totals.contingencyAmount)}
             />
-            <SummaryCard label={t('resultsStep.profit', { pct: totals.profitPct })} value={formatCurrency(totals.profitAmount)} />
-            <SummaryCard label={t('resultsStep.finalBidAmount')} value={formatCurrency(totals.finalBidAmount)} highlight />
+            <SummaryCard label={t('product.resultsStep.profit', { pct: totals.profitPct })} value={formatCurrency(totals.profitAmount)} />
+            <SummaryCard label={t('product.resultsStep.finalBidAmount')} value={formatCurrency(totals.finalBidAmount)} highlight />
           </div>
         )}
 
         {proposalMode && (
           <div className="mb-8 text-center">
-            <p className="text-sm uppercase tracking-wide text-slate-400 dark:text-slate-500 font-medium">{t('resultsStep.totalProjectInvestment')}</p>
+            <p className="text-sm uppercase tracking-wide text-slate-400 dark:text-slate-500 font-medium">{t('product.resultsStep.totalProjectInvestment')}</p>
             <p className="text-4xl font-bold text-slate-900 dark:text-white mt-1">{formatCurrency(totals.finalBidAmount)}</p>
           </div>
         )}
@@ -793,14 +793,14 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
               <table className="min-w-full text-sm">
                 <thead>
                   <tr className="text-left text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                    <th className="py-1 pr-3">{t('resultsStep.colDescription')}</th>
-                    <th className="py-1 pr-3">{t('resultsStep.colSizeSpec')}</th>
-                    <th className="py-1 pr-3 text-right">{t('resultsStep.colQty')}</th>
-                    <th className="py-1 pr-3">{t('resultsStep.colUnit')}</th>
-                    {!proposalMode && <th className="py-1 pr-3 text-right">{t('resultsStep.colMaterial')}</th>}
-                    {!proposalMode && <th className="py-1 pr-3 text-right">{t('resultsStep.colLaborHrs')}</th>}
-                    {!proposalMode && <th className="py-1 pr-3 text-right">{t('resultsStep.colLaborCost')}</th>}
-                    <th className="py-1 pr-3 text-right">{proposalMode ? t('resultsStep.colLineTotal') : t('resultsStep.colDirectCost')}</th>
+                    <th className="py-1 pr-3">{t('product.resultsStep.colDescription')}</th>
+                    <th className="py-1 pr-3">{t('product.resultsStep.colSizeSpec')}</th>
+                    <th className="py-1 pr-3 text-right">{t('product.resultsStep.colQty')}</th>
+                    <th className="py-1 pr-3">{t('product.resultsStep.colUnit')}</th>
+                    {!proposalMode && <th className="py-1 pr-3 text-right">{t('product.resultsStep.colMaterial')}</th>}
+                    {!proposalMode && <th className="py-1 pr-3 text-right">{t('product.resultsStep.colLaborHrs')}</th>}
+                    {!proposalMode && <th className="py-1 pr-3 text-right">{t('product.resultsStep.colLaborCost')}</th>}
+                    <th className="py-1 pr-3 text-right">{proposalMode ? t('product.resultsStep.colLineTotal') : t('product.resultsStep.colDirectCost')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -810,7 +810,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
                         <div className="flex items-center gap-1.5 flex-wrap">
                           {item.isEquipment && (
                             <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
-                              🚜 {t('takeoffGrid.equipmentBadge', 'Equipment Rental')}
+                              🚜 {t('product.takeoffGrid.equipmentBadge', 'Equipment Rental')}
                             </span>
                           )}
                           <span>{item.description}</span>
@@ -853,7 +853,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
                 <tfoot>
                   <tr className="font-semibold border-t border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
                     <td className="py-2 pr-3" colSpan={proposalMode ? 4 : 7}>
-                      {t('resultsStep.subtotal')}
+                      {t('product.resultsStep.subtotal')}
                     </td>
                     <td className="py-2 pr-3 text-right font-mono">{formatCurrency(sys.directCost)}</td>
                   </tr>
@@ -867,28 +867,28 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
           <div className="mt-8 pt-4 border-t border-slate-200 dark:border-slate-800 flex justify-end">
             <div className="w-full sm:w-80 text-right">
               <div className="flex justify-between text-slate-600 dark:text-slate-400 text-sm py-1">
-                <span>{t('resultsStep.subtotal')}</span>
+                <span>{t('product.resultsStep.subtotal')}</span>
                 <span className="font-mono">{formatCurrency(totals.totalDirectCost)}</span>
               </div>
               <div className="flex justify-between text-slate-600 dark:text-slate-400 text-sm py-1">
-                <span>{t('resultsStep.overhead', { pct: totals.overheadPct })}</span>
+                <span>{t('product.resultsStep.overhead', { pct: totals.overheadPct })}</span>
                 <span className="font-mono">{formatCurrency(totals.overheadAmount)}</span>
               </div>
               <div className="flex justify-between text-slate-600 dark:text-slate-400 text-sm py-1">
-                <span>{t('resultsStep.contingency', { pct: totals.contingencyPct })}</span>
+                <span>{t('product.resultsStep.contingency', { pct: totals.contingencyPct })}</span>
                 <span className="font-mono">{formatCurrency(totals.contingencyAmount)}</span>
               </div>
               <div className="flex justify-between text-slate-600 dark:text-slate-400 text-sm py-1">
-                <span>{t('resultsStep.profit', { pct: totals.profitPct })}</span>
+                <span>{t('product.resultsStep.profit', { pct: totals.profitPct })}</span>
                 <span className="font-mono">{formatCurrency(totals.profitAmount)}</span>
               </div>
               <div className="flex justify-between text-xl font-bold text-slate-900 dark:text-white pt-2 border-t border-slate-200 dark:border-slate-800 mt-2">
-                <span>{t('resultsStep.totalBid')}</span>
+                <span>{t('product.resultsStep.totalBid')}</span>
                 <span className="font-mono">{formatCurrency(totals.finalBidAmount)}</span>
               </div>
               {totals.scopeAddonsCost > 0 && (
                 <p className="text-[11px] text-indigo-600 dark:text-indigo-400 mt-2">
-                  {t('resultsStep.scopeAddonsNote', { amount: formatCurrency(totals.scopeAddonsCost) })}
+                  {t('product.resultsStep.scopeAddonsNote', { amount: formatCurrency(totals.scopeAddonsCost) })}
                 </p>
               )}
             </div>

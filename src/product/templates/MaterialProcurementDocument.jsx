@@ -12,14 +12,14 @@ export default function MaterialProcurementDocument({ estimate, branding, curren
 
   return (
     <div className="space-y-6">
-      <DocumentBrandingHeader branding={branding} title={t('templates.materialProcurement.title')} project={currentProject} />
+      <DocumentBrandingHeader branding={branding} title={t('product.templates.materialProcurement.title')} project={currentProject} />
 
       <div className="p-3.5 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-800 flex justify-between items-center">
         <span>
-          <strong>{t('templates.materialProcurement.vendorNote')}</strong> {t('templates.materialProcurement.vendorNoteText')}
+          <strong>{t('product.templates.materialProcurement.vendorNote')}</strong> {t('product.templates.materialProcurement.vendorNoteText')}
         </span>
         <span className="font-mono font-bold bg-blue-100 px-2 py-0.5 rounded">
-          {t('templates.materialProcurement.poReqPrefix', { id: Date.now().toString().slice(-6) })}
+          {t('product.templates.materialProcurement.poReqPrefix', { id: Date.now().toString().slice(-6) })}
         </span>
       </div>
 
@@ -27,12 +27,12 @@ export default function MaterialProcurementDocument({ estimate, branding, curren
         <table className="w-full text-left text-xs">
           <thead className="bg-blue-900 text-white">
             <tr>
-              <th className="p-2.5">{t('templates.materialProcurement.colItemDescription')}</th>
-              <th className="p-2.5">{t('templates.materialProcurement.colMaterialSpec')}</th>
-              <th className="p-2.5 text-right">{t('templates.materialProcurement.colOrderQty')}</th>
-              <th className="p-2.5">{t('templates.materialProcurement.colUnit')}</th>
-              <th className="p-2.5 text-right">{t('templates.materialProcurement.colEstUnitMat')}</th>
-              <th className="p-2.5 text-right">{t('templates.materialProcurement.colTotalMaterial')}</th>
+              <th className="p-2.5">{t('product.templates.materialProcurement.colItemDescription')}</th>
+              <th className="p-2.5">{t('product.templates.materialProcurement.colMaterialSpec')}</th>
+              <th className="p-2.5 text-right">{t('product.templates.materialProcurement.colOrderQty')}</th>
+              <th className="p-2.5">{t('product.templates.materialProcurement.colUnit')}</th>
+              <th className="p-2.5 text-right">{t('product.templates.materialProcurement.colEstUnitMat')}</th>
+              <th className="p-2.5 text-right">{t('product.templates.materialProcurement.colTotalMaterial')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 font-mono">
@@ -52,7 +52,7 @@ export default function MaterialProcurementDocument({ estimate, branding, curren
           </tbody>
           <tfoot className="bg-slate-100 border-t border-slate-300 font-bold">
             <tr>
-              <td colSpan={5} className="p-2.5 text-right text-slate-700">{t('templates.materialProcurement.totalMaterialCommitment')}</td>
+              <td colSpan={5} className="p-2.5 text-right text-slate-700">{t('product.templates.materialProcurement.totalMaterialCommitment')}</td>
               <td className="p-2.5 text-right font-mono text-blue-800">{formatCurrency(totals.totalMaterialCost)}</td>
             </tr>
           </tfoot>

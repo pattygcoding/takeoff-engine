@@ -67,10 +67,10 @@ export default function ClientCounterOfferModal({
             </div>
             <div>
               <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-snug">
-                {t('counterOfferModal.title', 'Scope Exclusions & Inclusions / Counter-Offer')}
+                {t('product.counterOfferModal.title', 'Scope Exclusions & Inclusions / Counter-Offer')}
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                {t('counterOfferModal.subtitle', 'Review or modify included and excluded items (fixtures, permits, trenching) and submit a counter-offer.')}
+                {t('product.counterOfferModal.subtitle', 'Review or modify included and excluded items (fixtures, permits, trenching) and submit a counter-offer.')}
               </p>
             </div>
           </div>
@@ -82,14 +82,14 @@ export default function ClientCounterOfferModal({
           <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-300 text-xs rounded-xl flex items-start gap-2">
             <span className="text-base">💡</span>
             <p className="leading-relaxed font-medium">
-              {t('counterOfferModal.notice', 'Toggle any item below to request shifting between Included (Contractor supplies) and Excluded (Owner supplies).')}
+              {t('product.counterOfferModal.notice', 'Toggle any item below to request shifting between Included (Contractor supplies) and Excluded (Owner supplies).')}
             </p>
           </div>
 
           {/* Scope Item Toggles */}
           <div className="space-y-2">
             <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-              {t('counterOfferModal.itemsHeader', 'Scope Boundaries & Fixtures')}
+              {t('product.counterOfferModal.itemsHeader', 'Scope Boundaries & Fixtures')}
             </h4>
             <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
               {scopeList
@@ -109,7 +109,7 @@ export default function ClientCounterOfferModal({
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-bold text-slate-900 dark:text-slate-100">{item.title}</span>
                           <span className="text-[10px] font-bold bg-indigo-100 dark:bg-indigo-950 text-indigo-900 dark:text-indigo-300 px-1.5 py-0.2 rounded">
-                            + {t('counterOfferModal.addonTag', 'Optional Add-On')}
+                            + {t('product.counterOfferModal.addonTag', 'Optional Add-On')}
                           </span>
                         </div>
                         <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">{item.description}</p>
@@ -163,12 +163,12 @@ export default function ClientCounterOfferModal({
           {/* Notes Textarea */}
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-              {t('counterOfferModal.notesLabel', 'Counter-Offer Details & Proposed Revisions')}
+              {t('product.counterOfferModal.notesLabel', 'Counter-Offer Details & Proposed Revisions')}
             </label>
             <textarea
               rows={3}
               required
-              placeholder={t('counterOfferModal.notesPlaceholder', 'e.g. Please include 2 ADA commercial sinks and all fixtures. We will provide our own site dumpsters.')}
+              placeholder={t('product.counterOfferModal.notesPlaceholder', 'e.g. Please include 2 ADA commercial sinks and all fixtures. We will provide our own site dumpsters.')}
               value={counterNotes}
               onChange={(e) => setCounterNotes(e.target.value)}
               className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none"
@@ -179,12 +179,12 @@ export default function ClientCounterOfferModal({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                {t('counterOfferModal.nameLabel', 'Your Name')}
+                {t('product.counterOfferModal.nameLabel', 'Your Name')}
               </label>
               <input
                 type="text"
                 required
-                placeholder={t('counterOfferModal.namePlaceholder', 'Full Name')}
+                placeholder={t('product.counterOfferModal.namePlaceholder', 'Full Name')}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none"
@@ -192,12 +192,12 @@ export default function ClientCounterOfferModal({
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                {t('counterOfferModal.emailLabel', 'Your Contact Email')}
+                {t('product.counterOfferModal.emailLabel', 'Your Contact Email')}
               </label>
               <input
                 type="email"
                 required
-                placeholder={t('counterOfferModal.emailPlaceholder', 'client@company.com')}
+                placeholder={t('product.counterOfferModal.emailPlaceholder', 'client@company.com')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none"
@@ -220,7 +220,7 @@ export default function ClientCounterOfferModal({
               disabled={submitting || !counterNotes.trim()}
               className="px-5 py-2 text-xs font-bold bg-amber-400 hover:bg-amber-500 text-slate-950 border border-amber-500 rounded-xl shadow-md transition cursor-pointer disabled:opacity-50"
             >
-              {submitting ? t('counterOfferModal.submitting', 'Submitting...') : t('counterOfferModal.submitBtn', 'Send Scope Counter-Offer')}
+              {submitting ? t('product.counterOfferModal.submitting', 'Submitting...') : t('product.counterOfferModal.submitBtn', 'Send Scope Counter-Offer')}
             </button>
           </div>
         </form>

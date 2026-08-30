@@ -3,9 +3,9 @@ import { useTranslation } from '@/core/components/context/I18nContext';
 export default function Stepper({ step, onStepClick, isAwarded = false }) {
   const { t } = useTranslation();
   const steps = [
-    { id: 1, label: t('stepper.step1Label') },
-    { id: 2, label: t('stepper.step2Label') },
-    { id: 3, label: t('stepper.step3Label') },
+    { id: 1, label: t('product.stepper.step1Label') },
+    { id: 2, label: t('product.stepper.step2Label') },
+    { id: 3, label: t('product.stepper.step3Label') },
   ];
 
   return (
@@ -22,7 +22,7 @@ export default function Stepper({ step, onStepClick, isAwarded = false }) {
               disabled={isDisabled}
               title={
                 isStepLocked
-                  ? t('stepper.stepLockedMessage', { label: s.label })
+                  ? t('product.stepper.stepLockedMessage', { label: s.label })
                   : undefined
               }
               className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors
@@ -51,7 +51,7 @@ export default function Stepper({ step, onStepClick, isAwarded = false }) {
                 {isStepLocked ? '🔒' : s.id}
               </span>
               <span className="hidden sm:inline">{s.label}</span>
-              {isStepLocked && <span className="text-[10px] text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/60 px-1.5 py-0.2 rounded-full font-semibold hidden sm:inline">{t('stepper.lockedBadge')}</span>}
+              {isStepLocked && <span className="text-[10px] text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/60 px-1.5 py-0.2 rounded-full font-semibold hidden sm:inline">{t('product.stepper.lockedBadge')}</span>}
             </button>
             {idx < steps.length - 1 && <div className="w-6 sm:w-10 h-px bg-slate-300 dark:bg-slate-700" />}
           </div>

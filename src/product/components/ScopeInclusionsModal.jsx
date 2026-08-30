@@ -116,7 +116,7 @@ export default function ScopeInclusionsModal({
       setSelectedPresetId(created.id);
       setShowSavePresetInput(false);
       setPresetNameInput('');
-      setPresetFeedback(t('scopeModal.presetSaved', 'Preset saved successfully!'));
+      setPresetFeedback(t('product.scopeModal.presetSaved', 'Preset saved successfully!'));
       setTimeout(() => setPresetFeedback(''), 3000);
     }
   };
@@ -127,7 +127,7 @@ export default function ScopeInclusionsModal({
     const found = presets.find((p) => p.id === presetId);
     if (found && Array.isArray(found.items)) {
       applyItemChanges(() => JSON.parse(JSON.stringify(found.items)));
-      setPresetFeedback(t('scopeModal.presetLoaded', 'Preset applied!'));
+      setPresetFeedback(t('product.scopeModal.presetLoaded', 'Preset applied!'));
       setTimeout(() => setPresetFeedback(''), 3000);
     }
   };
@@ -139,14 +139,14 @@ export default function ScopeInclusionsModal({
     if (selectedPresetId === presetId) {
       setSelectedPresetId('');
     }
-    setPresetFeedback(t('scopeModal.presetDeleted', 'Preset removed.'));
+    setPresetFeedback(t('product.scopeModal.presetDeleted', 'Preset removed.'));
     setTimeout(() => setPresetFeedback(''), 3000);
   };
 
   const handleResetToDefault = () => {
     applyItemChanges(() => JSON.parse(JSON.stringify(DEFAULT_SCOPE_ITEMS)));
     setSelectedPresetId('');
-    setPresetFeedback(t('scopeModal.resetApplied', 'Reset to defaults.'));
+    setPresetFeedback(t('product.scopeModal.resetApplied', 'Reset to defaults.'));
     setTimeout(() => setPresetFeedback(''), 3000);
   };
 
@@ -162,19 +162,19 @@ export default function ScopeInclusionsModal({
   const metricsBadges = (
     <div className="flex flex-wrap items-center gap-1.5 text-xs">
       <span className="px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-200 dark:border-emerald-800">
-        ✓ {includedCount} {t('scopeModal.included', 'Included')}
+        ✓ {includedCount} {t('product.scopeModal.included', 'Included')}
       </span>
       <span className="px-2.5 py-1 rounded-full bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 font-bold border border-rose-200 dark:border-rose-800">
-        ✕ {excludedCount} {t('scopeModal.excluded', 'Excluded')}
+        ✕ {excludedCount} {t('product.scopeModal.excluded', 'Excluded')}
       </span>
       {addonsCount > 0 && (
         <span className="px-2.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 font-bold border border-indigo-200 dark:border-indigo-800">
-          + {addonsCount} {t('scopeModal.alternate', 'Alternates')}
+          + {addonsCount} {t('product.scopeModal.alternate', 'Alternates')}
         </span>
       )}
       {naCount > 0 && (
         <span className="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold border border-slate-200 dark:border-slate-700">
-          — {naCount} {t('scopeModal.na', 'N/A')}
+          — {naCount} {t('product.scopeModal.na', 'N/A')}
         </span>
       )}
     </div>
@@ -187,14 +187,14 @@ export default function ScopeInclusionsModal({
           <div className="py-2.5 px-3.5 my-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/80 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2.5 text-xs">
             <div className="flex flex-wrap items-center gap-2">
               <span className="font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1">
-                💾 {t('scopeModal.presetsLabel', 'Presets')}:
+                💾 {t('product.scopeModal.presetsLabel', 'Presets')}:
               </span>
               <select
                 value={selectedPresetId}
                 onChange={(e) => handleApplyPreset(e.target.value)}
                 className="px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 font-medium cursor-pointer"
               >
-                <option value="">{t('scopeModal.selectPreset', '-- Select Preset Template --')}</option>
+                <option value="">{t('product.scopeModal.selectPreset', '-- Select Preset Template --')}</option>
                 {presets.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.name} ({p.items?.length || 0} items)
@@ -207,7 +207,7 @@ export default function ScopeInclusionsModal({
                   type="button"
                   onClick={(e) => handleDeletePreset(selectedPresetId, e)}
                   className="px-2 py-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition cursor-pointer font-bold"
-                  title={t('scopeModal.deletePresetTooltip', 'Delete this preset')}
+                  title={t('product.scopeModal.deletePresetTooltip', 'Delete this preset')}
                 >
                   ✕ {t('common.delete')}
                 </button>
@@ -218,7 +218,7 @@ export default function ScopeInclusionsModal({
                 onClick={handleResetToDefault}
                 className="px-2.5 py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-xl font-medium transition cursor-pointer"
               >
-                ↺ {t('scopeModal.btnResetDefault', 'Reset Defaults')}
+                ↺ {t('product.scopeModal.btnResetDefault', 'Reset Defaults')}
               </button>
             </div>
 
@@ -229,14 +229,14 @@ export default function ScopeInclusionsModal({
                   onClick={() => setShowSavePresetInput(true)}
                   className="px-3 py-1.5 bg-amber-400 dark:bg-amber-500 hover:bg-amber-500 dark:hover:bg-amber-600 text-slate-950 font-bold rounded-xl shadow-xs transition cursor-pointer"
                 >
-                  + {t('scopeModal.btnSaveAsPreset', 'Save as Preset')}
+                  + {t('product.scopeModal.btnSaveAsPreset', 'Save as Preset')}
                 </button>
               ) : (
                 <form onSubmit={handleSavePreset} className="flex items-center gap-1.5">
                   <input
                     type="text"
                     autoFocus
-                    placeholder={t('scopeModal.presetNamePlaceholder', 'Preset name (e.g. Turnkey Civil Scope)...')}
+                    placeholder={t('product.scopeModal.presetNamePlaceholder', 'Preset name (e.g. Turnkey Civil Scope)...')}
                     value={presetNameInput}
                     onChange={(e) => setPresetNameInput(e.target.value)}
                     className="px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none"
@@ -282,7 +282,7 @@ export default function ScopeInclusionsModal({
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
-            {t('scopeModal.catAll', 'All Items')} ({items.length})
+            {t('product.scopeModal.catAll', 'All Items')} ({items.length})
           </button>
           <button
             type="button"
@@ -293,7 +293,7 @@ export default function ScopeInclusionsModal({
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
-            🚽 {t('scopeModal.catFixtures', 'Fixtures (Toilets, Sinks, Faucets)')}
+            🚽 {t('product.scopeModal.catFixtures', 'Fixtures (Toilets, Sinks, Faucets)')}
           </button>
           <button
             type="button"
@@ -304,7 +304,7 @@ export default function ScopeInclusionsModal({
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
-            🚜 {t('scopeModal.catSite', 'Site & Trench Earthwork')}
+            🚜 {t('product.scopeModal.catSite', 'Site & Trench Earthwork')}
           </button>
           <button
             type="button"
@@ -315,7 +315,7 @@ export default function ScopeInclusionsModal({
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
-            📋 {t('scopeModal.catAdmin', 'Permits & Testing')}
+            📋 {t('product.scopeModal.catAdmin', 'Permits & Testing')}
           </button>
           <button
             type="button"
@@ -326,7 +326,7 @@ export default function ScopeInclusionsModal({
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
-            📦 {t('scopeModal.catMisc', 'Miscellaneous & Other')}
+            📦 {t('product.scopeModal.catMisc', 'Miscellaneous & Other')}
           </button>
         </div>
 
@@ -371,7 +371,7 @@ export default function ScopeInclusionsModal({
                   {isAddon && (
                     <div className="flex items-center gap-2 pt-1.5">
                       <span className="text-[11px] font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wide">
-                        {t('scopeModal.addonPriceLabel', 'Add-on price')}
+                        {t('product.scopeModal.addonPriceLabel', 'Add-on price')}
                       </span>
                       <div className="inline-flex rounded-lg border border-indigo-200 dark:border-indigo-800 overflow-hidden shrink-0">
                         <button
@@ -421,7 +421,7 @@ export default function ScopeInclusionsModal({
                         : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
                     }`}
                   >
-                    ✓ {t('scopeModal.btnIncluded', 'Include')}
+                    ✓ {t('product.scopeModal.btnIncluded', 'Include')}
                   </button>
 
                   <button
@@ -434,7 +434,7 @@ export default function ScopeInclusionsModal({
                         : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
                     }`}
                   >
-                    ✕ {t('scopeModal.btnExcluded', 'Exclude')}
+                    ✕ {t('product.scopeModal.btnExcluded', 'Exclude')}
                   </button>
 
                   <button
@@ -447,7 +447,7 @@ export default function ScopeInclusionsModal({
                         : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
                     }`}
                   >
-                    + {t('scopeModal.btnAddon', 'Add-On')}
+                    + {t('product.scopeModal.btnAddon', 'Add-On')}
                   </button>
 
                   <button
@@ -460,7 +460,7 @@ export default function ScopeInclusionsModal({
                         : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
                     }`}
                   >
-                    — {t('scopeModal.btnNA', 'N/A')}
+                    — {t('product.scopeModal.btnNA', 'N/A')}
                   </button>
 
                   {!item.isStandard && !readOnly && (
@@ -485,7 +485,7 @@ export default function ScopeInclusionsModal({
             <div className="flex flex-col sm:flex-row gap-2">
               <input
                 type="text"
-                placeholder={t('scopeModal.customTitlePlaceholder', 'Item title (e.g., ADA Sink Carriers, Trench Dewatering)')}
+                placeholder={t('product.scopeModal.customTitlePlaceholder', 'Item title (e.g., ADA Sink Carriers, Trench Dewatering)')}
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
                 className="flex-1 text-xs px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none"
@@ -504,7 +504,7 @@ export default function ScopeInclusionsModal({
             <div className="flex flex-col sm:flex-row gap-2">
               <input
                 type="text"
-                placeholder={t('scopeModal.customDescPlaceholder', 'Item description / spec notes (e.g., Owner furnishes, contractor installs per drawing P-102)...')}
+                placeholder={t('product.scopeModal.customDescPlaceholder', 'Item description / spec notes (e.g., Owner furnishes, contractor installs per drawing P-102)...')}
                 value={newDesc}
                 onChange={(e) => setNewDesc(e.target.value)}
                 className="flex-1 text-xs px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none"
@@ -514,7 +514,7 @@ export default function ScopeInclusionsModal({
                 disabled={!newTitle.trim()}
                 className="px-4 py-2 bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition cursor-pointer shrink-0"
               >
-                + {t('scopeModal.addCustomBtn', 'Add Item')}
+                + {t('product.scopeModal.addCustomBtn', 'Add Item')}
               </button>
             </div>
           </form>
@@ -524,7 +524,7 @@ export default function ScopeInclusionsModal({
         <div className="pt-3 mt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
           {isPanel ? (
             <span className="text-[11px] text-slate-400 dark:text-slate-500">
-              {t('scopeModal.autoAppliedHint', 'Changes apply to this project\u2019s proposal.')}
+              {t('product.scopeModal.autoAppliedHint', 'Changes apply to this project\u2019s proposal.')}
             </span>
           ) : (
             <button
@@ -554,10 +554,10 @@ export default function ScopeInclusionsModal({
             </div>
             <div className="min-w-0">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white leading-snug truncate">
-                {t('scopeModal.title', 'Scope Inclusions & Exclusions')}
+                {t('product.scopeModal.title', 'Scope Inclusions & Exclusions')}
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate hidden sm:block">
-                {t('scopeModal.subtitle', 'Configure trade boundaries, fixture provisions, add-ons, and exclusions.')}
+                {t('product.scopeModal.subtitle', 'Configure trade boundaries, fixture provisions, add-ons, and exclusions.')}
               </p>
             </div>
           </div>
@@ -603,10 +603,10 @@ export default function ScopeInclusionsModal({
             </div>
             <div>
               <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-snug">
-                {t('scopeModal.title', 'Scope Inclusions & Exclusions')}
+                {t('product.scopeModal.title', 'Scope Inclusions & Exclusions')}
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                {t('scopeModal.subtitle', 'Configure trade boundaries, fixture provisions, add-ons, and exclusions.')}
+                {t('product.scopeModal.subtitle', 'Configure trade boundaries, fixture provisions, add-ons, and exclusions.')}
               </p>
             </div>
           </div>
@@ -629,10 +629,10 @@ function SavedConfirmModal({ t, onDismiss }) {
           ✓
         </div>
         <h3 className="text-base font-bold text-slate-900 dark:text-white mt-4">
-          {t('scopeModal.savedConfirmTitle', 'Saved Successfully')}
+          {t('product.scopeModal.savedConfirmTitle', 'Saved Successfully')}
         </h3>
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
-          {t('scopeModal.savedConfirmDesc', 'Your scope inclusions and exclusions have been saved and applied to this project.')}
+          {t('product.scopeModal.savedConfirmDesc', 'Your scope inclusions and exclusions have been saved and applied to this project.')}
         </p>
         <button
           type="button"

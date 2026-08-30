@@ -13,27 +13,27 @@ export default function StandardEstimateDocument({ estimate, branding, currentPr
 
   return (
     <div className="space-y-6">
-      <DocumentBrandingHeader branding={branding} title={t('templates.standardEstimate.title')} project={currentProject} />
+      <DocumentBrandingHeader branding={branding} title={t('product.templates.standardEstimate.title')} project={currentProject} />
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
-          <span className="text-[10px] font-bold uppercase text-slate-400">{t('templates.standardEstimate.totalDirect')}</span>
+          <span className="text-[10px] font-bold uppercase text-slate-400">{t('product.templates.standardEstimate.totalDirect')}</span>
           <p className="text-base font-bold text-slate-900">{formatCurrency(totals.totalDirectCost)}</p>
         </div>
         <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
-          <span className="text-[10px] font-bold uppercase text-slate-400">{t('templates.standardEstimate.laborHours')}</span>
+          <span className="text-[10px] font-bold uppercase text-slate-400">{t('product.templates.standardEstimate.laborHours')}</span>
           <p className="text-base font-bold text-slate-900">
-            {t('templates.standardEstimate.laborHoursUnit', { hours: formatNumber(totals.totalLaborHours) })}
+            {t('product.templates.standardEstimate.laborHoursUnit', { hours: formatNumber(totals.totalLaborHours) })}
           </p>
         </div>
         <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
-          <span className="text-[10px] font-bold uppercase text-slate-400">{t('templates.standardEstimate.markupAndCont')}</span>
+          <span className="text-[10px] font-bold uppercase text-slate-400">{t('product.templates.standardEstimate.markupAndCont')}</span>
           <p className="text-base font-bold text-slate-900">
             {formatCurrency(totals.overheadCost + totals.profitAmount + totals.contingencyCost)}
           </p>
         </div>
         <div className="p-3 bg-indigo-50 border border-indigo-200 rounded-xl">
-          <span className="text-[10px] font-bold uppercase text-indigo-500">{t('templates.standardEstimate.totalBidAmount')}</span>
+          <span className="text-[10px] font-bold uppercase text-indigo-500">{t('product.templates.standardEstimate.totalBidAmount')}</span>
           <p className="text-base font-bold text-indigo-700">{formatCurrency(totals.finalBidAmount)}</p>
         </div>
       </div>
@@ -48,14 +48,14 @@ export default function StandardEstimateDocument({ estimate, branding, currentPr
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 text-slate-500 border-b border-slate-200">
                 <tr>
-                  <th className="p-2.5">{t('templates.standardEstimate.colDescription')}</th>
-                  <th className="p-2.5">{t('templates.standardEstimate.colSpec')}</th>
-                  <th className="p-2.5 text-right">{t('templates.standardEstimate.colQty')}</th>
-                  <th className="p-2.5">{t('templates.standardEstimate.colUnit')}</th>
-                  <th className="p-2.5 text-right">{t('templates.standardEstimate.colMaterial')}</th>
-                  <th className="p-2.5 text-right">{t('templates.standardEstimate.colLaborHrs')}</th>
-                  <th className="p-2.5 text-right">{t('templates.standardEstimate.colLaborCost')}</th>
-                  <th className="p-2.5 text-right">{t('templates.standardEstimate.colLineTotal')}</th>
+                  <th className="p-2.5">{t('product.templates.standardEstimate.colDescription')}</th>
+                  <th className="p-2.5">{t('product.templates.standardEstimate.colSpec')}</th>
+                  <th className="p-2.5 text-right">{t('product.templates.standardEstimate.colQty')}</th>
+                  <th className="p-2.5">{t('product.templates.standardEstimate.colUnit')}</th>
+                  <th className="p-2.5 text-right">{t('product.templates.standardEstimate.colMaterial')}</th>
+                  <th className="p-2.5 text-right">{t('product.templates.standardEstimate.colLaborHrs')}</th>
+                  <th className="p-2.5 text-right">{t('product.templates.standardEstimate.colLaborCost')}</th>
+                  <th className="p-2.5 text-right">{t('product.templates.standardEstimate.colLineTotal')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">

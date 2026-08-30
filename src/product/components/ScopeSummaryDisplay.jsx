@@ -26,11 +26,11 @@ export default function ScopeSummaryDisplay({ scopeItems, className = '', forceL
   return (
     <div className={lightSafe(`pt-6 border-t border-slate-200 dark:border-slate-800 ${className}`, forceLight)}>
       <h3 className={lightSafe('text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wide mb-3 flex items-center gap-2', forceLight)}>
-        <span>⚖️</span> {t('scopeSummary.title', 'Scope of Work: Inclusions & Exclusions')}
+        <span>⚖️</span> {t('product.scopeSummary.title', 'Scope of Work: Inclusions & Exclusions')}
       </h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <ScopeColumn
-          heading={t('scopeSummary.includedHeader', 'Included by Contractor')}
+          heading={t('product.scopeSummary.includedHeader', 'Included by Contractor')}
           icon="✓"
           items={included}
           colorClasses="bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800/60 text-emerald-950 dark:text-emerald-100"
@@ -39,7 +39,7 @@ export default function ScopeSummaryDisplay({ scopeItems, className = '', forceL
           forceLight={forceLight}
         />
         <ScopeColumn
-          heading={t('scopeSummary.excludedHeader', 'Excluded (By Owner / Others)')}
+          heading={t('product.scopeSummary.excludedHeader', 'Excluded (By Owner / Others)')}
           icon="✕"
           items={excluded}
           colorClasses="bg-rose-50/70 dark:bg-rose-950/30 border-rose-200 dark:border-rose-800/60 text-rose-950 dark:text-rose-100"
@@ -48,7 +48,7 @@ export default function ScopeSummaryDisplay({ scopeItems, className = '', forceL
           forceLight={forceLight}
         />
         <ScopeColumn
-          heading={t('scopeSummary.addonsHeader', 'Optional Add-Ons / Alternates')}
+          heading={t('product.scopeSummary.addonsHeader', 'Optional Add-Ons / Alternates')}
           icon="+"
           items={optionalAddons}
           colorClasses="bg-indigo-50/70 dark:bg-indigo-950/30 border-indigo-200 dark:border-indigo-800/60 text-indigo-950 dark:text-indigo-100"
