@@ -187,7 +187,7 @@ export default function UploadStep({ onItemsParsed }) {
         </button>
         <span className="text-slate-300 dark:text-slate-700">|</span>
         <a
-          href={`${import.meta.env.BASE_URL}sample_edge_cases_takeoff.csv`}
+          href={`${import.meta.env.BASE_URL}product/samples/sample_edge_cases_takeoff.csv`}
           download="sample_edge_cases_takeoff.csv"
           className="font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline"
         >
@@ -195,7 +195,7 @@ export default function UploadStep({ onItemsParsed }) {
         </a>
         <span className="text-slate-300 dark:text-slate-700">|</span>
         <a
-          href={`${import.meta.env.BASE_URL}sample_bluebeam_takeoff.csv`}
+          href={`${import.meta.env.BASE_URL}product/samples/sample_bluebeam_takeoff.csv`}
           download="sample_bluebeam_takeoff.csv"
           className="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline"
         >
@@ -203,7 +203,7 @@ export default function UploadStep({ onItemsParsed }) {
         </a>
         <span className="text-slate-300 dark:text-slate-700">|</span>
         <a
-          href={`${import.meta.env.BASE_URL}sample_planswift_takeoff.csv`}
+          href={`${import.meta.env.BASE_URL}product/samples/sample_planswift_takeoff.csv`}
           download="sample_planswift_takeoff.csv"
           className="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline"
         >
@@ -211,7 +211,7 @@ export default function UploadStep({ onItemsParsed }) {
         </a>
         <span className="text-slate-300 dark:text-slate-700">|</span>
         <a
-          href={`${import.meta.env.BASE_URL}sample_trimble_agtek_takeoff.csv`}
+          href={`${import.meta.env.BASE_URL}product/samples/sample_trimble_agtek_takeoff.csv`}
           download="sample_trimble_agtek_takeoff.csv"
           className="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline"
         >

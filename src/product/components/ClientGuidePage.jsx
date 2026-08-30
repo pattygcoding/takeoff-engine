@@ -256,10 +256,11 @@ export default function ClientGuidePage() {
       setLoading(true);
       try {
         const langCode = ['es', 'fr', 'pt'].includes(language) ? language : 'en';
-        const res = await fetch(`${import.meta.env.BASE_URL}CLIENT_GUIDE.${langCode}.md`);
+        const guideBase = `${import.meta.env.BASE_URL}product/clientguide/`;
+        const res = await fetch(`${guideBase}CLIENT_GUIDE.${langCode}.md`);
         if (!res.ok) {
           // Fallback to en
-          const fallbackRes = await fetch(`${import.meta.env.BASE_URL}CLIENT_GUIDE.en.md`);
+          const fallbackRes = await fetch(`${guideBase}CLIENT_GUIDE.en.md`);
           if (!fallbackRes.ok) throw new Error('Failed to load CLIENT_GUIDE');
           const fallbackText = await fallbackRes.text();
           setMarkdown(fallbackText);
