@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { organizationsApi } from '@/lib/auth/organizations';
-import { billingApi } from '@/lib/billing/billing';
+import { organizationsApi } from '@/core/lib/auth/organizations';
+import { billingApi } from '@/core/lib/billing/billing';
 import { useAuth } from '@/context/AuthContext';
 import { useModal } from '@/context/ModalContext';
 import { useTranslation } from '@/context/I18nContext';

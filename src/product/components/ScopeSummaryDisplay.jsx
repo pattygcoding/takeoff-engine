@@ -1,4 +1,4 @@
-import { categorizeScope, DEFAULT_SCOPE_ITEMS, formatScopeAddonImpact } from '@/lib/product/scope';
+import { categorizeScope, DEFAULT_SCOPE_ITEMS, formatScopeAddonImpact } from '@/product/lib/scope';
 import { useTranslation } from '@/context/I18nContext';
 
 // Drops dark: variants so printable/exported PDF documents always render light, regardless of the app's theme.

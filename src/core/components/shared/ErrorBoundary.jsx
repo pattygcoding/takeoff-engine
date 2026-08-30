@@ -1,5 +1,5 @@
 import React from 'react';
-import { getTranslation } from '@/lib/shared/i18n';
+import { getTranslation } from '@/core/lib/shared/i18n';
 
 export default class ErrorBoundary extends React.Component {
   constructor(props) {

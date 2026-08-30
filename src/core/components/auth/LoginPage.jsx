@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { authApi } from '@/lib/auth/auth';
-import { billingApi } from '@/lib/billing/billing';
-import { openPaddleCheckout } from '@/lib/billing/paddle';
+import { authApi } from '@/core/lib/auth/auth';
+import { billingApi } from '@/core/lib/billing/billing';
+import { openPaddleCheckout } from '@/core/lib/billing/paddle';
 import { useTranslation } from '@/context/I18nContext';
 import SeoHead from '@/core/components/shared/SeoHead';
 

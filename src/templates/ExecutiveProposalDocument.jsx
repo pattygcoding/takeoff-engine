@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatCurrency } from '@/lib/product/calculations';
+import { formatCurrency } from '@/product/lib/calculations';
 import { DocumentBrandingHeader, DocumentSignOff } from './DocumentHeaderSignoff';
 import { useTranslation } from '@/context/I18nContext';
 import ScopeSummaryDisplay from '@/product/components/ScopeSummaryDisplay';

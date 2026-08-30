@@ -1,8 +1,8 @@
 import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { computeEstimate, formatCurrency, formatNumber } from '@/lib/product/calculations';
-import { triggerDownload } from '@/lib/product/csv';
-import { authApi } from '@/lib/auth/auth';
+import { computeEstimate, formatCurrency, formatNumber } from '@/product/lib/calculations';
+import { triggerDownload } from '@/product/lib/csv';
+import { authApi } from '@/core/lib/auth/auth';
 import { useAuth } from '@/context/AuthContext';
 import { useModal } from '@/context/ModalContext';
 import { useTranslation } from '@/context/I18nContext';
@@ -435,7 +435,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
           'formal_contract_agreement',
           'warranty_closeout_cert',
         ].includes(currentFormat.id);
-        const { exportEstimateToWord } = await import('@/lib/product/wordExport');
+        const { exportEstimateToWord } = await import('@/product/lib/wordExport');
         await exportEstimateToWord(estimate, isProposalMode, branding || {}, null, currentFormat.id, currentProject, rates);
       } catch (err) {
         console.error('Word export failed:', err);

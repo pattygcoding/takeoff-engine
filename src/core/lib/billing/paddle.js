@@ -1,5 +1,5 @@
 import { initializePaddle } from '@paddle/paddle-js';
-import { getTranslation } from '@/lib/shared/i18n';
+import { getTranslation } from '@/core/lib/shared/i18n';
 
 let paddleInstance = null;
 let activeEventCallback = null;

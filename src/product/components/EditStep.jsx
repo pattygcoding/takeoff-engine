@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from '@/context/I18nContext';
-import { parseTakeoffFile, buildMappingModalDataFromItems } from '@/lib/product/csv';
-import { DEFAULT_SCOPE_ITEMS, summarizeScope } from '@/lib/product/scope';
+import { parseTakeoffFile, buildMappingModalDataFromItems } from '@/product/lib/csv';
+import { DEFAULT_SCOPE_ITEMS, summarizeScope } from '@/product/lib/scope';
 import TakeoffGrid from './TakeoffGrid';
 import RatesDrawer from './RatesDrawer';
 import ColumnMappingModal from './ColumnMappingModal';

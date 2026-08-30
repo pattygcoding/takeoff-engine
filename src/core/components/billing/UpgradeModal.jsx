@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { billingApi } from '@/lib/billing/billing';
-import { openPaddleCheckout } from '@/lib/billing/paddle';
+import { billingApi } from '@/core/lib/billing/billing';
+import { openPaddleCheckout } from '@/core/lib/billing/paddle';
 import { useAuth } from '@/context/AuthContext';
 import { useModal } from '@/context/ModalContext';
 import { useTranslation } from '@/context/I18nContext';

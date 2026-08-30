@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { authApi } from '@/lib/auth/auth';
-import { billingApi } from '@/lib/billing/billing';
+import { authApi } from '@/core/lib/auth/auth';
+import { billingApi } from '@/core/lib/billing/billing';
 import { useModal } from '@/context/ModalContext';
 import { useTranslation } from '@/context/I18nContext';
 import { useNavigate } from 'react-router-dom';

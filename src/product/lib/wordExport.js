@@ -14,7 +14,7 @@ import {
   ImageRun,
 } from 'docx';
 import { formatCurrency, formatNumber } from './calculations';
-import { getTranslation } from '@/lib/shared/i18n';
+import { getTranslation } from '@/core/lib/shared/i18n';
 
 const THIN_BORDER = { style: BorderStyle.SINGLE, size: 2, color: 'CBD5E1' };
 const CELL_BORDERS = { top: THIN_BORDER, bottom: THIN_BORDER, left: THIN_BORDER, right: THIN_BORDER };

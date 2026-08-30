@@ -1,4 +1,4 @@
-import { getTranslation } from '@/lib/shared/i18n';
+import { getTranslation } from '@/core/lib/shared/i18n';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 

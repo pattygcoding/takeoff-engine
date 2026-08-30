@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { authApi } from '@/lib/auth/auth';
+import { authApi } from '@/core/lib/auth/auth';
 import { useTranslation } from '@/context/I18nContext';
 
 export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {

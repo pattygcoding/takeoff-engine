@@ -3,8 +3,8 @@
  * Thin adapter calling server-side /api/takeoffs parser endpoints.
  */
 import Papa from 'papaparse';
-import { getTranslation } from '@/lib/shared/i18n.js';
-import { takeoffsApi } from '@/lib/product/takeoffs.js';
+import { getTranslation } from '@/core/lib/shared/i18n.js';
+import { takeoffsApi } from '@/product/lib/takeoffs.js';
 import {
   CSV_COLUMNS,
   TARGET_FIELDS,

@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { downloadSampleCsv, downloadSampleExcel, parseTakeoffFile } from '@/lib/product/csv';
+import { downloadSampleCsv, downloadSampleExcel, parseTakeoffFile } from '@/product/lib/csv';
 import { useTranslation } from '@/context/I18nContext';
 import ColumnMappingModal from './ColumnMappingModal';
 

@@ -6,7 +6,7 @@ import {
   deleteVendorPreset,
   getSavedVendorPresets,
   extractHeadersAndRowsAtHeaderRow,
-} from '@/lib/product/csv';
+} from '@/product/lib/csv';
 import { useTranslation } from '@/context/I18nContext';
 import { useModal } from '@/context/ModalContext';
 

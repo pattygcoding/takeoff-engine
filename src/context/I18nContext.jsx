@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useMemo, useCallback, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { getTranslation, i18n, SUPPORTED_LANGUAGES } from '@/lib/shared/i18n';
+import { getTranslation, i18n, SUPPORTED_LANGUAGES } from '@/core/lib/shared/i18n';
 
 const I18nContext = createContext({
   t: (key, params) => key,

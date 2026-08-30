@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { adminApi } from '@/lib/admin/admin';
-import { formatCurrency, formatNumber } from '@/lib/product/calculations';
+import { adminApi } from '@/core/lib/admin/admin';
+import { formatCurrency, formatNumber } from '@/product/lib/calculations';
 import { useAuth } from '@/context/AuthContext';
 import { useModal } from '@/context/ModalContext';
 import { useNavigate } from 'react-router-dom';

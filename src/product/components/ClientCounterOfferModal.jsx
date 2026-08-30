@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SCOPE_STATUS, DEFAULT_SCOPE_ITEMS, categorizeScope, formatScopeAddonImpact } from '@/lib/product/scope';
+import { SCOPE_STATUS, DEFAULT_SCOPE_ITEMS, categorizeScope, formatScopeAddonImpact } from '@/product/lib/scope';
 import { useTranslation } from '@/context/I18nContext';
 
 export default function ClientCounterOfferModal({

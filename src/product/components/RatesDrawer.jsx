@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ratesApi } from '@/lib/product/rates';
+import { ratesApi } from '@/product/lib/rates';
 import { useAuth } from '@/context/AuthContext';
 import { useModal } from '@/context/ModalContext';
 import { useTranslation } from '@/context/I18nContext';
@@ -8,8 +8,8 @@ import {
   DEFAULT_LABOR_ROLES,
   DEFAULT_EQUIPMENT_CATALOG,
 } from '@/constants/calculations.constants';
-import { calculationsApi } from '@/lib/product/calculations';
-import { DEFAULT_SCOPE_ITEMS, summarizeScope } from '@/lib/product/scope';
+import { calculationsApi } from '@/product/lib/calculations';
+import { DEFAULT_SCOPE_ITEMS, summarizeScope } from '@/product/lib/scope';
 import ScopeInclusionsModal from '@/product/components/ScopeInclusionsModal';
 import UpgradeModal from '@/core/components/billing/UpgradeModal';
 

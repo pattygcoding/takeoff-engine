@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { calculationsApi, formatCurrency, formatNumber } from '@/lib/product/calculations';
-import { triggerDownload } from '@/lib/product/csv';
-import { projectsApi } from '@/lib/product/projects';
-import { proposalsApi } from '@/lib/product/proposals';
-import { authApi } from '@/lib/auth/auth';
+import { calculationsApi, formatCurrency, formatNumber } from '@/product/lib/calculations';
+import { triggerDownload } from '@/product/lib/csv';
+import { projectsApi } from '@/product/lib/projects';
+import { proposalsApi } from '@/product/lib/proposals';
+import { authApi } from '@/core/lib/auth/auth';
 import { useAuth } from '@/context/AuthContext';
 import { useModal } from '@/context/ModalContext';
 import { useTranslation } from '@/context/I18nContext';

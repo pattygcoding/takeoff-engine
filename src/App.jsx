@@ -27,9 +27,9 @@ import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { ModalProvider } from '@/context/ModalContext';
 import { I18nProvider } from '@/context/I18nContext';
 import { ThemeProvider } from '@/context/ThemeContext';
-import { DEFAULT_RATES } from '@/lib/product/calculations';
-import { useLocalStorageState } from '@/lib/shared/useLocalStorageState';
-import { projectsApi } from '@/lib/product/projects';
+import { DEFAULT_RATES } from '@/product/lib/calculations';
+import { useLocalStorageState } from '@/core/lib/shared/useLocalStorageState';
+import { projectsApi } from '@/product/lib/projects';
 
 function UserWorkspace({ items, setItems, rates, setRates, currentProject, setCurrentProject }) {
   const { username } = useParams();

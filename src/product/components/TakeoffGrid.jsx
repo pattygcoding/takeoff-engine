@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
-import { createBlankItem } from '@/lib/product/csv';
+import { createBlankItem } from '@/product/lib/csv';
 import { useTranslation } from '@/context/I18nContext';
-import { calculationsApi } from '@/lib/product/calculations';
+import { calculationsApi } from '@/product/lib/calculations';
 import {
   DEFAULT_EQUIPMENT_CATALOG,
   DEFAULT_WORKDAY_HOURS,

@@ -4,7 +4,7 @@ import Stepper from './Stepper';
 import EditStep from './EditStep';
 import ResultsStep from './ResultsStep';
 import ExportHubPage from './ExportHubPage';
-import { projectsApi } from '@/lib/product/projects';
+import { projectsApi } from '@/product/lib/projects';
 import { useTranslation } from '@/context/I18nContext';
 
 export default function ProjectWorkspace({

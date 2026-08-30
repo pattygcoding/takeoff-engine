@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { proposalsApi } from '@/lib/product/proposals';
-import { formatCurrency, formatNumber, computeEstimate } from '@/lib/product/calculations';
+import { proposalsApi } from '@/product/lib/proposals';
+import { formatCurrency, formatNumber, computeEstimate } from '@/product/lib/calculations';
 import { useModal } from '@/context/ModalContext';
 import { useTranslation } from '@/context/I18nContext';
 import LanguageSelector from '@/core/components/shared/LanguageSelector';
