@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
-import { useModal } from '@/context/ModalContext';
-import { useTranslation } from '@/context/I18nContext';
+import { useAuth } from '@/core/components/context/AuthContext';
+import { useModal } from '@/core/components/context/ModalContext';
+import { useTranslation } from '@/core/components/context/I18nContext';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 

@@ -1,4 +1,10 @@
 {
+  "core": {
+
+  },
+  "product": {
+
+  },
   "common": {
     "loading": "Loading...",
     "error": "Error",

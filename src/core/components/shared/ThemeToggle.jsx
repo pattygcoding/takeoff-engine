@@ -1,6 +1,6 @@
 import React from 'react';
-import { useTheme } from '@/context/ThemeContext';
-import { useTranslation } from '@/context/I18nContext';
+import { useTheme } from '@/core/components/context/ThemeContext';
+import { useTranslation } from '@/core/components/context/I18nContext';
 
 export default function ThemeToggle({ className = '', variant = 'header' }) {
   const { isDark, toggleTheme } = useTheme();

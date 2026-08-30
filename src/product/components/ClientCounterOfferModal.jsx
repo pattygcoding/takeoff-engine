@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { SCOPE_STATUS, DEFAULT_SCOPE_ITEMS, categorizeScope, formatScopeAddonImpact } from '@/product/lib/scope';
-import { useTranslation } from '@/context/I18nContext';
+import { useTranslation } from '@/core/components/context/I18nContext';
 
 export default function ClientCounterOfferModal({
   currentScope = DEFAULT_SCOPE_ITEMS,

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useTranslation } from '@/context/I18nContext';
+import { useTranslation } from '@/core/components/context/I18nContext';
 
 export const LANGUAGES = [
   {

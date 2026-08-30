@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useTranslation } from '@/context/I18nContext';
+import { useTranslation } from '@/core/components/context/I18nContext';
 import { parseTakeoffFile, buildMappingModalDataFromItems } from '@/product/lib/csv';
 import { DEFAULT_SCOPE_ITEMS, summarizeScope } from '@/product/lib/scope';
 import TakeoffGrid from './TakeoffGrid';

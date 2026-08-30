@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { adminApi } from '@/core/lib/admin/admin';
 import { formatCurrency, formatNumber } from '@/product/lib/calculations';
-import { useAuth } from '@/context/AuthContext';
-import { useModal } from '@/context/ModalContext';
+import { useAuth } from '@/core/components/context/AuthContext';
+import { useModal } from '@/core/components/context/ModalContext';
 import { useNavigate } from 'react-router-dom';
 
 export default function AdminPortal() {

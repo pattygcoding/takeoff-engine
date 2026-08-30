@@ -1,4 +1,4 @@
-import { useTranslation } from '@/context/I18nContext';
+import { useTranslation } from '@/core/components/context/I18nContext';
 
 export default function Stepper({ step, onStepClick, isAwarded = false }) {
   const { t } = useTranslation();

@@ -7,8 +7,8 @@ import {
   getSavedVendorPresets,
   extractHeadersAndRowsAtHeaderRow,
 } from '@/product/lib/csv';
-import { useTranslation } from '@/context/I18nContext';
-import { useModal } from '@/context/ModalContext';
+import { useTranslation } from '@/core/components/context/I18nContext';
+import { useModal } from '@/core/components/context/ModalContext';
 
 export default function ColumnMappingModal({
   headers: initialHeaders,

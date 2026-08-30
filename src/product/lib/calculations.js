@@ -8,7 +8,7 @@ import {
   DEFAULT_LABOR_ROLES,
   DEFAULT_EQUIPMENT_CATALOG,
   DEFAULT_RATES,
-} from '@/constants/calculations.constants.js';
+} from '@/product/constants/calculations.constants.js';
 
 export {
   DEFAULT_TRENCH_WIDTH_FT,

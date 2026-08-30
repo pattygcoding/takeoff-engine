@@ -12,7 +12,7 @@ import {
   PRESETS_STORAGE_KEY,
   MAX_FILE_SIZE_BYTES,
   MAX_FILE_SIZE_LABEL,
-} from '@/constants/csv.constants.js';
+} from '@/product/constants/csv.constants.js';
 
 export {
   CSV_COLUMNS,

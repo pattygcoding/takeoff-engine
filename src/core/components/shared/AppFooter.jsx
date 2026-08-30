@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useTranslation } from '@/context/I18nContext';
-import { useAuth } from '@/context/AuthContext';
+import { useTranslation } from '@/core/components/context/I18nContext';
+import { useAuth } from '@/core/components/context/AuthContext';
 
 export default function AppFooter() {
   const navigate = useNavigate();

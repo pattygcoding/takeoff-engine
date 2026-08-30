@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTranslation } from '@/context/I18nContext';
+import { useTranslation } from '@/core/components/context/I18nContext';
 
 /**
  * Shared Branding Header for Document Layouts

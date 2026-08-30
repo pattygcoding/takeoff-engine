@@ -6,7 +6,7 @@ import {
   saveScopePreset,
   deleteScopePreset,
 } from '@/product/lib/scope';
-import { useTranslation } from '@/context/I18nContext';
+import { useTranslation } from '@/core/components/context/I18nContext';
 
 export default function ScopeInclusionsModal({
   scopeItems = DEFAULT_SCOPE_ITEMS,

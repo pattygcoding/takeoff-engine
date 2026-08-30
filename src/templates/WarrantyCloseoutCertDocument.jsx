@@ -1,7 +1,7 @@
 import React from 'react';
 import { formatCurrency } from '@/product/lib/calculations';
 import { DocumentSignOff } from './DocumentHeaderSignoff';
-import { useTranslation } from '@/context/I18nContext';
+import { useTranslation } from '@/core/components/context/I18nContext';
 
 /**
  * 17. Substantial Completion & Warranty Certificate Layout

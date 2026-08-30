@@ -1,12 +1,12 @@
 import { useMemo, useState } from 'react';
 import { createBlankItem } from '@/product/lib/csv';
-import { useTranslation } from '@/context/I18nContext';
+import { useTranslation } from '@/core/components/context/I18nContext';
 import { calculationsApi } from '@/product/lib/calculations';
 import {
   DEFAULT_EQUIPMENT_CATALOG,
   DEFAULT_WORKDAY_HOURS,
   DEFAULT_LABOR_ROLES,
-} from '@/constants/calculations.constants';
+} from '@/product/constants/calculations.constants';
 
 const DEFAULT_SYSTEMS = ['Sanitary', 'Storm', 'Domestic Water', 'Equipment & Mobilization'];
 const DEFAULT_UNITS = ['LF', 'EA', 'SF', 'CY', 'SY', 'TON', 'LS', 'HR'];

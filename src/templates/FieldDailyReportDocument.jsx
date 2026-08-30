@@ -1,7 +1,7 @@
 import React from 'react';
 import { formatNumber } from '@/product/lib/calculations';
 import { DocumentBrandingHeader, DocumentSignOff } from './DocumentHeaderSignoff';
-import { useTranslation } from '@/context/I18nContext';
+import { useTranslation } from '@/core/components/context/I18nContext';
 
 /**
  * 16. Field Superintendent QA Log Layout
