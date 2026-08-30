@@ -379,6 +379,7 @@
       "emailManagedBySupabase": "Managed by Supabase Auth security.",
       "phoneNumberLabel": "Phone Number",
       "phoneNumberPlaceholder": "(555) 000-0000",
+      "errValidPhone": "Please enter a valid 10-digit phone number.",
       "savingChanges": "Saving Changes...",
       "saveProfileChanges": "Save Profile Changes",
       "brandingTitle": "Company Branding & Proposal Header",
@@ -490,6 +491,7 @@
       "backToLogIn": "← Back to Log In",
       "errValidEmail": "Please enter a valid email address.",
       "errPasswordMin": "Password must be at least 6 characters long.",
+      "errValidPhone": "Please enter a valid 10-digit phone number.",
       "errLoginFailed": "Login failed",
       "errRegisterFailed": "Registration failed",
       "errResetFailed": "Failed to request reset",
@@ -578,6 +580,7 @@
       "errLoginFailed": "Login failed",
       "errRegisterFailed": "Registration failed",
       "errResetFailed": "Failed to request reset",
+      "errValidPhone": "Please enter a valid 10-digit phone number.",
       "resetLinkSent": "Password reset link sent to your email."
     },
     "acceptInvite": {

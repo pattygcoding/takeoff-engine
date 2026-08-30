@@ -4,6 +4,7 @@ import { formatCurrency, formatNumber } from '@/product/lib/calculations';
 import { useAuth } from '@/core/components/context/AuthContext';
 import { useModal } from '@/core/components/context/ModalContext';
 import { useNavigate } from 'react-router-dom';
+import { isValidPhoneNumber } from '@/core/lib/shared/validators';
 import {
   STARTER_MONTHLY_PRICE,
   PRO_MONTHLY_PRICE,
@@ -443,6 +444,9 @@ export default function AdminPortal() {
       }
       if (userFormData.password.length < 6) {
         throw new Error('Password must be at least 6 characters.');
+      }
+      if (!isValidPhoneNumber(userFormData.phoneNumber)) {
+        throw new Error('Please enter a valid 10-digit phone number.');
       }
 
       const res = await adminApi.createUser({

@@ -5,6 +5,7 @@ import { billingApi } from '@/core/lib/billing/billing';
 import { useModal } from '@/core/components/context/ModalContext';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import { useNavigate } from 'react-router-dom';
+import { isValidPhoneNumber } from '@/core/lib/shared/validators';
 import TeamWorkspaceManager from './TeamWorkspaceManager';
 import UpgradeModal from '@/core/components/billing/UpgradeModal';
 
@@ -211,6 +212,12 @@ export default function AccountSettings() {
     e.preventDefault();
     setProfileErr('');
     setProfileMsg('');
+
+    if (!isValidPhoneNumber(phoneNumber)) {
+      setProfileErr(t('core.accountSettings.errValidPhone'));
+      return;
+    }
+
     setProfileLoading(true);
 
     try {

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '@/core/components/context/AuthContext';
 import { authApi } from '@/core/lib/auth/auth';
 import { useTranslation } from '@/core/components/context/I18nContext';
+import { isValidPhoneNumber } from '@/core/lib/shared/validators';
 
 export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
   const { login, register } = useAuth();
@@ -60,6 +61,12 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
   const handleRegister = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (!isValidPhoneNumber(registerPhone)) {
+      setError(t('core.authModal.errValidPhone'));
+      return;
+    }
+
     setLoading(true);
     try {
       await register({

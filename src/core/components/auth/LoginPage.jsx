@@ -6,6 +6,7 @@ import { billingApi } from '@/core/lib/billing/billing';
 import { openPaddleCheckout } from '@/core/lib/billing/paddle';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import SeoHead from '@/core/components/shared/SeoHead';
+import { isValidPhoneNumber } from '@/core/lib/shared/validators';
 import {
   STARTER_MONTHLY_PRICE,
   PRO_MONTHLY_PRICE,
@@ -97,6 +98,11 @@ export default function LoginPage({ initialView = 'login' }) {
 
     if (registerPassword.length < 6) {
       setError(t('core.loginPage.errPasswordMin'));
+      return;
+    }
+
+    if (!isValidPhoneNumber(registerPhone)) {
+      setError(t('core.loginPage.errValidPhone'));
       return;
     }
 
