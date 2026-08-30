@@ -3,6 +3,7 @@ import time
 import threading
 import sys
 import os
+import re
 from deep_translator import GoogleTranslator
 from copy import deepcopy
 
@@ -71,6 +72,25 @@ def periodic_progress(total, progress_ref, stop_flag):
         print(f"✔️ {progress_ref[0]}/{total} lines translated")
         time.sleep(3)
 
+def translate_text(translator, original):
+    placeholders = re.findall(r"\{\{.*?\}\}", original)
+    if not placeholders:
+        return translator.translate(original)
+
+    masked_text = original
+    for i, ph in enumerate(placeholders):
+        masked_text = masked_text.replace(ph, f"__VAR_{i}__", 1)
+
+    translated = translator.translate(masked_text)
+    if translated:
+        for i, ph in enumerate(placeholders):
+            pattern = re.compile(rf"__\s*VAR\s*_\s*{i}\s*__", re.IGNORECASE)
+            if pattern.search(translated):
+                translated = pattern.sub(ph, translated)
+            else:
+                translated = translated.replace(f"__VAR_{i}__", ph)
+    return translated
+
 def translate_one_by_one(json_data, target_language, existing_translations=None):
     string_paths = collect_string_paths(json_data)
     total = len(string_paths)
@@ -111,7 +131,7 @@ def translate_one_by_one(json_data, target_language, existing_translations=None)
         success = False
         for attempt in range(3):
             try:
-                translated = translator.translate(original)
+                translated = translate_text(translator, original)
                 if translated:
                     set_nested_value(json_data, path, translated)
                 success = True

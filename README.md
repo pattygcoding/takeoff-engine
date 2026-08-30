@@ -82,14 +82,14 @@ The optimized static build is generated in the `dist/` directory.
 ### 4. Locale & Translation Generation
 Generate multilingual locale translation files (`es.json`, `fr.json`, `pt.json`) from `en.json`:
 ```powershell
-# 1. Install deep-translator
+# 1. Install deep-translator (prerequisite Python package)
 pip install deep-translator
 
-# 2. Run the locale generator script
-python src/locales/lang.py
+# 2. Run translation script via npm
+npm run translate
 
 # Optional: To reuse existing translated keys and only translate new additions:
-python src/locales/lang.py -skip
+npm run translate:skip
 ```
 
 ---

@@ -12,6 +12,8 @@
     "build": "infisical run --env=prod -- vite build",
     "build:local": "vite build",
     "test": "vitest run",
+    "translate": "python src/lang/lang.py",
+    "translate:skip": "python src/lang/lang.py --skip",
     "lint": "oxlint",
     "preview": "vite preview",
     "predeploy": "npm run build",
