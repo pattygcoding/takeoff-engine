@@ -1,278 +1,39 @@
 import { useState, useEffect } from 'react';
-import { Navigate, Route, Routes, useNavigate, useParams, Link, useLocation } from 'react-router-dom';
-import Stepper from '@/product/components/Stepper';
-import UploadStep from '@/product/components/UploadStep';
-import ProjectDashboard from '@/product/components/ProjectDashboard';
-import ProjectWorkspace from '@/product/components/ProjectWorkspace';
+import { Navigate, Route, Routes, useNavigate, useLocation } from 'react-router-dom';
+
+// Core Auth & User Components
 import AccountSettings from '@/core/components/auth/AccountSettings';
 import UserMenu from '@/core/components/auth/UserMenu';
 import LoginPage from '@/core/components/auth/LoginPage';
 import PlanOnboardingPage from '@/core/components/billing/PlanOnboardingPage';
+import AcceptInvitePage from '@/core/components/auth/AcceptInvitePage';
+
+// Core Pages & Portals
 import LandingPage from '@/core/components/landing/LandingPage';
-import ClientProposalView from '@/product/components/ClientProposalView';
 import AdminPortal from '@/core/components/admin/AdminPortal';
-import ClientGuidePage from '@/product/components/ClientGuidePage';
 import UsagePolicyPage from '@/core/components/legal/UsagePolicyPage';
 import LegalDisclaimerPage from '@/core/components/legal/LegalDisclaimerPage';
 import PrivacyPolicyPage from '@/core/components/legal/PrivacyPolicyPage';
 import RefundPolicyPage from '@/core/components/legal/RefundPolicyPage';
 import TermsOfServicePage from '@/core/components/legal/TermsOfServicePage';
-import AcceptInvitePage from '@/core/components/auth/AcceptInvitePage';
+
+// Core Billing & Shared Components
 import UpgradeModal from '@/core/components/billing/UpgradeModal';
 import AppFooter from '@/core/components/shared/AppFooter';
 import LanguageSelector from '@/core/components/shared/LanguageSelector';
 import ThemeToggle from '@/core/components/shared/ThemeToggle';
 import ErrorBoundary from '@/core/components/shared/ErrorBoundary';
+
+// Core Context & Providers
 import { AuthProvider, useAuth } from '@/core/components/context/AuthContext';
 import { ModalProvider } from '@/core/components/context/ModalContext';
 import { I18nProvider } from '@/core/components/context/I18nContext';
 import { ThemeProvider } from '@/core/components/context/ThemeContext';
-import { DEFAULT_RATES } from '@/product/lib/calculations';
-import { useLocalStorageState } from '@/core/lib/shared/useLocalStorageState';
-import { projectsApi } from '@/product/lib/projects';
 
-function UserWorkspace({ items, setItems, rates, setRates, currentProject, setCurrentProject }) {
-  const { username } = useParams();
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  const [importContext, setImportContext] = useState({ file: null, mappingData: null });
-
-  // Redirect if URL username doesn't match authenticated username
-  if (user && username !== user.username) {
-    return <Navigate to={`/${user.username}`} replace />;
-  }
-
-  const userStepPaths = {
-    1: `/${username}/upload`,
-    2: currentProject?.id ? `/${username}/takeoff/${currentProject.id}/edit` : `/${username}/edit`,
-    3: currentProject?.id ? `/${username}/takeoff/${currentProject.id}/results` : `/${username}/results`,
-  };
-
-  const goToStep = (step) => navigate(userStepPaths[step]);
-
-  const handleOpenProject = async (project, targetStep = 'edit') => {
-    try {
-      // Fetch full project data with items_json and rates_json
-      const fullProject = await projectsApi.getById(project.id);
-      const activeProject = fullProject || project;
-      setCurrentProject(activeProject);
-
-      const est = activeProject.latestEstimate;
-      if (est?.items_json && Array.isArray(est.items_json) && est.items_json.length > 0) {
-        setItems(est.items_json);
-      } else if (activeProject.items && Array.isArray(activeProject.items) && activeProject.items.length > 0) {
-        setItems(activeProject.items);
-      }
-
-      if (est?.rates_json && typeof est.rates_json === 'object' && Object.keys(est.rates_json).length > 0) {
-        setRates(est.rates_json);
-      } else if (activeProject.rates && typeof activeProject.rates === 'object' && Object.keys(activeProject.rates).length > 0) {
-        setRates(activeProject.rates);
-      }
-
-      if (targetStep === 'results') {
-        navigate(`/${username}/takeoff/${project.id}/results`);
-      } else {
-        navigate(`/${username}/takeoff/${project.id}/edit`);
-      }
-    } catch (err) {
-      console.error('Failed to load project details:', err);
-      // Fallback with provided project object
-      setCurrentProject(project);
-      const est = project.latestEstimate;
-      if (est?.items_json && Array.isArray(est.items_json) && est.items_json.length > 0) {
-        setItems(est.items_json);
-      }
-      if (est?.rates_json && typeof est.rates_json === 'object' && Object.keys(est.rates_json).length > 0) {
-        setRates(est.rates_json);
-      }
-      if (targetStep === 'results') {
-        navigate(`/${username}/takeoff/${project.id}/results`);
-      } else {
-        navigate(`/${username}/takeoff/${project.id}/edit`);
-      }
-    }
-  };
-
-  const handleNewTakeoff = () => {
-    setCurrentProject(null);
-    setItems([]);
-    setImportContext({ file: null, mappingData: null });
-    navigate(`/${username}/upload`);
-  };
-
-  const handleItemsParsed = (parsedItems, options = {}) => {
-    setItems(parsedItems);
-    setImportContext({
-      file: options?.file || null,
-      mappingData: options?.mappingData || null,
-    });
-    if (options?.detectedLaborMode) {
-      setRates((prevRates) => ({
-        ...prevRates,
-        laborMode: options.detectedLaborMode,
-      }));
-    }
-    navigate(`/${username}/edit`);
-  };
-
-  return (
-    <Routes>
-      {/* Default User Route: Projects Dashboard */}
-      <Route
-        path="/"
-        element={
-          <ProjectDashboard
-            onOpenProject={handleOpenProject}
-            onNewTakeoff={handleNewTakeoff}
-          />
-        }
-      />
-      <Route
-        path="/projects"
-        element={
-          <ProjectDashboard
-            onOpenProject={handleOpenProject}
-            onNewTakeoff={handleNewTakeoff}
-          />
-        }
-      />
-
-      {/* Account Settings */}
-      <Route
-        path="/settings"
-        element={<AccountSettings />}
-      />
-
-      {/* Step 1: Upload */}
-      <Route
-        path="/upload"
-        element={
-          <>
-            <div className="max-w-6xl mx-auto px-4 pt-5 pb-3 flex items-center justify-between">
-              <Link
-                to={`/${username}`}
-                className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
-              >
-                ← Back to Projects Dashboard
-              </Link>
-            </div>
-            <Stepper step={1} onStepClick={goToStep} />
-            <UploadStep onItemsParsed={handleItemsParsed} />
-          </>
-        }
-      />
-
-      {/* Existing Saved Takeoff Routes with Direct Project ID */}
-      <Route
-        path="/takeoff/:projectId/edit"
-        element={
-          <ProjectWorkspace
-            step={2}
-            items={items}
-            setItems={setItems}
-            rates={rates}
-            setRates={setRates}
-            currentProject={currentProject}
-            setCurrentProject={setCurrentProject}
-            importContext={importContext}
-            setImportContext={setImportContext}
-          />
-        }
-      />
-      <Route
-        path="/takeoff/:projectId/results"
-        element={
-          <ProjectWorkspace
-            step={3}
-            items={items}
-            setItems={setItems}
-            rates={rates}
-            setRates={setRates}
-            currentProject={currentProject}
-            setCurrentProject={setCurrentProject}
-            importContext={importContext}
-            setImportContext={setImportContext}
-          />
-        }
-      />
-      <Route
-        path="/takeoff/:projectId/export"
-        element={
-          <ProjectWorkspace
-            step={4}
-            items={items}
-            setItems={setItems}
-            rates={rates}
-            setRates={setRates}
-            currentProject={currentProject}
-            setCurrentProject={setCurrentProject}
-            importContext={importContext}
-            setImportContext={setImportContext}
-          />
-        }
-      />
-
-      {/* Draft / Unsaved Takeoff Routes */}
-      <Route
-        path="/edit"
-        element={
-          <ProjectWorkspace
-            step={2}
-            items={items}
-            setItems={setItems}
-            rates={rates}
-            setRates={setRates}
-            currentProject={currentProject}
-            setCurrentProject={setCurrentProject}
-            importContext={importContext}
-            setImportContext={setImportContext}
-          />
-        }
-      />
-
-      <Route
-        path="/results"
-        element={
-          <ProjectWorkspace
-            step={3}
-            items={items}
-            setItems={setItems}
-            rates={rates}
-            setRates={setRates}
-            currentProject={currentProject}
-            setCurrentProject={setCurrentProject}
-            importContext={importContext}
-            setImportContext={setImportContext}
-          />
-        }
-      />
-
-      <Route
-        path="/export"
-        element={
-          <ProjectWorkspace
-            step={4}
-            items={items}
-            setItems={setItems}
-            rates={rates}
-            setRates={setRates}
-            currentProject={currentProject}
-            setCurrentProject={setCurrentProject}
-            importContext={importContext}
-            setImportContext={setImportContext}
-          />
-        }
-      />
-      <Route path="*" element={<Navigate to={`/${username}`} replace />} />
-    </Routes>
-  );
-}
+// Product Routes (Decoupled Domain Layer)
+import { renderProductRoutes } from '@/product/routes/ProductRoutes';
 
 function AppContent() {
-  const [items, setItems] = useLocalStorageState('takeoff-engine.items', []);
-  const [currentProject, setCurrentProject] = useLocalStorageState('takeoff-engine.currentProject', null);
-  const [rates, setRates] = useLocalStorageState('takeoff-engine.rates', DEFAULT_RATES);
   const { user, isAuthenticated, loading } = useAuth();
   const [showAutoUpgradeModal, setShowAutoUpgradeModal] = useState(false);
   const navigate = useNavigate();
@@ -365,7 +126,7 @@ function AppContent() {
       )}
 
       <Routes>
-        {/* Auth Routes */}
+        {/* Core Auth & Onboarding Routes */}
         <Route
           path="/login"
           element={
@@ -378,9 +139,7 @@ function AppContent() {
         />
         <Route
           path="/register"
-          element={
-            <LoginPage initialView="register" />
-          }
+          element={<LoginPage initialView="register" />}
         />
         <Route
           path="/onboarding"
@@ -402,14 +161,18 @@ function AppContent() {
             )
           }
         />
+        <Route
+          path="/accept-invite"
+          element={<AcceptInvitePage />}
+        />
 
-        {/* Public Landing Page & Calculators */}
+        {/* Core Landing Page */}
         <Route
           path="/home"
           element={<LandingPage />}
         />
 
-        {/* Super-Admin Portal (US-014) */}
+        {/* Core Super-Admin Portal */}
         <Route
           path="/admin"
           element={
@@ -421,93 +184,24 @@ function AppContent() {
           }
         />
 
-        {/* Documentation / Client Guide Page */}
-        <Route
-          path="/guide"
-          element={<ClientGuidePage />}
-        />
+        {/* Core Terms, Privacy, Refund, Legal & Policy Pages */}
+        <Route path="/terms" element={<TermsOfServicePage />} />
+        <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+        <Route path="/privacy" element={<PrivacyPolicyPage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+        <Route path="/refund" element={<RefundPolicyPage />} />
+        <Route path="/refund-policy" element={<RefundPolicyPage />} />
+        <Route path="/policy" element={<UsagePolicyPage />} />
+        <Route path="/acceptable-use" element={<UsagePolicyPage />} />
+        <Route path="/disclaimer" element={<LegalDisclaimerPage />} />
+        <Route path="/legal-disclaimer" element={<LegalDisclaimerPage />} />
 
-        {/* Terms of Service & Acceptable Use Policy */}
-        <Route
-          path="/terms"
-          element={<TermsOfServicePage />}
-        />
-        <Route
-          path="/terms-of-service"
-          element={<TermsOfServicePage />}
-        />
-        <Route
-          path="/privacy"
-          element={<PrivacyPolicyPage />}
-        />
-        <Route
-          path="/privacy-policy"
-          element={<PrivacyPolicyPage />}
-        />
-        <Route
-          path="/refund"
-          element={<RefundPolicyPage />}
-        />
-        <Route
-          path="/refund-policy"
-          element={<RefundPolicyPage />}
-        />
-        <Route
-          path="/policy"
-          element={<UsagePolicyPage />}
-        />
-        <Route
-          path="/acceptable-use"
-          element={<UsagePolicyPage />}
-        />
-
-        {/* Legal Disclaimer & Limitation of Liability */}
-        <Route
-          path="/disclaimer"
-          element={<LegalDisclaimerPage />}
-        />
-        <Route
-          path="/legal-disclaimer"
-          element={<LegalDisclaimerPage />}
-        />
-
-        {/* Public Client Proposal & E-Signature View */}
-        <Route
-          path="/p/:publicToken"
-          element={<ClientProposalView />}
-        />
-
-        {/* Team Workspace Invitation Acceptance (US-036) */}
-        <Route
-          path="/accept-invite"
-          element={<AcceptInvitePage />}
-        />
-
-        {/* User-Scoped Workspace Routes */}
-        <Route
-          path="/:username/guide"
-          element={<ClientGuidePage />}
-        />
-        <Route
-          path="/:username/terms"
-          element={<TermsOfServicePage />}
-        />
-        <Route
-          path="/:username/privacy"
-          element={<PrivacyPolicyPage />}
-        />
-        <Route
-          path="/:username/refund"
-          element={<RefundPolicyPage />}
-        />
-        <Route
-          path="/:username/acceptable-use"
-          element={<UsagePolicyPage />}
-        />
-        <Route
-          path="/:username/disclaimer"
-          element={<LegalDisclaimerPage />}
-        />
+        {/* User Scoped Core Settings & Legal Wrappers */}
+        <Route path="/:username/terms" element={<TermsOfServicePage />} />
+        <Route path="/:username/privacy" element={<PrivacyPolicyPage />} />
+        <Route path="/:username/refund" element={<RefundPolicyPage />} />
+        <Route path="/:username/acceptable-use" element={<UsagePolicyPage />} />
+        <Route path="/:username/disclaimer" element={<LegalDisclaimerPage />} />
         <Route
           path="/:username/settings"
           element={
@@ -518,25 +212,11 @@ function AppContent() {
             )
           }
         />
-        <Route
-          path="/:username/*"
-          element={
-            !isAuthenticated ? (
-              <Navigate to="/login" replace />
-            ) : (
-              <UserWorkspace
-                items={items}
-                setItems={setItems}
-                rates={rates}
-                setRates={setRates}
-                currentProject={currentProject}
-                setCurrentProject={setCurrentProject}
-              />
-            )
-          }
-        />
 
-        {/* Root Route: Public Landing Page or redirect to logged-in user dashboard */}
+        {/* Product-Specific Routes (Decoupled Domain Layer) */}
+        {renderProductRoutes(isAuthenticated)}
+
+        {/* Core Root Route & Fallback */}
         <Route
           path="/"
           element={
@@ -547,8 +227,6 @@ function AppContent() {
             )
           }
         />
-
-        {/* Fallback */}
         <Route
           path="*"
           element={
@@ -561,10 +239,10 @@ function AppContent() {
         />
       </Routes>
 
-      {/* Persistent Global Application Footer with Terms & Usage Policy Link */}
+      {/* Persistent Global Application Footer */}
       <AppFooter />
 
-      {/* Global Out of Credits Upgrade Modal Prompt on Login */}
+      {/* Global Out of Credits Upgrade Modal Prompt */}
       <UpgradeModal
         isOpen={showAutoUpgradeModal}
         onClose={() => setShowAutoUpgradeModal(false)}

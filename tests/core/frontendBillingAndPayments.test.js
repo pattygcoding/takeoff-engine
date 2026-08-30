@@ -1,4 +1,4 @@
-import { describe, it } from 'vitest';
+import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
 describe('Frontend Billing, Subscriptions & Paddle Checkout Tests', () => {
