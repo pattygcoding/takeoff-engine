@@ -26,7 +26,7 @@ export const projectsApi = {
       }
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || getTranslation('apiErrors.fetchProjectsFailed'));
+        throw new Error(data.error || getTranslation('core.apiErrors.fetchProjectsFailed'));
       }
       return data.projects || [];
     } catch (err) {
@@ -48,7 +48,7 @@ export const projectsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || getTranslation('apiErrors.fetchProjectFailed'));
+      throw new Error(data.error || getTranslation('core.apiErrors.fetchProjectFailed'));
     }
     return data.project;
   },
@@ -72,7 +72,7 @@ export const projectsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      const err = new Error(data.error || getTranslation('apiErrors.createProjectFailed'));
+      const err = new Error(data.error || getTranslation('core.apiErrors.createProjectFailed'));
       err.code = data.code;
       err.trial_uses_remaining = data.trial_uses_remaining;
       throw err;
@@ -91,7 +91,7 @@ export const projectsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || getTranslation('apiErrors.updateProjectFailed'));
+      throw new Error(data.error || getTranslation('core.apiErrors.updateProjectFailed'));
     }
     return data.project;
   },
@@ -106,7 +106,7 @@ export const projectsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || getTranslation('apiErrors.deleteProjectFailed'));
+      throw new Error(data.error || getTranslation('core.apiErrors.deleteProjectFailed'));
     }
     return true;
   },
@@ -122,7 +122,7 @@ export const projectsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || getTranslation('apiErrors.duplicateProjectFailed'));
+      throw new Error(data.error || getTranslation('core.apiErrors.duplicateProjectFailed'));
     }
     return data.project;
   },

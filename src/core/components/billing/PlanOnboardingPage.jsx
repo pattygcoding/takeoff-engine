@@ -4,6 +4,19 @@ import { useAuth } from '@/core/components/context/AuthContext';
 import { billingApi } from '@/core/lib/billing/billing';
 import { openPaddleCheckout } from '@/core/lib/billing/paddle';
 import { useTranslation } from '@/core/components/context/I18nContext';
+import {
+  STARTER_MONTHLY_PRICE,
+  PRO_MONTHLY_PRICE,
+  ENTERPRISE_MONTHLY_PRICE,
+  STARTER_YEARLY_PRICE,
+  PRO_YEARLY_PRICE,
+  ENTERPRISE_YEARLY_PRICE,
+  EXTRA_SEAT_MONTHLY_PRICE,
+  EXTRA_SEAT_YEARLY_PRICE,
+  STARTER_PLAN_SEATS,
+  PRO_PLAN_SEATS,
+  ENTERPRISE_PLAN_SEATS,
+} from '@/core/constants';
 
 export default function PlanOnboardingPage() {
   const { user, refreshProfile } = useAuth();
@@ -88,10 +101,10 @@ export default function PlanOnboardingPage() {
 
         <div className="text-center mb-8 max-w-2xl mx-auto">
           <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-            {t('loginPage.selectPlanTitle', 'Choose Your Plan to Get Started')}
+            {t('core.loginPage.selectPlanTitle', 'Choose Your Plan to Get Started')}
           </h2>
           <p className="text-sm sm:text-base text-slate-400 mt-2">
-            {t('loginPage.selectPlanSubtitle', 'Select the plan that best fits your workflow. You can change or cancel your subscription at any time.')}
+            {t('core.loginPage.selectPlanSubtitle', 'Select the plan that best fits your workflow. You can change or cancel your subscription at any time.')}
           </p>
 
           {/* Monthly vs Annual Toggle */}
@@ -105,7 +118,7 @@ export default function PlanOnboardingPage() {
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              {t('upgradeModal.monthlyBilling', 'Monthly Billing')}
+              {t('core.upgradeModal.monthlyBilling', 'Monthly Billing')}
             </button>
             <button
               type="button"
@@ -116,11 +129,11 @@ export default function PlanOnboardingPage() {
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              <span>{t('upgradeModal.annualBilling', 'Annual Billing')}</span>
+              <span>{t('core.upgradeModal.annualBilling', 'Annual Billing')}</span>
               <span className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full ${
                 isAnnual ? 'bg-indigo-900 text-amber-300' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
               }`}>
-                {t('upgradeModal.twoMonthsFree', '2 Months Free')}
+                {t('core.upgradeModal.twoMonthsFree', '2 Months Free')}
               </span>
             </button>
           </div>
@@ -132,29 +145,29 @@ export default function PlanOnboardingPage() {
           <div className="bg-slate-900/90 p-6 rounded-3xl border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition shadow-xl">
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                {t('landing.pricing.starter.tier', 'STARTER TIER')}
+                {t('core.landing.pricing.starter.tier', 'STARTER TIER')}
               </span>
               <div className="mt-4 flex items-baseline gap-1">
                 <span className="text-3xl font-black text-white">
-                  ${isAnnual ? '299.99' : '29.99'}
+                  ${isAnnual ? STARTER_YEARLY_PRICE : STARTER_MONTHLY_PRICE}
                 </span>
                 <span className="text-xs text-slate-400">
                   {isAnnual ? '/ yr' : '/ mo'}
                 </span>
               </div>
               <div className="text-[10px] text-slate-400 font-medium mt-0.5">
-                {isAnnual ? 'billed annually • plus tax' : t('landing.pricing.starter.yearly', 'or $299.99/yr • plus tax')}
+                {isAnnual ? 'billed annually • plus tax' : t('core.landing.pricing.starter.yearly', { yearly: STARTER_YEARLY_PRICE })}
               </div>
               <p className="text-xs text-slate-400 mt-2 leading-relaxed min-h-[34px]">
-                {t('landing.pricing.starter.description', 'Great for solo estimators bidding jobs weekly.')}
+                {t('core.landing.pricing.starter.description', 'Great for solo estimators bidding jobs weekly.')}
               </p>
 
               <ul className="mt-6 space-y-2.5 text-xs text-slate-300">
-                <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.starter.f1', 'Single Estimator Seat')}</strong></li>
-                <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.starter.f2', 'Unlimited Calculations')}</strong></li>
-                <li className="flex items-center gap-2">✓ {t('landing.pricing.starter.f3', 'Standard Word & PDF Export')}</li>
-                <li className="flex items-center gap-2">✓ {t('landing.pricing.starter.f4', '2 Custom Rate Libraries')}</li>
-                <li className="flex items-center gap-2">✓ {t('landing.pricing.starter.f5', 'Cloud Save & Project Dashboard')}</li>
+                <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.starter.f1', { seats: STARTER_PLAN_SEATS })}</strong></li>
+                <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.starter.f2', 'Unlimited Calculations')}</strong></li>
+                <li className="flex items-center gap-2">✓ {t('core.landing.pricing.starter.f3', 'Standard Word & PDF Export')}</li>
+                <li className="flex items-center gap-2">✓ {t('core.landing.pricing.starter.f4', '2 Custom Rate Libraries')}</li>
+                <li className="flex items-center gap-2">✓ {t('core.landing.pricing.starter.f5', 'Cloud Save & Project Dashboard')}</li>
               </ul>
             </div>
 
@@ -165,7 +178,7 @@ export default function PlanOnboardingPage() {
                 disabled
                 className="mt-6 w-full py-2.5 bg-slate-800 text-slate-400 text-xs font-bold rounded-xl border border-slate-700 cursor-not-allowed opacity-75"
               >
-                {t('upgradeModal.currentPlanBadge', 'Current Plan')}
+                {t('core.upgradeModal.currentPlanBadge', 'Current Plan')}
               </button>
             ) : (
               <button
@@ -174,7 +187,7 @@ export default function PlanOnboardingPage() {
                 onClick={() => handleSelectPaidPlan('starter')}
                 className="mt-6 w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition cursor-pointer disabled:opacity-50"
               >
-                {checkoutLoadingPlan === 'starter' ? t('loginPage.launchingCheckout', 'Launching Checkout...') : t('landing.pricing.starter.cta', 'Choose Starter')}
+                {checkoutLoadingPlan === 'starter' ? t('core.loginPage.launchingCheckout', 'Launching Checkout...') : t('core.landing.pricing.starter.cta', 'Choose Starter')}
               </button>
             )}
           </div>
@@ -182,34 +195,34 @@ export default function PlanOnboardingPage() {
           {/* 2. Pro Tier (Most Popular) */}
           <div className="bg-gradient-to-b from-indigo-950/90 to-slate-900 p-6 rounded-3xl border-2 border-indigo-500 shadow-2xl relative flex flex-col justify-between">
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-wider px-3 py-0.5 rounded-full shadow">
-              {currentTier === 'pro' ? t('upgradeModal.currentPlanBadge', 'Current Plan') : t('landing.pricing.pro.mostPopular', 'MOST POPULAR')}
+              {currentTier === 'pro' ? t('core.upgradeModal.currentPlanBadge', 'Current Plan') : t('core.landing.pricing.pro.mostPopular', 'MOST POPULAR')}
             </div>
 
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-indigo-400">
-                {t('landing.pricing.pro.tier', 'PRO TIER')}
+                {t('core.landing.pricing.pro.tier', 'PRO TIER')}
               </span>
               <div className="mt-4 flex items-baseline gap-1">
                 <span className="text-3xl font-black text-white">
-                  ${isAnnual ? '799.99' : '79.99'}
+                  ${isAnnual ? PRO_YEARLY_PRICE : PRO_MONTHLY_PRICE}
                 </span>
                 <span className="text-xs text-slate-400">
                   {isAnnual ? '/ yr' : '/ mo'}
                 </span>
               </div>
               <div className="text-[10px] text-indigo-300/80 font-medium mt-0.5">
-                {isAnnual ? 'billed annually • plus tax' : t('landing.pricing.pro.yearly', 'or $799.99/yr • plus tax')}
+                {isAnnual ? 'billed annually • plus tax' : t('core.landing.pricing.pro.yearly', { yearly: PRO_YEARLY_PRICE })}
               </div>
               <p className="text-xs text-slate-300 mt-2 leading-relaxed min-h-[34px]">
-                {t('landing.pricing.pro.description', 'Unlimited power & full PDF report layouts.')}
+                {t('core.landing.pricing.pro.description', 'Unlimited power & full PDF report layouts.')}
               </p>
 
               <ul className="mt-6 space-y-2.5 text-xs text-slate-200">
-                <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.pro.f1', '3 Team Seats Included')}</strong></li>
-                <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.pro.f2', 'All 17+ Advanced PDF Formats')}</strong></li>
-                <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.pro.f3', 'Custom Branding & Logos')}</strong></li>
-                <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.pro.f4', 'Client Portal & E-Signatures')}</strong></li>
-                <li className="flex items-center gap-2">✓ {t('landing.pricing.pro.f5', 'Unlimited Custom Rate Libraries')}</li>
+                <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.pro.f1', { seats: PRO_PLAN_SEATS })}</strong></li>
+                <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.pro.f2', 'All 17+ Advanced PDF Formats')}</strong></li>
+                <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.pro.f3', 'Custom Branding & Logos')}</strong></li>
+                <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.pro.f4', 'Client Portal & E-Signatures')}</strong></li>
+                <li className="flex items-center gap-2">✓ {t('core.landing.pricing.pro.f5', 'Unlimited Custom Rate Libraries')}</li>
               </ul>
             </div>
 
@@ -219,7 +232,7 @@ export default function PlanOnboardingPage() {
                 disabled
                 className="mt-6 w-full py-2.5 bg-indigo-900/60 text-indigo-300 text-xs font-bold rounded-xl border border-indigo-700/60 cursor-not-allowed opacity-75"
               >
-                {t('upgradeModal.currentPlanBadge', 'Current Plan')}
+                {t('core.upgradeModal.currentPlanBadge', 'Current Plan')}
               </button>
             ) : (
               <button
@@ -228,7 +241,7 @@ export default function PlanOnboardingPage() {
                 onClick={() => handleSelectPaidPlan('pro')}
                 className="mt-6 w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition cursor-pointer disabled:opacity-50"
               >
-                {checkoutLoadingPlan === 'pro' ? t('loginPage.launchingCheckout', 'Launching Checkout...') : t('landing.pricing.pro.cta', 'Upgrade to Pro')}
+                {checkoutLoadingPlan === 'pro' ? t('core.loginPage.launchingCheckout', 'Launching Checkout...') : t('core.landing.pricing.pro.cta', 'Upgrade to Pro')}
               </button>
             )}
           </div>
@@ -238,35 +251,35 @@ export default function PlanOnboardingPage() {
             <div>
               <div className="flex justify-between items-center mb-1">
                 <span className="text-xs font-bold uppercase tracking-wider text-amber-400">
-                  {t('landing.pricing.enterprise.tier', 'ENTERPRISE')}
+                  {t('core.landing.pricing.enterprise.tier', 'ENTERPRISE')}
                 </span>
                 {currentTier === 'enterprise' && (
                   <span className="bg-emerald-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider">
-                    {t('upgradeModal.currentPlanBadge', 'Current Plan')}
+                    {t('core.upgradeModal.currentPlanBadge', 'Current Plan')}
                   </span>
                 )}
               </div>
               <div className="mt-4 flex items-baseline gap-1">
                 <span className="text-3xl font-black text-white">
-                  ${isAnnual ? '1999.99' : '199.99'}
+                  ${isAnnual ? ENTERPRISE_YEARLY_PRICE : ENTERPRISE_MONTHLY_PRICE}
                 </span>
                 <span className="text-xs text-slate-400">
                   {isAnnual ? '/ yr' : '/ mo'}
                 </span>
               </div>
               <div className="text-[10px] text-amber-300/80 font-medium mt-0.5">
-                {isAnnual ? 'billed annually • plus tax' : t('landing.pricing.enterprise.yearly', 'or $1999.99/yr • plus tax')}
+                {isAnnual ? 'billed annually • plus tax' : t('core.landing.pricing.enterprise.yearly', { yearly: ENTERPRISE_YEARLY_PRICE })}
               </div>
               <p className="text-xs text-slate-300 mt-2 leading-relaxed min-h-[34px]">
-                {t('landing.pricing.enterprise.description', 'Multi-seat collaboration for growing teams.')}
+                {t('core.landing.pricing.enterprise.description', 'Multi-seat collaboration for growing teams.')}
               </p>
 
               <ul className="mt-6 space-y-2.5 text-xs text-slate-300">
-                <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.enterprise.f1', '8 Base Team Seats Included')}</strong></li>
-                <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.enterprise.f2', isAnnual ? '+$299.99/yr per extra seat (+ tax)' : '+$29.99/mo per extra seat (+ tax)')}</strong></li>
-                <li className="flex items-center gap-2">✓ {t('landing.pricing.enterprise.f3', 'All 17+ Advanced PDF Formats')}</li>
-                <li className="flex items-center gap-2">✓ {t('landing.pricing.enterprise.f4', 'Team Workspaces & Shared Libraries')}</li>
-                <li className="flex items-center gap-2">✓ {t('landing.pricing.enterprise.f5', 'All Pro features + priority support')}</li>
+                <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.enterprise.f1', { seats: ENTERPRISE_PLAN_SEATS })}</strong></li>
+                <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.enterprise.f2', { price: isAnnual ? EXTRA_SEAT_YEARLY_PRICE : EXTRA_SEAT_MONTHLY_PRICE })}</strong></li>
+                <li className="flex items-center gap-2">✓ {t('core.landing.pricing.enterprise.f3', 'All 17+ Advanced PDF Formats')}</li>
+                <li className="flex items-center gap-2">✓ {t('core.landing.pricing.enterprise.f4', 'Team Workspaces & Shared Libraries')}</li>
+                <li className="flex items-center gap-2">✓ {t('core.landing.pricing.enterprise.f5', 'All Pro features + priority support')}</li>
               </ul>
             </div>
 
@@ -276,7 +289,7 @@ export default function PlanOnboardingPage() {
                 disabled
                 className="mt-6 w-full py-2.5 bg-amber-950/60 text-amber-300 text-xs font-bold rounded-xl border border-amber-700/60 cursor-not-allowed opacity-75"
               >
-                {t('upgradeModal.currentPlanBadge', 'Current Plan')}
+                {t('core.upgradeModal.currentPlanBadge', 'Current Plan')}
               </button>
             ) : (
               <button
@@ -285,7 +298,7 @@ export default function PlanOnboardingPage() {
                 onClick={() => handleSelectPaidPlan('enterprise')}
                 className="mt-6 w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold rounded-xl shadow-lg shadow-amber-500/20 transition cursor-pointer disabled:opacity-50"
               >
-                {checkoutLoadingPlan === 'enterprise' ? t('loginPage.launchingCheckout', 'Launching Checkout...') : t('landing.pricing.enterprise.cta', 'Choose Enterprise')}
+                {checkoutLoadingPlan === 'enterprise' ? t('core.loginPage.launchingCheckout', 'Launching Checkout...') : t('core.landing.pricing.enterprise.cta', 'Choose Enterprise')}
               </button>
             )}
           </div>
@@ -298,7 +311,7 @@ export default function PlanOnboardingPage() {
             onClick={handleSelectFree}
             className="text-xs font-semibold text-slate-400 hover:text-indigo-400 transition cursor-pointer"
           >
-            {t('loginPage.skipForNow', 'Or continue to dashboard with Free Trial →')}
+            {t('core.loginPage.skipForNow', 'Or continue to dashboard with Free Trial →')}
           </button>
         </div>
       </div>

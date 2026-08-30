@@ -21,7 +21,7 @@ export const organizationsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || getTranslation('apiErrors.fetchOrganizationsFailed'));
+      throw new Error(data.error || getTranslation('core.apiErrors.fetchOrganizationsFailed'));
     }
     return data.organizations || [];
   },
@@ -37,7 +37,7 @@ export const organizationsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      const err = new Error(data.error || getTranslation('apiErrors.createOrganizationFailed'));
+      const err = new Error(data.error || getTranslation('core.apiErrors.createOrganizationFailed'));
       err.code = data.code;
       throw err;
     }
@@ -54,7 +54,7 @@ export const organizationsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || getTranslation('apiErrors.fetchOrganizationDetailsFailed'));
+      throw new Error(data.error || getTranslation('core.apiErrors.fetchOrganizationDetailsFailed'));
     }
     return data;
   },
@@ -70,7 +70,7 @@ export const organizationsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      const err = new Error(data.error || getTranslation('apiErrors.inviteMemberFailed'));
+      const err = new Error(data.error || getTranslation('core.apiErrors.inviteMemberFailed'));
       err.code = data.code;
       throw err;
     }
@@ -87,7 +87,7 @@ export const organizationsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || getTranslation('apiErrors.resendInviteFailed'));
+      throw new Error(data.error || getTranslation('core.apiErrors.resendInviteFailed'));
     }
     return data;
   },
@@ -102,7 +102,7 @@ export const organizationsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || getTranslation('apiErrors.revokeInviteFailed'));
+      throw new Error(data.error || getTranslation('core.apiErrors.revokeInviteFailed'));
     }
     return data;
   },
@@ -118,7 +118,7 @@ export const organizationsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || getTranslation('apiErrors.updateMemberRoleFailed'));
+      throw new Error(data.error || getTranslation('core.apiErrors.updateMemberRoleFailed'));
     }
     return data.member;
   },
@@ -133,7 +133,7 @@ export const organizationsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || getTranslation('apiErrors.removeMemberFailed'));
+      throw new Error(data.error || getTranslation('core.apiErrors.removeMemberFailed'));
     }
     return data;
   },
@@ -148,7 +148,7 @@ export const organizationsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      const err = new Error(data.error || getTranslation('apiErrors.deleteOrganizationFailed'));
+      const err = new Error(data.error || getTranslation('core.apiErrors.deleteOrganizationFailed'));
       err.code = data.code;
       throw err;
     }

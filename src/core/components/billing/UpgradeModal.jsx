@@ -5,6 +5,19 @@ import { openPaddleCheckout } from '@/core/lib/billing/paddle';
 import { useAuth } from '@/core/components/context/AuthContext';
 import { useModal } from '@/core/components/context/ModalContext';
 import { useTranslation } from '@/core/components/context/I18nContext';
+import {
+  STARTER_MONTHLY_PRICE,
+  PRO_MONTHLY_PRICE,
+  ENTERPRISE_MONTHLY_PRICE,
+  STARTER_YEARLY_PRICE,
+  PRO_YEARLY_PRICE,
+  ENTERPRISE_YEARLY_PRICE,
+  EXTRA_SEAT_MONTHLY_PRICE,
+  EXTRA_SEAT_YEARLY_PRICE,
+  STARTER_PLAN_SEATS,
+  PRO_PLAN_SEATS,
+  ENTERPRISE_PLAN_SEATS,
+} from '@/core/constants';
 
 export default function UpgradeModal({ isOpen, onClose }) {
   const { user, logout, refreshProfile } = useAuth();
@@ -43,15 +56,15 @@ export default function UpgradeModal({ isOpen, onClose }) {
           <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
             ✓
           </div>
-          <h3 className="text-xl font-bold text-slate-900 mb-2">{t('upgradeModal.alreadyUnlockedTitle')}</h3>
+          <h3 className="text-xl font-bold text-slate-900 mb-2">{t('core.upgradeModal.alreadyUnlockedTitle')}</h3>
           <p className="text-sm text-slate-600 mb-6">
-            {t('upgradeModal.alreadyUnlockedMessage')}
+            {t('core.upgradeModal.alreadyUnlockedMessage')}
           </p>
           <button
             onClick={onClose}
             className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl transition"
           >
-            {t('upgradeModal.gotItButton')}
+            {t('core.upgradeModal.gotItButton')}
           </button>
         </div>
       </div>
@@ -67,13 +80,13 @@ export default function UpgradeModal({ isOpen, onClose }) {
 
     if (isDowngrading) {
       const confirmed = await showConfirm({
-        title: t('upgradeModal.confirmDowngradeTitle', 'Confirm Plan Downgrade'),
-        message: t('upgradeModal.confirmDowngradePrompt', {
+        title: t('core.upgradeModal.confirmDowngradeTitle', 'Confirm Plan Downgrade'),
+        message: t('core.upgradeModal.confirmDowngradePrompt', {
           plan: selectedPlan.toUpperCase(),
           currentPlan: currentTier.toUpperCase(),
         }),
-        confirmText: t('upgradeModal.confirmDowngradeBtn', 'Proceed with Downgrade'),
-        cancelText: t('upgradeModal.cancelDowngradeBtn', 'Keep Current Plan'),
+        confirmText: t('core.upgradeModal.confirmDowngradeBtn', 'Proceed with Downgrade'),
+        cancelText: t('core.upgradeModal.cancelDowngradeBtn', 'Keep Current Plan'),
       });
       if (!confirmed) return;
     }
@@ -101,7 +114,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
           }
           if (refreshProfile) await refreshProfile();
           await showAlert({
-            title: isDowngrading ? t('upgradeModal.downgradeScheduledTitle', 'Downgrade Scheduled') : t('upgradeModal.successTitle', 'Upgrade Successful'),
+            title: isDowngrading ? t('core.upgradeModal.downgradeScheduledTitle', 'Downgrade Scheduled') : t('core.upgradeModal.successTitle', 'Upgrade Successful'),
             message: isDowngrading
               ? `Your downgrade to ${selectedPlan.toUpperCase()} has been scheduled for your next billing cycle.`
               : `Congratulations! Your account has been upgraded to the ${selectedPlan.toUpperCase()} plan.`,
@@ -127,8 +140,8 @@ export default function UpgradeModal({ isOpen, onClose }) {
       }
     } catch (err) {
       await showAlert({
-        title: t('upgradeModal.checkoutErrorTitle'),
-        message: err.message || t('upgradeModal.checkoutErrorMessage'),
+        title: t('core.upgradeModal.checkoutErrorTitle'),
+        message: err.message || t('core.upgradeModal.checkoutErrorMessage'),
         variant: 'error',
       });
     } finally {
@@ -162,12 +175,12 @@ export default function UpgradeModal({ isOpen, onClose }) {
   const isAnnual = billingInterval === 'annually';
 
   // Base and display pricing
-  const starterPrice = isAnnual ? 299.99 : 29.99;
-  const proPrice = isAnnual ? 799.99 : 79.99;
-  const enterpriseBasePrice = isAnnual ? 1999.99 : 199.99;
-  const extraSeatPrice = isAnnual ? 299.99 : 29.99;
+  const starterPrice = isAnnual ? STARTER_YEARLY_PRICE : STARTER_MONTHLY_PRICE;
+  const proPrice = isAnnual ? PRO_YEARLY_PRICE : PRO_MONTHLY_PRICE;
+  const enterpriseBasePrice = isAnnual ? ENTERPRISE_YEARLY_PRICE : ENTERPRISE_MONTHLY_PRICE;
+  const extraSeatPrice = isAnnual ? EXTRA_SEAT_YEARLY_PRICE : EXTRA_SEAT_MONTHLY_PRICE;
 
-  const baseSeatsForPlan = activePlan === 'enterprise' ? 8 : (activePlan === 'pro' ? 3 : 1);
+  const baseSeatsForPlan = activePlan === 'enterprise' ? ENTERPRISE_PLAN_SEATS : (activePlan === 'pro' ? PRO_PLAN_SEATS : STARTER_PLAN_SEATS);
   const totalSeats = baseSeatsForPlan + (activePlan === 'enterprise' || activePlan === 'pro' ? additionalSeats : 0);
 
   const activeTotalPrice =
@@ -207,9 +220,9 @@ export default function UpgradeModal({ isOpen, onClose }) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">{t('upgradeModal.title')}</h2>
+          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">{t('core.upgradeModal.title')}</h2>
           <p className="text-sm text-slate-500 mt-1 max-w-sm mx-auto">
-            {t('upgradeModal.subtitle')}
+            {t('core.upgradeModal.subtitle')}
           </p>
 
           {/* Monthly vs Annual Toggle */}
@@ -223,7 +236,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              {t('upgradeModal.monthlyBilling')}
+              {t('core.upgradeModal.monthlyBilling')}
             </button>
             <button
               type="button"
@@ -234,11 +247,11 @@ export default function UpgradeModal({ isOpen, onClose }) {
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <span>{t('upgradeModal.annualBilling')}</span>
+              <span>{t('core.upgradeModal.annualBilling')}</span>
               <span className={`text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded ${
                 billingInterval === 'annually' ? 'bg-indigo-800 text-amber-300' : 'bg-emerald-100 text-emerald-800'
               }`}>
-                {t('upgradeModal.twoMonthsFree')}
+                {t('core.upgradeModal.twoMonthsFree')}
               </span>
             </button>
           </div>
@@ -260,16 +273,16 @@ export default function UpgradeModal({ isOpen, onClose }) {
           >
             {currentTier === 'starter' && (
               <span className="absolute -top-2 right-2 bg-emerald-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider">
-                {t('upgradeModal.currentPlanBadge', 'Current Plan')}
+                {t('core.upgradeModal.currentPlanBadge', 'Current Plan')}
               </span>
             )}
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-600 mb-0.5">{t('upgradeModal.starterTier')}</div>
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-600 mb-0.5">{t('core.upgradeModal.starterTier')}</div>
             <div className="text-sm font-extrabold text-slate-900">
-              ${isAnnual ? '299.99' : '29.99'}
+              ${isAnnual ? STARTER_YEARLY_PRICE : STARTER_MONTHLY_PRICE}
               <span className="text-[10px] font-normal text-slate-500">{isAnnual ? '/yr' : '/mo'}</span>
             </div>
-            <div className="text-[9px] text-slate-400 font-medium">{t('upgradeModal.starterTaxAndSeats')}</div>
-            <p className="text-[10px] text-slate-500 leading-snug mt-1">{t('upgradeModal.starterDescription')}</p>
+            <div className="text-[9px] text-slate-400 font-medium">{t('core.upgradeModal.starterTaxAndSeats', { seats: STARTER_PLAN_SEATS })}</div>
+            <p className="text-[10px] text-slate-500 leading-snug mt-1">{t('core.upgradeModal.starterDescription')}</p>
           </button>
 
           <button
@@ -283,20 +296,20 @@ export default function UpgradeModal({ isOpen, onClose }) {
           >
             {currentTier === 'pro' ? (
               <span className="absolute -top-2 right-2 bg-emerald-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider">
-                {t('upgradeModal.currentPlanBadge', 'Current Plan')}
+                {t('core.upgradeModal.currentPlanBadge', 'Current Plan')}
               </span>
             ) : (
               <span className="absolute -top-2 right-2 bg-indigo-600 text-white text-[9px] font-bold px-1.5 py-0.2 rounded-full uppercase tracking-wider">
-                {t('upgradeModal.popularBadge')}
+                {t('core.upgradeModal.popularBadge')}
               </span>
             )}
-            <div className="text-xs font-bold uppercase tracking-wider text-indigo-700 mb-0.5">{t('upgradeModal.proTier')}</div>
+            <div className="text-xs font-bold uppercase tracking-wider text-indigo-700 mb-0.5">{t('core.upgradeModal.proTier')}</div>
             <div className="text-sm font-extrabold text-slate-900">
-              ${isAnnual ? '799.99' : '79.99'}
+              ${isAnnual ? PRO_YEARLY_PRICE : PRO_MONTHLY_PRICE}
               <span className="text-[10px] font-normal text-slate-500">{isAnnual ? '/yr' : '/mo'}</span>
             </div>
-            <div className="text-[9px] text-indigo-600 font-bold">{t('upgradeModal.proTaxAndSeats')}</div>
-            <p className="text-[10px] text-slate-500 leading-snug mt-1">{t('upgradeModal.proDescription')}</p>
+            <div className="text-[9px] text-indigo-600 font-bold">{t('core.upgradeModal.proTaxAndSeats', { seats: PRO_PLAN_SEATS })}</div>
+            <p className="text-[10px] text-slate-500 leading-snug mt-1">{t('core.upgradeModal.proDescription')}</p>
           </button>
 
           <button
@@ -310,20 +323,20 @@ export default function UpgradeModal({ isOpen, onClose }) {
           >
             {currentTier === 'enterprise' ? (
               <span className="absolute -top-2 right-2 bg-emerald-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider">
-                {t('upgradeModal.currentPlanBadge', 'Current Plan')}
+                {t('core.upgradeModal.currentPlanBadge', 'Current Plan')}
               </span>
             ) : (
               <span className="absolute -top-2 right-2 bg-amber-600 text-white text-[9px] font-bold px-1.5 py-0.2 rounded-full uppercase tracking-wider">
-                {t('upgradeModal.multiSeatBadge')}
+                {t('core.upgradeModal.multiSeatBadge')}
               </span>
             )}
-            <div className="text-xs font-bold uppercase tracking-wider text-amber-700 mb-0.5">{t('upgradeModal.enterpriseTier')}</div>
+            <div className="text-xs font-bold uppercase tracking-wider text-amber-700 mb-0.5">{t('core.upgradeModal.enterpriseTier')}</div>
             <div className="text-sm font-extrabold text-slate-900">
-              ${isAnnual ? '1999.99' : '199.99'}
+              ${isAnnual ? ENTERPRISE_YEARLY_PRICE : ENTERPRISE_MONTHLY_PRICE}
               <span className="text-[10px] font-normal text-slate-500">{isAnnual ? '/yr' : '/mo'}</span>
             </div>
-            <div className="text-[9px] text-amber-700 font-bold">{t('upgradeModal.enterpriseTaxAndSeats')}</div>
-            <p className="text-[10px] text-slate-500 leading-snug mt-1">{t('upgradeModal.enterpriseDescription')}</p>
+            <div className="text-[9px] text-amber-700 font-bold">{t('core.upgradeModal.enterpriseTaxAndSeats', { seats: ENTERPRISE_PLAN_SEATS })}</div>
+            <p className="text-[10px] text-slate-500 leading-snug mt-1">{t('core.upgradeModal.enterpriseDescription')}</p>
           </button>
         </div>
 
@@ -331,14 +344,14 @@ export default function UpgradeModal({ isOpen, onClose }) {
         {(activePlan === 'enterprise' || activePlan === 'pro') && (
           <div className="bg-amber-50/80 border border-amber-200 rounded-xl p-3 mb-4 text-xs">
             <div className="flex justify-between items-center mb-1.5">
-              <span className="font-bold text-amber-950">{t('upgradeModal.teamSeatsLabel')}:</span>
+              <span className="font-bold text-amber-950">{t('core.upgradeModal.teamSeatsLabel')}:</span>
               <span className="font-extrabold text-amber-900 text-xs">
-                {totalSeats} {t('upgradeModal.seatsTotal')} ({baseSeatsForPlan} {t('upgradeModal.base')} + {additionalSeats} {t('upgradeModal.extra')})
+                {totalSeats} {t('core.upgradeModal.seatsTotal')} ({baseSeatsForPlan} {t('core.upgradeModal.base')} + {additionalSeats} {t('core.upgradeModal.extra')})
               </span>
             </div>
             <div className="flex items-center justify-between gap-3">
               <span className="text-slate-600 text-[11px]">
-                {t('upgradeModal.addExtraSeats', { price: isAnnual ? '299.99/yr' : '29.99/mo' })}
+                {t('core.upgradeModal.addExtraSeats', { price: isAnnual ? `${EXTRA_SEAT_YEARLY_PRICE}/yr` : `${EXTRA_SEAT_MONTHLY_PRICE}/mo` })}
               </span>
               <div className="flex items-center gap-2">
                 <button
@@ -367,17 +380,17 @@ export default function UpgradeModal({ isOpen, onClose }) {
           <div className="flex justify-between items-baseline mb-3">
             <div>
               <span className="text-xs font-semibold uppercase tracking-wider text-indigo-300">
-                {activePlan === 'starter' && t('upgradeModal.starterPlanLabel')}
-                {activePlan === 'pro' && t('upgradeModal.proPlanLabel', { seats: totalSeats })}
-                {activePlan === 'enterprise' && t('upgradeModal.enterprisePlanLabel', { seats: totalSeats })}
+                {activePlan === 'starter' && t('core.upgradeModal.starterPlanLabel')}
+                {activePlan === 'pro' && t('core.upgradeModal.proPlanLabel', { seats: totalSeats })}
+                {activePlan === 'enterprise' && t('core.upgradeModal.enterprisePlanLabel', { seats: totalSeats })}
               </span>
               <h3 className="text-xl font-bold text-white flex items-baseline gap-1.5">
                 ${activeTotalPrice.toFixed(2)} {isAnnual ? '/ year' : '/ month'}
-                <span className="text-[11px] font-normal text-slate-400">({t('upgradeModal.plusTax')})</span>
+                <span className="text-[11px] font-normal text-slate-400">({t('core.upgradeModal.plusTax')})</span>
               </h3>
             </div>
             <span className="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded">
-              {t('upgradeModal.paddleMoRProtected')}
+              {t('core.upgradeModal.paddleMoRProtected')}
             </span>
           </div>
 
@@ -386,7 +399,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
             <div className="bg-indigo-900/60 border border-indigo-400/40 rounded-lg p-2.5 mb-3 text-[11px] text-indigo-100 flex items-start gap-2">
               <span className="text-base">📄</span>
               <div>
-                <strong className="text-amber-300">{t('upgradeModal.advancedPDFLabel')}:</strong> {t('upgradeModal.advancedPDFDescription')}
+                <strong className="text-amber-300">{t('core.upgradeModal.advancedPDFLabel')}:</strong> {t('core.upgradeModal.advancedPDFDescription')}
               </div>
             </div>
           )}
@@ -396,7 +409,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
               <svg className="w-4 h-4 text-emerald-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
-              <span>{t('upgradeModal.unlimitedExports')}</span>
+              <span>{t('core.upgradeModal.unlimitedExports')}</span>
             </li>
             <li className="flex items-center gap-2">
               <svg className="w-4 h-4 text-emerald-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -404,22 +417,22 @@ export default function UpgradeModal({ isOpen, onClose }) {
               </svg>
               <span>
                 {activePlan === 'starter'
-                  ? t('upgradeModal.starterPDFFormats')
-                  : t('upgradeModal.advancedPDFFormats')}
+                  ? t('core.upgradeModal.starterPDFFormats')
+                  : t('core.upgradeModal.advancedPDFFormats')}
               </span>
             </li>
             <li className="flex items-center gap-2">
               <svg className="w-4 h-4 text-emerald-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
-              <span>{t('upgradeModal.cloudPersistence')}</span>
+              <span>{t('core.upgradeModal.cloudPersistence')}</span>
             </li>
             {(activePlan === 'pro' || activePlan === 'enterprise') && (
               <li className="flex items-center gap-2 font-medium text-emerald-300">
                 <svg className="w-4 h-4 text-emerald-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
-                <span>{t('upgradeModal.customLetterheads')}</span>
+                <span>{t('core.upgradeModal.customLetterheads')}</span>
               </li>
             )}
             {activePlan === 'enterprise' && (
@@ -427,7 +440,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
                 <svg className="w-4 h-4 text-amber-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
-                <span>{t('upgradeModal.teamWorkspaces')}</span>
+                <span>{t('core.upgradeModal.teamWorkspaces')}</span>
               </li>
             )}
           </ul>
@@ -437,7 +450,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
             <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-2.5 mb-3 text-[11px] text-amber-200 flex items-start gap-2">
               <span className="text-base">ℹ️</span>
               <div>
-                <strong className="text-amber-300">Downgrade Note:</strong> {t('upgradeModal.downgradeNotice', {
+                <strong className="text-amber-300">Downgrade Note:</strong> {t('core.upgradeModal.downgradeNotice', {
                   plan: activePlan.toUpperCase(),
                   currentPlan: currentTier.toUpperCase(),
                 })}
@@ -457,17 +470,17 @@ export default function UpgradeModal({ isOpen, onClose }) {
             }`}
           >
             {checkoutLoading
-              ? t('upgradeModal.openingCheckout')
+              ? t('core.upgradeModal.openingCheckout')
               : isCurrentPlanSelected
-              ? t('upgradeModal.currentPlanButton', 'Current Active Plan')
+              ? t('core.upgradeModal.currentPlanButton', 'Current Active Plan')
               : isDowngradeSelected
-              ? t('upgradeModal.downgradeButton', {
-                  plan: activePlan === 'starter' ? t('upgradeModal.starterTier') : activePlan === 'pro' ? t('upgradeModal.proTier') : t('upgradeModal.enterpriseTier'),
+              ? t('core.upgradeModal.downgradeButton', {
+                  plan: activePlan === 'starter' ? t('core.upgradeModal.starterTier') : activePlan === 'pro' ? t('core.upgradeModal.proTier') : t('core.upgradeModal.enterpriseTier'),
                   price: activeTotalPrice.toFixed(2),
                   interval: isAnnual ? '/yr' : '/mo',
                 })
-              : t('upgradeModal.upgradeButton', { 
-                  plan: activePlan === 'starter' ? t('upgradeModal.starterTier') : activePlan === 'pro' ? t('upgradeModal.proTier') : t('upgradeModal.enterpriseTier'),
+              : t('core.upgradeModal.upgradeButton', { 
+                  plan: activePlan === 'starter' ? t('core.upgradeModal.starterTier') : activePlan === 'pro' ? t('core.upgradeModal.proTier') : t('core.upgradeModal.enterpriseTier'),
                   price: activeTotalPrice.toFixed(2),
                   interval: isAnnual ? '/yr' : '/mo',
                 })}
@@ -477,12 +490,12 @@ export default function UpgradeModal({ isOpen, onClose }) {
         {/* Promo Code Redemption Section */}
         <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 mb-3">
           <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-            {t('upgradeModal.promoCodeLabel')}
+            {t('core.upgradeModal.promoCodeLabel')}
           </label>
           <form onSubmit={handleRedeemCode} className="flex gap-2">
             <input
               type="text"
-              placeholder={t('upgradeModal.promoCodePlaceholder')}
+              placeholder={t('core.upgradeModal.promoCodePlaceholder')}
               value={promoCodeInput}
               onChange={(e) => setPromoCodeInput(e.target.value)}
               className="flex-1 px-3 py-2 text-xs uppercase font-mono tracking-wider bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -492,7 +505,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
               disabled={promoLoading || !promoCodeInput.trim()}
               className="px-4 py-2 bg-slate-800 hover:bg-slate-900 disabled:opacity-50 text-white text-xs font-semibold rounded-lg transition"
             >
-              {promoLoading ? t('upgradeModal.applyingCode') : t('upgradeModal.applyCodeButton')}
+              {promoLoading ? t('core.upgradeModal.applyingCode') : t('core.upgradeModal.applyCodeButton')}
             </button>
           </form>
 
@@ -514,14 +527,14 @@ export default function UpgradeModal({ isOpen, onClose }) {
               }}
               className="text-xs text-slate-500 hover:text-indigo-600 font-semibold transition-colors flex items-center gap-1.5"
             >
-              <span>{t('upgradeModal.returnToLoginButton')}</span>
+              <span>{t('core.upgradeModal.returnToLoginButton')}</span>
             </button>
           ) : (
             <button
               onClick={onClose}
               className="text-xs text-slate-500 hover:text-slate-800 font-medium transition-colors"
             >
-              {t('upgradeModal.continuePreviewMode')}
+              {t('core.upgradeModal.continuePreviewMode')}
             </button>
           )}
         </div>

@@ -51,7 +51,7 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
       await login({ usernameOrEmail: loginIdentifier, password: loginPassword });
       onClose();
     } catch (err) {
-      setError(err.message || t('authModal.errLoginFailed'));
+      setError(err.message || t('core.authModal.errLoginFailed'));
     } finally {
       setLoading(false);
     }
@@ -73,7 +73,7 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
       });
       onClose();
     } catch (err) {
-      setError(err.message || t('authModal.errRegisterFailed'));
+      setError(err.message || t('core.authModal.errRegisterFailed'));
     } finally {
       setLoading(false);
     }
@@ -86,9 +86,9 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
     setLoading(true);
     try {
       const res = await authApi.forgotPassword(forgotEmail);
-      setMessage(res.message || t('authModal.resetLinkSent'));
+      setMessage(res.message || t('core.authModal.resetLinkSent'));
     } catch (err) {
-      setError(err.message || t('authModal.errResetFailed'));
+      setError(err.message || t('core.authModal.errResetFailed'));
     } finally {
       setLoading(false);
     }
@@ -121,21 +121,21 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
         {view === 'login' && (
           <div>
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{t('authModal.welcomeBack')}</h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t('authModal.loginSubtitle')}</p>
+              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{t('core.authModal.welcomeBack')}</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t('core.authModal.loginSubtitle')}</p>
             </div>
 
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                  {t('authModal.usernameOrEmail')}
+                  {t('core.authModal.usernameOrEmail')}
                 </label>
                 <input
                   type="text"
                   required
                   value={loginIdentifier}
                   onChange={(e) => setLoginIdentifier(e.target.value)}
-                  placeholder={t('authModal.usernameOrEmailPlaceholder')}
+                  placeholder={t('core.authModal.usernameOrEmailPlaceholder')}
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
@@ -143,14 +143,14 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
               <div>
                 <div className="flex justify-between items-center mb-1">
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                    {t('authModal.password')}
+                    {t('core.authModal.password')}
                   </label>
                   <button
                     type="button"
                     onClick={() => switchView('forgot')}
                     className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline"
                   >
-                    {t('authModal.forgotPassword')}
+                    {t('core.authModal.forgotPassword')}
                   </button>
                 </div>
                 <input
@@ -158,7 +158,7 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
                   required
                   value={loginPassword}
                   onChange={(e) => setLoginPassword(e.target.value)}
-                  placeholder={t('authModal.passwordPlaceholder')}
+                  placeholder={t('core.authModal.passwordPlaceholder')}
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
@@ -168,18 +168,18 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
                 disabled={loading}
                 className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm cursor-pointer"
               >
-                {loading ? t('authModal.loggingIn') : t('authModal.logIn')}
+                {loading ? t('core.authModal.loggingIn') : t('core.authModal.logIn')}
               </button>
             </form>
 
             <div className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
-              {t('authModal.dontHaveAccount')}{' '}
+              {t('core.authModal.dontHaveAccount')}{' '}
               <button
                 type="button"
                 onClick={() => switchView('register')}
                 className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline cursor-pointer"
               >
-                {t('authModal.createAccount')}
+                {t('core.authModal.createAccount')}
               </button>
             </div>
           </div>
@@ -189,35 +189,35 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
         {view === 'register' && (
           <div>
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{t('authModal.createAccount')}</h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t('authModal.getStartedSubtitle')}</p>
+              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{t('core.authModal.createAccount')}</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t('core.authModal.getStartedSubtitle')}</p>
             </div>
 
             <form onSubmit={handleRegister} className="space-y-3.5">
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                    {t('authModal.firstName')}
+                    {t('core.authModal.firstName')}
                   </label>
                   <input
                     type="text"
                     required
                     value={registerFirstName}
                     onChange={(e) => setRegisterFirstName(e.target.value)}
-                    placeholder={t('authModal.firstNamePlaceholder')}
+                    placeholder={t('core.authModal.firstNamePlaceholder')}
                     className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                    {t('authModal.lastName')}
+                    {t('core.authModal.lastName')}
                   </label>
                   <input
                     type="text"
                     required
                     value={registerLastName}
                     onChange={(e) => setRegisterLastName(e.target.value)}
-                    placeholder={t('authModal.lastNamePlaceholder')}
+                    placeholder={t('core.authModal.lastNamePlaceholder')}
                     className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                   />
                 </div>
@@ -225,14 +225,14 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                  {t('authModal.username')}
+                  {t('core.authModal.username')}
                 </label>
                 <input
                   type="text"
                   required
                   value={registerUsername}
                   onChange={(e) => setRegisterUsername(e.target.value)}
-                  placeholder={t('authModal.usernamePlaceholder')}
+                  placeholder={t('core.authModal.usernamePlaceholder')}
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
@@ -251,34 +251,34 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                  {t('authModal.email')}
+                  {t('core.authModal.email')}
                 </label>
                 <input
                   type="email"
                   required
                   value={registerEmail}
                   onChange={(e) => setRegisterEmail(e.target.value)}
-                  placeholder={t('authModal.emailPlaceholder')}
+                  placeholder={t('core.authModal.emailPlaceholder')}
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                  {t('authModal.phoneOptional')}
+                  {t('core.authModal.phoneOptional')}
                 </label>
                 <input
                   type="tel"
                   value={registerPhone}
                   onChange={(e) => setRegisterPhone(e.target.value)}
-                  placeholder={t('authModal.phonePlaceholder')}
+                  placeholder={t('core.authModal.phonePlaceholder')}
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                  {t('authModal.passwordMinChars')}
+                  {t('core.authModal.passwordMinChars')}
                 </label>
                 <input
                   type="password"
@@ -286,7 +286,7 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
                   minLength={6}
                   value={registerPassword}
                   onChange={(e) => setRegisterPassword(e.target.value)}
-                  placeholder={t('authModal.passwordPlaceholder')}
+                  placeholder={t('core.authModal.passwordPlaceholder')}
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
@@ -296,18 +296,18 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
                 disabled={loading}
                 className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm cursor-pointer"
               >
-                {loading ? t('authModal.creatingAccount') : t('authModal.createAccount')}
+                {loading ? t('core.authModal.creatingAccount') : t('core.authModal.createAccount')}
               </button>
             </form>
 
             <div className="mt-5 text-center text-sm text-slate-500 dark:text-slate-400">
-              {t('authModal.alreadyHaveAccount')}{' '}
+              {t('core.authModal.alreadyHaveAccount')}{' '}
               <button
                 type="button"
                 onClick={() => switchView('login')}
                 className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline cursor-pointer"
               >
-                {t('authModal.logIn')}
+                {t('core.authModal.logIn')}
               </button>
             </div>
           </div>
@@ -317,23 +317,23 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
         {view === 'forgot' && (
           <div>
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{t('authModal.forgotPasswordTitle')}</h2>
+              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{t('core.authModal.forgotPasswordTitle')}</h2>
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                {t('authModal.forgotPasswordSubtitle')}
+                {t('core.authModal.forgotPasswordSubtitle')}
               </p>
             </div>
 
             <form onSubmit={handleForgotPassword} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                  {t('authModal.emailAddress')}
+                  {t('core.authModal.emailAddress')}
                 </label>
                 <input
                   type="email"
                   required
                   value={forgotEmail}
                   onChange={(e) => setForgotEmail(e.target.value)}
-                  placeholder={t('authModal.yourEmailPlaceholder')}
+                  placeholder={t('core.authModal.yourEmailPlaceholder')}
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
@@ -343,7 +343,7 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
                 disabled={loading}
                 className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm cursor-pointer"
               >
-                {loading ? t('authModal.submitting') : t('authModal.sendResetInstructions')}
+                {loading ? t('core.authModal.submitting') : t('core.authModal.sendResetInstructions')}
               </button>
 
               <div className="flex justify-between items-center text-xs text-slate-500 dark:text-slate-400 pt-2">
@@ -352,7 +352,7 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
                   onClick={() => switchView('login')}
                   className="text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
                 >
-                  {t('authModal.backToLogIn')}
+                  {t('core.authModal.backToLogIn')}
                 </button>
               </div>
             </form>

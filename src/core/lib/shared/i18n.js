@@ -1,7 +1,7 @@
-import enTranslations from '@/locales/en.json' with { type: 'json' };
-import esTranslations from '@/locales/es.json' with { type: 'json' };
-import frTranslations from '@/locales/fr.json' with { type: 'json' };
-import ptTranslations from '@/locales/pt.json' with { type: 'json' };
+import enTranslations from '@/lang/en.json' with { type: 'json' };
+import esTranslations from '@/lang/es.json' with { type: 'json' };
+import frTranslations from '@/lang/fr.json' with { type: 'json' };
+import ptTranslations from '@/lang/pt.json' with { type: 'json' };
 
 const resources = {
   en: enTranslations,

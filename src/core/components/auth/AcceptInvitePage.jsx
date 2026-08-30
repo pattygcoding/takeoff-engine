@@ -25,7 +25,7 @@ export default function AcceptInvitePage() {
   useEffect(() => {
     async function verifyToken() {
       if (!token) {
-        setError(t('acceptInvite.noTokenError'));
+        setError(t('core.acceptInvite.noTokenError'));
         setVerifying(false);
         setLoading(false);
         return;
@@ -35,11 +35,11 @@ export default function AcceptInvitePage() {
         const res = await fetch(`${API_BASE_URL}/organizations/invitations/verify?token=${encodeURIComponent(token)}`);
         const data = await res.json();
         if (!res.ok) {
-          throw new Error(data.error || t('acceptInvite.verifyFailedError'));
+          throw new Error(data.error || t('core.acceptInvite.verifyFailedError'));
         }
         setInviteData(data.invitation);
       } catch (err) {
-        setError(err.message || t('acceptInvite.invalidOrExpiredToken'));
+        setError(err.message || t('core.acceptInvite.invalidOrExpiredToken'));
       } finally {
         setVerifying(false);
         setLoading(false);
@@ -73,7 +73,7 @@ export default function AcceptInvitePage() {
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || t('acceptInvite.acceptFailedError'));
+        throw new Error(data.error || t('core.acceptInvite.acceptFailedError'));
       }
 
       setSuccess(true);
@@ -81,14 +81,14 @@ export default function AcceptInvitePage() {
       sessionStorage.removeItem('pending_invite_token');
 
       await showAlert({
-        title: t('acceptInvite.teamJoinedTitle'),
-        message: t('acceptInvite.teamJoinedMessage', { orgName: data.organizationName || t('acceptInvite.workspaceFallback') }),
+        title: t('core.acceptInvite.teamJoinedTitle'),
+        message: t('core.acceptInvite.teamJoinedMessage', { orgName: data.organizationName || t('core.acceptInvite.workspaceFallback') }),
         variant: 'success',
       });
 
       navigate(user?.username ? `/${user.username}` : '/login');
     } catch (err) {
-      setError(err.message || t('acceptInvite.acceptFailedError'));
+      setError(err.message || t('core.acceptInvite.acceptFailedError'));
     } finally {
       setAccepting(false);
     }
@@ -99,7 +99,7 @@ export default function AcceptInvitePage() {
       <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
         <div className="text-center space-y-3">
           <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-slate-400 text-sm font-medium">{t('acceptInvite.verifyingInvitation')}</p>
+          <p className="text-slate-400 text-sm font-medium">{t('core.acceptInvite.verifyingInvitation')}</p>
         </div>
       </div>
     );
@@ -112,14 +112,14 @@ export default function AcceptInvitePage() {
           <div className="w-14 h-14 bg-red-500/10 text-red-400 rounded-2xl flex items-center justify-center mx-auto text-2xl font-bold border border-red-500/20">
             ✕
           </div>
-          <h2 className="text-xl font-bold text-white">{t('acceptInvite.invitationInvalidOrExpired')}</h2>
+          <h2 className="text-xl font-bold text-white">{t('core.acceptInvite.invitationInvalidOrExpired')}</h2>
           <p className="text-sm text-slate-400">{error}</p>
           <div className="pt-2">
             <Link
               to="/login"
               className="inline-block px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl transition"
             >
-              {t('acceptInvite.returnToTakeoffEngine')}
+              {t('core.acceptInvite.returnToTakeoffEngine')}
             </Link>
           </div>
         </div>
@@ -129,10 +129,10 @@ export default function AcceptInvitePage() {
 
   const roleLabel =
     inviteData?.role === 'admin'
-      ? t('acceptInvite.roleAdmin')
+      ? t('core.acceptInvite.roleAdmin')
       : inviteData?.role === 'viewer'
-      ? t('acceptInvite.roleViewer')
-      : t('acceptInvite.roleEstimator');
+      ? t('core.acceptInvite.roleViewer')
+      : t('core.acceptInvite.roleEstimator');
 
   return (
     <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
@@ -142,13 +142,13 @@ export default function AcceptInvitePage() {
             🤝
           </div>
           <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-400 bg-indigo-950/80 border border-indigo-800 px-3 py-1 rounded-full">
-            {t('acceptInvite.workspaceInvitation')}
+            {t('core.acceptInvite.workspaceInvitation')}
           </span>
           <h1 className="text-2xl font-black text-white mt-3">
-            {t('acceptInvite.joinOrg', { orgName: inviteData?.organizationName })}
+            {t('core.acceptInvite.joinOrg', { orgName: inviteData?.organizationName })}
           </h1>
           <p className="text-xs text-slate-400 mt-1">
-            {t('acceptInvite.invitedBy')}{' '}
+            {t('core.acceptInvite.invitedBy')}{' '}
             <strong className="text-slate-200">{inviteData?.inviterName}</strong>
           </p>
         </div>
@@ -156,15 +156,15 @@ export default function AcceptInvitePage() {
         {/* Invite Details Card */}
         <div className="bg-slate-900/80 border border-slate-700/80 rounded-2xl p-4 mb-6 space-y-2.5 text-xs">
           <div className="flex justify-between items-center text-slate-400 border-b border-slate-800 pb-2">
-            <span>{t('acceptInvite.invitedEmail')}</span>
+            <span>{t('core.acceptInvite.invitedEmail')}</span>
             <span className="font-mono text-slate-200 font-semibold">{inviteData?.email}</span>
           </div>
           <div className="flex justify-between items-center text-slate-400 border-b border-slate-800 pb-2">
-            <span>{t('acceptInvite.assignedRole')}</span>
+            <span>{t('core.acceptInvite.assignedRole')}</span>
             <span className="font-semibold text-indigo-300">{roleLabel}</span>
           </div>
           <div className="flex justify-between items-center text-slate-400">
-            <span>{t('acceptInvite.workspace')}</span>
+            <span>{t('core.acceptInvite.workspace')}</span>
             <span className="font-semibold text-white">{inviteData?.organizationName}</span>
           </div>
         </div>
@@ -173,7 +173,7 @@ export default function AcceptInvitePage() {
           {user ? (
             <div className="space-y-2">
               <p className="text-xs text-slate-400 text-center">
-                {t('acceptInvite.signedInAs')}{' '}
+                {t('core.acceptInvite.signedInAs')}{' '}
                 <strong className="text-white">{user.email}</strong>
               </p>
               <button
@@ -185,24 +185,24 @@ export default function AcceptInvitePage() {
                 {accepting ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>{t('acceptInvite.joiningWorkspace')}</span>
+                    <span>{t('core.acceptInvite.joiningWorkspace')}</span>
                   </>
                 ) : (
-                  <span>{t('acceptInvite.acceptAndJoin')}</span>
+                  <span>{t('core.acceptInvite.acceptAndJoin')}</span>
                 )}
               </button>
             </div>
           ) : (
             <div className="space-y-2.5">
               <p className="text-xs text-slate-400 text-center">
-                {t('acceptInvite.signInPrompt')}
+                {t('core.acceptInvite.signInPrompt')}
               </p>
               <button
                 type="button"
                 onClick={handleAcceptInvite}
                 className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm rounded-xl shadow-lg shadow-indigo-600/30 transition"
               >
-                {t('acceptInvite.signInToAccept')}
+                {t('core.acceptInvite.signInToAccept')}
               </button>
             </div>
           )}

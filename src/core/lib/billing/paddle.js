@@ -14,7 +14,7 @@ export async function getPaddleInstance() {
   const environment = import.meta.env.VITE_PADDLE_ENVIRONMENT || 'sandbox';
 
   if (!clientToken) {
-    console.warn(getTranslation('paddle.tokenNotConfiguredWarn'));
+    console.warn(getTranslation('core.paddle.tokenNotConfiguredWarn'));
     return null;
   }
 
@@ -31,7 +31,7 @@ export async function getPaddleInstance() {
     });
     return paddleInstance;
   } catch (err) {
-    console.error(getTranslation('paddle.initFailed'), err);
+    console.error(getTranslation('core.paddle.initFailed'), err);
     return null;
   }
 }

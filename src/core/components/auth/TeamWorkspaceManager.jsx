@@ -4,6 +4,11 @@ import { billingApi } from '@/core/lib/billing/billing';
 import { useAuth } from '@/core/components/context/AuthContext';
 import { useModal } from '@/core/components/context/ModalContext';
 import { useTranslation } from '@/core/components/context/I18nContext';
+import {
+  ENTERPRISE_MONTHLY_PRICE,
+  EXTRA_SEAT_MONTHLY_PRICE,
+  ENTERPRISE_PLAN_SEATS,
+} from '@/core/constants';
 
 export default function TeamWorkspaceManager() {
   const { user, refreshProfile } = useAuth();
@@ -57,7 +62,7 @@ export default function TeamWorkspaceManager() {
         selectOrganization(list[0].id);
       }
     } catch (err) {
-      setError(err.message || t('teamWorkspaceManager.failedLoadWorkspaces'));
+      setError(err.message || t('core.teamWorkspaceManager.failedLoadWorkspaces'));
     } finally {
       setLoading(false);
     }
@@ -69,7 +74,7 @@ export default function TeamWorkspaceManager() {
       setActiveOrg(data.organization);
       setMembers(data.members || []);
     } catch (err) {
-      setError(err.message || t('teamWorkspaceManager.failedFetchDetails'));
+      setError(err.message || t('core.teamWorkspaceManager.failedFetchDetails'));
     }
   };
 
@@ -84,11 +89,11 @@ export default function TeamWorkspaceManager() {
     try {
       const newOrg = await organizationsApi.create({ name: newOrgName.trim() });
       setNewOrgName('');
-      setSuccessMsg(t('teamWorkspaceManager.createdOrgSuccess', { name: newOrg.name }));
+      setSuccessMsg(t('core.teamWorkspaceManager.createdOrgSuccess', { name: newOrg.name }));
       await loadOrganizations();
       await selectOrganization(newOrg.id);
     } catch (err) {
-      setError(err.message || t('teamWorkspaceManager.failedCreateWorkspace'));
+      setError(err.message || t('core.teamWorkspaceManager.failedCreateWorkspace'));
     } finally {
       setCreatingOrg(false);
     }
@@ -108,10 +113,10 @@ export default function TeamWorkspaceManager() {
         role: inviteRole,
       });
       setInviteEmail('');
-      setSuccessMsg(t('teamWorkspaceManager.inviteSentSuccess', { email: inviteEmail }));
+      setSuccessMsg(t('core.teamWorkspaceManager.inviteSentSuccess', { email: inviteEmail }));
       await selectOrganization(activeOrg.id);
     } catch (err) {
-      setError(err.message || t('teamWorkspaceManager.failedInviteMember'));
+      setError(err.message || t('core.teamWorkspaceManager.failedInviteMember'));
     } finally {
       setInviting(false);
     }
@@ -122,15 +127,15 @@ export default function TeamWorkspaceManager() {
     try {
       const res = await organizationsApi.resendInvite(activeOrg.id, memberId);
       await showAlert({
-        title: t('teamWorkspaceManager.inviteResentTitle'),
-        message: res.message || t('teamWorkspaceManager.inviteResentMessage', { email: targetEmail }),
+        title: t('core.teamWorkspaceManager.inviteResentTitle'),
+        message: res.message || t('core.teamWorkspaceManager.inviteResentMessage', { email: targetEmail }),
         variant: 'success',
       });
       await selectOrganization(activeOrg.id);
     } catch (err) {
       await showAlert({
-        title: t('teamWorkspaceManager.resendFailedTitle'),
-        message: err.message || t('teamWorkspaceManager.resendFailedMessage'),
+        title: t('core.teamWorkspaceManager.resendFailedTitle'),
+        message: err.message || t('core.teamWorkspaceManager.resendFailedMessage'),
         variant: 'error',
       });
     }
@@ -139,21 +144,21 @@ export default function TeamWorkspaceManager() {
   const handleRevokeInvite = async (memberId) => {
     if (!activeOrg) return;
     const confirmed = await showConfirm({
-      title: t('teamWorkspaceManager.revokeInviteTitle'),
-      message: t('teamWorkspaceManager.revokeInviteMessage'),
-      confirmText: t('teamWorkspaceManager.revokeInviteButton'),
+      title: t('core.teamWorkspaceManager.revokeInviteTitle'),
+      message: t('core.teamWorkspaceManager.revokeInviteMessage'),
+      confirmText: t('core.teamWorkspaceManager.revokeInviteButton'),
       confirmVariant: 'danger',
     });
     if (!confirmed) return;
 
     try {
       await organizationsApi.revokeInvite(activeOrg.id, memberId);
-      setSuccessMsg(t('teamWorkspaceManager.inviteRevoked'));
+      setSuccessMsg(t('core.teamWorkspaceManager.inviteRevoked'));
       await selectOrganization(activeOrg.id);
     } catch (err) {
       await showAlert({
-        title: t('teamWorkspaceManager.revokeErrorTitle'),
-        message: err.message || t('teamWorkspaceManager.revokeErrorMessage'),
+        title: t('core.teamWorkspaceManager.revokeErrorTitle'),
+        message: err.message || t('core.teamWorkspaceManager.revokeErrorMessage'),
         variant: 'error',
       });
     }
@@ -165,13 +170,13 @@ export default function TeamWorkspaceManager() {
     try {
       await navigator.clipboard.writeText(link);
       await showAlert({
-        title: t('teamWorkspaceManager.linkCopiedTitle'),
-        message: t('teamWorkspaceManager.linkCopiedMessage'),
+        title: t('core.teamWorkspaceManager.linkCopiedTitle'),
+        message: t('core.teamWorkspaceManager.linkCopiedMessage'),
         variant: 'success',
       });
     } catch (err) {
       await showAlert({
-        title: t('teamWorkspaceManager.copyFailedTitle'),
+        title: t('core.teamWorkspaceManager.copyFailedTitle'),
         message: link,
         variant: 'info',
       });
@@ -189,8 +194,8 @@ export default function TeamWorkspaceManager() {
       const res = await billingApi.updateSeats(targetAddSeats, activeOrg?.id);
       if (refreshProfile) await refreshProfile();
       await showAlert({
-        title: t('teamWorkspaceManager.seatsUpdatedTitle'),
-        message: res.message || t('teamWorkspaceManager.seatsUpdatedMessage'),
+        title: t('core.teamWorkspaceManager.seatsUpdatedTitle'),
+        message: res.message || t('core.teamWorkspaceManager.seatsUpdatedMessage'),
         variant: 'success',
       });
       setSeatModalOpen(false);
@@ -198,8 +203,8 @@ export default function TeamWorkspaceManager() {
       if (activeOrg) await selectOrganization(activeOrg.id);
     } catch (err) {
       await showAlert({
-        title: t('teamWorkspaceManager.seatsUpdateErrorTitle'),
-        message: err.message || t('teamWorkspaceManager.seatsUpdateErrorMessage'),
+        title: t('core.teamWorkspaceManager.seatsUpdateErrorTitle'),
+        message: err.message || t('core.teamWorkspaceManager.seatsUpdateErrorMessage'),
         variant: 'error',
       });
     } finally {
@@ -214,8 +219,8 @@ export default function TeamWorkspaceManager() {
       await selectOrganization(activeOrg.id);
     } catch (err) {
       await showAlert({
-        title: t('teamWorkspaceManager.updateRoleErrorTitle'),
-        message: err.message || t('teamWorkspaceManager.updateRoleErrorMessage'),
+        title: t('core.teamWorkspaceManager.updateRoleErrorTitle'),
+        message: err.message || t('core.teamWorkspaceManager.updateRoleErrorMessage'),
         variant: 'error',
       });
     }
@@ -224,9 +229,9 @@ export default function TeamWorkspaceManager() {
   const handleRemoveMember = async (memberId) => {
     if (!activeOrg) return;
     const confirmed = await showConfirm({
-      title: t('teamWorkspaceManager.removeMemberTitle'),
-      message: t('teamWorkspaceManager.removeMemberMessage'),
-      confirmText: t('teamWorkspaceManager.removeMemberButton'),
+      title: t('core.teamWorkspaceManager.removeMemberTitle'),
+      message: t('core.teamWorkspaceManager.removeMemberMessage'),
+      confirmText: t('core.teamWorkspaceManager.removeMemberButton'),
       confirmVariant: 'danger',
     });
     if (!confirmed) return;
@@ -236,8 +241,8 @@ export default function TeamWorkspaceManager() {
       await selectOrganization(activeOrg.id);
     } catch (err) {
       await showAlert({
-        title: t('teamWorkspaceManager.removeErrorTitle'),
-        message: err.message || t('teamWorkspaceManager.removeErrorMessage'),
+        title: t('core.teamWorkspaceManager.removeErrorTitle'),
+        message: err.message || t('core.teamWorkspaceManager.removeErrorMessage'),
         variant: 'error',
       });
     }
@@ -254,17 +259,17 @@ export default function TeamWorkspaceManager() {
 
     if (!canDeleteActiveOrg) {
       await showAlert({
-        title: t('teamWorkspaceManager.deleteOrgErrorTitle'),
-        message: t('teamWorkspaceManager.cannotDeleteOrgOccupied'),
+        title: t('core.teamWorkspaceManager.deleteOrgErrorTitle'),
+        message: t('core.teamWorkspaceManager.cannotDeleteOrgOccupied'),
         variant: 'error',
       });
       return;
     }
 
     const confirmed = await showConfirm({
-      title: t('teamWorkspaceManager.deleteOrgTitle'),
-      message: t('teamWorkspaceManager.deleteOrgMessage', { name: activeOrg.name }),
-      confirmText: t('teamWorkspaceManager.deleteOrgConfirmButton'),
+      title: t('core.teamWorkspaceManager.deleteOrgTitle'),
+      message: t('core.teamWorkspaceManager.deleteOrgMessage', { name: activeOrg.name }),
+      confirmText: t('core.teamWorkspaceManager.deleteOrgConfirmButton'),
       confirmVariant: 'danger',
     });
     if (!confirmed) return;
@@ -272,14 +277,14 @@ export default function TeamWorkspaceManager() {
     try {
       const orgName = activeOrg.name;
       await organizationsApi.delete(activeOrg.id);
-      setSuccessMsg(t('teamWorkspaceManager.deleteOrgSuccess', { name: orgName }));
+      setSuccessMsg(t('core.teamWorkspaceManager.deleteOrgSuccess', { name: orgName }));
       setActiveOrg(null);
       setMembers([]);
       await loadOrganizations();
     } catch (err) {
       await showAlert({
-        title: t('teamWorkspaceManager.deleteOrgErrorTitle'),
-        message: err.message || t('teamWorkspaceManager.deleteOrgErrorMessage'),
+        title: t('core.teamWorkspaceManager.deleteOrgErrorTitle'),
+        message: err.message || t('core.teamWorkspaceManager.deleteOrgErrorMessage'),
         variant: 'error',
       });
     }
@@ -290,16 +295,16 @@ export default function TeamWorkspaceManager() {
       <div className="flex items-center justify-between flex-wrap gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{t('teamWorkspaceManager.title')}</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{t('core.teamWorkspaceManager.title')}</h2>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            {t('teamWorkspaceManager.collaborate')}
+            {t('core.teamWorkspaceManager.collaborate')}
           </p>
         </div>
 
         {!isEnterpriseOrTeam && (
           <div className="text-xs bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-700 px-3 py-1.5 rounded-xl">
-            👑 {t('teamWorkspaceManager.requiresEnterprise')}
+            👑 {t('core.teamWorkspaceManager.requiresEnterprise', { price: ENTERPRISE_MONTHLY_PRICE })}
           </div>
         )}
       </div>
@@ -337,7 +342,7 @@ export default function TeamWorkspaceManager() {
           <form onSubmit={handleCreateOrg} className="flex items-center gap-2">
             <input
               type="text"
-              placeholder={t('teamWorkspaceManager.newOrgPlaceholder')}
+              placeholder={t('core.teamWorkspaceManager.newOrgPlaceholder')}
               value={newOrgName}
               onChange={(e) => setNewOrgName(e.target.value)}
               className="px-3 py-1.5 text-xs border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -347,7 +352,7 @@ export default function TeamWorkspaceManager() {
               disabled={creatingOrg || !newOrgName.trim()}
               className="px-3 py-1.5 bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 text-white text-xs font-semibold rounded-xl disabled:opacity-50 transition cursor-pointer"
             >
-              {creatingOrg ? t('teamWorkspaceManager.creating') : t('teamWorkspaceManager.createOrgButton')}
+              {creatingOrg ? t('core.teamWorkspaceManager.creating') : t('core.teamWorkspaceManager.createOrgButton')}
             </button>
           </form>
         )}
@@ -361,17 +366,17 @@ export default function TeamWorkspaceManager() {
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                  {t('teamWorkspaceManager.subscriptionSeats')}
+                  {t('core.teamWorkspaceManager.subscriptionSeats')}
                 </span>
                 <span className="text-xs bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-bold px-2 py-0.5 rounded">
-                  {tier.toUpperCase()} {t('teamWorkspaceManager.tier')}
+                  {tier.toUpperCase()} {t('core.teamWorkspaceManager.tier')}
                 </span>
               </div>
               <div className="text-lg font-black text-slate-900 dark:text-white mt-1">
-                {members.length} {t('teamWorkspaceManager.of')} {activeOrg.max_seats} {t('teamWorkspaceManager.seatsUsed')}
+                {members.length} {t('core.teamWorkspaceManager.of')} {activeOrg.max_seats} {t('core.teamWorkspaceManager.seatsUsed')}
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                {t('teamWorkspaceManager.seatsBreakdown', { baseSeats, currentAddSeats })}
+                {t('core.teamWorkspaceManager.seatsBreakdown', { baseSeats, currentAddSeats, price: EXTRA_SEAT_MONTHLY_PRICE })}
               </p>
             </div>
 
@@ -381,18 +386,18 @@ export default function TeamWorkspaceManager() {
                 onClick={handleOpenSeatModal}
                 className="px-4 py-2 bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 text-white text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
               >
-                <span>⚙️ {t('teamWorkspaceManager.manageSeatButton')}</span>
+                <span>⚙️ {t('core.teamWorkspaceManager.manageSeatButton')}</span>
               </button>
             )}
           </div>
 
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">
-              {t('teamWorkspaceManager.workspaceMembers')} ({members.length} / {activeOrg.max_seats} {t('teamWorkspaceManager.seatsUsed')})
+              {t('core.teamWorkspaceManager.workspaceMembers')} ({members.length} / {activeOrg.max_seats} {t('core.teamWorkspaceManager.seatsUsed')})
             </h3>
             <div className="flex items-center gap-3">
               <span className="text-xs text-slate-400 dark:text-slate-500">
-                {t('teamWorkspaceManager.owner')}: {activeOrg.owner_email || t('teamWorkspaceManager.you')}
+                {t('core.teamWorkspaceManager.owner')}: {activeOrg.owner_email || t('core.teamWorkspaceManager.you')}
               </span>
               {canDeleteActiveOrg && (
                 <button
@@ -400,7 +405,7 @@ export default function TeamWorkspaceManager() {
                   onClick={handleDeleteOrg}
                   className="px-2.5 py-1 text-xs font-semibold text-red-600 dark:text-red-400 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/40 border border-red-200 dark:border-red-900/60 rounded-lg transition cursor-pointer"
                 >
-                  🗑️ {t('teamWorkspaceManager.deleteOrgButton')}
+                  🗑️ {t('core.teamWorkspaceManager.deleteOrgButton')}
                 </button>
               )}
             </div>
@@ -411,10 +416,10 @@ export default function TeamWorkspaceManager() {
             <table className="min-w-full text-xs">
               <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider">
                 <tr>
-                  <th className="py-2.5 px-3 text-left">{t('teamWorkspaceManager.member')}</th>
-                  <th className="py-2.5 px-3 text-left">{t('teamWorkspaceManager.role')}</th>
-                  <th className="py-2.5 px-3 text-left">{t('teamWorkspaceManager.status')}</th>
-                  <th className="py-2.5 px-3 text-right">{t('teamWorkspaceManager.actions')}</th>
+                  <th className="py-2.5 px-3 text-left">{t('core.teamWorkspaceManager.member')}</th>
+                  <th className="py-2.5 px-3 text-left">{t('core.teamWorkspaceManager.role')}</th>
+                  <th className="py-2.5 px-3 text-left">{t('core.teamWorkspaceManager.status')}</th>
+                  <th className="py-2.5 px-3 text-right">{t('core.teamWorkspaceManager.actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -429,7 +434,7 @@ export default function TeamWorkspaceManager() {
                     <td className="py-2.5 px-3">
                       {m.role === 'owner' ? (
                         <span className="px-2 py-0.5 bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 font-bold rounded-md">
-                          {t('teamWorkspaceManager.roleOwner')}
+                          {t('core.teamWorkspaceManager.roleOwner')}
                         </span>
                       ) : (
                         <select
@@ -437,9 +442,9 @@ export default function TeamWorkspaceManager() {
                           onChange={(e) => handleUpdateRole(m.id, e.target.value)}
                           className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 text-xs focus:ring-1 focus:ring-indigo-500"
                         >
-                          <option value="admin">{t('teamWorkspaceManager.roleAdmin')}</option>
-                          <option value="estimator">{t('teamWorkspaceManager.roleEstimator')}</option>
-                          <option value="viewer">{t('teamWorkspaceManager.roleViewer')}</option>
+                          <option value="admin">{t('core.teamWorkspaceManager.roleAdmin')}</option>
+                          <option value="estimator">{t('core.teamWorkspaceManager.roleEstimator')}</option>
+                          <option value="viewer">{t('core.teamWorkspaceManager.roleViewer')}</option>
                         </select>
                       )}
                     </td>
@@ -461,9 +466,9 @@ export default function TeamWorkspaceManager() {
                             type="button"
                             onClick={() => handleCopyInviteLink(m.invite_token)}
                             className="text-[11px] text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium underline cursor-pointer"
-                            title={t('teamWorkspaceManager.copyMagicLinkTitle')}
+                            title={t('core.teamWorkspaceManager.copyMagicLinkTitle')}
                           >
-                            {t('teamWorkspaceManager.copyLink')}
+                            {t('core.teamWorkspaceManager.copyLink')}
                           </button>
                         )}
                       </div>
@@ -478,14 +483,14 @@ export default function TeamWorkspaceManager() {
                                 onClick={() => handleResendInvite(m.id, m.user_email || m.invited_email)}
                                 className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-semibold text-xs cursor-pointer"
                               >
-                                {t('teamWorkspaceManager.resend')}
+                                {t('core.teamWorkspaceManager.resend')}
                               </button>
                               <button
                                 type="button"
                                 onClick={() => handleRevokeInvite(m.id)}
                                 className="text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 font-semibold text-xs cursor-pointer"
                               >
-                                {t('teamWorkspaceManager.revoke')}
+                                {t('core.teamWorkspaceManager.revoke')}
                               </button>
                             </>
                           )}
@@ -494,7 +499,7 @@ export default function TeamWorkspaceManager() {
                             onClick={() => handleRemoveMember(m.id)}
                             className="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 font-semibold text-xs cursor-pointer"
                           >
-                            {t('teamWorkspaceManager.remove')}
+                            {t('core.teamWorkspaceManager.remove')}
                           </button>
                         </div>
                       )}
@@ -510,7 +515,7 @@ export default function TeamWorkspaceManager() {
             <form onSubmit={handleInviteMember} className="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-wrap gap-3 items-center">
               <div className="flex-1 min-w-[200px]">
                 <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                  {t('teamWorkspaceManager.inviteEmailLabel')}
+                  {t('core.teamWorkspaceManager.inviteEmailLabel')}
                 </label>
                 <input
                   type="email"
@@ -524,16 +529,16 @@ export default function TeamWorkspaceManager() {
 
               <div className="w-32">
                 <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                  {t('teamWorkspaceManager.roleLabel')}
+                  {t('core.teamWorkspaceManager.roleLabel')}
                 </label>
                 <select
                   value={inviteRole}
                   onChange={(e) => setInviteRole(e.target.value)}
                   className="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 >
-                  <option value="estimator">{t('teamWorkspaceManager.roleEstimator')}</option>
-                  <option value="admin">{t('teamWorkspaceManager.roleAdmin')}</option>
-                  <option value="viewer">{t('teamWorkspaceManager.roleViewer')}</option>
+                  <option value="estimator">{t('core.teamWorkspaceManager.roleEstimator')}</option>
+                  <option value="admin">{t('core.teamWorkspaceManager.roleAdmin')}</option>
+                  <option value="viewer">{t('core.teamWorkspaceManager.roleViewer')}</option>
                 </select>
               </div>
 
@@ -543,7 +548,7 @@ export default function TeamWorkspaceManager() {
                   disabled={inviting || !inviteEmail.trim()}
                   className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-xl disabled:opacity-50 shadow-xs transition cursor-pointer"
                 >
-                  {inviting ? t('teamWorkspaceManager.inviting') : t('teamWorkspaceManager.sendInviteButton')}
+                  {inviting ? t('core.teamWorkspaceManager.inviting') : t('core.teamWorkspaceManager.sendInviteButton')}
                 </button>
               </div>
             </form>
@@ -551,7 +556,7 @@ export default function TeamWorkspaceManager() {
         </div>
       ) : (
         <div className="text-center py-6 text-slate-400 dark:text-slate-500 text-xs">
-          {t('teamWorkspaceManager.noWorkspaces')}
+          {t('core.teamWorkspaceManager.noWorkspaces')}
         </div>
       )}
 
@@ -565,19 +570,19 @@ export default function TeamWorkspaceManager() {
             >
               ✕
             </button>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">{t('teamWorkspaceManager.seatModalTitle')}</h3>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">{t('core.teamWorkspaceManager.seatModalTitle')}</h3>
             <p
               className="text-xs text-slate-500 dark:text-slate-400 mb-4"
-              dangerouslySetInnerHTML={{ __html: t('teamWorkspaceManager.seatModalDescription') }}
+              dangerouslySetInnerHTML={{ __html: t('core.teamWorkspaceManager.seatModalDescription') }}
             />
 
             <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl p-4 mb-4 space-y-3">
               <div className="flex justify-between items-center text-xs">
-                <span className="text-slate-600 dark:text-slate-400">{t('teamWorkspaceManager.basePlanSeatsLabel', { tier: tier.toUpperCase() })}:</span>
-                <span className="font-bold text-slate-900 dark:text-white">{baseSeats} {t('teamWorkspaceManager.seats')}</span>
+                <span className="text-slate-600 dark:text-slate-400">{t('core.teamWorkspaceManager.basePlanSeatsLabel', { tier: tier.toUpperCase() })}:</span>
+                <span className="font-bold text-slate-900 dark:text-white">{baseSeats} {t('core.teamWorkspaceManager.seats')}</span>
               </div>
               <div className="flex justify-between items-center text-xs">
-                <span className="text-slate-600 dark:text-slate-400">{t('teamWorkspaceManager.additionalSeatsLabel')}:</span>
+                <span className="text-slate-600 dark:text-slate-400">{t('core.teamWorkspaceManager.additionalSeatsLabel')}:</span>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
@@ -598,8 +603,8 @@ export default function TeamWorkspaceManager() {
                 </div>
               </div>
               <div className="border-t border-slate-200 dark:border-slate-700 pt-2 flex justify-between items-center text-sm font-bold">
-                <span className="text-indigo-950 dark:text-indigo-300">{t('teamWorkspaceManager.newTotalCapacityLabel')}:</span>
-                <span className="text-indigo-600 dark:text-indigo-400 font-extrabold">{baseSeats + targetAddSeats} {t('teamWorkspaceManager.seats')}</span>
+                <span className="text-indigo-950 dark:text-indigo-300">{t('core.teamWorkspaceManager.newTotalCapacityLabel')}:</span>
+                <span className="text-indigo-600 dark:text-indigo-400 font-extrabold">{baseSeats + targetAddSeats} {t('core.teamWorkspaceManager.seats')}</span>
               </div>
             </div>
 
@@ -609,7 +614,7 @@ export default function TeamWorkspaceManager() {
                 onClick={() => setSeatModalOpen(false)}
                 className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-xl transition cursor-pointer"
               >
-                {t('teamWorkspaceManager.cancelButton')}
+                {t('core.teamWorkspaceManager.cancelButton')}
               </button>
               <button
                 type="button"
@@ -617,7 +622,7 @@ export default function TeamWorkspaceManager() {
                 disabled={updatingSeats}
                 className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition disabled:opacity-50 cursor-pointer"
               >
-                {updatingSeats ? t('teamWorkspaceManager.savingSeats') : t('teamWorkspaceManager.saveUpdateBillingButton')}
+                {updatingSeats ? t('core.teamWorkspaceManager.savingSeats') : t('core.teamWorkspaceManager.saveUpdateBillingButton')}
               </button>
             </div>
           </div>

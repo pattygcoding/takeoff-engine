@@ -4,6 +4,11 @@ import { formatCurrency, formatNumber } from '@/product/lib/calculations';
 import { useAuth } from '@/core/components/context/AuthContext';
 import { useModal } from '@/core/components/context/ModalContext';
 import { useNavigate } from 'react-router-dom';
+import {
+  STARTER_MONTHLY_PRICE,
+  PRO_MONTHLY_PRICE,
+  ENTERPRISE_MONTHLY_PRICE,
+} from '@/core/constants';
 
 export default function AdminPortal() {
   const { user } = useAuth();
@@ -738,9 +743,9 @@ export default function AdminPortal() {
                             className="bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
                           >
                             <option value="free">Free ($0)</option>
-                            <option value="starter">Starter ($29.99)</option>
-                            <option value="pro">Pro ($79.99)</option>
-                            <option value="enterprise">Enterprise ($199.99)</option>
+                            <option value="starter">Starter (${STARTER_MONTHLY_PRICE})</option>
+                            <option value="pro">Pro (${PRO_MONTHLY_PRICE})</option>
+                            <option value="enterprise">Enterprise (${ENTERPRISE_MONTHLY_PRICE})</option>
                           </select>
                         </td>
                         <td className="py-3 px-4 text-center">
@@ -1162,9 +1167,9 @@ export default function AdminPortal() {
                     className="w-full px-3 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   >
                     <option value="free">Free ($0/mo)</option>
-                    <option value="starter">Starter ($29.99/mo)</option>
-                    <option value="pro">Pro ($79.99/mo)</option>
-                    <option value="enterprise">Enterprise ($199.99/mo)</option>
+                    <option value="starter">Starter (${STARTER_MONTHLY_PRICE}/mo)</option>
+                    <option value="pro">Pro (${PRO_MONTHLY_PRICE}/mo)</option>
+                    <option value="enterprise">Enterprise (${ENTERPRISE_MONTHLY_PRICE}/mo)</option>
                   </select>
                 </div>
 

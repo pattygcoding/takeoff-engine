@@ -6,6 +6,18 @@ import { billingApi } from '@/core/lib/billing/billing';
 import { openPaddleCheckout } from '@/core/lib/billing/paddle';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import SeoHead from '@/core/components/shared/SeoHead';
+import {
+  STARTER_MONTHLY_PRICE,
+  PRO_MONTHLY_PRICE,
+  ENTERPRISE_MONTHLY_PRICE,
+  STARTER_YEARLY_PRICE,
+  PRO_YEARLY_PRICE,
+  ENTERPRISE_YEARLY_PRICE,
+  EXTRA_SEAT_MONTHLY_PRICE,
+  STARTER_PLAN_SEATS,
+  PRO_PLAN_SEATS,
+  ENTERPRISE_PLAN_SEATS,
+} from '@/core/constants';
 
 export default function LoginPage({ initialView = 'login' }) {
   const { login, register, refreshProfile, user } = useAuth();
@@ -67,7 +79,7 @@ export default function LoginPage({ initialView = 'login' }) {
     try {
       await login({ usernameOrEmail: loginIdentifier, password: loginPassword });
     } catch (err) {
-      setError(err.message || t('loginPage.errLoginFailed'));
+      setError(err.message || t('core.loginPage.errLoginFailed'));
     } finally {
       setLoading(false);
     }
@@ -79,12 +91,12 @@ export default function LoginPage({ initialView = 'login' }) {
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(registerEmail.trim())) {
-      setError(t('loginPage.errValidEmail'));
+      setError(t('core.loginPage.errValidEmail'));
       return;
     }
 
     if (registerPassword.length < 6) {
-      setError(t('loginPage.errPasswordMin'));
+      setError(t('core.loginPage.errPasswordMin'));
       return;
     }
 
@@ -102,7 +114,7 @@ export default function LoginPage({ initialView = 'login' }) {
       // Route immediately to the dedicated /onboarding screen
       navigate('/onboarding', { replace: true });
     } catch (err) {
-      setError(err.message || t('loginPage.errRegisterFailed'));
+      setError(err.message || t('core.loginPage.errRegisterFailed'));
     } finally {
       setLoading(false);
     }
@@ -155,7 +167,7 @@ export default function LoginPage({ initialView = 'login' }) {
         navigate(`/${targetUsername}`);
       }
     } catch (err) {
-      setError(err.message || t('upgradeModal.checkoutErrorMessage', 'Failed to launch checkout'));
+      setError(err.message || t('core.upgradeModal.checkoutErrorMessage', 'Failed to launch checkout'));
     } finally {
       setCheckoutLoadingPlan('');
     }
@@ -168,9 +180,9 @@ export default function LoginPage({ initialView = 'login' }) {
     setLoading(true);
     try {
       const res = await authApi.forgotPassword(forgotEmail);
-      setMessage(res.message || t('loginPage.resetLinkSent'));
+      setMessage(res.message || t('core.loginPage.resetLinkSent'));
     } catch (err) {
-      setError(err.message || t('loginPage.errResetFailed'));
+      setError(err.message || t('core.loginPage.errResetFailed'));
     } finally {
       setLoading(false);
     }
@@ -180,20 +192,20 @@ export default function LoginPage({ initialView = 'login' }) {
     switch (view) {
       case 'register':
         return {
-          title: t('seo.register.title', 'Sign Up — Takeoff Engine Civil & Construction Estimator'),
-          description: t('seo.register.description', 'Create your free Takeoff Engine account. Get 5 free takeoff exports with automatic column mapping, trench cubic yard calculators, and proposal generation.'),
+          title: t('core.seo.register.title', 'Sign Up — Takeoff Engine Civil & Construction Estimator'),
+          description: t('core.seo.register.description', 'Create your free Takeoff Engine account. Get 5 free takeoff exports with automatic column mapping, trench cubic yard calculators, and proposal generation.'),
           canonicalUrl: 'https://takeoffengine.com/register',
         };
       case 'forgot':
         return {
-          title: t('seo.forgot.title', 'Reset Password — Takeoff Engine'),
-          description: t('seo.forgot.description', 'Reset your Takeoff Engine account password securely.'),
+          title: t('core.seo.forgot.title', 'Reset Password — Takeoff Engine'),
+          description: t('core.seo.forgot.description', 'Reset your Takeoff Engine account password securely.'),
           canonicalUrl: 'https://takeoffengine.com/forgot-password',
         };
       default:
         return {
-          title: t('seo.login.title', 'Sign In — Takeoff Engine Estimating Platform'),
-          description: t('seo.login.description', 'Log in to your Takeoff Engine estimating workspace, projects, client proposals, and rate libraries.'),
+          title: t('core.seo.login.title', 'Sign In — Takeoff Engine Estimating Platform'),
+          description: t('core.seo.login.description', 'Log in to your Takeoff Engine estimating workspace, projects, client proposals, and rate libraries.'),
           canonicalUrl: 'https://takeoffengine.com/login',
         };
     }
@@ -216,7 +228,7 @@ export default function LoginPage({ initialView = 'login' }) {
           className="inline-flex items-center gap-1.5 hover:text-indigo-600 dark:hover:text-indigo-400 transition cursor-pointer"
         >
           <span>←</span>
-          <span>{t('loginPage.backToHome')}</span>
+          <span>{t('core.loginPage.backToHome')}</span>
         </button>
         <div className="flex items-center gap-3">
           <button
@@ -230,7 +242,7 @@ export default function LoginPage({ initialView = 'login' }) {
             }}
             className="hover:text-indigo-600 dark:hover:text-indigo-400 transition cursor-pointer"
           >
-            {t('loginPage.freeCalculator')}
+            {t('core.loginPage.freeCalculator')}
           </button>
           <span className="text-slate-300 dark:text-slate-700">•</span>
           <button
@@ -244,7 +256,7 @@ export default function LoginPage({ initialView = 'login' }) {
             }}
             className="hover:text-indigo-600 dark:hover:text-indigo-400 transition cursor-pointer"
           >
-            {t('loginPage.pricing')}
+            {t('core.loginPage.pricing')}
           </button>
         </div>
       </div>
@@ -262,13 +274,13 @@ export default function LoginPage({ initialView = 'login' }) {
             </div>
             {error.toLowerCase().includes('locked') && (
               <div className="pt-2 border-t border-red-200 dark:border-red-900/60 flex items-center justify-between">
-                <span className="text-xs text-red-600 dark:text-red-400 font-semibold">{t('loginPage.forgotPasswordPrompt')}</span>
+                <span className="text-xs text-red-600 dark:text-red-400 font-semibold">{t('core.loginPage.forgotPasswordPrompt')}</span>
                 <button
                   type="button"
                   onClick={() => switchView('forgot')}
                   className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline cursor-pointer"
                 >
-                  {t('loginPage.resetPasswordNow')}
+                  {t('core.loginPage.resetPasswordNow')}
                 </button>
               </div>
             )}
@@ -289,10 +301,10 @@ export default function LoginPage({ initialView = 'login' }) {
                 Account Created Successfully 🎉
               </span>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                {t('loginPage.selectPlanTitle')}
+                {t('core.loginPage.selectPlanTitle')}
               </h2>
               <p className="text-sm text-slate-400 mt-2">
-                {t('loginPage.selectPlanSubtitle')}
+                {t('core.loginPage.selectPlanSubtitle')}
               </p>
             </div>
 
@@ -303,25 +315,25 @@ export default function LoginPage({ initialView = 'login' }) {
                 <div>
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                      {t('landing.pricing.freeTrial.tier', 'Free Trial')}
+                      {t('core.landing.pricing.freeTrial.tier', 'Free Trial')}
                     </span>
                   </div>
                   <div className="mt-4 flex items-baseline gap-1">
-                    <span className="text-3xl font-black text-white">{t('landing.pricing.freeTrial.price', '$0')}</span>
-                    <span className="text-xs text-slate-400">{t('landing.pricing.freeTrial.cadence', '/ forever')}</span>
+                    <span className="text-3xl font-black text-white">{t('core.landing.pricing.freeTrial.price', '$0')}</span>
+                    <span className="text-xs text-slate-400">{t('core.landing.pricing.freeTrial.cadence', '/ forever')}</span>
                   </div>
                   <div className="text-[10px] text-slate-500 font-medium mt-0.5">
-                    {t('landing.pricing.freeTrial.noCard', 'no credit card required')}
+                    {t('core.landing.pricing.freeTrial.noCard', 'no credit card required')}
                   </div>
                   <p className="text-xs text-slate-400 mt-2 leading-relaxed min-h-[34px]">
-                    {t('landing.pricing.freeTrial.description', 'Perfect for evaluating your first job bids.')}
+                    {t('core.landing.pricing.freeTrial.description', 'Perfect for evaluating your first job bids.')}
                   </p>
 
                   <ul className="mt-6 space-y-2.5 text-xs text-slate-300">
-                    <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.freeTrial.f1')}</strong></li>
-                    <li className="flex items-center gap-2">✓ {t('landing.pricing.freeTrial.f2')}</li>
-                    <li className="flex items-center gap-2">✓ {t('landing.pricing.freeTrial.f3')}</li>
-                    <li className="flex items-center gap-2">✓ {t('landing.pricing.freeTrial.f4')}</li>
+                    <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.freeTrial.f1')}</strong></li>
+                    <li className="flex items-center gap-2">✓ {t('core.landing.pricing.freeTrial.f2')}</li>
+                    <li className="flex items-center gap-2">✓ {t('core.landing.pricing.freeTrial.f3')}</li>
+                    <li className="flex items-center gap-2">✓ {t('core.landing.pricing.freeTrial.f4')}</li>
                   </ul>
                 </div>
 
@@ -330,7 +342,7 @@ export default function LoginPage({ initialView = 'login' }) {
                   onClick={handleSelectFreePlan}
                   className="mt-6 w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition cursor-pointer"
                 >
-                  {t('landing.pricing.freeTrial.cta', 'Get Started Free')}
+                  {t('core.landing.pricing.freeTrial.cta', 'Get Started Free')}
                 </button>
               </div>
 
@@ -338,25 +350,25 @@ export default function LoginPage({ initialView = 'login' }) {
               <div className="bg-slate-900 p-6 rounded-3xl border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition">
                 <div>
                   <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                    {t('landing.pricing.starter.tier', 'Starter Tier')}
+                    {t('core.landing.pricing.starter.tier', 'Starter Tier')}
                   </span>
                   <div className="mt-4 flex items-baseline gap-1">
-                    <span className="text-3xl font-black text-white">{t('landing.pricing.starter.price', '$29.99')}</span>
-                    <span className="text-xs text-slate-400">{t('landing.pricing.starter.cadence', '/ mo')}</span>
+                    <span className="text-3xl font-black text-white">{t('core.landing.pricing.starter.price', { price: STARTER_MONTHLY_PRICE })}</span>
+                    <span className="text-xs text-slate-400">{t('core.landing.pricing.starter.cadence', '/ mo')}</span>
                   </div>
                   <div className="text-[10px] text-slate-400 font-medium mt-0.5">
-                    {t('landing.pricing.starter.yearly', 'or $299.99/yr • plus tax')}
+                    {t('core.landing.pricing.starter.yearly', { yearly: STARTER_YEARLY_PRICE })}
                   </div>
                   <p className="text-xs text-slate-400 mt-2 leading-relaxed min-h-[34px]">
-                    {t('landing.pricing.starter.description', 'Great for solo estimators bidding jobs weekly.')}
+                    {t('core.landing.pricing.starter.description', 'Great for solo estimators bidding jobs weekly.')}
                   </p>
 
                   <ul className="mt-6 space-y-2.5 text-xs text-slate-300">
-                    <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.starter.f1')}</strong></li>
-                    <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.starter.f2')}</strong></li>
-                    <li className="flex items-center gap-2">✓ {t('landing.pricing.starter.f3')}</li>
-                    <li className="flex items-center gap-2">✓ {t('landing.pricing.starter.f4')}</li>
-                    <li className="flex items-center gap-2">✓ {t('landing.pricing.starter.f5')}</li>
+                    <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.starter.f1', { seats: STARTER_PLAN_SEATS })}</strong></li>
+                    <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.starter.f2')}</strong></li>
+                    <li className="flex items-center gap-2">✓ {t('core.landing.pricing.starter.f3')}</li>
+                    <li className="flex items-center gap-2">✓ {t('core.landing.pricing.starter.f4')}</li>
+                    <li className="flex items-center gap-2">✓ {t('core.landing.pricing.starter.f5')}</li>
                   </ul>
                 </div>
 
@@ -366,37 +378,37 @@ export default function LoginPage({ initialView = 'login' }) {
                   onClick={() => handleSelectPaidPlan('starter')}
                   className="mt-6 w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition cursor-pointer disabled:opacity-50"
                 >
-                  {checkoutLoadingPlan === 'starter' ? t('loginPage.launchingCheckout') : t('landing.pricing.starter.cta', 'Choose Starter')}
+                  {checkoutLoadingPlan === 'starter' ? t('core.loginPage.launchingCheckout') : t('core.landing.pricing.starter.cta', 'Choose Starter')}
                 </button>
               </div>
 
               {/* 3. Pro Tier (Most Popular) */}
               <div className="bg-gradient-to-b from-indigo-950/80 to-slate-900 p-6 rounded-3xl border-2 border-indigo-500 shadow-2xl relative flex flex-col justify-between">
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-wider px-3 py-0.5 rounded-full shadow">
-                  {t('landing.pricing.pro.mostPopular', 'Most Popular')}
+                  {t('core.landing.pricing.pro.mostPopular', 'Most Popular')}
                 </div>
 
                 <div>
                   <span className="text-xs font-bold uppercase tracking-wider text-indigo-400">
-                    {t('landing.pricing.pro.tier', 'Pro Tier')}
+                    {t('core.landing.pricing.pro.tier', 'Pro Tier')}
                   </span>
                   <div className="mt-4 flex items-baseline gap-1">
-                    <span className="text-3xl font-black text-white">{t('landing.pricing.pro.price', '$79.99')}</span>
-                    <span className="text-xs text-slate-400">{t('landing.pricing.pro.cadence', '/ mo')}</span>
+                    <span className="text-3xl font-black text-white">{t('core.landing.pricing.pro.price', { price: PRO_MONTHLY_PRICE })}</span>
+                    <span className="text-xs text-slate-400">{t('core.landing.pricing.pro.cadence', '/ mo')}</span>
                   </div>
                   <div className="text-[10px] text-indigo-300/80 font-medium mt-0.5">
-                    {t('landing.pricing.pro.yearly', 'or $799.99/yr • plus tax')}
+                    {t('core.landing.pricing.pro.yearly', { yearly: PRO_YEARLY_PRICE })}
                   </div>
                   <p className="text-xs text-slate-300 mt-2 leading-relaxed min-h-[34px]">
-                    {t('landing.pricing.pro.description', 'Unlimited power & full PDF report layouts.')}
+                    {t('core.landing.pricing.pro.description', 'Unlimited power & full PDF report layouts.')}
                   </p>
 
                   <ul className="mt-6 space-y-2.5 text-xs text-slate-200">
-                    <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.pro.f1')}</strong></li>
-                    <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.pro.f2')}</strong></li>
-                    <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.pro.f3')}</strong></li>
-                    <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.pro.f4')}</strong></li>
-                    <li className="flex items-center gap-2">✓ {t('landing.pricing.pro.f5')}</li>
+                    <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.pro.f1', { seats: PRO_PLAN_SEATS })}</strong></li>
+                    <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.pro.f2')}</strong></li>
+                    <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.pro.f3')}</strong></li>
+                    <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.pro.f4')}</strong></li>
+                    <li className="flex items-center gap-2">✓ {t('core.landing.pricing.pro.f5')}</li>
                   </ul>
                 </div>
 
@@ -406,7 +418,7 @@ export default function LoginPage({ initialView = 'login' }) {
                   onClick={() => handleSelectPaidPlan('pro')}
                   className="mt-6 w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition cursor-pointer disabled:opacity-50"
                 >
-                  {checkoutLoadingPlan === 'pro' ? t('loginPage.launchingCheckout') : t('landing.pricing.pro.cta', 'Upgrade to Pro')}
+                  {checkoutLoadingPlan === 'pro' ? t('core.loginPage.launchingCheckout') : t('core.landing.pricing.pro.cta', 'Upgrade to Pro')}
                 </button>
               </div>
 
@@ -414,25 +426,25 @@ export default function LoginPage({ initialView = 'login' }) {
               <div className="bg-gradient-to-b from-amber-950/40 via-slate-900 to-slate-900 p-6 rounded-3xl border border-amber-500/40 shadow-xl flex flex-col justify-between">
                 <div>
                   <span className="text-xs font-bold uppercase tracking-wider text-amber-400">
-                    {t('landing.pricing.enterprise.tier', 'Enterprise')}
+                    {t('core.landing.pricing.enterprise.tier', 'Enterprise')}
                   </span>
                   <div className="mt-4 flex items-baseline gap-1">
-                    <span className="text-3xl font-black text-white">{t('landing.pricing.enterprise.price', '$199.99')}</span>
-                    <span className="text-xs text-slate-400">{t('landing.pricing.enterprise.cadence', '/ mo')}</span>
+                    <span className="text-3xl font-black text-white">{t('core.landing.pricing.enterprise.price', { price: ENTERPRISE_MONTHLY_PRICE })}</span>
+                    <span className="text-xs text-slate-400">{t('core.landing.pricing.enterprise.cadence', '/ mo')}</span>
                   </div>
                   <div className="text-[10px] text-amber-300/80 font-medium mt-0.5">
-                    {t('landing.pricing.enterprise.yearly', 'or $1999.99/yr • plus tax')}
+                    {t('core.landing.pricing.enterprise.yearly', { yearly: ENTERPRISE_YEARLY_PRICE })}
                   </div>
                   <p className="text-xs text-slate-300 mt-2 leading-relaxed min-h-[34px]">
-                    {t('landing.pricing.enterprise.description', 'Multi-seat collaboration for growing teams.')}
+                    {t('core.landing.pricing.enterprise.description', 'Multi-seat collaboration for growing teams.')}
                   </p>
 
                   <ul className="mt-6 space-y-2.5 text-xs text-slate-300">
-                    <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.enterprise.f1')}</strong></li>
-                    <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.enterprise.f2')}</strong></li>
-                    <li className="flex items-center gap-2">✓ {t('landing.pricing.enterprise.f3')}</li>
-                    <li className="flex items-center gap-2">✓ {t('landing.pricing.enterprise.f4')}</li>
-                    <li className="flex items-center gap-2">✓ {t('landing.pricing.enterprise.f5')}</li>
+                    <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.enterprise.f1', { seats: ENTERPRISE_PLAN_SEATS })}</strong></li>
+                    <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.enterprise.f2', { price: EXTRA_SEAT_MONTHLY_PRICE })}</strong></li>
+                    <li className="flex items-center gap-2">✓ {t('core.landing.pricing.enterprise.f3')}</li>
+                    <li className="flex items-center gap-2">✓ {t('core.landing.pricing.enterprise.f4')}</li>
+                    <li className="flex items-center gap-2">✓ {t('core.landing.pricing.enterprise.f5')}</li>
                   </ul>
                 </div>
 
@@ -442,7 +454,7 @@ export default function LoginPage({ initialView = 'login' }) {
                   onClick={() => handleSelectPaidPlan('enterprise')}
                   className="mt-6 w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold rounded-xl shadow-lg shadow-amber-500/20 transition cursor-pointer disabled:opacity-50"
                 >
-                  {checkoutLoadingPlan === 'enterprise' ? t('loginPage.launchingCheckout') : t('landing.pricing.enterprise.cta', 'Choose Enterprise')}
+                  {checkoutLoadingPlan === 'enterprise' ? t('core.loginPage.launchingCheckout') : t('core.landing.pricing.enterprise.cta', 'Choose Enterprise')}
                 </button>
               </div>
             </div>
@@ -454,7 +466,7 @@ export default function LoginPage({ initialView = 'login' }) {
                 onClick={handleSelectFreePlan}
                 className="text-xs font-semibold text-slate-400 hover:text-indigo-400 transition cursor-pointer"
               >
-                {t('loginPage.skipForNow', 'Or continue to dashboard with Free Trial →')}
+                {t('core.loginPage.skipForNow', 'Or continue to dashboard with Free Trial →')}
               </button>
             </div>
           </div>
@@ -464,21 +476,21 @@ export default function LoginPage({ initialView = 'login' }) {
         {view === 'login' && (
           <div>
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{t('loginPage.welcomeBack')}</h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t('loginPage.loginSubtitle')}</p>
+              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{t('core.loginPage.welcomeBack')}</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t('core.loginPage.loginSubtitle')}</p>
             </div>
 
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                  {t('loginPage.usernameOrEmail')}
+                  {t('core.loginPage.usernameOrEmail')}
                 </label>
                 <input
                   type="text"
                   required
                   value={loginIdentifier}
                   onChange={(e) => setLoginIdentifier(e.target.value)}
-                  placeholder={t('loginPage.usernameOrEmailPlaceholder')}
+                  placeholder={t('core.loginPage.usernameOrEmailPlaceholder')}
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
@@ -486,14 +498,14 @@ export default function LoginPage({ initialView = 'login' }) {
               <div>
                 <div className="flex justify-between items-center mb-1">
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                    {t('loginPage.password')}
+                    {t('core.loginPage.password')}
                   </label>
                   <button
                     type="button"
                     onClick={() => switchView('forgot')}
                     className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline"
                   >
-                    {t('loginPage.forgotPassword')}
+                    {t('core.loginPage.forgotPassword')}
                   </button>
                 </div>
                 <div className="relative">
@@ -502,14 +514,14 @@ export default function LoginPage({ initialView = 'login' }) {
                     required
                     value={loginPassword}
                     onChange={(e) => setLoginPassword(e.target.value)}
-                    placeholder={t('loginPage.passwordPlaceholder')}
+                    placeholder={t('core.loginPage.passwordPlaceholder')}
                     className="w-full px-3 py-2 pr-10 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                   />
                   <button
                     type="button"
                     onClick={() => setShowLoginPassword(!showLoginPassword)}
                     className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 p-1 text-sm focus:outline-none"
-                    aria-label={showLoginPassword ? t('loginPage.hidePassword') : t('loginPage.showPassword')}
+                    aria-label={showLoginPassword ? t('core.loginPage.hidePassword') : t('core.loginPage.showPassword')}
                   >
                     {showLoginPassword ? (
                       <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -530,18 +542,18 @@ export default function LoginPage({ initialView = 'login' }) {
                 disabled={loading}
                 className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm"
               >
-                {loading ? t('loginPage.loggingIn') : t('loginPage.logIn')}
+                {loading ? t('core.loginPage.loggingIn') : t('core.loginPage.logIn')}
               </button>
             </form>
 
             <div className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
-              {t('loginPage.dontHaveAccount')}{' '}
+              {t('core.loginPage.dontHaveAccount')}{' '}
               <button
                 type="button"
                 onClick={() => switchView('register')}
                 className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline"
               >
-                {t('loginPage.createAccount')}
+                {t('core.loginPage.createAccount')}
               </button>
             </div>
           </div>
@@ -551,35 +563,35 @@ export default function LoginPage({ initialView = 'login' }) {
         {view === 'register' && (
           <div>
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{t('loginPage.createAccount')}</h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t('loginPage.getStartedSubtitle')}</p>
+              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{t('core.loginPage.createAccount')}</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t('core.loginPage.getStartedSubtitle')}</p>
             </div>
 
             <form onSubmit={handleRegister} className="space-y-3.5">
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                    {t('loginPage.firstName')}
+                    {t('core.loginPage.firstName')}
                   </label>
                   <input
                     type="text"
                     required
                     value={registerFirstName}
                     onChange={(e) => setRegisterFirstName(e.target.value)}
-                    placeholder={t('loginPage.firstNamePlaceholder')}
+                    placeholder={t('core.loginPage.firstNamePlaceholder')}
                     className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                    {t('loginPage.lastName')}
+                    {t('core.loginPage.lastName')}
                   </label>
                   <input
                     type="text"
                     required
                     value={registerLastName}
                     onChange={(e) => setRegisterLastName(e.target.value)}
-                    placeholder={t('loginPage.lastNamePlaceholder')}
+                    placeholder={t('core.loginPage.lastNamePlaceholder')}
                     className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                   />
                 </div>
@@ -587,48 +599,48 @@ export default function LoginPage({ initialView = 'login' }) {
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                  {t('loginPage.username')}
+                  {t('core.loginPage.username')}
                 </label>
                 <input
                   type="text"
                   required
                   value={registerUsername}
                   onChange={(e) => setRegisterUsername(e.target.value)}
-                  placeholder={t('loginPage.usernamePlaceholder')}
+                  placeholder={t('core.loginPage.usernamePlaceholder')}
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                  {t('loginPage.email')}
+                  {t('core.loginPage.email')}
                 </label>
                 <input
                   type="email"
                   required
                   value={registerEmail}
                   onChange={(e) => setRegisterEmail(e.target.value)}
-                  placeholder={t('loginPage.emailPlaceholder')}
+                  placeholder={t('core.loginPage.emailPlaceholder')}
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                  {t('loginPage.phoneOptional')}
+                  {t('core.loginPage.phoneOptional')}
                 </label>
                 <input
                   type="tel"
                   value={registerPhone}
                   onChange={(e) => setRegisterPhone(e.target.value)}
-                  placeholder={t('loginPage.phonePlaceholder')}
+                  placeholder={t('core.loginPage.phonePlaceholder')}
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                  {t('loginPage.passwordMinChars')}
+                  {t('core.loginPage.passwordMinChars')}
                 </label>
                 <div className="relative">
                   <input
@@ -637,14 +649,14 @@ export default function LoginPage({ initialView = 'login' }) {
                     minLength={6}
                     value={registerPassword}
                     onChange={(e) => setRegisterPassword(e.target.value)}
-                    placeholder={t('loginPage.passwordPlaceholder')}
+                    placeholder={t('core.loginPage.passwordPlaceholder')}
                     className="w-full px-3 py-2 pr-10 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                   />
                   <button
                     type="button"
                     onClick={() => setShowRegisterPassword(!showRegisterPassword)}
                     className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 p-1 text-sm focus:outline-none"
-                    aria-label={showRegisterPassword ? t('loginPage.hidePassword') : t('loginPage.showPassword')}
+                    aria-label={showRegisterPassword ? t('core.loginPage.hidePassword') : t('core.loginPage.showPassword')}
                   >
                     {showRegisterPassword ? (
                       <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -665,18 +677,18 @@ export default function LoginPage({ initialView = 'login' }) {
                 disabled={loading}
                 className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm"
               >
-                {loading ? t('loginPage.creatingAccount') : t('loginPage.createAccount')}
+                {loading ? t('core.loginPage.creatingAccount') : t('core.loginPage.createAccount')}
               </button>
             </form>
 
             <div className="mt-5 text-center text-sm text-slate-500 dark:text-slate-400">
-              {t('loginPage.alreadyHaveAccount')}{' '}
+              {t('core.loginPage.alreadyHaveAccount')}{' '}
               <button
                 type="button"
                 onClick={() => switchView('login')}
                 className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline"
               >
-                {t('loginPage.logIn')}
+                {t('core.loginPage.logIn')}
               </button>
             </div>
           </div>
@@ -686,23 +698,23 @@ export default function LoginPage({ initialView = 'login' }) {
         {view === 'forgot' && (
           <div>
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{t('loginPage.forgotPasswordTitle')}</h2>
+              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{t('core.loginPage.forgotPasswordTitle')}</h2>
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                {t('loginPage.forgotPasswordSubtitle')}
+                {t('core.loginPage.forgotPasswordSubtitle')}
               </p>
             </div>
 
             <form onSubmit={handleForgotPassword} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                  {t('loginPage.emailAddress')}
+                  {t('core.loginPage.emailAddress')}
                 </label>
                 <input
                   type="email"
                   required
                   value={forgotEmail}
                   onChange={(e) => setForgotEmail(e.target.value)}
-                  placeholder={t('loginPage.yourEmailPlaceholder')}
+                  placeholder={t('core.loginPage.yourEmailPlaceholder')}
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
@@ -712,7 +724,7 @@ export default function LoginPage({ initialView = 'login' }) {
                 disabled={loading}
                 className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm"
               >
-                {loading ? t('loginPage.submitting') : t('loginPage.sendResetInstructions')}
+                {loading ? t('core.loginPage.submitting') : t('core.loginPage.sendResetInstructions')}
               </button>
 
               <div className="flex justify-between items-center text-xs text-slate-500 dark:text-slate-400 pt-2">
@@ -721,7 +733,7 @@ export default function LoginPage({ initialView = 'login' }) {
                   onClick={() => switchView('login')}
                   className="text-indigo-600 dark:text-indigo-400 hover:underline"
                 >
-                  {t('loginPage.backToLogIn')}
+                  {t('core.loginPage.backToLogIn')}
                 </button>
               </div>
             </form>

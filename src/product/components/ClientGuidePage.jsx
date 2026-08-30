@@ -287,8 +287,8 @@ export default function ClientGuidePage() {
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 pb-20 transition-colors">
       <SeoHead
-        title={t('seo.guide.title', 'Takeoff Import & Formatting Documentation — Takeoff Engine')}
-        description={t('seo.guide.description', 'Learn how to format CSV/Excel takeoffs from Bluebeam, PlanSwift, and Trimble Agtek for automated ingestion, trench calculations, and client proposals.')}
+        title={t('core.seo.guide.title', 'Takeoff Import & Formatting Documentation — Takeoff Engine')}
+        description={t('core.seo.guide.description', 'Learn how to format CSV/Excel takeoffs from Bluebeam, PlanSwift, and Trimble Agtek for automated ingestion, trench calculations, and client proposals.')}
         canonicalUrl="https://takeoffengine.com/guide"
       />
       {/* Header Bar */}
@@ -299,7 +299,7 @@ export default function ClientGuidePage() {
               type="button"
               onClick={handleBack}
               className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl transition cursor-pointer"
-              title={t('common.goBack')}
+              title={t('core.common.goBack')}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />

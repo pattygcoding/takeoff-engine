@@ -7,8 +7,8 @@ export default function ThemeToggle({ className = '', variant = 'header' }) {
   const { t } = useTranslation();
 
   const title = isDark
-    ? t('theme.switchToLight', 'Switch to light mode')
-    : t('theme.switchToDark', 'Switch to dark mode');
+    ? t('core.theme.switchToLight', 'Switch to light mode')
+    : t('core.theme.switchToDark', 'Switch to dark mode');
 
   if (variant === 'button') {
     return (
@@ -24,7 +24,7 @@ export default function ThemeToggle({ className = '', variant = 'header' }) {
         aria-label={title}
       >
         <span>{isDark ? '☀️' : '🌙'}</span>
-        <span>{isDark ? t('theme.light', 'Light') : t('theme.dark', 'Dark')}</span>
+        <span>{isDark ? t('core.theme.light', 'Light') : t('core.theme.dark', 'Dark')}</span>
       </button>
     );
   }

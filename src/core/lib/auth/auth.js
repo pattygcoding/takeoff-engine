@@ -26,7 +26,7 @@ export const authApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || getTranslation('apiErrors.registrationFailed'));
+      throw new Error(data.error || getTranslation('core.apiErrors.registrationFailed'));
     }
     return data;
   },
@@ -39,7 +39,7 @@ export const authApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || getTranslation('apiErrors.loginFailed'));
+      throw new Error(data.error || getTranslation('core.apiErrors.loginFailed'));
     }
     return data;
   },
@@ -82,7 +82,7 @@ export const authApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || getTranslation('apiErrors.requestPasswordResetFailed'));
+      throw new Error(data.error || getTranslation('core.apiErrors.requestPasswordResetFailed'));
     }
     return data;
   },
@@ -95,7 +95,7 @@ export const authApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || getTranslation('apiErrors.passwordUpdateFailed'));
+      throw new Error(data.error || getTranslation('core.apiErrors.passwordUpdateFailed'));
     }
     return data;
   },
@@ -108,7 +108,7 @@ export const authApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || getTranslation('apiErrors.profileUpdateFailed'));
+      throw new Error(data.error || getTranslation('core.apiErrors.profileUpdateFailed'));
     }
     return data;
   },
@@ -121,7 +121,7 @@ export const authApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || getTranslation('apiErrors.uploadLogoFailed'));
+      throw new Error(data.error || getTranslation('core.apiErrors.uploadLogoFailed'));
     }
     return data;
   },
@@ -133,7 +133,7 @@ export const authApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || getTranslation('apiErrors.accountDeletionFailed'));
+      throw new Error(data.error || getTranslation('core.apiErrors.accountDeletionFailed'));
     }
     localStorage.removeItem('takeoff_token');
     localStorage.removeItem('takeoff_user');
@@ -148,7 +148,7 @@ export const authApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      const err = new Error(data.error || getTranslation('apiErrors.exportRecordingFailed'));
+      const err = new Error(data.error || getTranslation('core.apiErrors.exportRecordingFailed'));
       err.code = data.code;
       err.trial_uses_remaining = data.trial_uses_remaining;
       err.requiredTier = data.requiredTier;

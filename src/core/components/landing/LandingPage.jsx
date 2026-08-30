@@ -4,6 +4,18 @@ import { formatCurrency, formatNumber } from '@/product/lib/calculations';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import LanguageSelector from '@/core/components/shared/LanguageSelector';
 import SeoHead from '@/core/components/shared/SeoHead';
+import {
+  STARTER_MONTHLY_PRICE,
+  PRO_MONTHLY_PRICE,
+  ENTERPRISE_MONTHLY_PRICE,
+  STARTER_YEARLY_PRICE,
+  PRO_YEARLY_PRICE,
+  ENTERPRISE_YEARLY_PRICE,
+  EXTRA_SEAT_MONTHLY_PRICE,
+  STARTER_PLAN_SEATS,
+  PRO_PLAN_SEATS,
+  ENTERPRISE_PLAN_SEATS,
+} from '@/core/constants';
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -41,8 +53,8 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 font-sans selection:bg-indigo-500 selection:text-white">
       <SeoHead
-        title={t('seo.landing.title', 'Takeoff Engine — Construction Proposal Maker & Takeoff Software')}
-        description={t('seo.landing.description', 'Generate accurate civil takeoff estimates, trench volume calculations, and client-ready digital construction proposals from Bluebeam and Excel spreadsheets.')}
+        title={t('core.seo.landing.title', 'Takeoff Engine — Construction Proposal Maker & Takeoff Software')}
+        description={t('core.seo.landing.description', 'Generate accurate civil takeoff estimates, trench volume calculations, and client-ready digital construction proposals from Bluebeam and Excel spreadsheets.')}
         canonicalUrl="https://takeoffengine.com/home"
       />
       {/* Navigation Header */}
@@ -62,10 +74,10 @@ export default function LandingPage() {
 
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
             <LanguageSelector variant="dark" />
-            <a href="#calculator" className="hover:text-white transition">{t('landing.nav.freeCalculator')}</a>
-            <a href="#features" className="hover:text-white transition">{t('landing.nav.features')}</a>
-            <a href="#comparison" className="hover:text-white transition">{t('landing.nav.whyUs')}</a>
-            <a href="#pricing" className="hover:text-white transition">{t('landing.nav.pricing')}</a>
+            <a href="#calculator" className="hover:text-white transition">{t('core.landing.nav.freeCalculator')}</a>
+            <a href="#features" className="hover:text-white transition">{t('core.landing.nav.features')}</a>
+            <a href="#comparison" className="hover:text-white transition">{t('core.landing.nav.whyUs')}</a>
+            <a href="#pricing" className="hover:text-white transition">{t('core.landing.nav.pricing')}</a>
           </div>
 
           <div className="hidden md:flex items-center gap-3">
@@ -73,13 +85,13 @@ export default function LandingPage() {
               onClick={() => navigate('/login')}
               className="px-4 py-2 text-sm font-semibold text-slate-300 hover:text-white transition"
             >
-              {t('landing.nav.signIn')}
+              {t('core.landing.nav.signIn')}
             </button>
             <button
               onClick={() => navigate('/register')}
               className="px-4 py-2 text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl shadow-lg shadow-indigo-600/30 transition transform active:scale-95"
             >
-              {t('landing.nav.getStartedFree')}
+              {t('core.landing.nav.getStartedFree')}
             </button>
           </div>
 
@@ -111,28 +123,28 @@ export default function LandingPage() {
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800"
             >
-              {t('landing.nav.freeCalculator')}
+              {t('core.landing.nav.freeCalculator')}
             </a>
             <a
               href="#features"
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800"
             >
-              {t('landing.nav.features')}
+              {t('core.landing.nav.features')}
             </a>
             <a
               href="#comparison"
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800"
             >
-              {t('landing.nav.whyUs')}
+              {t('core.landing.nav.whyUs')}
             </a>
             <a
               href="#pricing"
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800"
             >
-              {t('landing.nav.pricing')}
+              {t('core.landing.nav.pricing')}
             </a>
             <div className="pt-2 border-t border-slate-800 flex flex-col gap-2">
               <button
@@ -142,7 +154,7 @@ export default function LandingPage() {
                 }}
                 className="w-full text-center px-4 py-2 text-sm font-semibold text-slate-300 hover:text-white bg-slate-800 rounded-xl"
               >
-                {t('landing.nav.signIn')}
+                {t('core.landing.nav.signIn')}
               </button>
               <button
                 onClick={() => {
@@ -151,7 +163,7 @@ export default function LandingPage() {
                 }}
                 className="w-full text-center px-4 py-2 text-sm font-bold bg-indigo-600 text-white rounded-xl"
               >
-                {t('landing.nav.getStartedFree')}
+                {t('core.landing.nav.getStartedFree')}
               </button>
             </div>
           </div>
@@ -167,18 +179,18 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-semibold mb-8">
             <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
-            {t('landing.hero.badge')}
+            {t('core.landing.hero.badge')}
           </div>
 
           <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-white max-w-4xl mx-auto leading-[1.1]">
-            {t('landing.hero.title')}{' '}
+            {t('core.landing.hero.title')}{' '}
             <span className="bg-gradient-to-r from-indigo-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
-              {t('landing.hero.titleHighlight')}
+              {t('core.landing.hero.titleHighlight')}
             </span>
           </h1>
 
           <p className="mt-6 text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
-            {t('landing.hero.subtitle')}
+            {t('core.landing.hero.subtitle')}
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -186,20 +198,20 @@ export default function LandingPage() {
               onClick={() => navigate('/login')}
               className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold rounded-2xl shadow-xl shadow-indigo-500/25 transition transform hover:-translate-y-0.5"
             >
-              {t('landing.hero.ctaTrial')}
+              {t('core.landing.hero.ctaTrial')}
             </button>
             <a
               href="#calculator"
               className="w-full sm:w-auto px-8 py-4 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-2xl border border-slate-700 transition"
             >
-              {t('landing.hero.ctaCalculator')}
+              {t('core.landing.hero.ctaCalculator')}
             </a>
           </div>
 
           <div className="mt-6 text-xs text-slate-500 flex items-center justify-center gap-6">
-            <span>{t('landing.hero.badgeNoCard')}</span>
-            <span>{t('landing.hero.badgeInstantExports')}</span>
-            <span>{t('landing.hero.badgeColumnMapper')}</span>
+            <span>{t('core.landing.hero.badgeNoCard')}</span>
+            <span>{t('core.landing.hero.badgeInstantExports')}</span>
+            <span>{t('core.landing.hero.badgeColumnMapper')}</span>
           </div>
         </div>
       </section>
@@ -209,13 +221,13 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <span className="text-xs font-bold uppercase tracking-widest text-indigo-400">
-              {t('landing.calculator.tag')}
+              {t('core.landing.calculator.tag')}
             </span>
             <h2 className="text-3xl font-extrabold text-white mt-2">
-              {t('landing.calculator.title')}
+              {t('core.landing.calculator.title')}
             </h2>
             <p className="text-sm text-slate-400 mt-2 max-w-xl mx-auto">
-              {t('landing.calculator.description')}
+              {t('core.landing.calculator.description')}
             </p>
           </div>
 
@@ -223,13 +235,13 @@ export default function LandingPage() {
             {/* Calculator Inputs */}
             <div className="lg:col-span-6 bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-800 shadow-xl space-y-5">
               <h3 className="text-base font-bold text-slate-200 border-b border-slate-800 pb-3 flex items-center gap-2">
-                <span>📐</span> {t('landing.calculator.parametersTitle')}
+                <span>📐</span> {t('core.landing.calculator.parametersTitle')}
               </h3>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-400 mb-1">
-                    {t('landing.calculator.pipeLength')}
+                    {t('core.landing.calculator.pipeLength')}
                   </label>
                   <input
                     type="number"
@@ -240,7 +252,7 @@ export default function LandingPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-400 mb-1">
-                    {t('landing.calculator.cutDepth')}
+                    {t('core.landing.calculator.cutDepth')}
                   </label>
                   <input
                     type="number"
@@ -255,7 +267,7 @@ export default function LandingPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-400 mb-1">
-                    {t('landing.calculator.trenchWidth')}
+                    {t('core.landing.calculator.trenchWidth')}
                   </label>
                   <input
                     type="number"
@@ -267,7 +279,7 @@ export default function LandingPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-400 mb-1">
-                    {t('landing.calculator.pipeDiameter')}
+                    {t('core.landing.calculator.pipeDiameter')}
                   </label>
                   <input
                     type="number"
@@ -281,7 +293,7 @@ export default function LandingPage() {
               <div className="grid grid-cols-2 gap-4 pt-2 border-t border-slate-800">
                 <div>
                   <label className="block text-xs font-semibold text-slate-400 mb-1">
-                    {t('landing.calculator.excavationCost')}
+                    {t('core.landing.calculator.excavationCost')}
                   </label>
                   <input
                     type="number"
@@ -292,7 +304,7 @@ export default function LandingPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-400 mb-1">
-                    {t('landing.calculator.crewLaborRate')}
+                    {t('core.landing.calculator.crewLaborRate')}
                   </label>
                   <input
                     type="number"
@@ -308,23 +320,23 @@ export default function LandingPage() {
             <div className="lg:col-span-6 bg-gradient-to-b from-indigo-950/60 to-slate-900 p-6 sm:p-8 rounded-3xl border border-indigo-500/30 shadow-2xl relative">
               <div className="flex items-center justify-between mb-6">
                 <span className="text-xs font-bold uppercase tracking-wider text-indigo-400">
-                  {t('landing.calculator.outputHeader')}
+                  {t('core.landing.calculator.outputHeader')}
                 </span>
                 <span className="text-[10px] bg-emerald-500/20 text-emerald-400 font-bold px-2.5 py-1 rounded-full border border-emerald-500/30">
-                  {t('landing.calculator.liveSync')}
+                  {t('core.landing.calculator.liveSync')}
                 </span>
               </div>
 
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className="bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
-                  <span className="text-xs text-slate-400 block mb-1">{t('landing.calculator.totalExcavation')}</span>
+                  <span className="text-xs text-slate-400 block mb-1">{t('core.landing.calculator.totalExcavation')}</span>
                   <div className="text-2xl font-black text-white">
                     {formatNumber(totalExcavationCuYd, 1)} <span className="text-sm font-normal text-slate-400">CY</span>
                   </div>
                 </div>
 
                 <div className="bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
-                  <span className="text-xs text-slate-400 block mb-1">{t('landing.calculator.netBackfill')}</span>
+                  <span className="text-xs text-slate-400 block mb-1">{t('core.landing.calculator.netBackfill')}</span>
                   <div className="text-2xl font-black text-cyan-400">
                     {formatNumber(backfillCuYd, 1)} <span className="text-sm font-normal text-slate-400">CY</span>
                   </div>
@@ -333,17 +345,17 @@ export default function LandingPage() {
 
               <div className="bg-indigo-900/30 p-5 rounded-2xl border border-indigo-500/20 mb-6">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs text-slate-300">{t('landing.calculator.machineCost')}</span>
+                  <span className="text-xs text-slate-300">{t('core.landing.calculator.machineCost')}</span>
                   <span className="text-sm font-bold text-white">{formatCurrency(estimatedExcavationCost)}</span>
                 </div>
                 <div className="flex justify-between items-center mb-3">
                   <span className="text-xs text-slate-300">
-                    {t('landing.calculator.crewProduction', { hours: formatNumber(estimatedCrewHours, 1) })}
+                    {t('core.landing.calculator.crewProduction', { hours: formatNumber(estimatedCrewHours, 1) })}
                   </span>
                   <span className="text-sm font-bold text-white">{formatCurrency(estimatedLaborCost)}</span>
                 </div>
                 <div className="pt-3 border-t border-indigo-500/30 flex justify-between items-center">
-                  <span className="text-sm font-bold text-indigo-200">{t('landing.calculator.directBid')}</span>
+                  <span className="text-sm font-bold text-indigo-200">{t('core.landing.calculator.directBid')}</span>
                   <span className="text-2xl font-black text-emerald-400">{formatCurrency(estimatedTotalTrenchBid)}</span>
                 </div>
               </div>
@@ -353,15 +365,15 @@ export default function LandingPage() {
                   onClick={() => navigate('/register')}
                   className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition text-center block mb-2"
                 >
-                  {t('landing.calculator.importCta')}
+                  {t('core.landing.calculator.importCta')}
                 </button>
                 <p className="text-xs text-slate-400">
-                  {t('landing.calculator.exportPrompt')}{' '}
+                  {t('core.landing.calculator.exportPrompt')}{' '}
                   <button
                     onClick={() => navigate('/register')}
                     className="text-indigo-400 hover:text-indigo-300 font-semibold underline"
                   >
-                    {t('landing.calculator.createAccount')}
+                    {t('core.landing.calculator.createAccount')}
                   </button>
                 </p>
               </div>
@@ -373,12 +385,12 @@ export default function LandingPage() {
       {/* Feature Comparison Table */}
       <section id="comparison" className="py-20 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <span className="text-xs font-bold uppercase tracking-widest text-indigo-400">{t('landing.comparison.tag')}</span>
+          <span className="text-xs font-bold uppercase tracking-widest text-indigo-400">{t('core.landing.comparison.tag')}</span>
           <h2 className="text-3xl font-extrabold text-white mt-2">
-            {t('landing.comparison.title')}
+            {t('core.landing.comparison.title')}
           </h2>
           <p className="text-sm text-slate-400 mt-2">
-            {t('landing.comparison.subtitle')}
+            {t('core.landing.comparison.subtitle')}
           </p>
         </div>
 
@@ -386,42 +398,42 @@ export default function LandingPage() {
           <table className="w-full text-left text-sm border-collapse">
             <thead>
               <tr className="border-b border-slate-800 text-xs font-bold uppercase tracking-wider text-slate-400">
-                <th className="py-4 px-6 bg-slate-900/40">{t('landing.comparison.thCapability')}</th>
-                <th className="py-4 px-6 bg-indigo-950/60 text-indigo-300 border-x border-indigo-500/30">{t('landing.comparison.thTakeoffEngine')}</th>
-                <th className="py-4 px-6 bg-slate-900/40">{t('landing.comparison.thExcel')}</th>
-                <th className="py-4 px-6 bg-slate-900/40">{t('landing.comparison.thEnterprise')}</th>
+                <th className="py-4 px-6 bg-slate-900/40">{t('core.landing.comparison.thCapability')}</th>
+                <th className="py-4 px-6 bg-indigo-950/60 text-indigo-300 border-x border-indigo-500/30">{t('core.landing.comparison.thTakeoffEngine')}</th>
+                <th className="py-4 px-6 bg-slate-900/40">{t('core.landing.comparison.thExcel')}</th>
+                <th className="py-4 px-6 bg-slate-900/40">{t('core.landing.comparison.thEnterprise')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800">
               <tr>
-                <td className="py-4 px-6 font-medium text-slate-200">{t('landing.comparison.row1Label')}</td>
-                <td className="py-4 px-6 font-bold text-emerald-400 bg-indigo-950/30 border-x border-indigo-500/20">{t('landing.comparison.row1Te')}</td>
-                <td className="py-4 px-6 text-slate-400">{t('landing.comparison.row1Excel')}</td>
-                <td className="py-4 px-6 text-red-400">{t('landing.comparison.row1Ent')}</td>
+                <td className="py-4 px-6 font-medium text-slate-200">{t('core.landing.comparison.row1Label')}</td>
+                <td className="py-4 px-6 font-bold text-emerald-400 bg-indigo-950/30 border-x border-indigo-500/20">{t('core.landing.comparison.row1Te', { price: Math.floor(STARTER_MONTHLY_PRICE) })}</td>
+                <td className="py-4 px-6 text-slate-400">{t('core.landing.comparison.row1Excel')}</td>
+                <td className="py-4 px-6 text-red-400">{t('core.landing.comparison.row1Ent')}</td>
               </tr>
               <tr>
-                <td className="py-4 px-6 font-medium text-slate-200">{t('landing.comparison.row2Label')}</td>
-                <td className="py-4 px-6 font-bold text-emerald-400 bg-indigo-950/30 border-x border-indigo-500/20">{t('landing.comparison.row2Te')}</td>
-                <td className="py-4 px-6 text-slate-500">{t('landing.comparison.row2Excel')}</td>
-                <td className="py-4 px-6 text-slate-400">{t('landing.comparison.row2Ent')}</td>
+                <td className="py-4 px-6 font-medium text-slate-200">{t('core.landing.comparison.row2Label')}</td>
+                <td className="py-4 px-6 font-bold text-emerald-400 bg-indigo-950/30 border-x border-indigo-500/20">{t('core.landing.comparison.row2Te')}</td>
+                <td className="py-4 px-6 text-slate-500">{t('core.landing.comparison.row2Excel')}</td>
+                <td className="py-4 px-6 text-slate-400">{t('core.landing.comparison.row2Ent')}</td>
               </tr>
               <tr>
-                <td className="py-4 px-6 font-medium text-slate-200">{t('landing.comparison.row3Label')}</td>
-                <td className="py-4 px-6 font-bold text-emerald-400 bg-indigo-950/30 border-x border-indigo-500/20">{t('landing.comparison.row3Te')}</td>
-                <td className="py-4 px-6 text-slate-500">{t('landing.comparison.row3Excel')}</td>
-                <td className="py-4 px-6 text-slate-400">{t('landing.comparison.row3Ent')}</td>
+                <td className="py-4 px-6 font-medium text-slate-200">{t('core.landing.comparison.row3Label')}</td>
+                <td className="py-4 px-6 font-bold text-emerald-400 bg-indigo-950/30 border-x border-indigo-500/20">{t('core.landing.comparison.row3Te')}</td>
+                <td className="py-4 px-6 text-slate-500">{t('core.landing.comparison.row3Excel')}</td>
+                <td className="py-4 px-6 text-slate-400">{t('core.landing.comparison.row3Ent')}</td>
               </tr>
               <tr>
-                <td className="py-4 px-6 font-medium text-slate-200">{t('landing.comparison.row4Label')}</td>
-                <td className="py-4 px-6 font-bold text-emerald-400 bg-indigo-950/30 border-x border-indigo-500/20">{t('landing.comparison.row4Te')}</td>
-                <td className="py-4 px-6 text-slate-500">{t('landing.comparison.row4Excel')}</td>
-                <td className="py-4 px-6 text-slate-500">{t('landing.comparison.row4Ent')}</td>
+                <td className="py-4 px-6 font-medium text-slate-200">{t('core.landing.comparison.row4Label')}</td>
+                <td className="py-4 px-6 font-bold text-emerald-400 bg-indigo-950/30 border-x border-indigo-500/20">{t('core.landing.comparison.row4Te')}</td>
+                <td className="py-4 px-6 text-slate-500">{t('core.landing.comparison.row4Excel')}</td>
+                <td className="py-4 px-6 text-slate-500">{t('core.landing.comparison.row4Ent')}</td>
               </tr>
               <tr>
-                <td className="py-4 px-6 font-medium text-slate-200">{t('landing.comparison.row5Label')}</td>
-                <td className="py-4 px-6 font-bold text-emerald-400 bg-indigo-950/30 border-x border-indigo-500/20">{t('landing.comparison.row5Te')}</td>
-                <td className="py-4 px-6 text-slate-500">{t('landing.comparison.row5Excel')}</td>
-                <td className="py-4 px-6 text-emerald-400">{t('landing.comparison.row5Ent')}</td>
+                <td className="py-4 px-6 font-medium text-slate-200">{t('core.landing.comparison.row5Label')}</td>
+                <td className="py-4 px-6 font-bold text-emerald-400 bg-indigo-950/30 border-x border-indigo-500/20">{t('core.landing.comparison.row5Te')}</td>
+                <td className="py-4 px-6 text-slate-500">{t('core.landing.comparison.row5Excel')}</td>
+                <td className="py-4 px-6 text-emerald-400">{t('core.landing.comparison.row5Ent')}</td>
               </tr>
             </tbody>
           </table>
@@ -432,12 +444,12 @@ export default function LandingPage() {
       <section id="pricing" className="py-20 bg-slate-800/40 border-t border-slate-800">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <span className="text-xs font-bold uppercase tracking-widest text-indigo-400">{t('landing.pricing.tag')}</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-indigo-400">{t('core.landing.pricing.tag')}</span>
             <h2 className="text-3xl font-extrabold text-white mt-2">
-              {t('landing.pricing.title')}
+              {t('core.landing.pricing.title')}
             </h2>
             <p className="text-sm text-slate-400 mt-2">
-              {t('landing.pricing.subtitle')}
+              {t('core.landing.pricing.subtitle')}
             </p>
           </div>
 
@@ -445,19 +457,19 @@ export default function LandingPage() {
             {/* Free Trial Tier */}
             <div className="bg-slate-900 p-6 rounded-3xl border border-slate-800 flex flex-col justify-between">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">{t('landing.pricing.freeTrial.tier')}</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">{t('core.landing.pricing.freeTrial.tier')}</span>
                 <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-3xl font-black text-white">{t('landing.pricing.freeTrial.price')}</span>
-                  <span className="text-xs text-slate-400">{t('landing.pricing.freeTrial.cadence')}</span>
+                  <span className="text-3xl font-black text-white">{t('core.landing.pricing.freeTrial.price')}</span>
+                  <span className="text-xs text-slate-400">{t('core.landing.pricing.freeTrial.cadence')}</span>
                 </div>
-                <div className="text-[10px] text-slate-500 font-medium mt-0.5">{t('landing.pricing.freeTrial.noCard')}</div>
-                <p className="text-xs text-slate-400 mt-2">{t('landing.pricing.freeTrial.description')}</p>
+                <div className="text-[10px] text-slate-500 font-medium mt-0.5">{t('core.landing.pricing.freeTrial.noCard')}</div>
+                <p className="text-xs text-slate-400 mt-2">{t('core.landing.pricing.freeTrial.description')}</p>
 
                 <ul className="mt-6 space-y-2.5 text-xs text-slate-300">
-                  <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.freeTrial.f1')}</strong></li>
-                  <li className="flex items-center gap-2">✓ {t('landing.pricing.freeTrial.f2')}</li>
-                  <li className="flex items-center gap-2">✓ {t('landing.pricing.freeTrial.f3')}</li>
-                  <li className="flex items-center gap-2">✓ {t('landing.pricing.freeTrial.f4')}</li>
+                  <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.freeTrial.f1')}</strong></li>
+                  <li className="flex items-center gap-2">✓ {t('core.landing.pricing.freeTrial.f2')}</li>
+                  <li className="flex items-center gap-2">✓ {t('core.landing.pricing.freeTrial.f3')}</li>
+                  <li className="flex items-center gap-2">✓ {t('core.landing.pricing.freeTrial.f4')}</li>
                 </ul>
               </div>
 
@@ -465,27 +477,27 @@ export default function LandingPage() {
                 onClick={() => navigate('/register')}
                 className="mt-6 w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition cursor-pointer"
               >
-                {t('landing.pricing.freeTrial.cta')}
+                {t('core.landing.pricing.freeTrial.cta')}
               </button>
             </div>
 
             {/* Starter Tier */}
             <div className="bg-slate-900 p-6 rounded-3xl border border-slate-800 flex flex-col justify-between">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">{t('landing.pricing.starter.tier')}</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">{t('core.landing.pricing.starter.tier')}</span>
                 <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-3xl font-black text-white">{t('landing.pricing.starter.price')}</span>
-                  <span className="text-xs text-slate-400">{t('landing.pricing.starter.cadence')}</span>
+                  <span className="text-3xl font-black text-white">{t('core.landing.pricing.starter.price', { price: STARTER_MONTHLY_PRICE })}</span>
+                  <span className="text-xs text-slate-400">{t('core.landing.pricing.starter.cadence')}</span>
                 </div>
-                <div className="text-[10px] text-slate-400 font-medium mt-0.5">{t('landing.pricing.starter.yearly')}</div>
-                <p className="text-xs text-slate-400 mt-2">{t('landing.pricing.starter.description')}</p>
+                <div className="text-[10px] text-slate-400 font-medium mt-0.5">{t('core.landing.pricing.starter.yearly', { yearly: STARTER_YEARLY_PRICE })}</div>
+                <p className="text-xs text-slate-400 mt-2">{t('core.landing.pricing.starter.description')}</p>
 
                 <ul className="mt-6 space-y-2.5 text-xs text-slate-300">
-                  <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.starter.f1')}</strong></li>
-                  <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.starter.f2')}</strong></li>
-                  <li className="flex items-center gap-2">✓ {t('landing.pricing.starter.f3')}</li>
-                  <li className="flex items-center gap-2">✓ {t('landing.pricing.starter.f4')}</li>
-                  <li className="flex items-center gap-2">✓ {t('landing.pricing.starter.f5')}</li>
+                  <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.starter.f1', { seats: STARTER_PLAN_SEATS })}</strong></li>
+                  <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.starter.f2')}</strong></li>
+                  <li className="flex items-center gap-2">✓ {t('core.landing.pricing.starter.f3')}</li>
+                  <li className="flex items-center gap-2">✓ {t('core.landing.pricing.starter.f4')}</li>
+                  <li className="flex items-center gap-2">✓ {t('core.landing.pricing.starter.f5')}</li>
                 </ul>
               </div>
 
@@ -493,31 +505,31 @@ export default function LandingPage() {
                 onClick={() => navigate('/register')}
                 className="mt-6 w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition cursor-pointer"
               >
-                {t('landing.pricing.starter.cta')}
+                {t('core.landing.pricing.starter.cta')}
               </button>
             </div>
 
             {/* Pro Tier (Popular) */}
             <div className="bg-gradient-to-b from-indigo-950/80 to-slate-900 p-6 rounded-3xl border-2 border-indigo-500 shadow-2xl relative flex flex-col justify-between">
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-wider px-3 py-0.5 rounded-full shadow">
-                {t('landing.pricing.pro.mostPopular')}
+                {t('core.landing.pricing.pro.mostPopular')}
               </div>
 
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-indigo-400">{t('landing.pricing.pro.tier')}</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-indigo-400">{t('core.landing.pricing.pro.tier')}</span>
                 <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-3xl font-black text-white">{t('landing.pricing.pro.price')}</span>
-                  <span className="text-xs text-slate-400">{t('landing.pricing.pro.cadence')}</span>
+                  <span className="text-3xl font-black text-white">{t('core.landing.pricing.pro.price', { price: PRO_MONTHLY_PRICE })}</span>
+                  <span className="text-xs text-slate-400">{t('core.landing.pricing.pro.cadence')}</span>
                 </div>
-                <div className="text-[10px] text-indigo-300/80 font-medium mt-0.5">{t('landing.pricing.pro.yearly')}</div>
-                <p className="text-xs text-slate-300 mt-2">{t('landing.pricing.pro.description')}</p>
+                <div className="text-[10px] text-indigo-300/80 font-medium mt-0.5">{t('core.landing.pricing.pro.yearly', { yearly: PRO_YEARLY_PRICE })}</div>
+                <p className="text-xs text-slate-300 mt-2">{t('core.landing.pricing.pro.description')}</p>
 
                 <ul className="mt-6 space-y-2.5 text-xs text-slate-200">
-                  <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.pro.f1')}</strong></li>
-                  <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.pro.f2')}</strong></li>
-                  <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.pro.f3')}</strong></li>
-                  <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.pro.f4')}</strong></li>
-                  <li className="flex items-center gap-2">✓ {t('landing.pricing.pro.f5')}</li>
+                  <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.pro.f1', { seats: PRO_PLAN_SEATS })}</strong></li>
+                  <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.pro.f2')}</strong></li>
+                  <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.pro.f3')}</strong></li>
+                  <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.pro.f4')}</strong></li>
+                  <li className="flex items-center gap-2">✓ {t('core.landing.pricing.pro.f5')}</li>
                 </ul>
               </div>
 
@@ -525,27 +537,27 @@ export default function LandingPage() {
                 onClick={() => navigate('/register')}
                 className="mt-6 w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition cursor-pointer"
               >
-                {t('landing.pricing.pro.cta')}
+                {t('core.landing.pricing.pro.cta')}
               </button>
             </div>
 
             {/* Enterprise Tier */}
             <div className="bg-gradient-to-b from-amber-950/40 via-slate-900 to-slate-900 p-6 rounded-3xl border border-amber-500/40 shadow-xl flex flex-col justify-between">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-amber-400">{t('landing.pricing.enterprise.tier')}</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-amber-400">{t('core.landing.pricing.enterprise.tier')}</span>
                 <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-3xl font-black text-white">{t('landing.pricing.enterprise.price')}</span>
-                  <span className="text-xs text-slate-400">{t('landing.pricing.enterprise.cadence')}</span>
+                  <span className="text-3xl font-black text-white">{t('core.landing.pricing.enterprise.price', { price: ENTERPRISE_MONTHLY_PRICE })}</span>
+                  <span className="text-xs text-slate-400">{t('core.landing.pricing.enterprise.cadence')}</span>
                 </div>
-                <div className="text-[10px] text-amber-300/80 font-medium mt-0.5">{t('landing.pricing.enterprise.yearly')}</div>
-                <p className="text-xs text-slate-300 mt-2">{t('landing.pricing.enterprise.description')}</p>
+                <div className="text-[10px] text-amber-300/80 font-medium mt-0.5">{t('core.landing.pricing.enterprise.yearly', { yearly: ENTERPRISE_YEARLY_PRICE })}</div>
+                <p className="text-xs text-slate-300 mt-2">{t('core.landing.pricing.enterprise.description')}</p>
 
                 <ul className="mt-6 space-y-2.5 text-xs text-slate-200">
-                  <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.enterprise.f1')}</strong></li>
-                  <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.enterprise.f2')}</strong></li>
-                  <li className="flex items-center gap-2">✓ <strong>{t('landing.pricing.enterprise.f3')}</strong></li>
-                  <li className="flex items-center gap-2">✓ {t('landing.pricing.enterprise.f4')}</li>
-                  <li className="flex items-center gap-2">✓ {t('landing.pricing.enterprise.f5')}</li>
+                  <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.enterprise.f1', { seats: ENTERPRISE_PLAN_SEATS })}</strong></li>
+                  <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.enterprise.f2', { price: EXTRA_SEAT_MONTHLY_PRICE })}</strong></li>
+                  <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.enterprise.f3')}</strong></li>
+                  <li className="flex items-center gap-2">✓ {t('core.landing.pricing.enterprise.f4')}</li>
+                  <li className="flex items-center gap-2">✓ {t('core.landing.pricing.enterprise.f5')}</li>
                 </ul>
               </div>
 
@@ -553,7 +565,7 @@ export default function LandingPage() {
                 onClick={() => navigate('/register')}
                 className="mt-6 w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-amber-600/30 transition cursor-pointer"
               >
-                {t('landing.pricing.enterprise.cta')}
+                {t('core.landing.pricing.enterprise.cta')}
               </button>
             </div>
           </div>
@@ -565,29 +577,29 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-4 space-y-4">
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-slate-400">
             <button onClick={() => navigate('/home')} className="hover:text-white transition">
-              {t('landing.footer.home')}
+              {t('core.landing.footer.home')}
             </button>
             <a href="#calculator" className="hover:text-white transition">
-              {t('landing.footer.trenchCalculator')}
+              {t('core.landing.footer.trenchCalculator')}
             </a>
             <a href="#pricing" className="hover:text-white transition">
-              {t('landing.footer.pricingPlans')}
+              {t('core.landing.footer.pricingPlans')}
             </a>
             <button onClick={() => navigate('/login')} className="hover:text-white transition">
-              {t('landing.footer.signIn')}
+              {t('core.landing.footer.signIn')}
             </button>
             <button onClick={() => navigate('/register')} className="hover:text-white transition">
-              {t('landing.footer.createAccount')}
+              {t('core.landing.footer.createAccount')}
             </button>
             <button onClick={() => navigate('/terms')} className="text-slate-400 hover:text-white font-medium transition">
-              {t('footer.acceptableUsePolicy')}
+              {t('core.footer.acceptableUsePolicy')}
             </button>
             <button onClick={() => navigate('/disclaimer')} className="text-amber-400 hover:text-amber-300 font-medium transition">
-              {t('footer.legalDisclaimer')}
+              {t('core.footer.legalDisclaimer')}
             </button>
           </div>
-          <p className="font-semibold text-slate-400">{t('landing.footer.tagline')}</p>
-          <p>{t('landing.footer.copyright', { year: new Date().getFullYear() })}</p>
+          <p className="font-semibold text-slate-400">{t('core.landing.footer.tagline')}</p>
+          <p>{t('core.landing.footer.copyright', { year: new Date().getFullYear() })}</p>
         </div>
       </footer>
 
@@ -601,26 +613,26 @@ export default function LandingPage() {
               </div>
               <div>
                 <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-amber-400/10 text-amber-300 border border-amber-400/20 mb-1.5">
-                  {t('landing.disclaimer.tag')}
+                  {t('core.landing.disclaimer.tag')}
                 </span>
                 <h2 className="text-xl font-bold text-white tracking-tight">
-                  {t('landing.disclaimer.title')}
+                  {t('core.landing.disclaimer.title')}
                 </h2>
               </div>
             </div>
 
             <p className="text-sm text-slate-300 leading-relaxed mb-4">
-              {t('landing.disclaimer.welcome')}
+              {t('core.landing.disclaimer.welcome')}
             </p>
 
             <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800 text-xs text-slate-400 space-y-2 mb-6 leading-relaxed">
               <p className="flex items-start gap-2">
                 <span className="text-amber-400 font-bold">•</span>
-                <span>{t('landing.disclaimer.p1')}</span>
+                <span>{t('core.landing.disclaimer.p1')}</span>
               </p>
               <p className="flex items-start gap-2">
                 <span className="text-amber-400 font-bold">•</span>
-                <span>{t('landing.disclaimer.p2')}</span>
+                <span>{t('core.landing.disclaimer.p2')}</span>
               </p>
             </div>
 
@@ -630,7 +642,7 @@ export default function LandingPage() {
                 onClick={handleDismissDisclaimer}
                 className="w-full sm:w-auto px-6 py-2.5 text-xs font-bold text-slate-900 bg-amber-400 hover:bg-amber-300 rounded-xl transition shadow-lg shadow-amber-400/20"
               >
-                {t('landing.disclaimer.confirm')}
+                {t('core.landing.disclaimer.confirm')}
               </button>
             </div>
           </div>

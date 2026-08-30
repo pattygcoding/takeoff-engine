@@ -43,7 +43,7 @@ export default function UserMenu() {
   const handleUpdatePassword = async (e) => {
     e.preventDefault();
     if (!oldPassword) {
-      setErr(t('accountSettings.currentPasswordRequired', 'Current password is required'));
+      setErr(t('core.accountSettings.currentPasswordRequired', 'Current password is required'));
       return;
     }
     setErr('');
@@ -112,10 +112,10 @@ export default function UserMenu() {
               {user.email && <p className="text-xs text-slate-400 dark:text-slate-500 truncate">{user.email}</p>}
               <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800">
                 <span className="text-[11px] uppercase tracking-wider font-semibold text-slate-400 dark:text-slate-500 block mb-0.5">
-                  {t('userMenu.signInName')}
+                  {t('core.userMenu.signInName')}
                 </span>
                 <p className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                  {isExempt ? t('userMenu.unlimitedExports') : t('userMenu.freeTrialExports', { credits })}
+                  {isExempt ? t('core.userMenu.unlimitedExports') : t('core.userMenu.freeTrialExports', { credits })}
                 </p>
               </div>
             </div>
@@ -142,7 +142,7 @@ export default function UserMenu() {
                 className="w-full text-left px-4 py-2 text-sm text-purple-700 dark:text-purple-400 font-semibold hover:bg-purple-50 dark:hover:bg-purple-950/50 transition flex items-center gap-2 cursor-pointer"
               >
                 <span>⚡</span>
-                <span>{t('userMenu.superAdminPortal')}</span>
+                <span>{t('core.userMenu.superAdminPortal')}</span>
               </button>
             )}
 
@@ -157,7 +157,7 @@ export default function UserMenu() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              <span>{t('userMenu.accountSettings')}</span>
+              <span>{t('core.userMenu.accountSettings')}</span>
             </button>
 
             <button
@@ -170,7 +170,7 @@ export default function UserMenu() {
               <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
-              <span>{t('userMenu.publicSite')}</span>
+              <span>{t('core.userMenu.publicSite')}</span>
             </button>
 
             <button
@@ -180,7 +180,7 @@ export default function UserMenu() {
               }}
               className="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer"
             >
-              {t('userMenu.changePassword')}
+              {t('core.userMenu.changePassword')}
             </button>
 
             <button
@@ -190,7 +190,7 @@ export default function UserMenu() {
               }}
               className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50 transition cursor-pointer"
             >
-              {t('userMenu.logOut')}
+              {t('core.userMenu.logOut')}
             </button>
           </div>
         )}
@@ -211,7 +211,7 @@ export default function UserMenu() {
             >
               ✕
             </button>
-            <h3 className="text-lg font-bold text-slate-800 mb-4">{t('userMenu.updatePasswordTitle')}</h3>
+            <h3 className="text-lg font-bold text-slate-800 mb-4">{t('core.userMenu.updatePasswordTitle')}</h3>
 
             {err && (
               <div className="mb-3 p-2 text-xs rounded bg-red-50 text-red-700 border border-red-200">
@@ -227,7 +227,7 @@ export default function UserMenu() {
             <form onSubmit={handleUpdatePassword} className="space-y-3">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
-                  {t('accountSettings.currentPasswordLabel', 'Current Password')}
+                  {t('core.accountSettings.currentPasswordLabel', 'Current Password')}
                 </label>
                 <div className="relative">
                   <input
@@ -242,7 +242,7 @@ export default function UserMenu() {
                     type="button"
                     onClick={() => setShowOldPassword(!showOldPassword)}
                     className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 text-sm focus:outline-none"
-                    aria-label={showOldPassword ? t('loginPage.hidePassword', 'Hide password') : t('loginPage.showPassword', 'Show password')}
+                    aria-label={showOldPassword ? t('core.loginPage.hidePassword', 'Hide password') : t('core.loginPage.showPassword', 'Show password')}
                   >
                     {showOldPassword ? (
                       <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -259,7 +259,7 @@ export default function UserMenu() {
               </div>
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
-                  {t('userMenu.newPassword')}
+                  {t('core.userMenu.newPassword')}
                 </label>
                 <div className="relative">
                   <input
@@ -275,7 +275,7 @@ export default function UserMenu() {
                     type="button"
                     onClick={() => setShowNewPassword(!showNewPassword)}
                     className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 text-sm focus:outline-none"
-                    aria-label={showNewPassword ? t('loginPage.hidePassword', 'Hide password') : t('loginPage.showPassword', 'Show password')}
+                    aria-label={showNewPassword ? t('core.loginPage.hidePassword', 'Hide password') : t('core.loginPage.showPassword', 'Show password')}
                   >
                     {showNewPassword ? (
                       <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -295,7 +295,7 @@ export default function UserMenu() {
                 disabled={loading || !oldPassword || !newPassword}
                 className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition mt-2"
               >
-                {loading ? t('userMenu.saving') : t('userMenu.updatePassword')}
+                {loading ? t('core.userMenu.saving') : t('core.userMenu.updatePassword')}
               </button>
             </form>
           </div>

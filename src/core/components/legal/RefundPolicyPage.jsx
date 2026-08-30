@@ -20,8 +20,8 @@ export default function RefundPolicyPage() {
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 pb-20 flex flex-col transition-colors duration-200">
       <SeoHead
-        title={t('refundPolicy.title', 'Refund & Cancellation Policy') + ' — Takeoff Engine'}
-        description={t('refundPolicy.subtitle', 'Clear, straightforward guidelines on cancellations, refunds, and renewals')}
+        title={t('core.refundPolicy.title', 'Refund & Cancellation Policy') + ' — Takeoff Engine'}
+        description={t('core.refundPolicy.subtitle', 'Clear, straightforward guidelines on cancellations, refunds, and renewals')}
         canonicalUrl="https://takeoffengine.com/refund"
       />
       {/* Header Bar */}
@@ -32,7 +32,7 @@ export default function RefundPolicyPage() {
               type="button"
               onClick={handleBack}
               className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-xl transition cursor-pointer"
-              title={t('common.goBack')}
+              title={t('core.common.goBack')}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -40,10 +40,10 @@ export default function RefundPolicyPage() {
             </button>
             <div>
               <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-                {t('refundPolicy.badge')}
+                {t('core.refundPolicy.badge')}
               </span>
               <h1 className="text-base sm:text-lg font-black text-slate-900 dark:text-white leading-tight">
-                {t('refundPolicy.title')}
+                {t('core.refundPolicy.title')}
               </h1>
             </div>
           </div>
@@ -56,10 +56,10 @@ export default function RefundPolicyPage() {
           {/* Header Banner */}
           <div className="border-b border-slate-200 dark:border-slate-800 pb-6">
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-2">
-              {t('refundPolicy.headerTitle')}
+              {t('core.refundPolicy.headerTitle')}
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-              {t('refundPolicy.effectiveDate', { date: 'August 2026' })} • {t('refundPolicy.subtitle')}
+              {t('core.refundPolicy.effectiveDate', { date: 'August 2026' })} • {t('core.refundPolicy.subtitle')}
             </p>
           </div>
 
@@ -67,10 +67,10 @@ export default function RefundPolicyPage() {
           <section className="space-y-3">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <span className="w-6 h-6 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs font-black">1</span>
-              {t('refundPolicy.s1Title')}
+              {t('core.refundPolicy.s1Title')}
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              {t('refundPolicy.s1Body')}
+              {t('core.refundPolicy.s1Body')}
             </p>
           </section>
 
@@ -78,10 +78,10 @@ export default function RefundPolicyPage() {
           <section className="space-y-3 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 p-5">
             <h3 className="text-lg font-bold text-emerald-950 dark:text-emerald-200 flex items-center gap-2">
               <span className="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs font-black">✓</span>
-              {t('refundPolicy.s2Title')}
+              {t('core.refundPolicy.s2Title')}
             </h3>
             <p className="text-xs sm:text-sm text-emerald-900 dark:text-emerald-300 leading-relaxed font-medium">
-              {t('refundPolicy.s2Body')}
+              {t('core.refundPolicy.s2Body')}
             </p>
           </section>
 
@@ -89,10 +89,10 @@ export default function RefundPolicyPage() {
           <section className="space-y-3">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <span className="w-6 h-6 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs font-black">2</span>
-              {t('refundPolicy.s3Title')}
+              {t('core.refundPolicy.s3Title')}
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              {t('refundPolicy.s3Body')}
+              {t('core.refundPolicy.s3Body')}
             </p>
           </section>
 
@@ -100,10 +100,10 @@ export default function RefundPolicyPage() {
           <section className="space-y-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 p-5">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <span className="w-6 h-6 rounded-lg bg-slate-700 dark:bg-slate-600 text-white flex items-center justify-center text-xs font-black">3</span>
-              {t('refundPolicy.s4Title')}
+              {t('core.refundPolicy.s4Title')}
             </h3>
             <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
-              {t('refundPolicy.s4Body')}
+              {t('core.refundPolicy.s4Body')}
             </p>
           </section>
 
@@ -111,10 +111,10 @@ export default function RefundPolicyPage() {
           <section className="space-y-3 pt-4 border-t border-slate-100 dark:border-slate-800">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <span className="w-6 h-6 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs font-black">4</span>
-              {t('refundPolicy.s5Title')}
+              {t('core.refundPolicy.s5Title')}
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              {t('refundPolicy.s5Body')}
+              {t('core.refundPolicy.s5Body')}
             </p>
             <div className="pt-2">
               <a

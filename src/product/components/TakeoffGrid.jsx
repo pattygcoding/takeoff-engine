@@ -260,7 +260,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
               onClick={() => setSelectedItemIds(new Set())}
               className="px-2 py-1.5 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
             >
-              {t('common.cancel', 'Cancel')}
+              {t('core.common.cancel', 'Cancel')}
             </button>
           </div>
         </div>
@@ -731,7 +731,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                   onClick={() => setShowAddEquipmentModal(false)}
                   className="px-3.5 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer"
                 >
-                  {t('common.cancel', 'Cancel')}
+                  {t('core.common.cancel', 'Cancel')}
                 </button>
                 <button
                   type="submit"

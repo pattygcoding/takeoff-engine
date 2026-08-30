@@ -20,8 +20,8 @@ export default function TermsOfServicePage() {
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 pb-20 flex flex-col transition-colors duration-200">
       <SeoHead
-        title={t('termsOfService.title', 'Terms of Service') + ' — Takeoff Engine'}
-        description={t('termsOfService.subtitle', 'General terms governing your use of Takeoff Engine')}
+        title={t('core.termsOfService.title', 'Terms of Service') + ' — Takeoff Engine'}
+        description={t('core.termsOfService.subtitle', 'General terms governing your use of Takeoff Engine')}
         canonicalUrl="https://takeoffengine.com/terms-of-service"
       />
       {/* Header Bar */}
@@ -32,7 +32,7 @@ export default function TermsOfServicePage() {
               type="button"
               onClick={handleBack}
               className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-xl transition cursor-pointer"
-              title={t('common.goBack')}
+              title={t('core.common.goBack')}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -40,10 +40,10 @@ export default function TermsOfServicePage() {
             </button>
             <div>
               <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
-                {t('termsOfService.badge')}
+                {t('core.termsOfService.badge')}
               </span>
               <h1 className="text-base sm:text-lg font-black text-slate-900 dark:text-white leading-tight">
-                {t('termsOfService.title')}
+                {t('core.termsOfService.title')}
               </h1>
             </div>
           </div>
@@ -56,10 +56,10 @@ export default function TermsOfServicePage() {
           {/* Header Banner */}
           <div className="border-b border-slate-200 dark:border-slate-800 pb-6">
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-2">
-              {t('termsOfService.headerTitle')}
+              {t('core.termsOfService.headerTitle')}
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-              {t('termsOfService.effectiveDate', { date: 'August 2026' })} • {t('termsOfService.subtitle')}
+              {t('core.termsOfService.effectiveDate', { date: 'August 2026' })} • {t('core.termsOfService.subtitle')}
             </p>
           </div>
 
@@ -67,10 +67,10 @@ export default function TermsOfServicePage() {
           <section className="space-y-3">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <span className="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs font-black">1</span>
-              {t('termsOfService.s1Title')}
+              {t('core.termsOfService.s1Title')}
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              {t('termsOfService.s1Body')}
+              {t('core.termsOfService.s1Body')}
             </p>
           </section>
 
@@ -78,10 +78,10 @@ export default function TermsOfServicePage() {
           <section className="space-y-3">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <span className="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs font-black">2</span>
-              {t('termsOfService.s2Title')}
+              {t('core.termsOfService.s2Title')}
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              {t('termsOfService.s2Body')}
+              {t('core.termsOfService.s2Body')}
             </p>
           </section>
 
@@ -89,10 +89,10 @@ export default function TermsOfServicePage() {
           <section className="space-y-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 p-5">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <span className="w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-xs font-black">3</span>
-              {t('termsOfService.s3Title')}
+              {t('core.termsOfService.s3Title')}
             </h3>
             <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed font-medium">
-              {t('termsOfService.s3Body')}
+              {t('core.termsOfService.s3Body')}
             </p>
           </section>
 
@@ -100,10 +100,10 @@ export default function TermsOfServicePage() {
           <section className="space-y-3">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <span className="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs font-black">4</span>
-              {t('termsOfService.s4Title')}
+              {t('core.termsOfService.s4Title')}
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              {t('termsOfService.s4Body')}
+              {t('core.termsOfService.s4Body')}
             </p>
           </section>
 
@@ -111,10 +111,10 @@ export default function TermsOfServicePage() {
           <section className="space-y-3">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <span className="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs font-black">5</span>
-              {t('termsOfService.s5Title')}
+              {t('core.termsOfService.s5Title')}
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              {t('termsOfService.s5Body')}
+              {t('core.termsOfService.s5Body')}
             </p>
           </section>
 
@@ -122,10 +122,10 @@ export default function TermsOfServicePage() {
           <section className="space-y-3 pt-4 border-t border-slate-100 dark:border-slate-800">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <span className="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs font-black">6</span>
-              {t('termsOfService.s6Title')}
+              {t('core.termsOfService.s6Title')}
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              {t('termsOfService.s6Body')}
+              {t('core.termsOfService.s6Body')}
             </p>
             <div className="pt-2">
               <a

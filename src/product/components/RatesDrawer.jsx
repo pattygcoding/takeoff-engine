@@ -1077,7 +1077,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                     onClick={() => setShowSaveModal(false)}
                     className="px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer"
                   >
-                    {t('common.cancel')}
+                    {t('core.common.cancel')}
                   </button>
                   <button
                     type="submit"
@@ -1196,7 +1196,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                   onClick={() => setShowCrewCalculator(false)}
                   className="px-3.5 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer"
                 >
-                  {t('common.cancel')}
+                  {t('core.common.cancel')}
                 </button>
                 <button
                   type="button"

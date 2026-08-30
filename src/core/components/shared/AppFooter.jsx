@@ -32,11 +32,11 @@ export default function AppFooter() {
             <div className="flex items-center gap-2">
               <span className="text-xl">📐</span>
               <span className="font-extrabold text-base tracking-tight text-white">
-                {t('footer.brandName')}
+                {t('core.footer.brandName')}
               </span>
             </div>
             <p className="text-[12px] text-slate-400 leading-relaxed">
-              {t('footer.tagline', 'Automated Construction Estimating, Takeoffs & Bidding Platform for Contractors.')}
+              {t('core.footer.tagline', 'Automated Construction Estimating, Takeoffs & Bidding Platform for Contractors.')}
             </p>
             <div className="pt-1">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-800 text-[11px] font-semibold text-slate-300 border border-slate-700">
@@ -49,7 +49,7 @@ export default function AppFooter() {
           {/* Col 2: Navigation & Product */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200">
-              {t('footer.productCol', 'Product')}
+              {t('core.footer.productCol', 'Product')}
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
@@ -64,7 +64,7 @@ export default function AppFooter() {
                   }}
                   className="hover:text-white transition cursor-pointer"
                 >
-                  {isAuthenticated ? t('footer.dashboard') : t('footer.home')}
+                  {isAuthenticated ? t('core.footer.dashboard') : t('core.footer.home')}
                 </button>
               </li>
               <li>
@@ -73,7 +73,7 @@ export default function AppFooter() {
                   onClick={() => navigate('/guide')}
                   className="hover:text-white transition cursor-pointer"
                 >
-                  {t('footer.documentation')}
+                  {t('core.footer.documentation')}
                 </button>
               </li>
               <li>
@@ -92,7 +92,7 @@ export default function AppFooter() {
                   }}
                   className="hover:text-white transition cursor-pointer"
                 >
-                  {t('footer.pricing', 'Pricing & Plans')}
+                  {t('core.footer.pricing', 'Pricing & Plans')}
                 </button>
               </li>
             </ul>
@@ -101,7 +101,7 @@ export default function AppFooter() {
           {/* Col 3: Legal & Compliance (Required by Paddle) */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200">
-              {t('footer.legalCol', 'Legal & Policies')}
+              {t('core.footer.legalCol', 'Legal & Policies')}
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
@@ -110,7 +110,7 @@ export default function AppFooter() {
                   onClick={() => navigate('/terms')}
                   className="hover:text-white transition cursor-pointer"
                 >
-                  {t('footer.termsOfService', 'Terms of Service')}
+                  {t('core.footer.termsOfService', 'Terms of Service')}
                 </button>
               </li>
               <li>
@@ -119,7 +119,7 @@ export default function AppFooter() {
                   onClick={() => navigate('/privacy')}
                   className="hover:text-white transition cursor-pointer"
                 >
-                  {t('footer.privacyPolicy', 'Privacy Policy')}
+                  {t('core.footer.privacyPolicy', 'Privacy Policy')}
                 </button>
               </li>
               <li>
@@ -128,7 +128,7 @@ export default function AppFooter() {
                   onClick={() => navigate('/refund')}
                   className="hover:text-white transition cursor-pointer"
                 >
-                  {t('footer.refundPolicy', 'Refund & Cancellation Policy')}
+                  {t('core.footer.refundPolicy', 'Refund & Cancellation Policy')}
                 </button>
               </li>
               <li>
@@ -137,7 +137,7 @@ export default function AppFooter() {
                   onClick={() => navigate('/acceptable-use')}
                   className="hover:text-white transition cursor-pointer"
                 >
-                  {t('footer.acceptableUsePolicy')}
+                  {t('core.footer.acceptableUsePolicy')}
                 </button>
               </li>
               <li>
@@ -146,7 +146,7 @@ export default function AppFooter() {
                   onClick={() => navigate('/disclaimer')}
                   className="text-amber-400 hover:text-amber-300 hover:underline transition cursor-pointer"
                 >
-                  {t('footer.legalDisclaimer')}
+                  {t('core.footer.legalDisclaimer')}
                 </button>
               </li>
             </ul>
@@ -155,10 +155,10 @@ export default function AppFooter() {
           {/* Col 4: Contact & Merchant of Record Notice */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200">
-              {t('footer.contactCol', 'Contact & Inquiries')}
+              {t('core.footer.contactCol', 'Contact & Inquiries')}
             </h4>
             <p className="text-xs text-slate-400">
-              {t('footer.supportEmailLabel', 'Contact Support:')}
+              {t('core.footer.supportEmailLabel', 'Contact Support:')}
             </p>
             <a
               href="mailto:pattygsocials@gmail.com"
@@ -167,14 +167,14 @@ export default function AppFooter() {
               pattygsocials@gmail.com
             </a>
             <p className="text-[11px] text-slate-500 leading-normal pt-1">
-              {t('footer.merchantOfRecordNotice', 'Our order process is conducted by our online reseller Paddle.com. Paddle.com is the Merchant of Record for all our orders.')}
+              {t('core.footer.merchantOfRecordNotice', 'Our order process is conducted by our online reseller Paddle.com. Paddle.com is the Merchant of Record for all our orders.')}
             </p>
           </div>
         </div>
 
         {/* Bottom Copyright Bar */}
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left text-[11px] text-slate-500">
-          <p>{t('footer.copyright', { year: new Date().getFullYear() })}</p>
+          <p>{t('core.footer.copyright', { year: new Date().getFullYear() })}</p>
           <p className="text-slate-500">
             Powered by Takeoff Engine • Merchant of Record: Paddle.com
           </p>

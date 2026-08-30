@@ -209,7 +209,7 @@ export default function ScopeInclusionsModal({
                   className="px-2 py-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition cursor-pointer font-bold"
                   title={t('product.scopeModal.deletePresetTooltip', 'Delete this preset')}
                 >
-                  ✕ {t('common.delete')}
+                  ✕ {t('core.common.delete')}
                 </button>
               )}
 
@@ -246,7 +246,7 @@ export default function ScopeInclusionsModal({
                     disabled={!presetNameInput.trim()}
                     className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold rounded-xl transition cursor-pointer"
                   >
-                    ✓ {t('common.save')}
+                    ✓ {t('core.common.save')}
                   </button>
                   <button
                     type="button"
@@ -468,7 +468,7 @@ export default function ScopeInclusionsModal({
                       type="button"
                       onClick={() => handleRemoveItem(item.id)}
                       className="p-1 text-slate-400 hover:text-red-500 rounded-lg transition ml-0.5 cursor-pointer"
-                      title={t('common.delete')}
+                      title={t('core.common.delete')}
                     >
                       🗑️
                     </button>
@@ -532,7 +532,7 @@ export default function ScopeInclusionsModal({
               onClick={onClose}
               className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition cursor-pointer"
             >
-              {t('common.close', 'Close')}
+              {t('core.common.close', 'Close')}
             </button>
           )}
         </div>
@@ -639,7 +639,7 @@ function SavedConfirmModal({ t, onDismiss }) {
           onClick={onDismiss}
           className="mt-5 w-full px-4 py-2 text-sm font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-xs transition cursor-pointer"
         >
-          {t('common.ok', 'OK')}
+          {t('core.common.ok', 'OK')}
         </button>
       </div>
     </div>

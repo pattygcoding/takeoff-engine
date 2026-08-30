@@ -31,7 +31,7 @@ export const proposalsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      const err = new Error(data.error || getTranslation('apiErrors.generateProposalFailed'));
+      const err = new Error(data.error || getTranslation('core.apiErrors.generateProposalFailed'));
       err.code = data.code;
       throw err;
     }
@@ -49,7 +49,7 @@ export const proposalsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      const err = new Error(data.error || getTranslation('apiErrors.sendProposalEmailFailed'));
+      const err = new Error(data.error || getTranslation('core.apiErrors.sendProposalEmailFailed'));
       err.code = data.code;
       throw err;
     }
@@ -73,7 +73,7 @@ export const proposalsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || getTranslation('apiErrors.proposalNotFoundOrExpired'));
+      throw new Error(data.error || getTranslation('core.apiErrors.proposalNotFoundOrExpired'));
     }
     return data;
   },
@@ -89,7 +89,7 @@ export const proposalsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || getTranslation('apiErrors.submitSignatureFailed'));
+      throw new Error(data.error || getTranslation('core.apiErrors.submitSignatureFailed'));
     }
     return data;
   },
@@ -105,7 +105,7 @@ export const proposalsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || getTranslation('apiErrors.declineProposalFailed'));
+      throw new Error(data.error || getTranslation('core.apiErrors.declineProposalFailed'));
     }
     return data;
   },
@@ -121,7 +121,7 @@ export const proposalsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || getTranslation('apiErrors.counterOfferFailed', 'Failed to submit counter-offer request.'));
+      throw new Error(data.error || getTranslation('core.apiErrors.counterOfferFailed', 'Failed to submit counter-offer request.'));
     }
     return data;
   },

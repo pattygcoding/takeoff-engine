@@ -21,7 +21,7 @@ export const ratesApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || getTranslation('apiErrors.fetchRatesFailed'));
+      throw new Error(data.error || getTranslation('core.apiErrors.fetchRatesFailed'));
     }
     return data;
   },
@@ -37,7 +37,7 @@ export const ratesApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      const err = new Error(data.error || getTranslation('apiErrors.saveRateTemplateFailed'));
+      const err = new Error(data.error || getTranslation('core.apiErrors.saveRateTemplateFailed'));
       err.code = data.code;
       throw err;
     }
@@ -55,7 +55,7 @@ export const ratesApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || getTranslation('apiErrors.updateRateTemplateFailed'));
+      throw new Error(data.error || getTranslation('core.apiErrors.updateRateTemplateFailed'));
     }
     return data.template;
   },
@@ -70,7 +70,7 @@ export const ratesApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || getTranslation('apiErrors.deleteRateTemplateFailed'));
+      throw new Error(data.error || getTranslation('core.apiErrors.deleteRateTemplateFailed'));
     }
     return data;
   },

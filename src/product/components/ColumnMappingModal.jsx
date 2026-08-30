@@ -407,7 +407,7 @@ export default function ColumnMappingModal({
             onClick={onCancel}
             className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition cursor-pointer"
           >
-            {t('common.cancel')}
+            {t('core.common.cancel')}
           </button>
 
           <button
