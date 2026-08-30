@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     const data = await authApi.login(credentials);
-    localStorage.setItem('takeoff_token', data.token);
+    localStorage.setItem('takeoff_token', data.session?.access_token);
     localStorage.setItem('takeoff_user', JSON.stringify(data.user));
     setUser(data.user);
     return data;
@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     const data = await authApi.register(userData);
-    localStorage.setItem('takeoff_token', data.token);
+    localStorage.setItem('takeoff_token', data.session?.access_token);
     localStorage.setItem('takeoff_user', JSON.stringify(data.user));
     setUser(data.user);
     return data;

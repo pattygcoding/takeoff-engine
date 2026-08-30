@@ -77,6 +77,18 @@ describe('Frontend Authentication & Account Lifecycle Tests', () => {
       assert.strictEqual(mockStorage['takeoff_token'], undefined);
       assert.strictEqual(mockStorage['takeoff_user'], undefined);
     });
+
+    it('extracts the access token from `session.access_token` on the login/register response (regression: backend never returns a top-level `token` field)', () => {
+      // Mirrors the actual shape returned by AuthController.login/register.
+      const backendResponse = {
+        message: 'Login successful.',
+        user: { id: 'usr_abc', username: 'estimator_dan' },
+        session: { access_token: 'real_jwt_from_supabase', refresh_token: 'refresh_abc' },
+      };
+
+      assert.strictEqual(backendResponse.token, undefined, 'backend response has no top-level token field');
+      assert.strictEqual(backendResponse.session.access_token, 'real_jwt_from_supabase');
+    });
   });
 
   describe('Password Recovery Token Flow (Frontend Hash Fragment Parser)', () => {
