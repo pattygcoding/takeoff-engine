@@ -5,7 +5,7 @@ import { authApi } from '@/lib/auth/auth';
 import { billingApi } from '@/lib/billing/billing';
 import { openPaddleCheckout } from '@/lib/billing/paddle';
 import { useTranslation } from '@/context/I18nContext';
-import SeoHead from '@/components/shared/SeoHead';
+import SeoHead from '@/core/components/shared/SeoHead';
 
 export default function LoginPage({ initialView = 'login' }) {
   const { login, register, refreshProfile, user } = useAuth();

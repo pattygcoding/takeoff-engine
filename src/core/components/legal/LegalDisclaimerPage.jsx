@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from '@/context/I18nContext';
-import SeoHead from '@/components/shared/SeoHead';
+import SeoHead from '@/core/components/shared/SeoHead';
 
 export default function LegalDisclaimerPage() {
   const navigate = useNavigate();

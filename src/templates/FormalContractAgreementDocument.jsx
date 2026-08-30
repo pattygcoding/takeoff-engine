@@ -2,7 +2,7 @@ import React from 'react';
 import { formatCurrency } from '@/lib/product/calculations';
 import { DocumentSignOff } from './DocumentHeaderSignoff';
 import { useTranslation } from '@/context/I18nContext';
-import ScopeSummaryDisplay from '@/components/product/ScopeSummaryDisplay';
+import ScopeSummaryDisplay from '@/product/components/ScopeSummaryDisplay';
 
 /**
  * 13. Owner-Contractor Formal Agreement Layout

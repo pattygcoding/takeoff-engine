@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from '@/context/I18nContext';
 import { authApi } from '@/lib/auth/auth';
-import UpgradeModal from '@/components/billing/UpgradeModal';
+import UpgradeModal from '@/core/components/billing/UpgradeModal';
 
 export default function UserMenu() {
   const { user, logout } = useAuth();

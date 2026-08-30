@@ -8,7 +8,7 @@ import { authApi } from '@/lib/auth/auth';
 import { useAuth } from '@/context/AuthContext';
 import { useModal } from '@/context/ModalContext';
 import { useTranslation } from '@/context/I18nContext';
-import UpgradeModal from '@/components/billing/UpgradeModal';
+import UpgradeModal from '@/core/components/billing/UpgradeModal';
 import ScopeSummaryDisplay from './ScopeSummaryDisplay';
 import Papa from 'papaparse';
 

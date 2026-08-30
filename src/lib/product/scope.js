@@ -4,7 +4,7 @@
  * and scope calculation/normalization functions.
  */
 
-import defaultScopeItemsJson from '@/data/inclusions/defaultScopeItems.json';
+import defaultScopeItemsJson from '@/product/data/inclusions/defaultScopeItems.json';
 
 export const SCOPE_STATUS = {
   INCLUDED: 'included',

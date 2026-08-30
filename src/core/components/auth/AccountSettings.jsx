@@ -6,7 +6,7 @@ import { useModal } from '@/context/ModalContext';
 import { useTranslation } from '@/context/I18nContext';
 import { useNavigate } from 'react-router-dom';
 import TeamWorkspaceManager from './TeamWorkspaceManager';
-import UpgradeModal from '@/components/billing/UpgradeModal';
+import UpgradeModal from '@/core/components/billing/UpgradeModal';
 
 export default function AccountSettings() {
   const { user, setUser, logout, refreshProfile } = useAuth();

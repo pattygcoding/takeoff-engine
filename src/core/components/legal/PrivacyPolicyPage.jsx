@@ -2,9 +2,9 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from '@/context/I18nContext';
-import SeoHead from '@/components/shared/SeoHead';
+import SeoHead from '@/core/components/shared/SeoHead';
 
-export default function RefundPolicyPage() {
+export default function PrivacyPolicyPage() {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
   const { t } = useTranslation();
@@ -20,9 +20,9 @@ export default function RefundPolicyPage() {
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 pb-20 flex flex-col transition-colors duration-200">
       <SeoHead
-        title={t('refundPolicy.title', 'Refund & Cancellation Policy') + ' — Takeoff Engine'}
-        description={t('refundPolicy.subtitle', 'Clear, straightforward guidelines on cancellations, refunds, and renewals')}
-        canonicalUrl="https://takeoffengine.com/refund"
+        title={t('privacyPolicy.title', 'Privacy Policy') + ' — Takeoff Engine'}
+        description={t('privacyPolicy.subtitle', 'How Takeoff Engine protects, handles, and processes your data')}
+        canonicalUrl="https://takeoffengine.com/privacy"
       />
       {/* Header Bar */}
       <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 shadow-2xs">
@@ -39,11 +39,11 @@ export default function RefundPolicyPage() {
               </svg>
             </button>
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-                {t('refundPolicy.badge')}
+              <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                {t('privacyPolicy.badge')}
               </span>
               <h1 className="text-base sm:text-lg font-black text-slate-900 dark:text-white leading-tight">
-                {t('refundPolicy.title')}
+                {t('privacyPolicy.title')}
               </h1>
             </div>
           </div>
@@ -56,70 +56,81 @@ export default function RefundPolicyPage() {
           {/* Header Banner */}
           <div className="border-b border-slate-200 dark:border-slate-800 pb-6">
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-2">
-              {t('refundPolicy.headerTitle')}
+              {t('privacyPolicy.headerTitle')}
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-              {t('refundPolicy.effectiveDate', { date: 'August 2026' })} • {t('refundPolicy.subtitle')}
+              {t('privacyPolicy.effectiveDate', { date: 'August 2026' })} • {t('privacyPolicy.subtitle')}
             </p>
           </div>
 
-          {/* Section 1: Cancellations */}
+          {/* Section 1 */}
           <section className="space-y-3">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs font-black">1</span>
-              {t('refundPolicy.s1Title')}
+              <span className="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs font-black">1</span>
+              {t('privacyPolicy.s1Title')}
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              {t('refundPolicy.s1Body')}
+              {t('privacyPolicy.s1Body')}
             </p>
           </section>
 
-          {/* Section 2: 14-Day Guarantee */}
-          <section className="space-y-3 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 p-5">
-            <h3 className="text-lg font-bold text-emerald-950 dark:text-emerald-200 flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs font-black">✓</span>
-              {t('refundPolicy.s2Title')}
-            </h3>
-            <p className="text-xs sm:text-sm text-emerald-900 dark:text-emerald-300 leading-relaxed font-medium">
-              {t('refundPolicy.s2Body')}
-            </p>
-          </section>
-
-          {/* Section 3: Renewals */}
+          {/* Section 2 */}
           <section className="space-y-3">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs font-black">2</span>
-              {t('refundPolicy.s3Title')}
+              <span className="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs font-black">2</span>
+              {t('privacyPolicy.s2Title')}
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              {t('refundPolicy.s3Body')}
+              {t('privacyPolicy.s2Body')}
             </p>
           </section>
 
-          {/* Section 4: Merchant of Record */}
-          <section className="space-y-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 p-5">
+          {/* Section 3 */}
+          <section className="space-y-3">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-slate-700 dark:bg-slate-600 text-white flex items-center justify-center text-xs font-black">3</span>
-              {t('refundPolicy.s4Title')}
+              <span className="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs font-black">3</span>
+              {t('privacyPolicy.s3Title')}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              {t('privacyPolicy.s3Body')}
+            </p>
+          </section>
+
+          {/* Section 4 */}
+          <section className="space-y-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 p-5">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-xs font-black">4</span>
+              {t('privacyPolicy.s4Title')}
             </h3>
             <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
-              {t('refundPolicy.s4Body')}
+              {t('privacyPolicy.s4Body')}
             </p>
           </section>
 
-          {/* Section 5: Support */}
-          <section className="space-y-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+          {/* Section 5 */}
+          <section className="space-y-3">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs font-black">4</span>
-              {t('refundPolicy.s5Title')}
+              <span className="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs font-black">5</span>
+              {t('privacyPolicy.s5Title')}
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              {t('refundPolicy.s5Body')}
+              {t('privacyPolicy.s5Body')}
+            </p>
+          </section>
+
+          {/* Section 6 */}
+          <section className="space-y-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs font-black">6</span>
+              {t('privacyPolicy.s6Title')}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              {t('privacyPolicy.s6Body')}
             </p>
             <div className="pt-2">
               <a
                 href="mailto:pattygsocials@gmail.com"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition cursor-pointer"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition"
               >
                 ✉ pattygsocials@gmail.com
               </a>

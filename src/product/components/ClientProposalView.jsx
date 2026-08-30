@@ -4,7 +4,7 @@ import { proposalsApi } from '@/lib/product/proposals';
 import { formatCurrency, formatNumber, computeEstimate } from '@/lib/product/calculations';
 import { useModal } from '@/context/ModalContext';
 import { useTranslation } from '@/context/I18nContext';
-import LanguageSelector from '@/components/shared/LanguageSelector';
+import LanguageSelector from '@/core/components/shared/LanguageSelector';
 import ClientCounterOfferModal from './ClientCounterOfferModal';
 import ScopeSummaryDisplay from './ScopeSummaryDisplay';
 

@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { formatCurrency, formatNumber } from '@/lib/product/calculations';
 import { useTranslation } from '@/context/I18nContext';
-import LanguageSelector from '@/components/shared/LanguageSelector';
-import SeoHead from '@/components/shared/SeoHead';
+import LanguageSelector from '@/core/components/shared/LanguageSelector';
+import SeoHead from '@/core/components/shared/SeoHead';
 
 export default function LandingPage() {
   const navigate = useNavigate();

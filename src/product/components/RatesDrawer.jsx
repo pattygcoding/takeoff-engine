@@ -10,8 +10,8 @@ import {
 } from '@/constants/calculations.constants';
 import { calculationsApi } from '@/lib/product/calculations';
 import { DEFAULT_SCOPE_ITEMS, summarizeScope } from '@/lib/product/scope';
-import ScopeInclusionsModal from '@/components/product/ScopeInclusionsModal';
-import UpgradeModal from '@/components/billing/UpgradeModal';
+import ScopeInclusionsModal from '@/product/components/ScopeInclusionsModal';
+import UpgradeModal from '@/core/components/billing/UpgradeModal';
 
 export default function RatesDrawer({ open, onClose, rates, onChange, readOnly = false }) {
   const { user } = useAuth();

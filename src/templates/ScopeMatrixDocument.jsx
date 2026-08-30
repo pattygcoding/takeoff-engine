@@ -2,7 +2,7 @@ import React from 'react';
 import { formatCurrency, formatNumber } from '@/lib/product/calculations';
 import { DocumentBrandingHeader, DocumentSignOff } from './DocumentHeaderSignoff';
 import { useTranslation } from '@/context/I18nContext';
-import ScopeSummaryDisplay from '@/components/product/ScopeSummaryDisplay';
+import ScopeSummaryDisplay from '@/product/components/ScopeSummaryDisplay';
 
 /**
  * 7. Commercial Scope & Spec Matrix Document Layout
