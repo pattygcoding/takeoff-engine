@@ -452,7 +452,6 @@ export default function ClientProposalView() {
                           onClick={() => setShowCounterModal(true)}
                           className="px-3 py-2 bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold rounded-lg text-xs sm:text-sm border border-amber-500 shadow-sm transition flex items-center gap-1.5 cursor-pointer"
                         >
-                          <span>⚖️</span>
                           <span>{t('product.clientProposal.counterOfferBtn', 'Exclusions / Inclusions Counter-Offer')}</span>
                         </button>
 
