@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatCurrency, formatNumber } from '@/product/lib/calculations';
+import { formatMarkupBasisNote, formatMarkupLine } from '@/product/lib/markupFormatting';
 import { DocumentBrandingHeader, DocumentSignOff } from './DocumentHeaderSignoff';
 import { useTranslation } from '@/core/components/context/I18nContext';
 
@@ -49,22 +50,16 @@ export default function ItemizedLedgerDocument({ estimate, branding, currentProj
 
       <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
         <div>
-          <span className="text-slate-400 font-bold uppercase text-[10px]">
-            {t('product.templates.itemizedLedger.overheadLabel', { percent: rates?.overheadPercent || 10 })}
-          </span>
-          <p className="font-bold text-slate-900">{formatCurrency(totals.overheadCost)}</p>
+          <span className="text-slate-400 font-bold uppercase text-[10px]">{t('product.resultsStep.overheadFixed')}</span>
+          <p className="font-bold text-slate-900">{formatMarkupLine(t('product.resultsStep.overheadFixed'), totals.overheadAmount, rates?.overheadPercent ?? totals.overheadPct ?? 10, t)}</p>
         </div>
         <div>
-          <span className="text-slate-400 font-bold uppercase text-[10px]">
-            {t('product.templates.itemizedLedger.profitMarginLabel', { percent: rates?.profitMarginPercent || 15 })}
-          </span>
-          <p className="font-bold text-slate-900">{formatCurrency(totals.profitAmount)}</p>
+          <span className="text-slate-400 font-bold uppercase text-[10px]">{t('product.resultsStep.profitFixed')}</span>
+          <p className="font-bold text-slate-900">{formatMarkupLine(t('product.resultsStep.profitFixed'), totals.profitAmount, rates?.profitMarginPercent ?? totals.profitPct ?? 15, t)}</p>
         </div>
         <div>
-          <span className="text-slate-400 font-bold uppercase text-[10px]">
-            {t('product.templates.itemizedLedger.contingencyLabel', { percent: rates?.contingencyPercent || 5 })}
-          </span>
-          <p className="font-bold text-slate-900">{formatCurrency(totals.contingencyCost)}</p>
+          <span className="text-slate-400 font-bold uppercase text-[10px]">{t('product.resultsStep.contingencyFixed')}</span>
+          <p className="font-bold text-slate-900">{formatMarkupLine(t('product.resultsStep.contingencyFixed'), totals.contingencyAmount, rates?.contingencyPercent ?? totals.contingencyPct ?? 5, t)}</p>
         </div>
         <div>
           <span className="text-indigo-600 font-bold uppercase text-[10px]">
@@ -73,6 +68,8 @@ export default function ItemizedLedgerDocument({ estimate, branding, currentProj
           <p className="font-bold text-indigo-700 text-sm">{formatCurrency(totals.finalBidAmount)}</p>
         </div>
       </div>
+
+      <p className="text-[11px] text-slate-500 italic">{formatMarkupBasisNote(t)}</p>
 
       <DocumentSignOff branding={branding} />
     </div>

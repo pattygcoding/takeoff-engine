@@ -90,6 +90,9 @@ npm run translate
 
 # Optional: To reuse existing translated keys and only translate new additions:
 npm run translate:skip
+
+# Optional: To retry failed translations for existing keys:
+npm run translate:retry
 ```
 
 ---

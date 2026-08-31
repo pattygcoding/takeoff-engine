@@ -369,42 +369,49 @@ export default function ScopeInclusionsModal({
                   <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed break-words">{item.description}</p>
 
                   {isAddon && (
-                    <div className="flex items-center gap-2 pt-1.5">
-                      <span className="text-[11px] font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wide">
-                        {t('product.scopeModal.addonPriceLabel', 'Add-on price')}
-                      </span>
-                      <div className="inline-flex rounded-lg border border-indigo-200 dark:border-indigo-800 overflow-hidden shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => handleCostImpactTypeChange(item.id, 'flat')}
-                          className={`px-2 py-1 text-[11px] font-bold transition cursor-pointer ${
-                            item.costImpactType === 'percent'
-                              ? 'bg-white dark:bg-slate-800 text-indigo-700 dark:text-indigo-300'
-                              : 'bg-indigo-600 text-white'
-                          }`}
-                        >
-                          $
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleCostImpactTypeChange(item.id, 'percent')}
-                          className={`px-2 py-1 text-[11px] font-bold transition cursor-pointer ${
-                            item.costImpactType === 'percent'
-                              ? 'bg-indigo-600 text-white'
-                              : 'bg-white dark:bg-slate-800 text-indigo-700 dark:text-indigo-300'
-                          }`}
-                        >
-                          %
-                        </button>
+                    <div className="pt-1.5">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wide">
+                          {t('product.scopeModal.addonPriceLabel', 'Add-on price')}
+                        </span>
+                        <div className="inline-flex rounded-lg border border-indigo-200 dark:border-indigo-800 overflow-hidden shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => handleCostImpactTypeChange(item.id, 'flat')}
+                            className={`px-2 py-1 text-[11px] font-bold transition cursor-pointer ${
+                              item.costImpactType === 'percent'
+                                ? 'bg-white dark:bg-slate-800 text-indigo-700 dark:text-indigo-300'
+                                : 'bg-indigo-600 text-white'
+                            }`}
+                          >
+                            $
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleCostImpactTypeChange(item.id, 'percent')}
+                            className={`px-2 py-1 text-[11px] font-bold transition cursor-pointer ${
+                              item.costImpactType === 'percent'
+                                ? 'bg-indigo-600 text-white'
+                                : 'bg-white dark:bg-slate-800 text-indigo-700 dark:text-indigo-300'
+                            }`}
+                          >
+                            %
+                          </button>
+                        </div>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={item.costImpact ?? 0}
+                          onChange={(e) => handleCostImpactChange(item.id, e.target.value)}
+                          className="w-24 px-2 py-1 text-xs bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                        />
                       </div>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={item.costImpact ?? 0}
-                        onChange={(e) => handleCostImpactChange(item.id, e.target.value)}
-                        className="w-24 px-2 py-1 text-xs bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                      />
+                      {item.costImpactType === 'percent' && (
+                        <p className="mt-1 text-[10px] leading-relaxed text-slate-500 dark:text-slate-400">
+                          {t('product.counterOfferModal.percentAmountBasis', 'Percentage add-ons are calculated from the initial direct cost before contingency and profit are applied.')}
+                        </p>
+                      )}
                     </div>
                   )}
                 </div>

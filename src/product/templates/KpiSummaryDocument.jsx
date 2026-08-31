@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatCurrency, formatNumber } from '@/product/lib/calculations';
+import { formatMarkupBasisNote, formatMarkupLine } from '@/product/lib/markupFormatting';
 import { DocumentBrandingHeader, DocumentSignOff } from './DocumentHeaderSignoff';
 import { useTranslation } from '@/core/components/context/I18nContext';
 
@@ -21,7 +22,7 @@ export default function KpiSummaryDocument({ estimate, branding, currentProject 
         </div>
         <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl">
           <span className="text-[10px] font-bold uppercase text-emerald-600">{t('product.templates.kpiSummary.netProfitMargin')}</span>
-          <p className="text-lg font-bold text-emerald-800">{formatCurrency(totals.profitAmount)}</p>
+          <p className="text-lg font-bold text-emerald-800">{formatMarkupLine(t('product.resultsStep.profitFixed'), totals.profitAmount, totals.profitPct ?? 15, t)}</p>
         </div>
         <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl">
           <span className="text-[10px] font-bold uppercase text-slate-400">{t('product.templates.kpiSummary.totalLaborHours')}</span>
@@ -31,9 +32,11 @@ export default function KpiSummaryDocument({ estimate, branding, currentProject 
         </div>
         <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl">
           <span className="text-[10px] font-bold uppercase text-amber-600">{t('product.templates.kpiSummary.contingencyBuffer')}</span>
-          <p className="text-lg font-bold text-amber-800">{formatCurrency(totals.contingencyCost)}</p>
+          <p className="text-lg font-bold text-amber-800">{formatMarkupLine(t('product.resultsStep.contingencyFixed'), totals.contingencyAmount, totals.contingencyPct ?? 5, t)}</p>
         </div>
       </div>
+
+      <p className="text-[11px] text-slate-500 italic">{formatMarkupBasisNote(t)}</p>
 
       <div className="border border-slate-200 rounded-2xl p-5 bg-white space-y-4">
         <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700">{t('product.templates.kpiSummary.costWeightBreakdown')}</h4>

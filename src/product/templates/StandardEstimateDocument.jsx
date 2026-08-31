@@ -79,7 +79,7 @@ export default function StandardEstimateDocument({ estimate, branding, currentPr
         ))}
       </div>
 
-      <ScopeSummaryDisplay scopeItems={rates?.scopeItems} forceLight />
+      <ScopeSummaryDisplay scopeItems={rates?.scopeItems} baseAmount={totals.totalDirectCost} forceLight />
 
       <DocumentSignOff branding={branding} />
     </div>

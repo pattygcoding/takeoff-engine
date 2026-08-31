@@ -14,6 +14,7 @@ import {
   ImageRun,
 } from 'docx';
 import { formatCurrency, formatNumber } from './calculations';
+import { formatMarkupBasisNote, formatMarkupLine } from './markupFormatting';
 import { getTranslation } from '@/core/lib/shared/i18n';
 
 const THIN_BORDER = { style: BorderStyle.SINGLE, size: 2, color: 'CBD5E1' };
@@ -465,15 +466,15 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
 
     const overheadLabel = totals.overheadType === 'fixed'
       ? t('product.wordExport.overheadFixed')
-      : t('product.wordExport.overhead', { pct: totals.overheadPct });
+      : formatMarkupLine(t('product.wordExport.overheadFixed'), totals.overheadAmount, totals.overheadPct ?? 10, t);
 
     const contingencyLabel = totals.contingencyType === 'fixed'
       ? t('product.wordExport.contingencyFixed')
-      : t('product.wordExport.contingency', { pct: totals.contingencyPct });
+      : formatMarkupLine(t('product.wordExport.contingencyFixed'), totals.contingencyAmount, totals.contingencyPct ?? 5, t);
 
     const profitLabel = totals.profitType === 'fixed'
       ? t('product.wordExport.profitFixed')
-      : t('product.wordExport.profit', { pct: totals.profitPct });
+      : formatMarkupLine(t('product.wordExport.profitFixed'), totals.profitAmount, totals.profitPct ?? 15, t);
 
     const summaryRows = [
       summaryRow(t('product.wordExport.totalMaterialCost'), formatCurrency(totals.totalMaterialCost)),
@@ -492,7 +493,10 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
         width: { size: 100, type: WidthType.PERCENTAGE },
         rows: summaryRows,
       }),
-      new Paragraph({ spacing: { after: 300 }, children: [] })
+      new Paragraph({
+        spacing: { before: 200, after: 300 },
+        children: [new TextRun({ text: formatMarkupBasisNote(t), italic: true, size: 18, color: '475569' })],
+      })
     );
 
     bySystem.forEach((sys) => {

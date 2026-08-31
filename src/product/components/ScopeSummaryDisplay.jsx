@@ -12,7 +12,7 @@ function lightSafe(classString, forceLight) {
 
 // Read-only, print-friendly presentation of a project's scope inclusions/exclusions.
 // Shared between the internal results page, client-facing proposal preview, the public client portal, and PDF/document exports.
-export default function ScopeSummaryDisplay({ scopeItems, className = '', forceLight = false }) {
+export default function ScopeSummaryDisplay({ scopeItems, className = '', forceLight = false, baseAmount = 0 }) {
   const { t } = useTranslation();
 
   // Projects that never opened the scope panel still carry the standard default trade boundaries.
@@ -36,6 +36,7 @@ export default function ScopeSummaryDisplay({ scopeItems, className = '', forceL
           colorClasses="bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800/60 text-emerald-950 dark:text-emerald-100"
           headingClasses="text-emerald-900 dark:text-emerald-200"
           bulletClasses="text-emerald-600 dark:text-emerald-400"
+          baseAmount={baseAmount}
           forceLight={forceLight}
         />
         <ScopeColumn
@@ -45,6 +46,7 @@ export default function ScopeSummaryDisplay({ scopeItems, className = '', forceL
           colorClasses="bg-rose-50/70 dark:bg-rose-950/30 border-rose-200 dark:border-rose-800/60 text-rose-950 dark:text-rose-100"
           headingClasses="text-rose-900 dark:text-rose-200"
           bulletClasses="text-rose-600 dark:text-rose-400"
+          baseAmount={baseAmount}
           forceLight={forceLight}
         />
         <ScopeColumn
@@ -55,6 +57,7 @@ export default function ScopeSummaryDisplay({ scopeItems, className = '', forceL
           headingClasses="text-indigo-900 dark:text-indigo-200"
           bulletClasses="text-indigo-600 dark:text-indigo-400"
           showImpactBadge
+          baseAmount={baseAmount}
           forceLight={forceLight}
         />
       </div>
@@ -62,7 +65,7 @@ export default function ScopeSummaryDisplay({ scopeItems, className = '', forceL
   );
 }
 
-function ScopeColumn({ heading, icon, items, colorClasses, headingClasses, bulletClasses, showImpactBadge = false, forceLight = false }) {
+function ScopeColumn({ heading, icon, items, colorClasses, headingClasses, bulletClasses, showImpactBadge = false, baseAmount = 0, forceLight = false }) {
   if (!items || items.length === 0) return null;
   return (
     <div className={lightSafe(`rounded-2xl p-4 border ${colorClasses}`, forceLight)}>
@@ -71,7 +74,8 @@ function ScopeColumn({ heading, icon, items, colorClasses, headingClasses, bulle
       </h4>
       <ul className="text-xs space-y-1.5">
         {items.map((item) => {
-          const addonImpact = showImpactBadge ? formatScopeAddonImpact(item) : null;
+          const resolvedBaseAmount = Number(item?.baseAmount ?? item?.calculatedBaseAmount ?? baseAmount ?? 0) || 0;
+          const addonImpact = showImpactBadge ? formatScopeAddonImpact(item, resolvedBaseAmount) : null;
           return (
             <li key={item.id} className="flex items-start justify-between gap-2">
               <span className="flex items-start gap-1.5 min-w-0">

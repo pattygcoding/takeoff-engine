@@ -61,7 +61,7 @@ export default function SubcontractorScopeDocument({ estimate, branding, current
         ))}
       </div>
 
-      <ScopeSummaryDisplay scopeItems={rates?.scopeItems} forceLight />
+      <ScopeSummaryDisplay scopeItems={rates?.scopeItems} baseAmount={totals.totalDirectCost} forceLight />
 
       <DocumentSignOff branding={branding} clientSignBlock />
     </div>

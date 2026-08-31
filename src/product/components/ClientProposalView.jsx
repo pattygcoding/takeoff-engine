@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { proposalsApi } from '@/product/lib/proposals';
 import { formatCurrency, formatNumber, computeEstimate } from '@/product/lib/calculations';
+import { formatMarkupBasisNote } from '@/product/lib/markupFormatting';
 import { useModal } from '@/core/components/context/ModalContext';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import LanguageSelector from '@/core/components/shared/LanguageSelector';
+import ThemeToggle from '@/core/components/shared/ThemeToggle';
 import ClientCounterOfferModal from './ClientCounterOfferModal';
 import ScopeSummaryDisplay from './ScopeSummaryDisplay';
 
@@ -61,6 +63,10 @@ export default function ClientProposalView() {
       setSignError(t('product.clientProposal.legalNameRequired'));
       return;
     }
+    if (!signerEmail.trim() || !/^\S+@\S+\.\S+$/.test(signerEmail.trim())) {
+      setSignError(t('product.clientProposal.emailRequired'));
+      return;
+    }
     if (!agreedToTerms) {
       setSignError(t('product.clientProposal.agreementRequired'));
       return;
@@ -71,8 +77,8 @@ export default function ClientProposalView() {
 
     try {
       await proposalsApi.signPublicProposal(publicToken, {
-        signerName,
-        signerEmail,
+        signerName: signerName.trim(),
+        signerEmail: signerEmail.trim(),
       });
       setSignSuccess(true);
       await loadProposal();
@@ -203,8 +209,9 @@ export default function ClientProposalView() {
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-950 py-8 px-4 sm:px-6 lg:px-8 font-sans text-slate-900 dark:text-slate-100">
       <div className="max-w-4xl mx-auto space-y-6">
-        {/* Top Utility Bar (Language Selector) */}
-        <div className="flex justify-end items-center">
+        {/* Top Utility Bar (Language Selector & Theme Toggle) */}
+        <div className="flex justify-end items-center gap-2 sm:gap-3">
+          <ThemeToggle />
           <LanguageSelector variant="light" />
         </div>
 
@@ -311,6 +318,9 @@ export default function ClientProposalView() {
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
               {t('product.clientProposal.investmentSubtitle')}
             </p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-2">
+              {formatMarkupBasisNote(t)}
+            </p>
             {scopeAddonsCost > 0 && (
               <p className="text-[11px] text-indigo-600 dark:text-indigo-400 mt-2">
                 {t('product.resultsStep.scopeAddonsNote', { amount: formatCurrency(scopeAddonsCost) })}
@@ -360,7 +370,7 @@ export default function ClientProposalView() {
             )}
 
             {/* Scope Inclusions & Exclusions */}
-            <ScopeSummaryDisplay scopeItems={snapshot?.rates?.scopeItems} className="mt-6" />
+            <ScopeSummaryDisplay scopeItems={snapshot?.rates?.scopeItems} baseAmount={computedSummary?.totalDirectCost || snapshot?.summary?.totalDirectCost || 0} className="mt-6" />
 
             {/* Standard Terms / Acceptance Notes */}
             <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 space-y-2">
@@ -411,6 +421,7 @@ export default function ClientProposalView() {
                     </label>
                     <input
                       type="email"
+                      required
                       placeholder={t('product.clientProposal.emailPlaceholder')}
                       value={signerEmail}
                       onChange={(e) => setSignerEmail(e.target.value)}
@@ -430,32 +441,43 @@ export default function ClientProposalView() {
                     </span>
                   </label>
 
-                  <div className="flex flex-wrap items-center justify-between pt-4 gap-3">
-                    <button
-                      type="button"
-                      disabled={!agreedToTerms}
-                      onClick={() => setShowDeclineModal(true)}
-                      className="px-4 py-2.5 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs sm:text-sm shadow-md transition cursor-pointer"
-                    >
-                      {t('product.clientProposal.declineButton')}
-                    </button>
+                  <div className="pt-4 border-t border-slate-200 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-2">
+                    <div className="pb-4 sm:pb-0 sm:pr-6 sm:border-r border-slate-200 dark:border-slate-700">
+                      <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2">
+                        {t('product.clientProposal.notReadyPrompt')}
+                      </p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setShowCounterModal(true)}
+                          className="px-3 py-2 bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold rounded-lg text-xs sm:text-sm border border-amber-500 shadow-sm transition flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <span>⚖️</span>
+                          <span>{t('product.clientProposal.counterOfferBtn', 'Exclusions / Inclusions Counter-Offer')}</span>
+                        </button>
 
-                    <button
-                      type="button"
-                      onClick={() => setShowCounterModal(true)}
-                      className="px-4 py-2.5 bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold rounded-xl text-xs sm:text-sm border border-amber-500 shadow-md transition flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <span>⚖️</span>
-                      <span>{t('product.clientProposal.counterOfferBtn', 'Exclusions / Inclusions Counter-Offer')}</span>
-                    </button>
+                        <button
+                          type="button"
+                          onClick={() => setShowDeclineModal(true)}
+                          className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg text-xs sm:text-sm border border-red-700 shadow-sm transition cursor-pointer"
+                        >
+                          {t('product.clientProposal.declineButton')}
+                        </button>
+                      </div>
+                    </div>
 
-                    <button
-                      type="submit"
-                      disabled={submitting || !agreedToTerms || !signerName.trim()}
-                      className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs sm:text-sm shadow-md transition cursor-pointer ml-auto"
-                    >
-                      {submitting ? t('product.clientProposal.submittingSignature') : t('product.clientProposal.acceptSignButton')}
-                    </button>
+                    <div className="sm:pl-6 sm:text-right">
+                      <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2">
+                        {t('product.clientProposal.readyToProceedPrompt', 'Ready to proceed?')}
+                      </p>
+                      <button
+                        type="submit"
+                        disabled={submitting || !agreedToTerms || !signerName.trim() || !signerEmail.trim()}
+                        className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold rounded-lg text-xs sm:text-sm shadow-md transition cursor-pointer"
+                      >
+                        {submitting ? t('product.clientProposal.submittingSignature') : t('product.clientProposal.acceptSignButton')}
+                      </button>
+                    </div>
                   </div>
                 </form>
               </div>
@@ -474,9 +496,10 @@ export default function ClientProposalView() {
       {/* Scope Inclusions / Counter Offer Modal */}
       {showCounterModal && (
         <ClientCounterOfferModal
-          currentScope={snapshot?.scopeItems || []}
+          currentScope={snapshot?.rates?.scopeItems || snapshot?.scopeItems || []}
           clientName={signerName}
           signerEmail={signerEmail}
+          baseAmount={computedSummary?.totalDirectCost || snapshot?.summary?.totalDirectCost || 0}
           submitting={submittingCounter}
           onClose={() => setShowCounterModal(false)}
           onSubmit={handleCounterOffer}

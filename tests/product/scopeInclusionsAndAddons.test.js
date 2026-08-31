@@ -8,6 +8,55 @@ const SCOPE_STATUS = {
   NOT_APPLICABLE: 'not_applicable',
 };
 
+function getNextScopeStatus(currentStatus) {
+  const order = [
+    SCOPE_STATUS.INCLUDED,
+    SCOPE_STATUS.EXCLUDED,
+    SCOPE_STATUS.OPTIONAL_ADDON,
+    SCOPE_STATUS.NOT_APPLICABLE,
+  ];
+  const index = order.indexOf(currentStatus);
+  return order[(index + 1) % order.length];
+}
+
+function formatScopeStatusLabel(status) {
+  switch (status) {
+    case SCOPE_STATUS.INCLUDED:
+      return 'Included';
+    case SCOPE_STATUS.EXCLUDED:
+      return 'Excluded';
+    case SCOPE_STATUS.OPTIONAL_ADDON:
+      return 'Optional Add-On';
+    case SCOPE_STATUS.NOT_APPLICABLE:
+      return 'N/A';
+    default:
+      return 'Included';
+  }
+}
+
+function getScopeChangeDiff(items = []) {
+  return (Array.isArray(items) ? items : [])
+    .map((item) => {
+      const originalStatus = item?.originalStatus ?? item?.status ?? SCOPE_STATUS.INCLUDED;
+      const requestedStatus = item?.status ?? originalStatus;
+      const originalAmount = Number(item?.originalAmount ?? item?.costImpact ?? item?.amount ?? 0) || 0;
+      const requestedAmount = Number(item?.amount ?? item?.costImpact ?? 0) || 0;
+      const changed = originalStatus !== requestedStatus || originalAmount !== requestedAmount;
+      if (!changed) return null;
+      return {
+        ...item,
+        id: item?.id ?? item?.title ?? 'unknown',
+        title: item?.title ?? item?.name ?? 'Scope Item',
+        category: item?.category ?? '',
+        originalStatus,
+        originalAmount,
+        status: requestedStatus,
+        amount: requestedAmount,
+      };
+    })
+    .filter(Boolean);
+}
+
 // Mirrors lib/product/scope.js categorizeScope()
 function categorizeScope(items = []) {
   return {
@@ -19,11 +68,15 @@ function categorizeScope(items = []) {
 }
 
 // Mirrors lib/product/scope.js formatScopeAddonImpact()
-function formatScopeAddonImpact(item) {
+function formatScopeAddonImpact(item, baseAmount = 0) {
   const raw = Number(item?.costImpact) || 0;
   if (!raw) return null;
   if (item?.costImpactType === 'percent') {
-    return `+${raw}%`;
+    const amount = Number(baseAmount) > 0 ? Number(baseAmount) * (raw / 100) : 0;
+    if (amount > 0) {
+      return `+$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+    return null;
   }
   return `+$${raw.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
@@ -88,8 +141,12 @@ describe('Scope Inclusions/Exclusions & Optional Add-On Pricing (Frontend Logic)
       assert.strictEqual(formatScopeAddonImpact({ costImpact: 500, costImpactType: 'flat' }), '+$500.00');
     });
 
-    it('formats a percentage add-on price', () => {
-      assert.strictEqual(formatScopeAddonImpact({ costImpact: 5, costImpactType: 'percent' }), '+5%');
+    it('formats a percentage add-on price as its calculated dollar value when the direct-cost base is known', () => {
+      assert.strictEqual(formatScopeAddonImpact({ costImpact: 5, costImpactType: 'percent' }, 2000), '+$100.00');
+    });
+
+    it('hides percentage add-on tags when the direct-cost base is not available yet', () => {
+      assert.strictEqual(formatScopeAddonImpact({ costImpact: 5, costImpactType: 'percent' }), null);
     });
 
     it('treats missing costImpactType as flat dollars', () => {
@@ -226,12 +283,43 @@ describe('Scope Inclusions/Exclusions & Optional Add-On Pricing (Frontend Logic)
       assert.strictEqual(addonEntry.addonImpact, '+$500.00');
     });
 
+    it('does not display a percentage add-on tag without a dollar base at the planning stage', () => {
+      const list = buildCounterOfferList([
+        { id: '3', status: SCOPE_STATUS.OPTIONAL_ADDON, title: 'ADA Sink Carriers', costImpact: 5, costImpactType: 'percent' },
+      ]);
+
+      assert.strictEqual(list[0].addonImpact, null);
+    });
+
     it('keeps included/excluded items toggleable with no addon price shown', () => {
       const list = buildCounterOfferList(scopeItems);
       const includedEntry = list.find((it) => it.id === '1');
 
       assert.strictEqual(includedEntry.isToggleable, true);
       assert.strictEqual(includedEntry.addonImpact, null);
+    });
+
+    it('cycles through all four scope statuses and labels add-on amounts', () => {
+      assert.strictEqual(getNextScopeStatus(SCOPE_STATUS.INCLUDED), SCOPE_STATUS.EXCLUDED);
+      assert.strictEqual(getNextScopeStatus(SCOPE_STATUS.EXCLUDED), SCOPE_STATUS.OPTIONAL_ADDON);
+      assert.strictEqual(getNextScopeStatus(SCOPE_STATUS.OPTIONAL_ADDON), SCOPE_STATUS.NOT_APPLICABLE);
+      assert.strictEqual(getNextScopeStatus(SCOPE_STATUS.NOT_APPLICABLE), SCOPE_STATUS.INCLUDED);
+      assert.strictEqual(formatScopeStatusLabel(SCOPE_STATUS.OPTIONAL_ADDON), 'Optional Add-On');
+      assert.strictEqual(formatScopeStatusLabel(SCOPE_STATUS.NOT_APPLICABLE), 'N/A');
+    });
+
+    it('builds before/after diff records while skipping unchanged items', () => {
+      const diff = getScopeChangeDiff([
+        { id: 'a', title: 'Toilets', status: SCOPE_STATUS.EXCLUDED, costImpact: 0, originalStatus: SCOPE_STATUS.INCLUDED, originalAmount: 0 },
+        { id: 'b', title: 'ADA Grab Bars', status: SCOPE_STATUS.OPTIONAL_ADDON, costImpact: 600, originalStatus: SCOPE_STATUS.OPTIONAL_ADDON, originalAmount: 450 },
+        { id: 'c', title: 'Dumpster', status: SCOPE_STATUS.EXCLUDED, costImpact: 0, originalStatus: SCOPE_STATUS.EXCLUDED, originalAmount: 0 },
+      ]);
+
+      assert.deepStrictEqual(diff.map((item) => item.id), ['a', 'b']);
+      assert.strictEqual(diff[0].originalStatus, SCOPE_STATUS.INCLUDED);
+      assert.strictEqual(diff[0].status, SCOPE_STATUS.EXCLUDED);
+      assert.strictEqual(diff[1].amount, 600);
+      assert.strictEqual(diff[1].originalAmount, 450);
     });
   });
 });

@@ -15,6 +15,59 @@ export const SCOPE_STATUS = {
 
 export const SCOPE_PRESETS_STORAGE_KEY = 'takeoff_engine_scope_presets';
 
+export function getNextScopeStatus(currentStatus) {
+  const order = [
+    SCOPE_STATUS.INCLUDED,
+    SCOPE_STATUS.EXCLUDED,
+    SCOPE_STATUS.OPTIONAL_ADDON,
+    SCOPE_STATUS.NOT_APPLICABLE,
+  ];
+  const index = order.indexOf(currentStatus);
+  return order[(index + 1) % order.length];
+}
+
+export function formatScopeStatusLabel(status) {
+  switch (status) {
+    case SCOPE_STATUS.INCLUDED:
+      return 'Included';
+    case SCOPE_STATUS.EXCLUDED:
+      return 'Excluded';
+    case SCOPE_STATUS.OPTIONAL_ADDON:
+      return 'Optional Add-On';
+    case SCOPE_STATUS.NOT_APPLICABLE:
+      return 'N/A';
+    default:
+      return 'Included';
+  }
+}
+
+export function getScopeChangeDiff(items = []) {
+  const safeItems = Array.isArray(items) ? items : [];
+
+  return safeItems
+    .map((item) => {
+      const originalStatus = item?.originalStatus ?? item?.status ?? SCOPE_STATUS.INCLUDED;
+      const requestedStatus = item?.status ?? originalStatus;
+      const originalAmount = Number(item?.originalAmount ?? item?.costImpact ?? item?.amount ?? 0) || 0;
+      const requestedAmount = Number(item?.amount ?? item?.costImpact ?? 0) || 0;
+      const changed = originalStatus !== requestedStatus || originalAmount !== requestedAmount;
+
+      if (!changed) return null;
+
+      return {
+        ...item,
+        id: item?.id ?? item?.title ?? 'unknown',
+        title: item?.title ?? item?.name ?? 'Scope Item',
+        category: item?.category ?? '',
+        originalStatus,
+        originalAmount,
+        status: requestedStatus,
+        amount: requestedAmount,
+      };
+    })
+    .filter(Boolean);
+}
+
 /**
  * Pre-defined standard scope templates across common civil, plumbing, mechanical, and commercial trades.
  */
@@ -107,14 +160,18 @@ export function deleteScopePreset(presetId) {
 }
 
 /**
- * Formats an optional add-on's price impact as a short "+$500.00" or "+5%" label.
- * Returns null when there is no priced impact to show.
+ * Formats an optional add-on's price impact as a short dollar label.
+ * Percentage-based impacts are only shown when a dollar equivalent can be calculated.
  */
-export function formatScopeAddonImpact(item) {
+export function formatScopeAddonImpact(item, baseAmount = 0) {
   const raw = Number(item?.costImpact) || 0;
   if (!raw) return null;
   if (item?.costImpactType === 'percent') {
-    return `+${raw}%`;
+    const calculatedAmount = Number(baseAmount) > 0 ? Number(baseAmount) * (raw / 100) : 0;
+    if (calculatedAmount > 0) {
+      return `+$${calculatedAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+    return null;
   }
   return `+$${raw.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }

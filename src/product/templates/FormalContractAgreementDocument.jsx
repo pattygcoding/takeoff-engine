@@ -69,7 +69,7 @@ export default function FormalContractAgreementDocument({ estimate, branding, cu
         </table>
       </div>
 
-      <ScopeSummaryDisplay scopeItems={rates?.scopeItems} forceLight />
+      <ScopeSummaryDisplay scopeItems={rates?.scopeItems} baseAmount={totals.totalDirectCost} forceLight />
 
       <DocumentSignOff branding={branding} clientSignBlock />
     </div>

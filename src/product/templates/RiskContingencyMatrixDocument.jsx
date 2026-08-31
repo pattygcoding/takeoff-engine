@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatCurrency } from '@/product/lib/calculations';
+import { formatMarkupBasisNote } from '@/product/lib/markupFormatting';
 import { DocumentBrandingHeader, DocumentSignOff } from './DocumentHeaderSignoff';
 import { useTranslation } from '@/core/components/context/I18nContext';
 
@@ -62,6 +63,7 @@ export default function RiskContingencyMatrixDocument({ estimate, branding, curr
         </table>
       </div>
 
+      <p className="text-[11px] text-slate-500 italic">{formatMarkupBasisNote(t)}</p>
       <DocumentSignOff branding={branding} />
     </div>
   );

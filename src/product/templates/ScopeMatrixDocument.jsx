@@ -39,7 +39,7 @@ export default function ScopeMatrixDocument({ estimate, branding, currentProject
         <span className="text-lg font-bold font-mono text-emerald-400">{formatCurrency(totals.finalBidAmount)}</span>
       </div>
 
-      <ScopeSummaryDisplay scopeItems={rates?.scopeItems} forceLight />
+      <ScopeSummaryDisplay scopeItems={rates?.scopeItems} baseAmount={totals.totalDirectCost} forceLight />
 
       <DocumentSignOff branding={branding} clientSignBlock />
     </div>

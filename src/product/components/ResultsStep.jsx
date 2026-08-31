@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { calculationsApi, formatCurrency, formatNumber } from '@/product/lib/calculations';
+import { formatMarkupBasisNote, formatMarkupLine } from '@/product/lib/markupFormatting';
 import { triggerDownload } from '@/product/lib/csv';
 import { projectsApi } from '@/product/lib/projects';
 import { proposalsApi } from '@/product/lib/proposals';
@@ -765,14 +766,20 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
             )}
             <SummaryCard label={t('product.resultsStep.totalDirectCost')} value={formatCurrency(totals.totalDirectCost)} />
             <SummaryCard
-              label={t('product.resultsStep.overhead', { pct: totals.overheadPct })}
+              label={t('product.resultsStep.overheadFixed')}
               value={formatCurrency(totals.overheadAmount)}
+              sub={formatMarkupLine(t('product.resultsStep.overheadFixed'), totals.overheadAmount, totals.overheadPct, t)}
             />
             <SummaryCard
-              label={t('product.resultsStep.contingency', { pct: totals.contingencyPct })}
+              label={t('product.resultsStep.contingencyFixed')}
               value={formatCurrency(totals.contingencyAmount)}
+              sub={formatMarkupLine(t('product.resultsStep.contingencyFixed'), totals.contingencyAmount, totals.contingencyPct, t)}
             />
-            <SummaryCard label={t('product.resultsStep.profit', { pct: totals.profitPct })} value={formatCurrency(totals.profitAmount)} />
+            <SummaryCard
+              label={t('product.resultsStep.profitFixed')}
+              value={formatCurrency(totals.profitAmount)}
+              sub={formatMarkupLine(t('product.resultsStep.profitFixed'), totals.profitAmount, totals.profitPct, t)}
+            />
             <SummaryCard label={t('product.resultsStep.finalBidAmount')} value={formatCurrency(totals.finalBidAmount)} highlight />
           </div>
         )}
@@ -870,18 +877,19 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
                 <span>{t('product.resultsStep.subtotal')}</span>
                 <span className="font-mono">{formatCurrency(totals.totalDirectCost)}</span>
               </div>
-              <div className="flex justify-between text-slate-600 dark:text-slate-400 text-sm py-1">
-                <span>{t('product.resultsStep.overhead', { pct: totals.overheadPct })}</span>
-                <span className="font-mono">{formatCurrency(totals.overheadAmount)}</span>
+              <div className="flex justify-between text-slate-600 dark:text-slate-400 text-sm py-1 gap-3">
+                <span>{formatMarkupLine(t('product.resultsStep.overheadFixed'), totals.overheadAmount, totals.overheadPct, t)}</span>
+                <span className="font-mono whitespace-nowrap">{formatCurrency(totals.overheadAmount)}</span>
               </div>
-              <div className="flex justify-between text-slate-600 dark:text-slate-400 text-sm py-1">
-                <span>{t('product.resultsStep.contingency', { pct: totals.contingencyPct })}</span>
-                <span className="font-mono">{formatCurrency(totals.contingencyAmount)}</span>
+              <div className="flex justify-between text-slate-600 dark:text-slate-400 text-sm py-1 gap-3">
+                <span>{formatMarkupLine(t('product.resultsStep.contingencyFixed'), totals.contingencyAmount, totals.contingencyPct, t)}</span>
+                <span className="font-mono whitespace-nowrap">{formatCurrency(totals.contingencyAmount)}</span>
               </div>
-              <div className="flex justify-between text-slate-600 dark:text-slate-400 text-sm py-1">
-                <span>{t('product.resultsStep.profit', { pct: totals.profitPct })}</span>
-                <span className="font-mono">{formatCurrency(totals.profitAmount)}</span>
+              <div className="flex justify-between text-slate-600 dark:text-slate-400 text-sm py-1 gap-3">
+                <span>{formatMarkupLine(t('product.resultsStep.profitFixed'), totals.profitAmount, totals.profitPct, t)}</span>
+                <span className="font-mono whitespace-nowrap">{formatCurrency(totals.profitAmount)}</span>
               </div>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-3">{formatMarkupBasisNote(t)}</p>
               <div className="flex justify-between text-xl font-bold text-slate-900 dark:text-white pt-2 border-t border-slate-200 dark:border-slate-800 mt-2">
                 <span>{t('product.resultsStep.totalBid')}</span>
                 <span className="font-mono">{formatCurrency(totals.finalBidAmount)}</span>
@@ -895,7 +903,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
           </div>
         )}
 
-        <ScopeSummaryDisplay scopeItems={rates?.scopeItems} className="mt-8" />
+        <ScopeSummaryDisplay scopeItems={rates?.scopeItems} baseAmount={totals.totalDirectCost} className="mt-8" />
       </div>
 
       <UpgradeModal

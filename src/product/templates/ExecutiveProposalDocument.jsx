@@ -68,7 +68,7 @@ export default function ExecutiveProposalDocument({ estimate, branding, currentP
         </table>
       </div>
 
-      <ScopeSummaryDisplay scopeItems={rates?.scopeItems} forceLight />
+      <ScopeSummaryDisplay scopeItems={rates?.scopeItems} baseAmount={totals.totalDirectCost} forceLight />
 
       <DocumentSignOff branding={branding} clientSignBlock />
     </div>

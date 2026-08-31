@@ -73,34 +73,39 @@ function AppContent() {
       {!isPublicLandingOrProposal && (
         <header className="no-print bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 py-3 sm:py-4 transition-colors duration-200">
           <div className="max-w-6xl mx-auto px-4 flex items-center justify-between">
-            <div
-              className="flex items-center gap-2 cursor-pointer"
-              onClick={() => {
-                if (isAuthenticated && user?.username) {
-                  navigate(`/${user.username}`);
-                } else {
+            <div className="flex items-center gap-2">
+              <div
+                className="flex items-center gap-2 cursor-pointer"
+                onClick={() => {
+                  if (isAuthenticated && user?.username) {
+                    navigate(`/${user.username}`);
+                  } else {
+                    navigate('/home');
+                  }
+                }}
+                title={isAuthenticated ? 'Go to Projects Dashboard' : 'Go to Home'}
+              >
+                <span className="text-xl font-bold text-indigo-600 dark:text-indigo-400">Takeoff Engine</span>
+                <span className="hidden sm:inline text-sm text-slate-400 dark:text-slate-500">Construction Estimating</span>
+              </div>
+
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
                   navigate('/home');
-                }
-              }}
-              title={isAuthenticated ? 'Go to Projects Dashboard' : 'Go to Home'}
-            >
-              <span className="text-xl font-bold text-indigo-600 dark:text-indigo-400">Takeoff Engine</span>
-              <span className="hidden sm:inline text-sm text-slate-400 dark:text-slate-500">Construction Estimating</span>
+                }}
+                aria-label="View public marketing site & free trench calculator"
+                className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-base text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+                title="View public marketing site & free trench calculator"
+              >
+                <span aria-hidden="true">🌐</span>
+              </button>
             </div>
 
             <div className="flex items-center gap-3">
               <ThemeToggle />
               <LanguageSelector variant="light" />
-
-              <button
-                type="button"
-                onClick={() => navigate('/home')}
-                className="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg transition"
-                title="View public marketing site & free trench calculator"
-              >
-                <span>🌐</span>
-                <span>Public Site &amp; Tools</span>
-              </button>
 
               {isAuthenticated ? (
                 <UserMenu />
