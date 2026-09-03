@@ -12,6 +12,15 @@ export const CSV_COLUMNS = [
   'material_cost_per_unit',
   'labor_hours_per_unit',
   'labor_unit_cost',
+  'associated_scope',
+  'equipment_ownership',
+  'equipment_operator_included',
+  'equipment_damage_waiver_pct',
+  'equipment_minimum_rental_days',
+  'equipment_standby_days',
+  'equipment_standby_rate_pct',
+  'equipment_production_rate_qty_day',
+  'equipment_contingency_days',
 ];
 
 export const TARGET_FIELDS = [
@@ -24,6 +33,15 @@ export const TARGET_FIELDS = [
   { key: 'material_cost_per_unit', label: 'Material $/Unit', required: false, description: 'Unit material price or cost per unit' },
   { key: 'labor_hours_per_unit', label: 'Labor Hrs/Unit', required: false, description: 'Crew productivity hours per unit (e.g. 0.25 hrs/LF)' },
   { key: 'labor_unit_cost', label: 'Labor $/Unit', required: false, description: 'Labor dollar rate per unit (e.g. $15.50/LF)' },
+  { key: 'associated_scope', label: 'Associated Scope', required: false, description: 'System or takeoff line item the equipment directly supports' },
+  { key: 'equipment_ownership', label: 'Equipment Ownership', required: false, description: 'rented or company-owned' },
+  { key: 'equipment_operator_included', label: 'Operator Included', required: false, description: 'Yes or No; blends operator labor into equipment assignment' },
+  { key: 'equipment_damage_waiver_pct', label: 'Damage Waiver %', required: false, description: 'Optional rental damage waiver percentage' },
+  { key: 'equipment_minimum_rental_days', label: 'Minimum Rental Days', required: false, description: 'Floor for the billable rental duration' },
+  { key: 'equipment_standby_days', label: 'Standby Days', required: false, description: 'Idle days at reduced standby billing rate' },
+  { key: 'equipment_standby_rate_pct', label: 'Standby Rate %', required: false, description: 'Percentage of base daily rate used for standby days' },
+  { key: 'equipment_production_rate_qty_day', label: 'Production Rate (Qty/Day)', required: false, description: 'Suggested quantity output per day for duration calculation' },
+  { key: 'equipment_contingency_days', label: 'Contingency Days', required: false, description: 'Additional weather or delay buffer for the schedule' },
 ];
 
 export const COLUMN_ALIASES = {
@@ -36,6 +54,15 @@ export const COLUMN_ALIASES = {
   material_cost_per_unit: ['material cost', 'material $/unit', 'mat cost', 'material rate'],
   labor_hours_per_unit: ['labor hours', 'labor hrs/unit', 'labor hours/unit', 'hrs/unit'],
   labor_unit_cost: ['labor cost', 'labor $/unit', 'labor cost/unit', 'labor rate'],
+  associated_scope: ['associated scope', 'scope reference', 'linked system', 'scope'],
+  equipment_ownership: ['equipment ownership', 'ownership', 'owned vs rented'],
+  equipment_operator_included: ['operator included', 'operator in rental', 'includes operator'],
+  equipment_damage_waiver_pct: ['damage waiver %', 'waiver pct', 'waiver %'],
+  equipment_minimum_rental_days: ['minimum rental days', 'min rental days'],
+  equipment_standby_days: ['standby days', 'idle days'],
+  equipment_standby_rate_pct: ['standby rate %', 'idle rate %'],
+  equipment_production_rate_qty_day: ['production rate', 'qty per day', 'production qty/day'],
+  equipment_contingency_days: ['contingency days', 'weather days'],
 };
 
 export const IGNORED_INDEX_HEADER_ALIASES = ['item #', 'item no', 'pos', '#', 'line #', 'no.'];

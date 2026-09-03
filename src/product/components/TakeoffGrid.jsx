@@ -92,6 +92,15 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
   const [eqCustomMonthlyRate, setEqCustomMonthlyRate] = useState(3600);
   const [eqCustomDeliveryFee, setEqCustomDeliveryFee] = useState(250);
   const [eqCustomFuelPct, setEqCustomFuelPct] = useState(5);
+  const [eqAssociatedScope, setEqAssociatedScope] = useState('General / Project-Wide');
+  const [eqOwnership, setEqOwnership] = useState('rented');
+  const [eqOperatorIncluded, setEqOperatorIncluded] = useState(false);
+  const [eqDamageWaiverPct, setEqDamageWaiverPct] = useState(10);
+  const [eqMinimumRentalDays, setEqMinimumRentalDays] = useState(1);
+  const [eqStandbyDays, setEqStandbyDays] = useState(0);
+  const [eqStandbyRatePct, setEqStandbyRatePct] = useState(50);
+  const [eqProductionRate, setEqProductionRate] = useState('');
+  const [eqContingencyDays, setEqContingencyDays] = useState(0);
 
   const handleOpenAddEquipmentModal = () => {
     const firstEq = equipmentCatalog[0] || {};
@@ -102,6 +111,15 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
     setEqCustomMonthlyRate(firstEq.monthlyRate || 3600);
     setEqCustomDeliveryFee(firstEq.deliveryFee || 250);
     setEqCustomFuelPct(firstEq.fuelSurchargePct ?? 5);
+    setEqAssociatedScope('General / Project-Wide');
+    setEqOwnership(firstEq.equipmentOwnership || 'rented');
+    setEqOperatorIncluded(Boolean(firstEq.defaultOperatorIncluded));
+    setEqDamageWaiverPct(Number(firstEq.damageWaiverPct ?? 10));
+    setEqMinimumRentalDays(Number(firstEq.minimumRentalDays ?? 1));
+    setEqStandbyDays(0);
+    setEqStandbyRatePct(Number(firstEq.standbyRatePct ?? 50));
+    setEqProductionRate('');
+    setEqContingencyDays(0);
     setEqDurationQty(1);
     setEqDurationUnit('weeks');
     setEqIncludeDelivery(true);
@@ -122,6 +140,11 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
         setEqCustomMonthlyRate(match.monthlyRate);
         setEqCustomDeliveryFee(match.deliveryFee);
         setEqCustomFuelPct(match.fuelSurchargePct ?? 0);
+        setEqOwnership(match.equipmentOwnership || 'rented');
+        setEqOperatorIncluded(Boolean(match.defaultOperatorIncluded));
+        setEqDamageWaiverPct(Number(match.damageWaiverPct ?? 10));
+        setEqMinimumRentalDays(Number(match.minimumRentalDays ?? 1));
+        setEqStandbyRatePct(Number(match.standbyRatePct ?? 50));
       }
     }
   };
@@ -139,7 +162,15 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
       equipmentMonthlyRate: Number(eqCustomMonthlyRate) || 0,
       equipmentDeliveryFee: Number(eqCustomDeliveryFee) || 0,
       equipmentFuelSurchargePct: Number(eqCustomFuelPct) || 0,
+      equipmentDamageWaiverPct: Number(eqDamageWaiverPct) || 0,
+      equipmentMinimumRentalDays: Number(eqMinimumRentalDays) || 1,
+      equipmentStandbyDays: Number(eqStandbyDays) || 0,
+      equipmentStandbyRatePct: Number(eqStandbyRatePct) || 50,
+      equipmentOwnership: eqOwnership,
+      equipmentOperatorIncluded: eqOperatorIncluded,
+      equipmentOperatorRoleId: 'operator',
       includeDelivery: eqIncludeDelivery,
+      associatedScope: eqAssociatedScope,
     };
     
     let totalEquipmentCost = 0;
@@ -158,7 +189,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
 
     const newEquipmentItem = {
       id: `eq-item-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
-      system: 'Equipment & Mobilization',
+      system: eqAssociatedScope && eqAssociatedScope !== 'General / Project-Wide' ? eqAssociatedScope : 'Equipment & Mobilization',
       description: eqCustomTitle || t('product.takeoffGrid.equipmentItemFallback', 'Machinery Rental'),
       sizeSpec: `${eqDurationQty} ${eqDurationUnit} rental${eqIncludeDelivery ? ' + Delivery' : ''}`,
       quantity: Number(eqDurationQty) || 1,
@@ -176,7 +207,15 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
       equipmentMonthlyRate: Number(eqCustomMonthlyRate) || 0,
       equipmentDeliveryFee: Number(eqCustomDeliveryFee) || 0,
       equipmentFuelSurchargePct: Number(eqCustomFuelPct) || 0,
+      equipmentDamageWaiverPct: Number(eqDamageWaiverPct) || 0,
+      equipmentMinimumRentalDays: Number(eqMinimumRentalDays) || 1,
+      equipmentStandbyDays: Number(eqStandbyDays) || 0,
+      equipmentStandbyRatePct: Number(eqStandbyRatePct) || 50,
+      equipmentOwnership: eqOwnership,
+      equipmentOperatorIncluded: eqOperatorIncluded,
+      equipmentOperatorRoleId: 'operator',
       includeDelivery: eqIncludeDelivery,
+      associatedScope: eqAssociatedScope,
       equipmentCost: totalEquipmentCost,
     };
 
@@ -596,6 +635,22 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                 </div>
               )}
 
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  {t('product.takeoffGrid.associatedScope', 'Associated Scope')}
+                </label>
+                <select
+                  value={eqAssociatedScope}
+                  onChange={(e) => setEqAssociatedScope(e.target.value)}
+                  className="w-full px-3 py-2 text-xs border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                >
+                  <option value="General / Project-Wide">{t('product.takeoffGrid.generalScope', 'General / Project-Wide')}</option>
+                  {systemOptions.map((system) => (
+                    <option key={system} value={system}>{system}</option>
+                  ))}
+                </select>
+              </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
@@ -624,6 +679,41 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                     <option value="weeks">{t('product.takeoffGrid.weeksUnit', 'Weeks')}</option>
                     <option value="months">{t('product.takeoffGrid.monthsUnit', 'Months')}</option>
                   </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    {t('product.takeoffGrid.ownership', 'Ownership')}
+                  </label>
+                  <div className="flex gap-2 p-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl">
+                    <button
+                      type="button"
+                      onClick={() => setEqOwnership('rented')}
+                      className={`flex-1 px-2 py-1 rounded-lg text-[11px] font-semibold cursor-pointer ${eqOwnership === 'rented' ? 'bg-amber-600 text-white' : 'text-slate-600 dark:text-slate-300'}`}
+                    >
+                      {t('product.takeoffGrid.rented', 'Rented')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEqOwnership('company-owned')}
+                      className={`flex-1 px-2 py-1 rounded-lg text-[11px] font-semibold cursor-pointer ${eqOwnership === 'company-owned' ? 'bg-slate-700 text-white' : 'text-slate-600 dark:text-slate-300'}`}
+                    >
+                      {t('product.takeoffGrid.companyOwned', 'Company-Owned')}
+                    </button>
+                  </div>
+                </div>
+                <div className="flex items-end">
+                  <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    <input
+                      type="checkbox"
+                      checked={eqOperatorIncluded}
+                      onChange={(e) => setEqOperatorIncluded(e.target.checked)}
+                      className="rounded border-slate-300 dark:border-slate-700 text-amber-600 focus:ring-amber-500"
+                    />
+                    <span>{t('product.takeoffGrid.operatorIncluded', 'Operator Included')}</span>
+                  </label>
                 </div>
               </div>
 
@@ -674,6 +764,95 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                   </div>
                 </div>
               </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[11px] font-medium text-slate-500 dark:text-slate-400 mb-0.5">
+                    {t('product.takeoffGrid.damageWaiverPct', 'Damage Waiver %')}
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="any"
+                    value={eqDamageWaiverPct}
+                    onChange={(e) => setEqDamageWaiverPct(e.target.value)}
+                    className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-right outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-medium text-slate-500 dark:text-slate-400 mb-0.5">
+                    {t('product.takeoffGrid.minimumRentalDays', 'Min Rental Days')}
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={eqMinimumRentalDays}
+                    onChange={(e) => setEqMinimumRentalDays(e.target.value)}
+                    className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-right outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[11px] font-medium text-slate-500 dark:text-slate-400 mb-0.5">
+                    {t('product.takeoffGrid.standbyDays', 'Standby Days')}
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={eqStandbyDays}
+                    onChange={(e) => setEqStandbyDays(e.target.value)}
+                    className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-right outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-medium text-slate-500 dark:text-slate-400 mb-0.5">
+                    {t('product.takeoffGrid.standbyRatePct', 'Standby %')}
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="any"
+                    value={eqStandbyRatePct}
+                    onChange={(e) => setEqStandbyRatePct(e.target.value)}
+                    className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-right outline-none"
+                  />
+                </div>
+              </div>
+
+              {eqOperatorIncluded && (
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[11px] font-medium text-slate-500 dark:text-slate-400 mb-0.5">
+                      {t('product.takeoffGrid.productionRate', 'Production Rate (qty/day)')}
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="any"
+                      value={eqProductionRate}
+                      onChange={(e) => setEqProductionRate(e.target.value)}
+                      className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-right outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-medium text-slate-500 dark:text-slate-400 mb-0.5">
+                      {t('product.takeoffGrid.contingencyDays', 'Contingency Days')}
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={eqContingencyDays}
+                      onChange={(e) => setEqContingencyDays(e.target.value)}
+                      className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-right outline-none"
+                    />
+                  </div>
+                </div>
+              )}
 
               <div className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl">
                 <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-300">

@@ -129,7 +129,10 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
   };
 
   const laborBasis = rates.laborRateBasis === 'daily' ? 'daily' : 'hourly';
-  const workdayHours = Number(rates.workdayHours) > 0 ? Number(rates.workdayHours) : DEFAULT_WORKDAY_HOURS;
+  const workdayHours = Number(rates.standardWorkdayHours) > 0
+    ? Number(rates.standardWorkdayHours)
+    : (Number(rates.workdayHours) > 0 ? Number(rates.workdayHours) : DEFAULT_WORKDAY_HOURS);
+  const workdayHoursMode = rates.workdayHoursMode === 'perRole' ? 'perRole' : 'standard';
   const currentHourlyRate = Number(rates.laborHourlyRate) || (laborBasis === 'daily' && Number(rates.laborDailyRate) > 0 ? Number(rates.laborDailyRate) / workdayHours : 65.0);
   const currentDailyRate = Number(rates.laborDailyRate) || (Number(rates.laborHourlyRate) > 0 ? Number(rates.laborHourlyRate) * workdayHours : 520.0);
 
@@ -137,7 +140,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
     if (readOnly) return;
     const currentHourly = Number(rates.laborHourlyRate) || currentHourlyRate;
     const currentDaily = Number(rates.laborDailyRate) || currentDailyRate;
-    const currentHours = Number(rates.workdayHours) || workdayHours;
+    const currentHours = workdayHours;
 
     if (newBasis === 'daily') {
       const derivedDaily = currentDaily > 0 ? currentDaily : Math.round(currentHourly * currentHours * 100) / 100;
@@ -147,6 +150,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
         laborDailyRate: derivedDaily,
         laborHourlyRate: currentHours > 0 ? Math.round((derivedDaily / currentHours) * 100) / 100 : currentHourly,
         workdayHours: currentHours,
+        standardWorkdayHours: currentHours,
       });
     } else {
       const derivedHourly = currentHourly > 0 ? currentHourly : (currentHours > 0 ? Math.round((currentDaily / currentHours) * 100) / 100 : 65.0);
@@ -156,6 +160,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
         laborHourlyRate: derivedHourly,
         laborDailyRate: Math.round(derivedHourly * currentHours * 100) / 100,
         workdayHours: currentHours,
+        standardWorkdayHours: currentHours,
       });
     }
   };
@@ -196,7 +201,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
     if (readOnly) return;
     const val = e.target.value;
     if (val === '') {
-      onChange({ ...rates, workdayHours: '' });
+      onChange({ ...rates, workdayHours: '', standardWorkdayHours: '' });
       return;
     }
     const hours = Number(val);
@@ -206,6 +211,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
       onChange({
         ...rates,
         workdayHours: hours,
+        standardWorkdayHours: hours,
         laborHourlyRate: hourly,
       });
     } else {
@@ -214,6 +220,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
       onChange({
         ...rates,
         workdayHours: hours,
+        standardWorkdayHours: hours,
         laborDailyRate: daily,
       });
     }
@@ -272,13 +279,21 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
       }
       if (field === 'hourlyRate') {
         const hourly = val === '' ? '' : Number(val);
-        const daily = hourly === '' ? '' : Math.round(hourly * workdayHours * 100) / 100;
+        const roleHours = workdayHoursMode === 'perRole' && Number(r.workdayHours) > 0 ? Number(r.workdayHours) : workdayHours;
+        const daily = hourly === '' ? '' : Math.round(hourly * roleHours * 100) / 100;
         return { ...r, hourlyRate: hourly, dailyRate: daily };
       }
       if (field === 'dailyRate') {
         const daily = val === '' ? '' : Number(val);
-        const hourly = daily === '' ? '' : (workdayHours > 0 ? Math.round((daily / workdayHours) * 100) / 100 : 0);
+        const roleHours = workdayHoursMode === 'perRole' && Number(r.workdayHours) > 0 ? Number(r.workdayHours) : workdayHours;
+        const hourly = daily === '' ? '' : (roleHours > 0 ? Math.round((daily / roleHours) * 100) / 100 : 0);
         return { ...r, dailyRate: daily, hourlyRate: hourly };
+      }
+      if (field === 'workdayHours') {
+        const roleHours = val === '' ? '' : Number(val);
+        const hourly = Number(r.hourlyRate);
+        const daily = roleHours === '' ? '' : (Number.isFinite(hourly) ? Math.round(hourly * roleHours * 100) / 100 : r.dailyRate);
+        return { ...r, workdayHours: roleHours, dailyRate: daily };
       }
       return r;
     });
@@ -601,6 +616,23 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
             <div className="space-y-4">
               <section className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl p-4">
                 <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">{t('product.ratesDrawer.workdayHoursMode')}</h3>
+                  <div className="inline-flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 text-xs font-medium">
+                    <button type="button" disabled={readOnly} onClick={() => onChange({ ...rates, workdayHoursMode: 'standard' })} className={`px-2.5 py-1 rounded-md ${workdayHoursMode === 'standard' ? 'bg-indigo-600 text-white shadow-xs font-semibold' : 'text-slate-500 dark:text-slate-400'} disabled:cursor-not-allowed`}>{t('product.ratesDrawer.standardHours')}</button>
+                    <button type="button" disabled={readOnly} onClick={() => onChange({ ...rates, workdayHoursMode: 'perRole' })} className={`px-2.5 py-1 rounded-md ${workdayHoursMode === 'perRole' ? 'bg-indigo-600 text-white shadow-xs font-semibold' : 'text-slate-500 dark:text-slate-400'} disabled:cursor-not-allowed`}>{t('product.ratesDrawer.customHoursPerRole')}</button>
+                  </div>
+                </div>
+                <Field
+                  label={t('product.ratesDrawer.workdayHours')}
+                  value={rates.standardWorkdayHours ?? rates.workdayHours ?? DEFAULT_WORKDAY_HOURS}
+                  onChange={handleWorkdayHoursChange}
+                  disabled={readOnly}
+                  suffix="hrs"
+                />
+              </section>
+
+              <section className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl p-4">
+                <div className="flex items-center justify-between mb-3">
                   <h3 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">{t('product.ratesDrawer.baseLaborRate')}</h3>
                   <div className="inline-flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 text-xs font-medium">
                     <button
@@ -675,13 +707,6 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                   </>
                 )}
 
-                <Field
-                  label={t('product.ratesDrawer.workdayHours', 'Hours per Workday (hrs/day)')}
-                  value={rates.workdayHours ?? DEFAULT_WORKDAY_HOURS}
-                  onChange={handleWorkdayHoursChange}
-                  disabled={readOnly}
-                  suffix="hrs"
-                />
               </section>
 
               {/* US-045: Labor Roles & Crew Rankings */}
@@ -732,7 +757,13 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                           </button>
                         )}
                       </div>
-                      <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className={`grid ${workdayHoursMode === 'perRole' ? 'grid-cols-3' : 'grid-cols-2'} gap-2 text-xs`}>
+                        {workdayHoursMode === 'perRole' && (
+                          <div className="flex items-center bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1">
+                            <input type="number" min="0.1" step="any" value={role.workdayHours ?? ''} disabled={readOnly} onChange={(e) => handleUpdateRole(role.id, 'workdayHours', e.target.value)} className="w-full bg-transparent text-right outline-none text-slate-900 dark:text-slate-100" placeholder={String(workdayHours)} />
+                            <span className="text-[10px] text-slate-400 dark:text-slate-500 ml-1">{t('product.ratesDrawer.roleHoursPerDay')}</span>
+                          </div>
+                        )}
                         <div className="flex items-center bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1">
                           <span className="text-slate-400 dark:text-slate-500 mr-1">$</span>
                           <input

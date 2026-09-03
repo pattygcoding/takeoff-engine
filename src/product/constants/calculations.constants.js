@@ -14,14 +14,14 @@ export const DEFAULT_LABOR_ROLES = [
 ];
 
 export const DEFAULT_EQUIPMENT_CATALOG = [
-  { id: 'mini-excavator', title: 'Mini-Excavator (3–5 Ton)', dailyRate: 350.0, weeklyRate: 1200.0, monthlyRate: 3600.0, deliveryFee: 250.0, fuelSurchargePct: 5 },
-  { id: 'backhoe', title: 'Backhoe Loader', dailyRate: 450.0, weeklyRate: 1550.0, monthlyRate: 4650.0, deliveryFee: 300.0, fuelSurchargePct: 5 },
-  { id: 'skid-steer', title: 'Skid Steer / Track Loader', dailyRate: 300.0, weeklyRate: 1050.0, monthlyRate: 3150.0, deliveryFee: 200.0, fuelSurchargePct: 5 },
-  { id: 'trench-box', title: 'Trench Shoring Box & Shield', dailyRate: 150.0, weeklyRate: 500.0, monthlyRate: 1500.0, deliveryFee: 200.0, fuelSurchargePct: 0 },
-  { id: 'plate-compactor', title: 'Tamping Rammer / Plate Compactor', dailyRate: 95.0, weeklyRate: 325.0, monthlyRate: 975.0, deliveryFee: 75.0, fuelSurchargePct: 0 },
-  { id: 'propress-threader', title: 'Pipe Threader / ProPress Tool', dailyRate: 120.0, weeklyRate: 400.0, monthlyRate: 1200.0, deliveryFee: 50.0, fuelSurchargePct: 0 },
-  { id: 'generator-lights', title: 'Generator & Light Tower', dailyRate: 140.0, weeklyRate: 480.0, monthlyRate: 1440.0, deliveryFee: 100.0, fuelSurchargePct: 5 },
-  { id: 'scissor-lift', title: 'Scissor / Boom Lift', dailyRate: 220.0, weeklyRate: 750.0, monthlyRate: 2250.0, deliveryFee: 175.0, fuelSurchargePct: 0 },
+  { id: 'mini-excavator', title: 'Mini-Excavator (3–5 Ton)', dailyRate: 350.0, weeklyRate: 1200.0, monthlyRate: 3600.0, deliveryFee: 250.0, fuelSurchargePct: 5, damageWaiverPct: 10, minimumRentalDays: 1, standbyRatePct: 50, ownedDailyRate: 180.0, defaultOperatorIncluded: false, equipmentOwnership: 'rented' },
+  { id: 'backhoe', title: 'Backhoe Loader', dailyRate: 450.0, weeklyRate: 1550.0, monthlyRate: 4650.0, deliveryFee: 300.0, fuelSurchargePct: 5, damageWaiverPct: 10, minimumRentalDays: 1, standbyRatePct: 50, ownedDailyRate: 200.0, defaultOperatorIncluded: false, equipmentOwnership: 'rented' },
+  { id: 'skid-steer', title: 'Skid Steer / Track Loader', dailyRate: 300.0, weeklyRate: 1050.0, monthlyRate: 3150.0, deliveryFee: 200.0, fuelSurchargePct: 5, damageWaiverPct: 10, minimumRentalDays: 1, standbyRatePct: 50, ownedDailyRate: 150.0, defaultOperatorIncluded: false, equipmentOwnership: 'rented' },
+  { id: 'trench-box', title: 'Trench Shoring Box & Shield', dailyRate: 150.0, weeklyRate: 500.0, monthlyRate: 1500.0, deliveryFee: 200.0, fuelSurchargePct: 0, damageWaiverPct: 0, minimumRentalDays: 1, standbyRatePct: 50, ownedDailyRate: 90.0, defaultOperatorIncluded: false, equipmentOwnership: 'rented' },
+  { id: 'plate-compactor', title: 'Tamping Rammer / Plate Compactor', dailyRate: 95.0, weeklyRate: 325.0, monthlyRate: 975.0, deliveryFee: 75.0, fuelSurchargePct: 0, damageWaiverPct: 5, minimumRentalDays: 1, standbyRatePct: 50, ownedDailyRate: 55.0, defaultOperatorIncluded: false, equipmentOwnership: 'rented' },
+  { id: 'propress-threader', title: 'Pipe Threader / ProPress Tool', dailyRate: 120.0, weeklyRate: 400.0, monthlyRate: 1200.0, deliveryFee: 50.0, fuelSurchargePct: 0, damageWaiverPct: 0, minimumRentalDays: 1, standbyRatePct: 50, ownedDailyRate: 70.0, defaultOperatorIncluded: false, equipmentOwnership: 'rented' },
+  { id: 'generator-lights', title: 'Generator & Light Tower', dailyRate: 140.0, weeklyRate: 480.0, monthlyRate: 1440.0, deliveryFee: 100.0, fuelSurchargePct: 5, damageWaiverPct: 10, minimumRentalDays: 1, standbyRatePct: 50, ownedDailyRate: 80.0, defaultOperatorIncluded: false, equipmentOwnership: 'rented' },
+  { id: 'scissor-lift', title: 'Scissor / Boom Lift', dailyRate: 220.0, weeklyRate: 750.0, monthlyRate: 2250.0, deliveryFee: 175.0, fuelSurchargePct: 0, damageWaiverPct: 10, minimumRentalDays: 1, standbyRatePct: 50, ownedDailyRate: 120.0, defaultOperatorIncluded: false, equipmentOwnership: 'rented' },
 ];
 
 export const DEFAULT_RATES = {
@@ -29,6 +29,8 @@ export const DEFAULT_RATES = {
   laborHourlyRate: 65.0,
   laborDailyRate: 520.0,
   workdayHours: DEFAULT_WORKDAY_HOURS,
+  standardWorkdayHours: DEFAULT_WORKDAY_HOURS,
+  workdayHoursMode: 'standard',
   laborMode: 'hours',
   laborRoles: DEFAULT_LABOR_ROLES,
   defaultLaborRoleId: 'journeyman',
