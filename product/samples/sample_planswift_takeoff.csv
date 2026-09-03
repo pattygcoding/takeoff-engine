@@ -8,3 +8,8 @@
 "Water Utilities","C900 DR18 Polyvinyl Chloride Pipe","8\" DR18 Blue","540","LF","4.5","38.00","0.25"
 "Water Utilities","Tapping Sleeve and Gate Valve","8\" x 8\" Stainless","1","EA","","1850.00","4.50"
 "Water Utilities","Air Release Valve & Enclosure","2\" Combination ARV","2","EA","","1250.00","3.00"
+
+"system","item_description","size_spec","quantity","unit","avg_depth_ft","material_cost_per_unit","labor_hours_per_unit","associated_scope","equipment_ownership","equipment_operator_included","equipment_damage_waiver_pct","equipment_minimum_rental_days","equipment_standby_days","equipment_standby_rate_pct","equipment_production_rate_qty_day","equipment_contingency_days"
+"Equipment & Mobilization","Mini-Excavator Rental","3-5 Ton","1","WK","","0","0","Sanitary","rented","No","10","3","0","50","150","1"
+"Equipment & Mobilization","Skid Steer Loader Rental","Track Loader","1","WK","","0","0","Storm","company-owned","Yes","10","2","1","50","200","1"
+"Equipment & Mobilization","Generator & Light Tower Rental","Generator","1","WK","","0","0","Domestic Water","rented","No","10","5","0","50","120","2"
