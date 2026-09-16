@@ -75,6 +75,7 @@ export default function LoginPage({ initialView = 'login' }) {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    if (loading) return;
     setError('');
     setLoading(true);
     try {
@@ -88,6 +89,7 @@ export default function LoginPage({ initialView = 'login' }) {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    if (loading) return;
     setError('');
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -181,6 +183,7 @@ export default function LoginPage({ initialView = 'login' }) {
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
+    if (loading) return;
     setError('');
     setMessage('');
     setLoading(true);
@@ -273,9 +276,9 @@ export default function LoginPage({ initialView = 'login' }) {
           : 'max-w-md p-6 sm:p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl text-slate-900 dark:text-slate-100'
       }`}>
         {error && (
-          <div className="mb-4 p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 text-sm text-red-700 dark:text-red-300 space-y-2">
+          <div id="auth-error" role="alert" className="mb-4 p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 text-sm text-red-700 dark:text-red-300 space-y-2">
             <div className="flex items-start gap-2">
-              <span className="text-base shrink-0">⚠️</span>
+              <span aria-hidden="true" className="text-base shrink-0">⚠️</span>
               <p className="flex-1 font-medium">{error}</p>
             </div>
             {error.toLowerCase().includes('locked') && (
@@ -294,7 +297,7 @@ export default function LoginPage({ initialView = 'login' }) {
         )}
 
         {message && (
-          <div className="mb-4 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/60 text-sm text-emerald-700 dark:text-emerald-300">
+          <div role="status" className="mb-4 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/60 text-sm text-emerald-700 dark:text-emerald-300">
             {message}
           </div>
         )}
@@ -482,16 +485,18 @@ export default function LoginPage({ initialView = 'login' }) {
         {view === 'login' && (
           <div>
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{t('core.loginPage.welcomeBack')}</h2>
+              <h1 className="text-2xl font-bold text-slate-800 dark:text-white">{t('core.loginPage.welcomeBack')}</h1>
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t('core.loginPage.loginSubtitle')}</p>
             </div>
 
-            <form onSubmit={handleLogin} className="space-y-4">
+            <form onSubmit={handleLogin} aria-describedby={error ? 'auth-error' : undefined} aria-busy={loading} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                <label htmlFor="login-identifier" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                   {t('core.loginPage.usernameOrEmail')}
                 </label>
                 <input
+                  id="login-identifier"
+                  autoComplete="username"
                   type="text"
                   required
                   value={loginIdentifier}
@@ -503,7 +508,7 @@ export default function LoginPage({ initialView = 'login' }) {
 
               <div>
                 <div className="flex justify-between items-center mb-1">
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                  <label htmlFor="login-password" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                     {t('core.loginPage.password')}
                   </label>
                   <button
@@ -516,6 +521,8 @@ export default function LoginPage({ initialView = 'login' }) {
                 </div>
                 <div className="relative">
                   <input
+                    id="login-password"
+                    autoComplete="current-password"
                     type={showLoginPassword ? 'text' : 'password'}
                     required
                     value={loginPassword}
@@ -545,8 +552,8 @@ export default function LoginPage({ initialView = 'login' }) {
 
               <button
                 type="submit"
-                disabled={loading}
-                className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm"
+                aria-disabled={loading}
+                className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 aria-disabled:cursor-wait text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm"
               >
                 {loading ? t('core.loginPage.loggingIn') : t('core.loginPage.logIn')}
               </button>
@@ -569,17 +576,19 @@ export default function LoginPage({ initialView = 'login' }) {
         {view === 'register' && (
           <div>
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{t('core.loginPage.createAccount')}</h2>
+              <h1 className="text-2xl font-bold text-slate-800 dark:text-white">{t('core.loginPage.createAccount')}</h1>
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t('core.loginPage.getStartedSubtitle')}</p>
             </div>
 
-            <form onSubmit={handleRegister} className="space-y-3.5">
+            <form onSubmit={handleRegister} aria-describedby={error ? 'auth-error' : undefined} aria-busy={loading} className="space-y-3.5">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                  <label htmlFor="register-first-name" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                     {t('core.loginPage.firstName')}
                   </label>
                   <input
+                    id="register-first-name"
+                    autoComplete="given-name"
                     type="text"
                     required
                     value={registerFirstName}
@@ -589,10 +598,12 @@ export default function LoginPage({ initialView = 'login' }) {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                  <label htmlFor="register-last-name" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                     {t('core.loginPage.lastName')}
                   </label>
                   <input
+                    id="register-last-name"
+                    autoComplete="family-name"
                     type="text"
                     required
                     value={registerLastName}
@@ -604,10 +615,12 @@ export default function LoginPage({ initialView = 'login' }) {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                <label htmlFor="register-username" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                   {t('core.loginPage.username')}
                 </label>
                 <input
+                  id="register-username"
+                  autoComplete="username"
                   type="text"
                   required
                   value={registerUsername}
@@ -618,10 +631,12 @@ export default function LoginPage({ initialView = 'login' }) {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                <label htmlFor="register-email" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                   {t('core.loginPage.email')}
                 </label>
                 <input
+                  id="register-email"
+                  autoComplete="email"
                   type="email"
                   required
                   value={registerEmail}
@@ -632,10 +647,12 @@ export default function LoginPage({ initialView = 'login' }) {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                <label htmlFor="register-phone" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                   {t('core.loginPage.phoneOptional')}
                 </label>
                 <input
+                  id="register-phone"
+                  autoComplete="tel"
                   type="tel"
                   value={registerPhone}
                   onChange={(e) => setRegisterPhone(e.target.value)}
@@ -645,11 +662,13 @@ export default function LoginPage({ initialView = 'login' }) {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                <label htmlFor="register-password" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                   {t('core.loginPage.passwordMinChars')}
                 </label>
                 <div className="relative">
                   <input
+                    id="register-password"
+                    autoComplete="new-password"
                     type={showRegisterPassword ? 'text' : 'password'}
                     required
                     minLength={6}
@@ -680,8 +699,8 @@ export default function LoginPage({ initialView = 'login' }) {
 
               <button
                 type="submit"
-                disabled={loading}
-                className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm"
+                aria-disabled={loading}
+                className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 aria-disabled:cursor-wait text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm"
               >
                 {loading ? t('core.loginPage.creatingAccount') : t('core.loginPage.createAccount')}
               </button>
@@ -704,18 +723,20 @@ export default function LoginPage({ initialView = 'login' }) {
         {view === 'forgot' && (
           <div>
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{t('core.loginPage.forgotPasswordTitle')}</h2>
+              <h1 className="text-2xl font-bold text-slate-800 dark:text-white">{t('core.loginPage.forgotPasswordTitle')}</h1>
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                 {t('core.loginPage.forgotPasswordSubtitle')}
               </p>
             </div>
 
-            <form onSubmit={handleForgotPassword} className="space-y-4">
+            <form onSubmit={handleForgotPassword} aria-describedby={error ? 'auth-error' : undefined} aria-busy={loading} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                <label htmlFor="forgot-email" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                   {t('core.loginPage.emailAddress')}
                 </label>
                 <input
+                  id="forgot-email"
+                  autoComplete="email"
                   type="email"
                   required
                   value={forgotEmail}
@@ -727,8 +748,8 @@ export default function LoginPage({ initialView = 'login' }) {
 
               <button
                 type="submit"
-                disabled={loading}
-                className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm"
+                aria-disabled={loading}
+                className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 aria-disabled:cursor-wait text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm"
               >
                 {loading ? t('core.loginPage.submitting') : t('core.loginPage.sendResetInstructions')}
               </button>

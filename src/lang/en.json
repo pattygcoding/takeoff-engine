@@ -1,5 +1,31 @@
 {
   "core": {
+    "accessibility": {
+      "skipToContent": "Skip to main content",
+      "toggleMenu": "Toggle navigation menu",
+      "notice": "Notice",
+      "ok": "OK",
+      "confirmAction": "Confirm Action",
+      "confirmMessage": "Are you sure you want to proceed?",
+      "confirm": "Confirm",
+      "cancel": "Cancel",
+      "prompt": "Prompt",
+      "submit": "Submit",
+      "statement": {
+        "title": "Accessibility",
+        "intro": "Takeoff Engine values accessibility for people with disabilities and welcomes feedback on its website and construction estimating tools.",
+        "statusTitle": "Accessibility Approach",
+        "status": "The Web Content Accessibility Guidelines (WCAG) 2.2, Level AA, serve as our accessibility goal and guide our design and development efforts.",
+        "limitations": "This statement describes our accessibility goal and contact process. It is not a certification or guarantee of conformance.",
+        "standard": "Read WCAG 2.2",
+        "noticeTitle": "Good-Faith Notice and Opportunity to Respond",
+        "notice": "If you experience an accessibility barrier, please contact us before pursuing a formal claim so we can investigate and work with you toward an effective solution. Where permitted by applicable law, you agree to provide written notice describing the specific barrier and allow us 60 days to acknowledge, investigate, and implement or discuss a reasonable solution before filing a lawsuit or other formal proceeding. This request does not apply to emergencies and does not limit any rights or remedies that cannot lawfully be limited.",
+        "contactTitle": "Accessibility Feedback and Assistance",
+        "contact": "Contact us with accessibility questions, feedback, or requests for assistance or an alternative format.",
+        "details": "To help us understand your request, please include the page URL, the task involved, and a description of your experience. You may also include your browser and assistive technology, if relevant. Do not send passwords, payment information, or confidential project data."
+      },
+      "loading": "Loading Takeoff Engine..."
+    },
     "errorBoundary": {
       "title": "Something went wrong",
       "defaultMessage": "An unexpected error occurred while rendering this page.",

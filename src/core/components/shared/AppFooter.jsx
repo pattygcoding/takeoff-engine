@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import { useAuth } from '@/core/components/context/AuthContext';
 
@@ -48,9 +48,9 @@ export default function AppFooter() {
 
           {/* Col 2: Navigation & Product */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-200">
               {t('core.footer.productCol', 'Product')}
-            </h4>
+            </h2>
             <ul className="space-y-2 text-xs">
               <li>
                 <button
@@ -100,10 +100,15 @@ export default function AppFooter() {
 
           {/* Col 3: Legal & Compliance (Required by Paddle) */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-200">
               {t('core.footer.legalCol', 'Legal & Policies')}
-            </h4>
+            </h2>
             <ul className="space-y-2 text-xs">
+              <li>
+                <Link to="/accessibility" className="inline-block py-1 underline hover:text-white transition">
+                  {t('core.accessibility.statement.title')}
+                </Link>
+              </li>
               <li>
                 <button
                   type="button"
@@ -154,9 +159,9 @@ export default function AppFooter() {
 
           {/* Col 4: Contact & Merchant of Record Notice */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-200">
               {t('core.footer.contactCol', 'Contact & Inquiries')}
-            </h4>
+            </h2>
             <p className="text-xs text-slate-400">
               {t('core.footer.supportEmailLabel', 'Contact Support:')}
             </p>
@@ -166,16 +171,16 @@ export default function AppFooter() {
             >
               pattygsocials@gmail.com
             </a>
-            <p className="text-[11px] text-slate-500 leading-normal pt-1">
+            <p className="text-[11px] text-slate-400 leading-normal pt-1">
               {t('core.footer.merchantOfRecordNotice', 'Our order process is conducted by our online reseller Paddle.com. Paddle.com is the Merchant of Record for all our orders.')}
             </p>
           </div>
         </div>
 
         {/* Bottom Copyright Bar */}
-        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left text-[11px] text-slate-500">
+        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left text-[11px] text-slate-400">
           <p>{t('core.footer.copyright', { year: new Date().getFullYear() })}</p>
-          <p className="text-slate-500">
+          <p className="text-slate-400">
             Powered by Takeoff Engine • Merchant of Record: Paddle.com
           </p>
         </div>

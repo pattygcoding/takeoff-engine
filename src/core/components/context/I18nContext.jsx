@@ -28,6 +28,10 @@ export function I18nProvider({ children, defaultLanguage = 'en' }) {
   const navigate = useNavigate();
   const [language, setLanguageState] = useState(getInitialLanguage);
 
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
+
   // Synchronize URL search params whenever language changes or location changes
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -50,9 +54,9 @@ export function I18nProvider({ children, defaultLanguage = 'en' }) {
     // 2. If URL does not have a ?lang parameter, or has an invalid one, enforce active language (?lang=en, ?lang=es, etc.)
     if (currentParam !== language) {
       params.set('lang', language);
-      navigate({ pathname: location.pathname, search: `?${params.toString()}` }, { replace: true });
+      navigate({ pathname: location.pathname, search: `?${params.toString()}`, hash: location.hash }, { replace: true });
     }
-  }, [location.pathname, location.search, language, navigate]);
+  }, [location.pathname, location.search, location.hash, language, navigate]);
 
   const changeLanguage = useCallback(
     (lang) => {
@@ -67,9 +71,9 @@ export function I18nProvider({ children, defaultLanguage = 'en' }) {
 
       const params = new URLSearchParams(location.search);
       params.set('lang', lang);
-      navigate({ pathname: location.pathname, search: `?${params.toString()}` }, { replace: true });
+      navigate({ pathname: location.pathname, search: `?${params.toString()}`, hash: location.hash }, { replace: true });
     },
-    [location.pathname, location.search, navigate]
+    [location.pathname, location.search, location.hash, navigate]
   );
 
   const t = useCallback(

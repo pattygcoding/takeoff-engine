@@ -1,13 +1,13 @@
-import React, { createContext, useContext, useState, useRef, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
+import AccessibleDialog from '@/core/components/shared/AccessibleDialog';
+import { useTranslation } from '@/core/components/context/I18nContext';
 
 const ModalContext = createContext(null);
 
 export function ModalProvider({ children }) {
   const [modalState, setModalState] = useState(null); // { type, title, message, confirmText, cancelText, confirmVariant, defaultValue, placeholder, resolve }
   const [inputValue, setInputValue] = useState('');
-  const inputRef = useRef(null);
-  const confirmBtnRef = useRef(null);
-  const modalContainerRef = useRef(null);
+  const { t } = useTranslation();
 
   const closeModal = useCallback((result) => {
     if (modalState?.resolve) {
@@ -18,7 +18,7 @@ export function ModalProvider({ children }) {
   }, [modalState]);
 
   // Alert dialog
-  const showAlert = useCallback(({ title = 'Notice', message = '', confirmText = 'OK', variant = 'info' } = {}) => {
+  const showAlert = useCallback(({ title = t('core.accessibility.notice'), message = '', confirmText = t('core.accessibility.ok'), variant = 'info' } = {}) => {
     return new Promise((resolve) => {
       setModalState({
         type: 'alert',
@@ -29,14 +29,14 @@ export function ModalProvider({ children }) {
         resolve,
       });
     });
-  }, []);
+  }, [t]);
 
   // Confirm dialog
   const showConfirm = useCallback(({
-    title = 'Confirm Action',
-    message = 'Are you sure you want to proceed?',
-    confirmText = 'Confirm',
-    cancelText = 'Cancel',
+    title = t('core.accessibility.confirmAction'),
+    message = t('core.accessibility.confirmMessage'),
+    confirmText = t('core.accessibility.confirm'),
+    cancelText = t('core.accessibility.cancel'),
     confirmVariant = 'danger', // 'danger' | 'primary'
   } = {}) => {
     return new Promise((resolve) => {
@@ -50,16 +50,16 @@ export function ModalProvider({ children }) {
         resolve,
       });
     });
-  }, []);
+  }, [t]);
 
   // Prompt dialog
   const showPrompt = useCallback(({
-    title = 'Prompt',
+    title = t('core.accessibility.prompt'),
     message = '',
     defaultValue = '',
     placeholder = '',
-    confirmText = 'Submit',
-    cancelText = 'Cancel',
+    confirmText = t('core.accessibility.submit'),
+    cancelText = t('core.accessibility.cancel'),
   } = {}) => {
     return new Promise((resolve) => {
       setInputValue(defaultValue);
@@ -74,73 +74,20 @@ export function ModalProvider({ children }) {
         resolve,
       });
     });
-  }, []);
-
-  // Handle ESC key to dismiss / cancel
-  useEffect(() => {
-    if (!modalState) return;
-
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        if (modalState.type === 'alert') {
-          closeModal(true);
-        } else if (modalState.type === 'prompt') {
-          closeModal(null);
-        } else {
-          closeModal(false);
-        }
-      }
-
-      // Trap Focus within modal container
-      if (e.key === 'Tab' && modalContainerRef.current) {
-        const focusableElements = modalContainerRef.current.querySelectorAll(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
-
-        if (e.shiftKey && document.activeElement === firstElement) {
-          e.preventDefault();
-          lastElement?.focus();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
-          e.preventDefault();
-          firstElement?.focus();
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [modalState, closeModal]);
-
-  // Auto focus input or primary confirm button
-  useEffect(() => {
-    if (!modalState) return;
-    const timer = setTimeout(() => {
-      if (modalState.type === 'prompt' && inputRef.current) {
-        inputRef.current.focus();
-        inputRef.current.select();
-      } else if (confirmBtnRef.current) {
-        confirmBtnRef.current.focus();
-      }
-    }, 50);
-    return () => clearTimeout(timer);
-  }, [modalState]);
+  }, [t]);
 
   return (
     <ModalContext.Provider value={{ showAlert, showConfirm, showPrompt }}>
       {children}
 
       {modalState && (
-        <div
+        <AccessibleDialog
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in"
-          role="dialog"
-          aria-modal="true"
           aria-labelledby="modal-title"
+          aria-describedby={modalState.message ? 'modal-message' : undefined}
+          onClose={() => closeModal(modalState.type === 'alert' ? true : modalState.type === 'prompt' ? null : false)}
         >
           <div
-            ref={modalContainerRef}
             className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-md w-full p-6 sm:p-7 relative transition-all transform scale-100 opacity-100"
           >
             {/* Header Icon & Title */}
@@ -177,7 +124,7 @@ export function ModalProvider({ children }) {
                   {modalState.title}
                 </h3>
                 {modalState.message && (
-                  <p className="mt-1.5 text-sm text-slate-600 whitespace-pre-wrap leading-relaxed">
+                  <p id="modal-message" className="mt-1.5 text-sm text-slate-600 whitespace-pre-wrap leading-relaxed">
                     {modalState.message}
                   </p>
                 )}
@@ -194,7 +141,8 @@ export function ModalProvider({ children }) {
                 className="my-4"
               >
                 <input
-                  ref={inputRef}
+                  aria-labelledby="modal-title"
+                  aria-describedby={modalState.message ? 'modal-message' : undefined}
                   type="text"
                   value={inputValue}
                   placeholder={modalState.placeholder}
@@ -212,12 +160,11 @@ export function ModalProvider({ children }) {
                   onClick={() => closeModal(modalState.type === 'prompt' ? null : false)}
                   className="px-4 py-2 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 border border-slate-200 transition-colors"
                 >
-                  {modalState.cancelText || 'Cancel'}
+                  {modalState.cancelText || t('core.accessibility.cancel')}
                 </button>
               )}
 
               <button
-                ref={confirmBtnRef}
                 type="button"
                 onClick={() => {
                   if (modalState.type === 'prompt') {
@@ -232,11 +179,11 @@ export function ModalProvider({ children }) {
                     : 'bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
                 }`}
               >
-                {modalState.confirmText || (modalState.type === 'alert' ? 'OK' : 'Confirm')}
+                {modalState.confirmText || t(modalState.type === 'alert' ? 'core.accessibility.ok' : 'core.accessibility.confirm')}
               </button>
             </div>
           </div>
-        </div>
+        </AccessibleDialog>
       )}
     </ModalContext.Provider>
   );

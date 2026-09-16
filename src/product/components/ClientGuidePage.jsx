@@ -46,7 +46,7 @@ function MarkdownRenderer({ content }) {
     const dataRows = tableRows.slice(2);
 
     elements.push(
-      <div key={`table-${key++}`} className="overflow-x-auto my-5 rounded-xl border border-slate-200 dark:border-slate-800">
+      <div key={`table-${key++}`} tabIndex={0} className="overflow-x-auto my-5 rounded-xl border border-slate-200 dark:border-slate-800">
         <table className="w-full text-left text-xs border-collapse">
           <thead className="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-b border-slate-200 dark:border-slate-700">
             <tr>
@@ -336,7 +336,7 @@ export default function ClientGuidePage() {
       </header>
 
       {/* Main Container - Renders CLIENT_GUIDE.md directly in a clean page container */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 pt-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-8">
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs p-6 sm:p-10 min-h-[500px] transition-colors">
           {loading ? (
             <div className="flex items-center justify-center py-20 text-slate-400 dark:text-slate-500">
@@ -347,7 +347,7 @@ export default function ClientGuidePage() {
             <MarkdownRenderer content={markdown} />
           )}
         </div>
-      </main>
+      </div>
     </div>
   );
 }

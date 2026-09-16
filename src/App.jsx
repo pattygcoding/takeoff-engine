@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Navigate, Route, Routes, useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { Link, Navigate, Route, Routes, useNavigate, useLocation } from 'react-router-dom';
 
 // Core Auth & User Components
 import AccountSettings from '@/core/components/auth/AccountSettings';
@@ -16,6 +16,7 @@ import LegalDisclaimerPage from '@/core/components/legal/LegalDisclaimerPage';
 import PrivacyPolicyPage from '@/core/components/legal/PrivacyPolicyPage';
 import RefundPolicyPage from '@/core/components/legal/RefundPolicyPage';
 import TermsOfServicePage from '@/core/components/legal/TermsOfServicePage';
+import AccessibilityPage from '@/core/components/legal/AccessibilityPage';
 
 // Core Billing & Shared Components
 import UpgradeModal from '@/core/components/billing/UpgradeModal';
@@ -27,7 +28,7 @@ import ErrorBoundary from '@/core/components/shared/ErrorBoundary';
 // Core Context & Providers
 import { AuthProvider, useAuth } from '@/core/components/context/AuthContext';
 import { ModalProvider } from '@/core/components/context/ModalContext';
-import { I18nProvider } from '@/core/components/context/I18nContext';
+import { I18nProvider, useTranslation } from '@/core/components/context/I18nContext';
 import { ThemeProvider } from '@/core/components/context/ThemeContext';
 
 // Product Routes (Decoupled Domain Layer)
@@ -35,9 +36,21 @@ import { renderProductRoutes } from '@/product/routes/ProductRoutes';
 
 function AppContent() {
   const { user, isAuthenticated, loading } = useAuth();
+  const { t } = useTranslation();
   const [showAutoUpgradeModal, setShowAutoUpgradeModal] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const previousPath = useRef(location.pathname);
+
+  useEffect(() => {
+    if (loading || previousPath.current === location.pathname) return;
+    previousPath.current = location.pathname;
+    const content = document.getElementById('main-content');
+    const target = content?.querySelector('h1') || content;
+    target?.setAttribute('tabindex', '-1');
+    target?.focus({ preventScroll: true });
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [location.pathname, loading]);
 
   const isExempt =
     user?.role === 'admin' ||
@@ -58,7 +71,7 @@ function AppContent() {
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-100 flex items-center justify-center">
-        <div className="text-slate-500 font-medium animate-pulse">Loading Takeoff Engine...</div>
+        <div role="status" className="text-slate-500 font-medium animate-pulse">{t('core.accessibility.loading')}</div>
       </div>
     );
   }
@@ -70,24 +83,30 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
+      <a
+        href="#main-content"
+        className="skip-link no-print"
+        onClick={(event) => {
+          event.preventDefault();
+          const content = document.getElementById('main-content');
+          const target = content?.querySelector('h1') || content;
+          target?.setAttribute('tabindex', '-1');
+          target?.focus();
+        }}
+      >
+        {t('core.accessibility.skipToContent')}
+      </a>
       {!isPublicLandingOrProposal && (
         <header className="no-print bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 py-3 sm:py-4 transition-colors duration-200">
-          <div className="max-w-6xl mx-auto px-4 flex items-center justify-between">
+          <div className="max-w-6xl mx-auto px-4 flex flex-wrap gap-3 items-center justify-between">
             <div className="flex items-center gap-2">
-              <div
+              <Link
                 className="flex items-center gap-2 cursor-pointer"
-                onClick={() => {
-                  if (isAuthenticated && user?.username) {
-                    navigate(`/${user.username}`);
-                  } else {
-                    navigate('/home');
-                  }
-                }}
-                title={isAuthenticated ? 'Go to Projects Dashboard' : 'Go to Home'}
+                to={isAuthenticated && user?.username ? `/${user.username}` : '/home'}
               >
                 <span className="text-xl font-bold text-indigo-600 dark:text-indigo-400">Takeoff Engine</span>
-                <span className="hidden sm:inline text-sm text-slate-400 dark:text-slate-500">Construction Estimating</span>
-              </div>
+                <span className="hidden sm:inline text-sm text-slate-600 dark:text-slate-400">Construction Estimating</span>
+              </Link>
 
               <button
                 type="button"
@@ -113,7 +132,7 @@ function AppContent() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => navigate('/login')}
-                    className="px-3.5 py-1.5 text-sm font-medium text-slate-700 hover:text-indigo-600 transition"
+                    className="px-3.5 py-1.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-300 transition"
                   >
                     Log In
                   </button>
@@ -130,6 +149,7 @@ function AppContent() {
         </header>
       )}
 
+      <main id="main-content" tabIndex={-1}>
       <Routes>
         {/* Core Auth & Onboarding Routes */}
         <Route
@@ -191,6 +211,7 @@ function AppContent() {
 
         {/* Core Terms, Privacy, Refund, Legal & Policy Pages */}
         <Route path="/terms" element={<TermsOfServicePage />} />
+        <Route path="/accessibility" element={<AccessibilityPage />} />
         <Route path="/terms-of-service" element={<TermsOfServicePage />} />
         <Route path="/privacy" element={<PrivacyPolicyPage />} />
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
@@ -243,6 +264,7 @@ function AppContent() {
           }
         />
       </Routes>
+      </main>
 
       {/* Persistent Global Application Footer */}
       <AppFooter />

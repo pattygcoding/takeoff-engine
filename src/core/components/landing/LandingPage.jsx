@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { formatCurrency, formatNumber } from '@/product/lib/calculations';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import LanguageSelector from '@/core/components/shared/LanguageSelector';
 import SeoHead from '@/core/components/shared/SeoHead';
+import AccessibleDialog from '@/core/components/shared/AccessibleDialog';
 import {
   STARTER_MONTHLY_PRICE,
   PRO_MONTHLY_PRICE,
@@ -60,8 +61,8 @@ export default function LandingPage() {
       {/* Navigation Header */}
       <nav className="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div
-            onClick={() => navigate('/home')}
+          <Link
+            to="/home"
             className="flex items-center gap-3 cursor-pointer"
           >
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-cyan-500 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-indigo-500/25">
@@ -70,7 +71,7 @@ export default function LandingPage() {
             <span className="text-xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
               Takeoff Engine
             </span>
-          </div>
+          </Link>
 
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
             <LanguageSelector variant="dark" />
@@ -102,7 +103,9 @@ export default function LandingPage() {
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 focus:outline-none"
-              aria-label="Toggle menu"
+              aria-label={t('core.accessibility.toggleMenu')}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="landing-mobile-menu"
             >
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 {mobileMenuOpen ? (
@@ -116,8 +119,7 @@ export default function LandingPage() {
         </div>
 
         {/* Mobile menu dropdown */}
-        {mobileMenuOpen && (
-          <div className="md:hidden border-b border-slate-800 bg-slate-900 px-4 pt-2 pb-4 space-y-3">
+        <div hidden={!mobileMenuOpen} id="landing-mobile-menu" className="md:hidden border-b border-slate-800 bg-slate-900 px-4 pt-2 pb-4 space-y-3">
             <a
               href="#calculator"
               onClick={() => setMobileMenuOpen(false)}
@@ -167,7 +169,6 @@ export default function LandingPage() {
               </button>
             </div>
           </div>
-        )}
       </nav>
 
       {/* Hero Section */}
@@ -208,7 +209,7 @@ export default function LandingPage() {
             </a>
           </div>
 
-          <div className="mt-6 text-xs text-slate-500 flex items-center justify-center gap-6">
+          <div className="mt-6 text-xs text-slate-400 flex flex-wrap items-center justify-center gap-6">
             <span>{t('core.landing.hero.badgeNoCard')}</span>
             <span>{t('core.landing.hero.badgeInstantExports')}</span>
             <span>{t('core.landing.hero.badgeColumnMapper')}</span>
@@ -240,10 +241,11 @@ export default function LandingPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 mb-1">
+                  <label htmlFor="calculator-length" className="block text-xs font-semibold text-slate-400 mb-1">
                     {t('core.landing.calculator.pipeLength')}
                   </label>
                   <input
+                    id="calculator-length"
                     type="number"
                     value={pipeLength}
                     onChange={(e) => setPipeLength(Math.max(0, Number(e.target.value)))}
@@ -251,10 +253,11 @@ export default function LandingPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 mb-1">
+                  <label htmlFor="calculator-depth" className="block text-xs font-semibold text-slate-400 mb-1">
                     {t('core.landing.calculator.cutDepth')}
                   </label>
                   <input
+                    id="calculator-depth"
                     type="number"
                     step="0.5"
                     value={trenchDepth}
@@ -266,10 +269,11 @@ export default function LandingPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 mb-1">
+                  <label htmlFor="calculator-width" className="block text-xs font-semibold text-slate-400 mb-1">
                     {t('core.landing.calculator.trenchWidth')}
                   </label>
                   <input
+                    id="calculator-width"
                     type="number"
                     step="0.5"
                     value={trenchWidth}
@@ -278,10 +282,11 @@ export default function LandingPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 mb-1">
+                  <label htmlFor="calculator-diameter" className="block text-xs font-semibold text-slate-400 mb-1">
                     {t('core.landing.calculator.pipeDiameter')}
                   </label>
                   <input
+                    id="calculator-diameter"
                     type="number"
                     value={pipeDiameterInches}
                     onChange={(e) => setPipeDiameterInches(Math.max(1, Number(e.target.value)))}
@@ -292,10 +297,11 @@ export default function LandingPage() {
 
               <div className="grid grid-cols-2 gap-4 pt-2 border-t border-slate-800">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 mb-1">
+                  <label htmlFor="calculator-excavation" className="block text-xs font-semibold text-slate-400 mb-1">
                     {t('core.landing.calculator.excavationCost')}
                   </label>
                   <input
+                    id="calculator-excavation"
                     type="number"
                     value={excavationRatePerCy}
                     onChange={(e) => setExcavationRatePerCy(Math.max(0, Number(e.target.value)))}
@@ -303,10 +309,11 @@ export default function LandingPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 mb-1">
+                  <label htmlFor="calculator-labor" className="block text-xs font-semibold text-slate-400 mb-1">
                     {t('core.landing.calculator.crewLaborRate')}
                   </label>
                   <input
+                    id="calculator-labor"
                     type="number"
                     value={laborRate}
                     onChange={(e) => setLaborRate(Math.max(0, Number(e.target.value)))}
@@ -394,7 +401,7 @@ export default function LandingPage() {
           </p>
         </div>
 
-        <div className="overflow-x-auto">
+        <div tabIndex={0} role="region" aria-label={t('core.landing.comparison.title')} className="overflow-x-auto">
           <table className="w-full text-left text-sm border-collapse">
             <thead>
               <tr className="border-b border-slate-800 text-xs font-bold uppercase tracking-wider text-slate-400">
@@ -414,25 +421,25 @@ export default function LandingPage() {
               <tr>
                 <td className="py-4 px-6 font-medium text-slate-200">{t('core.landing.comparison.row2Label')}</td>
                 <td className="py-4 px-6 font-bold text-emerald-400 bg-indigo-950/30 border-x border-indigo-500/20">{t('core.landing.comparison.row2Te')}</td>
-                <td className="py-4 px-6 text-slate-500">{t('core.landing.comparison.row2Excel')}</td>
+                <td className="py-4 px-6 text-slate-400">{t('core.landing.comparison.row2Excel')}</td>
                 <td className="py-4 px-6 text-slate-400">{t('core.landing.comparison.row2Ent')}</td>
               </tr>
               <tr>
                 <td className="py-4 px-6 font-medium text-slate-200">{t('core.landing.comparison.row3Label')}</td>
                 <td className="py-4 px-6 font-bold text-emerald-400 bg-indigo-950/30 border-x border-indigo-500/20">{t('core.landing.comparison.row3Te')}</td>
-                <td className="py-4 px-6 text-slate-500">{t('core.landing.comparison.row3Excel')}</td>
+                <td className="py-4 px-6 text-slate-400">{t('core.landing.comparison.row3Excel')}</td>
                 <td className="py-4 px-6 text-slate-400">{t('core.landing.comparison.row3Ent')}</td>
               </tr>
               <tr>
                 <td className="py-4 px-6 font-medium text-slate-200">{t('core.landing.comparison.row4Label')}</td>
                 <td className="py-4 px-6 font-bold text-emerald-400 bg-indigo-950/30 border-x border-indigo-500/20">{t('core.landing.comparison.row4Te')}</td>
-                <td className="py-4 px-6 text-slate-500">{t('core.landing.comparison.row4Excel')}</td>
-                <td className="py-4 px-6 text-slate-500">{t('core.landing.comparison.row4Ent')}</td>
+                <td className="py-4 px-6 text-slate-400">{t('core.landing.comparison.row4Excel')}</td>
+                <td className="py-4 px-6 text-slate-400">{t('core.landing.comparison.row4Ent')}</td>
               </tr>
               <tr>
                 <td className="py-4 px-6 font-medium text-slate-200">{t('core.landing.comparison.row5Label')}</td>
                 <td className="py-4 px-6 font-bold text-emerald-400 bg-indigo-950/30 border-x border-indigo-500/20">{t('core.landing.comparison.row5Te')}</td>
-                <td className="py-4 px-6 text-slate-500">{t('core.landing.comparison.row5Excel')}</td>
+                <td className="py-4 px-6 text-slate-400">{t('core.landing.comparison.row5Excel')}</td>
                 <td className="py-4 px-6 text-emerald-400">{t('core.landing.comparison.row5Ent')}</td>
               </tr>
             </tbody>
@@ -462,7 +469,7 @@ export default function LandingPage() {
                   <span className="text-3xl font-black text-white">{t('core.landing.pricing.freeTrial.price')}</span>
                   <span className="text-xs text-slate-400">{t('core.landing.pricing.freeTrial.cadence')}</span>
                 </div>
-                <div className="text-[10px] text-slate-500 font-medium mt-0.5">{t('core.landing.pricing.freeTrial.noCard')}</div>
+                <div className="text-[10px] text-slate-400 font-medium mt-0.5">{t('core.landing.pricing.freeTrial.noCard')}</div>
                 <p className="text-xs text-slate-400 mt-2">{t('core.landing.pricing.freeTrial.description')}</p>
 
                 <ul className="mt-6 space-y-2.5 text-xs text-slate-300">
@@ -563,7 +570,7 @@ export default function LandingPage() {
 
               <button
                 onClick={() => navigate('/register')}
-                className="mt-6 w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-amber-600/30 transition cursor-pointer"
+                className="mt-6 w-full py-2.5 bg-amber-700 hover:bg-amber-800 text-white text-xs font-bold rounded-xl shadow-lg shadow-amber-600/30 transition cursor-pointer"
               >
                 {t('core.landing.pricing.enterprise.cta')}
               </button>
@@ -573,7 +580,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800 py-12 text-center text-xs text-slate-500">
+      <footer className="border-t border-slate-800 py-12 text-center text-xs text-slate-400">
         <div className="max-w-6xl mx-auto px-4 space-y-4">
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-slate-400">
             <button onClick={() => navigate('/home')} className="hover:text-white transition">
@@ -605,7 +612,7 @@ export default function LandingPage() {
 
       {/* In-Development Disclaimer Modal */}
       {showDevDisclaimer && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+        <AccessibleDialog onClose={handleDismissDisclaimer} aria-labelledby="development-notice-title" className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
           <div className="bg-slate-900 border border-amber-500/30 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative">
             <div className="flex items-start gap-4 mb-4">
               <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center text-2xl shrink-0">
@@ -615,7 +622,7 @@ export default function LandingPage() {
                 <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-amber-400/10 text-amber-300 border border-amber-400/20 mb-1.5">
                   {t('core.landing.disclaimer.tag')}
                 </span>
-                <h2 className="text-xl font-bold text-white tracking-tight">
+                <h2 id="development-notice-title" className="text-xl font-bold text-white tracking-tight">
                   {t('core.landing.disclaimer.title')}
                 </h2>
               </div>
@@ -646,7 +653,7 @@ export default function LandingPage() {
               </button>
             </div>
           </div>
-        </div>
+        </AccessibleDialog>
       )}
     </div>
   );

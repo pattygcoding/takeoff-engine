@@ -51,7 +51,7 @@ export default function RefundPolicyPage() {
       </header>
 
       {/* Main Container */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 pt-8 flex-1 w-full">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-8 flex-1 w-full">
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs p-6 sm:p-10 space-y-8">
           {/* Header Banner */}
           <div className="border-b border-slate-200 dark:border-slate-800 pb-6">
@@ -119,14 +119,14 @@ export default function RefundPolicyPage() {
             <div className="pt-2">
               <a
                 href="mailto:pattygsocials@gmail.com"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition cursor-pointer"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl transition cursor-pointer"
               >
                 ✉ pattygsocials@gmail.com
               </a>
             </div>
           </section>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
