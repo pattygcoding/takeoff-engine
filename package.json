@@ -13,6 +13,7 @@
     "build:local": "vite build",
     "test": "node --test tests/**/*.test.js",
     "test:a11y": "playwright test",
+    "test:a11y:public": "playwright test tests/accessibility/public-pages.spec.js",
     "translate": "python src/lang/lang.py",
     "translate:skip": "python src/lang/lang.py --skip",
     "translate:retry": "python src/lang/lang.py --retry",

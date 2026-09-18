@@ -88,7 +88,7 @@ export default function LandingPage() {
             </button>
             <button
               onClick={() => navigate('/register')}
-              className="px-4 py-2 text-sm font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow-lg shadow-emerald-600/20 transition transform active:scale-95"
+              className="px-4 py-2 text-sm font-bold bg-emerald-700 hover:bg-emerald-600 text-white rounded-xl shadow-lg shadow-emerald-600/20 transition transform active:scale-95"
             >
               {t('core.landing.nav.getStartedFree')}
             </button>
@@ -161,7 +161,7 @@ export default function LandingPage() {
                   setMobileMenuOpen(false);
                   navigate('/register');
                 }}
-                className="w-full text-center px-4 py-2 text-sm font-bold bg-emerald-600 text-white rounded-xl"
+                className="w-full text-center px-4 py-2 text-sm font-bold bg-emerald-700 text-white rounded-xl"
               >
                 {t('core.landing.nav.getStartedFree')}
               </button>
@@ -365,7 +365,7 @@ export default function LandingPage() {
               <div className="pt-2 text-center">
                 <button
                   onClick={() => navigate('/register')}
-                  className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-xl shadow-lg shadow-emerald-600/20 transition text-center mb-2 inline-flex items-center justify-center gap-2"
+                  className="w-full py-3.5 bg-emerald-700 hover:bg-emerald-600 text-white text-sm font-bold rounded-xl shadow-lg shadow-emerald-600/20 transition text-center mb-2 inline-flex items-center justify-center gap-2"
                 >
                   {t('core.landing.calculator.importCta')} <ArrowRight className="w-4 h-4" />
                 </button>
@@ -521,7 +521,7 @@ export default function LandingPage() {
 
             {/* Pro Tier (Popular) */}
             <div className="bg-gradient-to-b from-emerald-950/60 to-slate-900 p-6 rounded-3xl border-2 border-emerald-500/40 shadow-2xl relative flex flex-col justify-between">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-wider px-3 py-0.5 rounded-full shadow">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-700 text-white text-[10px] font-black uppercase tracking-wider px-3 py-0.5 rounded-full shadow">
                 {t('core.landing.pricing.pro.mostPopular')}
               </div>
 
@@ -545,7 +545,7 @@ export default function LandingPage() {
 
               <button
                 onClick={() => navigate('/register')}
-                className="mt-6 w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-emerald-600/20 transition cursor-pointer"
+                className="mt-6 w-full py-2.5 bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-bold rounded-xl shadow-lg shadow-emerald-600/20 transition cursor-pointer"
               >
                 {t('core.landing.pricing.pro.cta')}
               </button>
