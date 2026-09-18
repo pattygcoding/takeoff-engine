@@ -4,7 +4,7 @@ import { X } from 'lucide-react';
 import { useAuth } from '@/core/components/context/AuthContext';
 import { authApi } from '@/core/lib/auth/auth';
 import { useTranslation } from '@/core/components/context/I18nContext';
-import { isValidPhoneNumber } from '@/core/lib/shared/validators';
+import { isValidPassword, isValidPhoneNumber, PASSWORD_MIN_LENGTH } from '@/core/lib/shared/validators';
 import { CURRENT_TERMS_VERSION } from '@/core/constants';
 
 export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
@@ -68,6 +68,11 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
 
     if (!isValidPhoneNumber(registerPhone)) {
       setError(t('core.authModal.errValidPhone'));
+      return;
+    }
+
+    if (!isValidPassword(registerPassword)) {
+      setError(t('core.authModal.errPasswordRequirements'));
       return;
     }
 
@@ -301,7 +306,7 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
                 <input
                   type="password"
                   required
-                  minLength={6}
+                  minLength={PASSWORD_MIN_LENGTH}
                   value={registerPassword}
                   onChange={(e) => setRegisterPassword(e.target.value)}
                   placeholder={t('core.authModal.passwordPlaceholder')}

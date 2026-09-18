@@ -7,7 +7,7 @@ import { openPaddleCheckout } from '@/core/lib/billing/paddle';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import SeoHead from '@/core/components/shared/SeoHead';
 import { ArrowLeft, AlertTriangle, PartyPopper, Check, ArrowRight } from 'lucide-react';
-import { isValidPhoneNumber } from '@/core/lib/shared/validators';
+import { isValidPassword, isValidPhoneNumber, PASSWORD_MIN_LENGTH } from '@/core/lib/shared/validators';
 import {
   STARTER_MONTHLY_PRICE,
   PRO_MONTHLY_PRICE,
@@ -101,8 +101,8 @@ export default function LoginPage({ initialView = 'login' }) {
       return;
     }
 
-    if (registerPassword.length < 6) {
-      setError(t('core.loginPage.errPasswordMin'));
+    if (!isValidPassword(registerPassword)) {
+      setError(t('core.loginPage.errPasswordRequirements'));
       return;
     }
 
@@ -681,7 +681,7 @@ export default function LoginPage({ initialView = 'login' }) {
                     autoComplete="new-password"
                     type={showRegisterPassword ? 'text' : 'password'}
                     required
-                    minLength={6}
+                    minLength={PASSWORD_MIN_LENGTH}
                     value={registerPassword}
                     onChange={(e) => setRegisterPassword(e.target.value)}
                     placeholder={t('core.loginPage.passwordPlaceholder')}

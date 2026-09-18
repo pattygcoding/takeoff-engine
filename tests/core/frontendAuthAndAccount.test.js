@@ -1,5 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
+import { isValidPassword } from '#core/lib/shared/validators.js';
 
 describe('Frontend Authentication & Account Lifecycle Tests', () => {
   const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -14,12 +15,12 @@ describe('Frontend Authentication & Account Lifecycle Tests', () => {
       assert.strictEqual(EMAIL_REGEX.test('spaces in email@domain.com'), false);
     });
 
-    it('enforces password minimum length requirements (>= 6 characters)', () => {
-      const validatePassword = (pass) => typeof pass === 'string' && pass.length >= 6;
-      assert.strictEqual(validatePassword('12345'), false);
-      assert.strictEqual(validatePassword(''), false);
-      assert.strictEqual(validatePassword('123456'), true);
-      assert.strictEqual(validatePassword('SuperSecurePass2026!'), true);
+    it('enforces password length and character requirements', () => {
+      assert.strictEqual(isValidPassword('Ab1!xyz'), false);
+      assert.strictEqual(isValidPassword('12345678'), false);
+      assert.strictEqual(isValidPassword('SecurePass!'), false);
+      assert.strictEqual(isValidPassword('Secure1234'), false);
+      assert.strictEqual(isValidPassword('Secure123!'), true);
     });
 
     it('sanitizes registration form fields before submission', () => {

@@ -53,7 +53,7 @@ export default function LandingPage() {
   const estimatedTotalTrenchBid = estimatedExcavationCost + estimatedLaborCost;
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 font-sans selection:bg-indigo-500 selection:text-white">
+    <div className="min-h-screen bg-slate-900 text-slate-100 font-sans selection:bg-emerald-500 selection:text-white">
       <SeoHead
         title={t('core.seo.landing.title', 'Takeoff Engine — Construction Proposal Maker & Takeoff Software')}
         description={t('core.seo.landing.description', 'Generate accurate civil takeoff estimates, trench volume calculations, and client-ready digital construction proposals from Bluebeam and Excel spreadsheets.')}
@@ -66,10 +66,7 @@ export default function LandingPage() {
             to="/home"
             className="flex items-center gap-3 cursor-pointer"
           >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-cyan-500 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-indigo-500/25">
-              T
-            </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+            <span className="text-xl font-bold text-slate-100">
               Takeoff Engine
             </span>
           </Link>
@@ -91,7 +88,7 @@ export default function LandingPage() {
             </button>
             <button
               onClick={() => navigate('/register')}
-              className="px-4 py-2 text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl shadow-lg shadow-indigo-600/30 transition transform active:scale-95"
+              className="px-4 py-2 text-sm font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow-lg shadow-emerald-600/20 transition transform active:scale-95"
             >
               {t('core.landing.nav.getStartedFree')}
             </button>
@@ -164,7 +161,7 @@ export default function LandingPage() {
                   setMobileMenuOpen(false);
                   navigate('/register');
                 }}
-                className="w-full text-center px-4 py-2 text-sm font-bold bg-indigo-600 text-white rounded-xl"
+                className="w-full text-center px-4 py-2 text-sm font-bold bg-emerald-600 text-white rounded-xl"
               >
                 {t('core.landing.nav.getStartedFree')}
               </button>
@@ -175,18 +172,18 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="relative pt-20 pb-28 overflow-hidden">
         {/* Glow backdrop */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-20 right-10 w-[400px] h-[400px] bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-emerald-500/8 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-20 right-10 w-[400px] h-[400px] bg-slate-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-semibold mb-8">
-            <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-semibold mb-8">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             {t('core.landing.hero.badge')}
           </div>
 
           <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-white max-w-4xl mx-auto leading-[1.1]">
-            {t('core.landing.hero.title')}{' '}
-            <span className="bg-gradient-to-r from-indigo-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+            <span className="block">{t('core.landing.hero.title')}</span>
+            <span className="block text-emerald-400">
               {t('core.landing.hero.titleHighlight')}
             </span>
           </h1>
@@ -198,7 +195,7 @@ export default function LandingPage() {
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <button
               onClick={() => navigate('/login')}
-              className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold rounded-2xl shadow-xl shadow-indigo-500/25 transition transform hover:-translate-y-0.5"
+              className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-2xl shadow-xl shadow-emerald-500/20 transition transform hover:-translate-y-0.5"
             >
               {t('core.landing.hero.ctaTrial')}
             </button>
@@ -222,7 +219,7 @@ export default function LandingPage() {
       <section id="calculator" className="py-20 bg-slate-800/50 border-y border-slate-800 relative">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <span className="text-xs font-bold uppercase tracking-widest text-indigo-400">
+            <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">
               {t('core.landing.calculator.tag')}
             </span>
             <h2 className="text-3xl font-extrabold text-white mt-2">
@@ -250,7 +247,7 @@ export default function LandingPage() {
                     type="number"
                     value={pipeLength}
                     onChange={(e) => setPipeLength(Math.max(0, Number(e.target.value)))}
-                    className="w-full px-3.5 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    className="w-full px-3.5 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                   />
                 </div>
                 <div>
@@ -263,7 +260,7 @@ export default function LandingPage() {
                     step="0.5"
                     value={trenchDepth}
                     onChange={(e) => setTrenchDepth(Math.max(0, Number(e.target.value)))}
-                    className="w-full px-3.5 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    className="w-full px-3.5 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                   />
                 </div>
               </div>
@@ -279,7 +276,7 @@ export default function LandingPage() {
                     step="0.5"
                     value={trenchWidth}
                     onChange={(e) => setTrenchWidth(Math.max(0, Number(e.target.value)))}
-                    className="w-full px-3.5 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    className="w-full px-3.5 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                   />
                 </div>
                 <div>
@@ -291,7 +288,7 @@ export default function LandingPage() {
                     type="number"
                     value={pipeDiameterInches}
                     onChange={(e) => setPipeDiameterInches(Math.max(1, Number(e.target.value)))}
-                    className="w-full px-3.5 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    className="w-full px-3.5 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                   />
                 </div>
               </div>
@@ -306,7 +303,7 @@ export default function LandingPage() {
                     type="number"
                     value={excavationRatePerCy}
                     onChange={(e) => setExcavationRatePerCy(Math.max(0, Number(e.target.value)))}
-                    className="w-full px-3.5 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    className="w-full px-3.5 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                   />
                 </div>
                 <div>
@@ -318,16 +315,16 @@ export default function LandingPage() {
                     type="number"
                     value={laborRate}
                     onChange={(e) => setLaborRate(Math.max(0, Number(e.target.value)))}
-                    className="w-full px-3.5 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    className="w-full px-3.5 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                   />
                 </div>
               </div>
             </div>
 
             {/* Live Calculation Output Dashboard */}
-            <div className="lg:col-span-6 bg-gradient-to-b from-indigo-950/60 to-slate-900 p-6 sm:p-8 rounded-3xl border border-indigo-500/30 shadow-2xl relative">
+            <div className="lg:col-span-6 bg-gradient-to-b from-slate-800/80 to-slate-900 p-6 sm:p-8 rounded-3xl border border-emerald-500/20 shadow-2xl relative">
               <div className="flex items-center justify-between mb-6">
-                <span className="text-xs font-bold uppercase tracking-wider text-indigo-400">
+                <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
                   {t('core.landing.calculator.outputHeader')}
                 </span>
                 <span className="text-[10px] bg-emerald-500/20 text-emerald-400 font-bold px-2.5 py-1 rounded-full border border-emerald-500/30">
@@ -345,13 +342,13 @@ export default function LandingPage() {
 
                 <div className="bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
                   <span className="text-xs text-slate-400 block mb-1">{t('core.landing.calculator.netBackfill')}</span>
-                  <div className="text-2xl font-black text-cyan-400">
+                  <div className="text-2xl font-black text-emerald-400">
                     {formatNumber(backfillCuYd, 1)} <span className="text-sm font-normal text-slate-400">CY</span>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-indigo-900/30 p-5 rounded-2xl border border-indigo-500/20 mb-6">
+              <div className="bg-emerald-900/20 p-5 rounded-2xl border border-emerald-500/20 mb-6">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-xs text-slate-300">{t('core.landing.calculator.machineCost')}</span>
                   <span className="text-sm font-bold text-white">{formatCurrency(estimatedExcavationCost)}</span>
@@ -362,8 +359,8 @@ export default function LandingPage() {
                   </span>
                   <span className="text-sm font-bold text-white">{formatCurrency(estimatedLaborCost)}</span>
                 </div>
-                <div className="pt-3 border-t border-indigo-500/30 flex justify-between items-center">
-                  <span className="text-sm font-bold text-indigo-200">{t('core.landing.calculator.directBid')}</span>
+                <div className="pt-3 border-t border-emerald-500/20 flex justify-between items-center">
+                  <span className="text-sm font-bold text-emerald-200">{t('core.landing.calculator.directBid')}</span>
                   <span className="text-2xl font-black text-emerald-400">{formatCurrency(estimatedTotalTrenchBid)}</span>
                 </div>
               </div>
@@ -371,7 +368,7 @@ export default function LandingPage() {
               <div className="pt-2 text-center">
                 <button
                   onClick={() => navigate('/register')}
-                  className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition text-center mb-2 inline-flex items-center justify-center gap-2"
+                  className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-xl shadow-lg shadow-emerald-600/20 transition text-center mb-2 inline-flex items-center justify-center gap-2"
                 >
                   {t('core.landing.calculator.importCta')} <ArrowRight className="w-4 h-4" />
                 </button>
@@ -379,7 +376,7 @@ export default function LandingPage() {
                   {t('core.landing.calculator.exportPrompt')}{' '}
                   <button
                     onClick={() => navigate('/register')}
-                    className="text-indigo-400 hover:text-indigo-300 font-semibold underline inline-flex items-center gap-1"
+                    className="text-emerald-400 hover:text-emerald-300 font-semibold underline inline-flex items-center gap-1"
                   >
                     {t('core.landing.calculator.createAccount')} <ArrowRight className="w-3.5 h-3.5" />
                   </button>
@@ -393,7 +390,7 @@ export default function LandingPage() {
       {/* Feature Comparison Table */}
       <section id="comparison" className="py-20 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <span className="text-xs font-bold uppercase tracking-widest text-indigo-400">{t('core.landing.comparison.tag')}</span>
+          <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">{t('core.landing.comparison.tag')}</span>
           <h2 className="text-3xl font-extrabold text-white mt-2">
             {t('core.landing.comparison.title')}
           </h2>
@@ -402,46 +399,54 @@ export default function LandingPage() {
           </p>
         </div>
 
-        <div tabIndex={0} role="region" aria-label={t('core.landing.comparison.title')} className="overflow-x-auto">
-          <table className="w-full text-left text-sm border-collapse">
+        <div tabIndex={0} role="region" aria-label={t('core.landing.comparison.title')} className="overflow-x-auto border-[1.5px] border-slate-100/80 bg-slate-950/80">
+          <table className="w-full table-fixed text-left text-sm border-collapse">
             <thead>
               <tr className="border-b border-slate-800 text-xs font-bold uppercase tracking-wider text-slate-400">
-                <th className="py-4 px-6 bg-slate-900/40">{t('core.landing.comparison.thCapability')}</th>
-                <th className="py-4 px-6 bg-indigo-950/60 text-indigo-300 border-x border-indigo-500/30">{t('core.landing.comparison.thTakeoffEngine')}</th>
-                <th className="py-4 px-6 bg-slate-900/40">{t('core.landing.comparison.thExcel')}</th>
-                <th className="py-4 px-6 bg-slate-900/40">{t('core.landing.comparison.thEnterprise')}</th>
+                <th className="py-4 px-6 bg-slate-900/40 align-top">{t('core.landing.comparison.thCapability')}</th>
+                <th className="py-4 px-6 bg-emerald-950/40 text-emerald-300 border-x border-emerald-500/20 align-top">{t('core.landing.comparison.thTakeoffEngine')}</th>
+                <th className="py-4 px-6 bg-slate-900/40 align-top">{t('core.landing.comparison.thExcel')}</th>
+                <th className="py-4 px-6 bg-slate-900/40 align-top">{t('core.landing.comparison.thEnterprise')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800">
               <tr>
-                <td className="py-4 px-6 font-medium text-slate-200">{t('core.landing.comparison.row1Label')}</td>
-                <td className="py-4 px-6 font-bold text-emerald-400 bg-indigo-950/30 border-x border-indigo-500/20">{t('core.landing.comparison.row1Te', { price: Math.floor(STARTER_MONTHLY_PRICE) })}</td>
-                <td className="py-4 px-6 text-slate-400">{t('core.landing.comparison.row1Excel')}</td>
-                <td className="py-4 px-6 text-red-400">{t('core.landing.comparison.row1Ent')}</td>
+                <td className="py-4 px-6 font-medium text-slate-200 align-middle">{t('core.landing.comparison.row1Label')}</td>
+                <td className="py-4 px-6 font-bold text-emerald-400 bg-emerald-950/20 border-x border-emerald-500/20 align-middle">{t('core.landing.comparison.row1Te', { price: Math.floor(STARTER_MONTHLY_PRICE) })}</td>
+                <td className="py-4 px-6 text-slate-400 align-middle">{t('core.landing.comparison.row1Excel')}</td>
+                <td className="py-4 px-6 text-red-400 align-middle">{t('core.landing.comparison.row1Ent')}</td>
               </tr>
               <tr>
-                <td className="py-4 px-6 font-medium text-slate-200">{t('core.landing.comparison.row2Label')}</td>
-                <td className="py-4 px-6 font-bold text-emerald-400 bg-indigo-950/30 border-x border-indigo-500/20 inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 shrink-0" /> {t('core.landing.comparison.row2Te')}</td>
-                <td className="py-4 px-6 text-slate-400"><X className="w-3.5 h-3.5 inline mr-1 -mt-0.5" />{t('core.landing.comparison.row2Excel')}</td>
-                <td className="py-4 px-6 text-slate-400"><AlertTriangle className="w-3.5 h-3.5 inline mr-1 -mt-0.5" />{t('core.landing.comparison.row2Ent')}</td>
+                <td className="py-4 px-6 font-medium text-slate-200 align-middle">{t('core.landing.comparison.row2Label')}</td>
+                <td className="py-4 px-6 font-bold text-emerald-400 bg-emerald-950/20 border-x border-emerald-500/20 align-middle">
+                  <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 shrink-0" /> {t('core.landing.comparison.row2Te')}</span>
+                </td>
+                <td className="py-4 px-6 text-slate-400 align-middle"><span className="inline-flex items-center gap-1.5"><X className="w-3.5 h-3.5 shrink-0" />{t('core.landing.comparison.row2Excel')}</span></td>
+                <td className="py-4 px-6 text-slate-400 align-middle"><span className="inline-flex items-center gap-1.5"><AlertTriangle className="w-3.5 h-3.5 shrink-0" />{t('core.landing.comparison.row2Ent')}</span></td>
               </tr>
               <tr>
-                <td className="py-4 px-6 font-medium text-slate-200">{t('core.landing.comparison.row3Label')}</td>
-                <td className="py-4 px-6 font-bold text-emerald-400 bg-indigo-950/30 border-x border-indigo-500/20 inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 shrink-0" /> {t('core.landing.comparison.row3Te')}</td>
-                <td className="py-4 px-6 text-slate-400"><X className="w-3.5 h-3.5 inline mr-1 -mt-0.5" />{t('core.landing.comparison.row3Excel')}</td>
-                <td className="py-4 px-6 text-slate-400"><AlertTriangle className="w-3.5 h-3.5 inline mr-1 -mt-0.5" />{t('core.landing.comparison.row3Ent')}</td>
+                <td className="py-4 px-6 font-medium text-slate-200 align-middle">{t('core.landing.comparison.row3Label')}</td>
+                <td className="py-4 px-6 font-bold text-emerald-400 bg-emerald-950/20 border-x border-emerald-500/20 align-middle">
+                  <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 shrink-0" /> {t('core.landing.comparison.row3Te')}</span>
+                </td>
+                <td className="py-4 px-6 text-slate-400 align-middle"><span className="inline-flex items-center gap-1.5"><X className="w-3.5 h-3.5 shrink-0" />{t('core.landing.comparison.row3Excel')}</span></td>
+                <td className="py-4 px-6 text-slate-400 align-middle"><span className="inline-flex items-center gap-1.5"><AlertTriangle className="w-3.5 h-3.5 shrink-0" />{t('core.landing.comparison.row3Ent')}</span></td>
               </tr>
               <tr>
-                <td className="py-4 px-6 font-medium text-slate-200">{t('core.landing.comparison.row4Label')}</td>
-                <td className="py-4 px-6 font-bold text-emerald-400 bg-indigo-950/30 border-x border-indigo-500/20 inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 shrink-0" /> {t('core.landing.comparison.row4Te')}</td>
-                <td className="py-4 px-6 text-slate-400"><X className="w-3.5 h-3.5 inline mr-1 -mt-0.5" />{t('core.landing.comparison.row4Excel')}</td>
-                <td className="py-4 px-6 text-slate-400"><X className="w-3.5 h-3.5 inline mr-1 -mt-0.5" />{t('core.landing.comparison.row4Ent')}</td>
+                <td className="py-4 px-6 font-medium text-slate-200 align-middle">{t('core.landing.comparison.row4Label')}</td>
+                <td className="py-4 px-6 font-bold text-emerald-400 bg-emerald-950/20 border-x border-emerald-500/20 align-middle">
+                  <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 shrink-0" /> {t('core.landing.comparison.row4Te')}</span>
+                </td>
+                <td className="py-4 px-6 text-slate-400 align-middle"><span className="inline-flex items-center gap-1.5"><X className="w-3.5 h-3.5 shrink-0" />{t('core.landing.comparison.row4Excel')}</span></td>
+                <td className="py-4 px-6 text-slate-400 align-middle"><span className="inline-flex items-center gap-1.5"><X className="w-3.5 h-3.5 shrink-0" />{t('core.landing.comparison.row4Ent')}</span></td>
               </tr>
               <tr>
-                <td className="py-4 px-6 font-medium text-slate-200">{t('core.landing.comparison.row5Label')}</td>
-                <td className="py-4 px-6 font-bold text-emerald-400 bg-indigo-950/30 border-x border-indigo-500/20 inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 shrink-0" /> {t('core.landing.comparison.row5Te')}</td>
-                <td className="py-4 px-6 text-slate-400"><X className="w-3.5 h-3.5 inline mr-1 -mt-0.5" />{t('core.landing.comparison.row5Excel')}</td>
-                <td className="py-4 px-6 text-emerald-400"><Check className="w-3.5 h-3.5 inline mr-1 -mt-0.5" />{t('core.landing.comparison.row5Ent')}</td>
+                <td className="py-4 px-6 font-medium text-slate-200 align-middle">{t('core.landing.comparison.row5Label')}</td>
+                <td className="py-4 px-6 font-bold text-emerald-400 bg-emerald-950/20 border-x border-emerald-500/20 align-middle">
+                  <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 shrink-0" /> {t('core.landing.comparison.row5Te')}</span>
+                </td>
+                <td className="py-4 px-6 text-slate-400 align-middle"><span className="inline-flex items-center gap-1.5"><X className="w-3.5 h-3.5 shrink-0" />{t('core.landing.comparison.row5Excel')}</span></td>
+                <td className="py-4 px-6 text-emerald-400 align-middle"><span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 shrink-0" />{t('core.landing.comparison.row5Ent')}</span></td>
               </tr>
             </tbody>
           </table>
@@ -452,7 +457,7 @@ export default function LandingPage() {
       <section id="pricing" className="py-20 bg-slate-800/40 border-t border-slate-800">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <span className="text-xs font-bold uppercase tracking-widest text-indigo-400">{t('core.landing.pricing.tag')}</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">{t('core.landing.pricing.tag')}</span>
             <h2 className="text-3xl font-extrabold text-white mt-2">
               {t('core.landing.pricing.title')}
             </h2>
@@ -518,32 +523,32 @@ export default function LandingPage() {
             </div>
 
             {/* Pro Tier (Popular) */}
-            <div className="bg-gradient-to-b from-indigo-950/80 to-slate-900 p-6 rounded-3xl border-2 border-indigo-500 shadow-2xl relative flex flex-col justify-between">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-wider px-3 py-0.5 rounded-full shadow">
+            <div className="bg-gradient-to-b from-emerald-950/60 to-slate-900 p-6 rounded-3xl border-2 border-emerald-500/40 shadow-2xl relative flex flex-col justify-between">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-wider px-3 py-0.5 rounded-full shadow">
                 {t('core.landing.pricing.pro.mostPopular')}
               </div>
 
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-indigo-400">{t('core.landing.pricing.pro.tier')}</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">{t('core.landing.pricing.pro.tier')}</span>
                 <div className="mt-4 flex items-baseline gap-1">
                   <span className="text-3xl font-black text-white">{t('core.landing.pricing.pro.price', { price: PRO_MONTHLY_PRICE })}</span>
                   <span className="text-xs text-slate-400">{t('core.landing.pricing.pro.cadence')}</span>
                 </div>
-                <div className="text-[10px] text-indigo-300/80 font-medium mt-0.5">{t('core.landing.pricing.pro.yearly', { yearly: PRO_YEARLY_PRICE })}</div>
+                <div className="text-[10px] text-emerald-300/80 font-medium mt-0.5">{t('core.landing.pricing.pro.yearly', { yearly: PRO_YEARLY_PRICE })}</div>
                 <p className="text-xs text-slate-300 mt-2">{t('core.landing.pricing.pro.description')}</p>
 
                 <ul className="mt-6 space-y-2.5 text-xs text-slate-200">
-                  <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-400 shrink-0" /> <strong>{t('core.landing.pricing.pro.f1', { seats: PRO_PLAN_SEATS })}</strong></li>
-                  <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-400 shrink-0" /> <strong>{t('core.landing.pricing.pro.f2')}</strong></li>
-                  <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-400 shrink-0" /> <strong>{t('core.landing.pricing.pro.f3')}</strong></li>
-                  <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-400 shrink-0" /> <strong>{t('core.landing.pricing.pro.f4')}</strong></li>
-                  <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-400 shrink-0" /> {t('core.landing.pricing.pro.f5')}</li>
+                  <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> <strong>{t('core.landing.pricing.pro.f1', { seats: PRO_PLAN_SEATS })}</strong></li>
+                  <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> <strong>{t('core.landing.pricing.pro.f2')}</strong></li>
+                  <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> <strong>{t('core.landing.pricing.pro.f3')}</strong></li>
+                  <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> <strong>{t('core.landing.pricing.pro.f4')}</strong></li>
+                  <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> {t('core.landing.pricing.pro.f5')}</li>
                 </ul>
               </div>
 
               <button
                 onClick={() => navigate('/register')}
-                className="mt-6 w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition cursor-pointer"
+                className="mt-6 w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-emerald-600/20 transition cursor-pointer"
               >
                 {t('core.landing.pricing.pro.cta')}
               </button>

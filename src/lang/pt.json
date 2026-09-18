@@ -139,7 +139,7 @@
         "pricingPlans": "Planos e Preços",
         "signIn": "Entrar",
         "createAccount": "Criar Conta",
-        "tagline": "Takeoff Engine — Plataforma de Orçamento para Obras e Redes",
+        "tagline": "Takeoff Engine - Plataforma de Orçamento para Obras e Redes",
         "copyright": "© {{year}} Takeoff Engine. Todos os direitos reservados.",
         "acceptableUsePolicy": "Política de Uso Aceitável e Suspensão"
       },
@@ -915,7 +915,7 @@
       "counterError": "Falha ao enviar a contraproposta.",
       "inclusionsHeader": "Incluso pelo Empreiteiro",
       "exclusionsHeader": "Excluso (A cargo do Cliente / Terceiros)",
-      "footerTagline": "Takeoff Engine — Plataforma de Levantamento e Orçamento de Obras",
+      "footerTagline": "Takeoff Engine - Plataforma de Levantamento e Orçamento de Obras",
       "license": "CREA / Registro: #{{license}}"
     },
     "columnMappingModal": {

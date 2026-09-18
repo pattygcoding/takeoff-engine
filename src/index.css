@@ -2,13 +2,36 @@
 
 @variant dark (&:where(.dark, .dark *));
 
+:root {
+  --app-font: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--app-font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  font-family: var(--app-font);
+}
+
 html.dark {
   color-scheme: dark;
 }
 
 body {
   margin: 0;
+  font-family: var(--app-font);
+  letter-spacing: -0.01em;
   transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+h1, h2, h3, h4, h5, h6,
+button, input, textarea, select {
+  font-family: var(--app-font);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -0.025em;
+  font-weight: 700;
 }
 
 [id], :focus-visible {

@@ -139,7 +139,7 @@
         "pricingPlans": "Grille Tarifaire",
         "signIn": "Se Connecter",
         "createAccount": "Créer un Compte",
-        "tagline": "Takeoff Engine — Plateforme de Chiffrage VRD, Terrassement & BTP",
+        "tagline": "Takeoff Engine - Plateforme de Chiffrage VRD, Terrassement & BTP",
         "copyright": "© {{year}} Takeoff Engine. Tous droits réservés.",
         "acceptableUsePolicy": "Conditions d'Utilisation & Suspension"
       },
@@ -915,7 +915,7 @@
       "counterError": "Échec de l'envoi de la contre-proposition.",
       "inclusionsHeader": "Prestations Incluses par l'Entreprise",
       "exclusionsHeader": "Prestations Exclues (À la charge du Maître d'Ouvrage / Autres Corps d'État)",
-      "footerTagline": "Takeoff Engine — Plateforme d'Estimation & Métré pour le BTP",
+      "footerTagline": "Takeoff Engine - Plateforme d'Estimation & Métré pour le BTP",
       "license": "Agrément / Siret : #{{license}}"
     },
     "columnMappingModal": {
@@ -1180,7 +1180,7 @@
       "subtotal": "Total",
       "totalBid": "Enchère totale",
       "footerBranded": "Préparé par {{company}} à l'aide de Takeoff Engine Pro",
-      "footerDefault": "Généré avec Takeoff Engine — Décollages et estimations de construction automatisés",
+      "footerDefault": "Généré avec Takeoff Engine - Décollages et estimations de construction automatisés",
       "fallbackContractor": "Entrepreneur"
     },
     "uploadStep": {

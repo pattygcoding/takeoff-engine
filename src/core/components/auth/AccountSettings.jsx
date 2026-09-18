@@ -6,7 +6,7 @@ import { billingApi } from '@/core/lib/billing/billing';
 import { useModal } from '@/core/components/context/ModalContext';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import { useNavigate } from 'react-router-dom';
-import { isValidPhoneNumber } from '@/core/lib/shared/validators';
+import { isValidPassword, isValidPhoneNumber, PASSWORD_MIN_LENGTH } from '@/core/lib/shared/validators';
 import TeamWorkspaceManager from './TeamWorkspaceManager';
 import UpgradeModal from '@/core/components/billing/UpgradeModal';
 
@@ -255,8 +255,8 @@ export default function AccountSettings() {
       return;
     }
 
-    if (newPassword.length < 6) {
-      setPasswordErr('New password must be at least 6 characters long.');
+    if (!isValidPassword(newPassword)) {
+      setPasswordErr(t('core.accountSettings.errPasswordRequirements'));
       return;
     }
 
@@ -864,7 +864,7 @@ export default function AccountSettings() {
                   <input
                     type={showNewPassword ? 'text' : 'password'}
                     required
-                    minLength={6}
+                    minLength={PASSWORD_MIN_LENGTH}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder={t('core.accountSettings.newPasswordPlaceholder', '••••••••')}

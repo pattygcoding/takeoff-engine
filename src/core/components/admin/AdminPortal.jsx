@@ -5,7 +5,7 @@ import { formatCurrency, formatNumber } from '@/product/lib/calculations';
 import { useAuth } from '@/core/components/context/AuthContext';
 import { useModal } from '@/core/components/context/ModalContext';
 import { useNavigate } from 'react-router-dom';
-import { isValidPhoneNumber } from '@/core/lib/shared/validators';
+import { isValidPassword, isValidPhoneNumber, PASSWORD_MIN_LENGTH } from '@/core/lib/shared/validators';
 import {
   STARTER_MONTHLY_PRICE,
   PRO_MONTHLY_PRICE,
@@ -443,8 +443,8 @@ export default function AdminPortal() {
       if (!userFormData.email || !userFormData.password || !userFormData.username) {
         throw new Error('Email, username, and password are required.');
       }
-      if (userFormData.password.length < 6) {
-        throw new Error('Password must be at least 6 characters.');
+      if (!isValidPassword(userFormData.password)) {
+        throw new Error('Password must be at least 8 characters and include uppercase, lowercase, number, and special character.');
       }
       if (!isValidPhoneNumber(userFormData.phoneNumber)) {
         throw new Error('Please enter a valid 10-digit phone number.');
@@ -1095,11 +1095,12 @@ export default function AdminPortal() {
 
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Password <span className="text-red-400">*</span> (min. 6 characters)
+                  Password <span className="text-red-400">*</span> (8+ chars, upper/lowercase, number, special character)
                 </label>
                 <input
                   type="password"
                   required
+                  minLength={PASSWORD_MIN_LENGTH}
                   placeholder="••••••••"
                   value={userFormData.password}
                   onChange={(e) => setUserFormData({ ...userFormData, password: e.target.value })}
