@@ -13,13 +13,13 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const initAuth = async () => {
       try {
+        await authApi.getCsrfToken();
         // Handle Supabase Auth email redirect tokens from hash (e.g. #access_token=...&type=signup)
         if (window.location.hash && window.location.hash.includes('access_token=')) {
           const params = new URLSearchParams(window.location.hash.substring(1));
           const accessToken = params.get('access_token');
           if (accessToken) {
-            localStorage.setItem('takeoff_token', accessToken);
-            // Clean up the hash from the browser URL bar
+            await authApi.exchangeSession(accessToken);
             window.history.replaceState(null, '', window.location.pathname);
           }
         }
@@ -42,7 +42,6 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     const data = await authApi.login(credentials);
-    localStorage.setItem('takeoff_token', data.session?.access_token);
     localStorage.setItem('takeoff_user', JSON.stringify(data.user));
     setUser(data.user);
     return data;
@@ -50,9 +49,6 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     const data = await authApi.register(userData);
-    localStorage.setItem('takeoff_token', data.session?.access_token);
-    localStorage.setItem('takeoff_user', JSON.stringify(data.user));
-    setUser(data.user);
     return data;
   };
 

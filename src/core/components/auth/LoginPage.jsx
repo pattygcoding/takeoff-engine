@@ -118,7 +118,7 @@ export default function LoginPage({ initialView = 'login' }) {
 
     setLoading(true);
     try {
-      await register({
+      const registration = await register({
         username: registerUsername,
         password: registerPassword,
         firstName: registerFirstName,
@@ -129,8 +129,8 @@ export default function LoginPage({ initialView = 'login' }) {
         termsVersion: CURRENT_TERMS_VERSION,
       });
 
-      // Route immediately to the dedicated /onboarding screen
-      navigate('/onboarding', { replace: true });
+      setMessage(registration.message || t('core.loginPage.emailVerificationSent'));
+      switchView('login');
     } catch (err) {
       setError(err.message || t('core.loginPage.errRegisterFailed'));
     } finally {

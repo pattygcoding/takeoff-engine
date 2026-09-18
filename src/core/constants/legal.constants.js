@@ -4,4 +4,4 @@
  * CURRENT_TERMS_VERSION in takeoff-engine-backend/src/core/constants/legal.js.
  * Bump when those documents are materially changed.
  */
-export const CURRENT_TERMS_VERSION = '2026-08-01';
+export const CURRENT_TERMS_VERSION = '2026-09-18';

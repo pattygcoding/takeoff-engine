@@ -3,10 +3,8 @@ import { getTranslation } from '@/core/lib/shared/i18n';
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const getAuthHeaders = () => {
-  const token = localStorage.getItem('takeoff_token');
   return {
     'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 };
 

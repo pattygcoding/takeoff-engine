@@ -3,14 +3,19 @@ import { getTranslation } from '@/core/lib/shared/i18n';
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const getAuthHeaders = () => {
-  const token = localStorage.getItem('takeoff_token');
   return {
     'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 };
 
 export const authApi = {
+  async getCsrfToken() {
+    const res = await fetch(`${API_BASE_URL}/auth/csrf-token`);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Unable to initialize the secure session.');
+    sessionStorage.setItem('takeoff_csrf', data.csrfToken);
+  },
+
   async register({ username, password, firstName, lastName, email, phoneNumber, acceptedTerms, termsVersion, _gotcha, website_url }) {
     const res = await fetch(`${API_BASE_URL}/auth/register`, {
       method: 'POST',
@@ -48,6 +53,17 @@ export const authApi = {
     return data;
   },
 
+  async exchangeSession(accessToken) {
+    const res = await fetch(`${API_BASE_URL}/auth/exchange-session`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ accessToken }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Unable to establish a secure session.');
+    return data;
+  },
+
   async logout() {
     try {
       await fetch(`${API_BASE_URL}/auth/logout`, {
@@ -57,20 +73,16 @@ export const authApi = {
     } catch {
       // Ignore network errors on logout
     }
-    localStorage.removeItem('takeoff_token');
     localStorage.removeItem('takeoff_user');
+    sessionStorage.removeItem('takeoff_csrf');
   },
 
   async getMe() {
-    const token = localStorage.getItem('takeoff_token');
-    if (!token) return null;
-
     const res = await fetch(`${API_BASE_URL}/auth/me`, {
       method: 'GET',
       headers: getAuthHeaders(),
     });
     if (!res.ok) {
-      localStorage.removeItem('takeoff_token');
       localStorage.removeItem('takeoff_user');
       return null;
     }
@@ -139,8 +151,8 @@ export const authApi = {
     if (!res.ok) {
       throw new Error(data.error || getTranslation('core.apiErrors.accountDeletionFailed'));
     }
-    localStorage.removeItem('takeoff_token');
     localStorage.removeItem('takeoff_user');
+    sessionStorage.removeItem('takeoff_csrf');
     return data;
   },
 

@@ -525,6 +525,7 @@
       "privacyPolicyLink": "Privacy Policy",
       "errLoginFailed": "Login failed",
       "errRegisterFailed": "Registration failed",
+      "emailVerificationSent": "Account created. Check your email to verify your address before logging in.",
       "errResetFailed": "Failed to request reset",
       "resetLinkSent": "Password reset link sent to your email.",
       "selectPlanTitle": "Choose Your Plan to Get Started",
@@ -770,8 +771,12 @@
       "s4Body": "Takeoff Engine and its original algorithms, designs, and features remain the exclusive property of Takeoff Engine. Users retain full ownership of their uploaded files, custom rate libraries, and generated bid documents.",
       "s5Title": "Limitation of Liability",
       "s5Body": "Takeoff Engine is an estimating calculation tool. Users are solely responsible for field verification and final bid amounts. In no event shall Takeoff Engine be liable for indirect, incidental, special, or consequential damages resulting from estimates.",
-      "s6Title": "Contact Information",
-      "s6Body": "For inquiries regarding these Terms of Service, contact pattygsocials@gmail.com."
+      "s6Title": "User Content, Rights & License",
+      "s6Body": "You retain ownership of content you submit to the Service, including profile images, avatars, company logos, photos, project files, attachments, rate libraries, and generated documents (collectively, \"User Content\"). You represent and warrant that you own User Content or have all rights, permissions, releases, and authority needed to submit it and grant the rights below, and that it does not infringe intellectual-property, privacy, publicity, contractual, or other rights. You grant Takeoff Engine a non-exclusive, worldwide, royalty-free license to host, store, reproduce, process, transmit, and display User Content only as reasonably necessary to operate, secure, support, improve, and provide the Service. This license ends when User Content is deleted from the Service, except for limited backup, legal-retention, and dispute-resolution purposes.",
+      "s7Title": "Content Enforcement, Copyright Claims & Indemnity",
+      "s7Body": "Takeoff Engine may, but is not required to, review, remove, disable access to, preserve, or disclose User Content when it reasonably believes doing so is necessary to enforce these Terms, address a claim, protect rights or safety, or comply with law. We may suspend or terminate accounts of repeat or serious infringers. Copyright or other intellectual-property reports should identify the protected work, the allegedly infringing material and its location, your contact information, the basis of your authority, a good-faith statement, and a statement under penalty of perjury that the report is accurate. To the maximum extent permitted by law, you will defend, indemnify, and hold harmless Takeoff Engine and its affiliates, officers, employees, and agents from claims, losses, liabilities, damages, costs, and expenses, including reasonable attorneys' fees, arising from your User Content, your infringement or alleged infringement of another's rights, or your breach of these Terms.",
+      "s8Title": "Contact Information",
+      "s8Body": "For inquiries regarding these Terms or to report alleged intellectual-property infringement, contact pattygsocials@gmail.com."
     },
     "legalDisclaimer": {
       "badge": "Legal & Risk Protection",
@@ -820,12 +825,14 @@
       "s3Item1": "Unlawful Discrimination: Unlawful discrimination, denial of services, or abusive harassment directed toward clients, subcontractors, vendors, or team members based on race, color, national origin, religion, sex, age, disability, or veteran status in any proposal, comment, email, or transmitted communication.",
       "s3Item2": "Harassment & Threats: Threatening, defamatory, vulgar, or abusive language, extortion, or intimidation in client proposals, contract terms, project notes, or platform messaging.",
       "s3Item3": "Fraudulent or Deceptive Conduct: Knowingly transmitting fraudulent bid packages, forged signatures, or deceptive proposals intended to mislead owners, general contractors, or public agencies.",
-      "s3Item4": "Inappropriate & Prohibited Imagery: Uploading, storing, or transmitting inappropriate photos, logos, avatars, project attachments, or media containing sexually explicit content, nudity, gratuitous violence, hate symbols, or copyrighted imagery without authorization. Company logos and project attachments must strictly adhere to professional construction and engineering standards.",
+      "s3Item4": "Inappropriate & Prohibited Imagery: Uploading, storing, or transmitting inappropriate photos, profile images, logos, avatars, project attachments, or media containing sexually explicit content, nudity, gratuitous violence, hate symbols, or copyrighted imagery without authorization. Company logos and project attachments must strictly adhere to professional construction and engineering standards.",
       "s4Title": "Investigation, Suspension & Termination",
       "s4Body1": "We reserve the right to investigate reported or detected violations of this policy. Depending on the severity and frequency of the violation, Takeoff Engine may issue formal warnings, temporarily suspend account access, revoke organization seats, or permanently terminate account privileges without refund.",
       "s4Body2": "In cases involving malicious platform attacks, illegal activities, or severe fraudulent conduct, accounts may be terminated immediately without prior notice, and relevant data may be referred to appropriate authorities if required by law.",
-      "s5Title": "Questions & Reporting",
-      "s5Body": "If you observe abuse of the system or communications violating these standards, or have questions regarding these terms, please contact our administrative team through your account settings or support portal."
+      "s5Title": "Copyright & Intellectual Property Enforcement",
+      "s5Body": "You must not upload, use, display, distribute, or store content that infringes or misappropriates another person's intellectual-property, privacy, publicity, or contractual rights. This includes profile images, avatars, company logos, photos, plans, documents, and attachments. Takeoff Engine may remove or restrict access to alleged infringing material, preserve relevant records, and suspend or terminate repeat or serious infringers at its discretion. Submit copyright or other intellectual-property reports to pattygsocials@gmail.com with the information requested in the Terms of Service.",
+      "s6Title": "Questions & Reporting",
+      "s6Body": "If you observe abuse of the system or communications violating these standards, or have questions regarding these terms, please contact our administrative team through your account settings or support portal."
     },
     "seo": {
       "landing": {

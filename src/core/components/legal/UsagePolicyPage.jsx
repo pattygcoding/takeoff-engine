@@ -59,7 +59,7 @@ export default function UsagePolicyPage() {
               {t('core.usagePolicy.headerTitle')}
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-              {t('core.usagePolicy.effectiveDate', { date: 'August 2026' })} • {t('core.usagePolicy.subtitle')}
+              {t('core.usagePolicy.effectiveDate', { date: 'September 18, 2026' })} • {t('core.usagePolicy.subtitle')}
             </p>
           </div>
 
@@ -126,14 +126,25 @@ export default function UsagePolicyPage() {
             </p>
           </section>
 
-          {/* Section 5: Contact & Reporting Inquiries */}
-          <section className="space-y-3 border-t border-slate-100 dark:border-slate-800 pt-6">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs font-black">5</span>
+          {/* Section 5: Copyright Enforcement */}
+          <section className="space-y-3 rounded-xl bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/60 p-5">
+            <h3 className="text-lg font-bold text-amber-950 dark:text-amber-200 flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-amber-200/80 dark:bg-amber-900/60 text-amber-900 dark:text-amber-300 flex items-center justify-center text-xs font-black">5</span>
               {t('core.usagePolicy.s5Title')}
             </h3>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
               {t('core.usagePolicy.s5Body')}
+            </p>
+          </section>
+
+          {/* Section 6: Contact & Reporting Inquiries */}
+          <section className="space-y-3 border-t border-slate-100 dark:border-slate-800 pt-6">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs font-black">6</span>
+              {t('core.usagePolicy.s6Title')}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              {t('core.usagePolicy.s6Body')}
             </p>
           </section>
         </div>
