@@ -176,10 +176,7 @@ export default function LandingPage() {
         <div className="absolute top-20 right-10 w-[400px] h-[400px] bg-slate-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-semibold mb-8">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            {t('core.landing.hero.badge')}
-          </div>
+          <div aria-hidden="true" className="h-[28px] mb-8" />
 
           <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-white max-w-4xl mx-auto leading-[1.1]">
             <span className="block">{t('core.landing.hero.title')}</span>

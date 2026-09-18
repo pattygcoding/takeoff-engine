@@ -41,7 +41,6 @@ export default function AppFooter() {
             </p>
             <div className="pt-1">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-800 text-[11px] font-semibold text-slate-300 border border-slate-700">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
                 PCI-DSS Compliant • Paddle MoR
               </span>
             </div>
