@@ -7,6 +7,7 @@ import {
   formatScopeStatusLabel,
 } from '@/product/lib/scope';
 import { useTranslation } from '@/core/components/context/I18nContext';
+import { Scale, Lightbulb, Check, X, Plus, Minus, ShowerHead } from 'lucide-react';
 
 export default function ClientCounterOfferModal({
   currentScope = DEFAULT_SCOPE_ITEMS,
@@ -107,10 +108,10 @@ export default function ClientCounterOfferModal({
 
   const { included, excluded } = categorizeScope(scopeList);
   const statusOptions = [
-    { value: SCOPE_STATUS.INCLUDED, label: `✓ ${t('product.counterOfferModal.statusIncluded', 'Included')}` },
-    { value: SCOPE_STATUS.EXCLUDED, label: `✕ ${t('product.counterOfferModal.statusExcluded', 'Excluded')}` },
-    { value: SCOPE_STATUS.OPTIONAL_ADDON, label: `+ ${t('product.counterOfferModal.statusOptionalAddon', 'Optional Add-On')}` },
-    { value: SCOPE_STATUS.NOT_APPLICABLE, label: `— ${t('product.counterOfferModal.statusNotApplicable', 'N/A')}` },
+    { value: SCOPE_STATUS.INCLUDED, icon: <Check className="w-3 h-3" />, label: t('product.counterOfferModal.statusIncluded', 'Included') },
+    { value: SCOPE_STATUS.EXCLUDED, icon: <X className="w-3 h-3" />, label: t('product.counterOfferModal.statusExcluded', 'Excluded') },
+    { value: SCOPE_STATUS.OPTIONAL_ADDON, icon: <Plus className="w-3 h-3" />, label: t('product.counterOfferModal.statusOptionalAddon', 'Optional Add-On') },
+    { value: SCOPE_STATUS.NOT_APPLICABLE, icon: <Minus className="w-3 h-3" />, label: t('product.counterOfferModal.statusNotApplicable', 'N/A') },
   ];
 
   return (
@@ -119,8 +120,8 @@ export default function ClientCounterOfferModal({
         {/* Header */}
         <div className="pb-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 flex items-center justify-center text-xl shrink-0 font-bold border border-amber-300 dark:border-amber-700">
-              ⚖️
+            <div className="w-10 h-10 rounded-2xl bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 flex items-center justify-center shrink-0 border border-amber-300 dark:border-amber-700">
+              <Scale className="w-5 h-5" />
             </div>
             <div>
               <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-snug">
@@ -137,7 +138,7 @@ export default function ClientCounterOfferModal({
         <form onSubmit={handleFormSubmit} className="flex-1 overflow-y-auto space-y-4 my-3 pr-1">
           {/* Information Callout */}
           <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-300 text-xs rounded-xl flex items-start gap-2">
-            <span className="text-base">💡</span>
+            <span className="text-base"><Lightbulb className="w-4 h-4" /></span>
             <p className="leading-relaxed font-medium">
               {t('product.counterOfferModal.notice', 'Select each item’s requested status and proposed add-on amount before sending the proposal revision.')}
             </p>
@@ -183,8 +184,8 @@ export default function ClientCounterOfferModal({
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="text-xs font-bold text-slate-900 dark:text-slate-100">{item.title}</span>
                             {item.category === 'fixtures' && (
-                              <span className="text-[10px] font-bold bg-amber-100 dark:bg-amber-950 text-amber-900 dark:text-amber-300 px-1.5 py-0.2 rounded">
-                                🚽 Fixture
+                              <span className="text-[10px] font-bold bg-amber-100 dark:bg-amber-950 text-amber-900 dark:text-amber-300 px-1.5 py-0.2 rounded inline-flex items-center gap-1">
+                                <ShowerHead className="w-2.5 h-2.5" /> Fixture
                               </span>
                             )}
                             {isAddon && (
@@ -214,7 +215,7 @@ export default function ClientCounterOfferModal({
                                   : 'border-slate-300 dark:border-slate-600 bg-white/80 dark:bg-slate-900/70 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
                               }`}
                             >
-                              {option.label}
+                              <span className="inline-flex items-center gap-1">{option.icon} {option.label}</span>
                             </button>
                           );
                         })}

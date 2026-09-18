@@ -4,6 +4,7 @@ import { useAuth } from '@/core/components/context/AuthContext';
 import { billingApi } from '@/core/lib/billing/billing';
 import { openPaddleCheckout } from '@/core/lib/billing/paddle';
 import { useTranslation } from '@/core/components/context/I18nContext';
+import { Check, ArrowRight } from 'lucide-react';
 import {
   STARTER_MONTHLY_PRICE,
   PRO_MONTHLY_PRICE,
@@ -163,11 +164,11 @@ export default function PlanOnboardingPage() {
               </p>
 
               <ul className="mt-6 space-y-2.5 text-xs text-slate-300">
-                <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.starter.f1', { seats: STARTER_PLAN_SEATS })}</strong></li>
-                <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.starter.f2', 'Unlimited Calculations')}</strong></li>
-                <li className="flex items-center gap-2">✓ {t('core.landing.pricing.starter.f3', 'Standard Word & PDF Export')}</li>
-                <li className="flex items-center gap-2">✓ {t('core.landing.pricing.starter.f4', '2 Custom Rate Libraries')}</li>
-                <li className="flex items-center gap-2">✓ {t('core.landing.pricing.starter.f5', 'Cloud Save & Project Dashboard')}</li>
+                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> <strong>{t('core.landing.pricing.starter.f1', { seats: STARTER_PLAN_SEATS })}</strong></li>
+                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> <strong>{t('core.landing.pricing.starter.f2', 'Unlimited Calculations')}</strong></li>
+                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> {t('core.landing.pricing.starter.f3', 'Standard Word & PDF Export')}</li>
+                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> {t('core.landing.pricing.starter.f4', '2 Custom Rate Libraries')}</li>
+                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> {t('core.landing.pricing.starter.f5', 'Cloud Save & Project Dashboard')}</li>
               </ul>
             </div>
 
@@ -218,11 +219,11 @@ export default function PlanOnboardingPage() {
               </p>
 
               <ul className="mt-6 space-y-2.5 text-xs text-slate-200">
-                <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.pro.f1', { seats: PRO_PLAN_SEATS })}</strong></li>
-                <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.pro.f2', 'All 17+ Advanced PDF Formats')}</strong></li>
-                <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.pro.f3', 'Custom Branding & Logos')}</strong></li>
-                <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.pro.f4', 'Client Portal & E-Signatures')}</strong></li>
-                <li className="flex items-center gap-2">✓ {t('core.landing.pricing.pro.f5', 'Unlimited Custom Rate Libraries')}</li>
+                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-400 shrink-0" /> <strong>{t('core.landing.pricing.pro.f1', { seats: PRO_PLAN_SEATS })}</strong></li>
+                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-400 shrink-0" /> <strong>{t('core.landing.pricing.pro.f2', 'All 17+ Advanced PDF Formats')}</strong></li>
+                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-400 shrink-0" /> <strong>{t('core.landing.pricing.pro.f3', 'Custom Branding & Logos')}</strong></li>
+                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-400 shrink-0" /> <strong>{t('core.landing.pricing.pro.f4', 'Client Portal & E-Signatures')}</strong></li>
+                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-400 shrink-0" /> {t('core.landing.pricing.pro.f5', 'Unlimited Custom Rate Libraries')}</li>
               </ul>
             </div>
 
@@ -275,11 +276,11 @@ export default function PlanOnboardingPage() {
               </p>
 
               <ul className="mt-6 space-y-2.5 text-xs text-slate-300">
-                <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.enterprise.f1', { seats: ENTERPRISE_PLAN_SEATS })}</strong></li>
-                <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.enterprise.f2', { price: isAnnual ? EXTRA_SEAT_YEARLY_PRICE : EXTRA_SEAT_MONTHLY_PRICE })}</strong></li>
-                <li className="flex items-center gap-2">✓ {t('core.landing.pricing.enterprise.f3', 'All 17+ Advanced PDF Formats')}</li>
-                <li className="flex items-center gap-2">✓ {t('core.landing.pricing.enterprise.f4', 'Team Workspaces & Shared Libraries')}</li>
-                <li className="flex items-center gap-2">✓ {t('core.landing.pricing.enterprise.f5', 'All Pro features + priority support')}</li>
+                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400 shrink-0" /> <strong>{t('core.landing.pricing.enterprise.f1', { seats: ENTERPRISE_PLAN_SEATS })}</strong></li>
+                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400 shrink-0" /> <strong>{t('core.landing.pricing.enterprise.f2', { price: isAnnual ? EXTRA_SEAT_YEARLY_PRICE : EXTRA_SEAT_MONTHLY_PRICE })}</strong></li>
+                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400 shrink-0" /> {t('core.landing.pricing.enterprise.f3', 'All 17+ Advanced PDF Formats')}</li>
+                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400 shrink-0" /> {t('core.landing.pricing.enterprise.f4', 'Team Workspaces & Shared Libraries')}</li>
+                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400 shrink-0" /> {t('core.landing.pricing.enterprise.f5', 'All Pro features + priority support')}</li>
               </ul>
             </div>
 
@@ -309,9 +310,9 @@ export default function PlanOnboardingPage() {
           <button
             type="button"
             onClick={handleSelectFree}
-            className="text-xs font-semibold text-slate-400 hover:text-indigo-400 transition cursor-pointer"
+            className="text-xs font-semibold text-slate-400 hover:text-indigo-400 transition cursor-pointer inline-flex items-center gap-1"
           >
-            {t('core.loginPage.skipForNow', 'Or continue to dashboard with Free Trial →')}
+            {t('core.loginPage.skipForNow', 'Or continue to dashboard with Free Trial')} <ArrowRight className="w-3 h-3" />
           </button>
         </div>
       </div>

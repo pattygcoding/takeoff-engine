@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Truck, AlertTriangle, X } from 'lucide-react';
 import { createBlankItem } from '@/product/lib/csv';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import { calculationsApi } from '@/product/lib/calculations';
@@ -407,7 +408,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                     <div className="flex items-center gap-1.5 flex-wrap">
                       {item.isEquipment && (
                         <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
-                          🚜 {t('product.takeoffGrid.equipmentBadge', 'Equipment Rental')}
+                          <Truck className="w-2.5 h-2.5" /> {t('product.takeoffGrid.equipmentBadge', 'Equipment Rental')}
                         </span>
                       )}
                       <input
@@ -421,7 +422,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                           className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700"
                           title={t('product.takeoffGrid.missingScopeTooltip', 'Scope requires field verification / pricing review')}
                         >
-                          ⚠️ {item.missingScopeReason || t('product.takeoffGrid.missingScopeBadge', 'Missing Scope')}
+                          <AlertTriangle className="w-2.5 h-2.5 inline mr-1 -mt-0.5" />{item.missingScopeReason || t('product.takeoffGrid.missingScopeBadge', 'Missing Scope')}
                         </span>
                       )}
                     </div>
@@ -568,7 +569,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                 onClick={handleOpenAddEquipmentModal}
                 className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 dark:hover:bg-amber-900/60 border border-amber-200 dark:border-amber-800 rounded-lg transition cursor-pointer"
               >
-                🚜 {t('product.takeoffGrid.addEquipmentRental', '+ Add Equipment Rental')}
+                <Truck className="w-3.5 h-3.5 inline mr-1.5 -mt-0.5" />{t('product.takeoffGrid.addEquipmentRental', '+ Add Equipment Rental')}
               </button>
             </div>
           </div>
@@ -581,7 +582,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-5 text-slate-900 dark:text-slate-100 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
               <div className="flex items-center gap-2">
-                <span className="text-xl">🚜</span>
+                <span className="text-xl"><Truck className="w-5 h-5" /></span>
                 <div>
                   <h3 className="text-base font-bold text-slate-900 dark:text-white">
                     {t('product.takeoffGrid.addEquipmentTitle', 'Add Equipment / Machinery Rental')}
@@ -594,9 +595,9 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
               <button
                 type="button"
                 onClick={() => setShowAddEquipmentModal(false)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer text-lg p-1"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer p-1"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 

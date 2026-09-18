@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Crown, X, Check, Building2, Settings, Trash2 } from 'lucide-react';
 import { organizationsApi } from '@/core/lib/auth/organizations';
 import { billingApi } from '@/core/lib/billing/billing';
 import { useAuth } from '@/core/components/context/AuthContext';
@@ -303,21 +304,21 @@ export default function TeamWorkspaceManager() {
         </div>
 
         {!isEnterpriseOrTeam && (
-          <div className="text-xs bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-700 px-3 py-1.5 rounded-xl">
-            👑 {t('core.teamWorkspaceManager.requiresEnterprise', { price: ENTERPRISE_MONTHLY_PRICE })}
+          <div className="text-xs bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-700 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+            <Crown className="w-3.5 h-3.5 shrink-0" /> {t('core.teamWorkspaceManager.requiresEnterprise', { price: ENTERPRISE_MONTHLY_PRICE })}
           </div>
         )}
       </div>
 
       {error && (
-        <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-300 text-xs rounded-xl">
-          ✕ {error}
+        <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-300 text-xs rounded-xl flex items-center gap-1.5">
+          <X className="w-3.5 h-3.5 shrink-0" /> {error}
         </div>
       )}
 
       {successMsg && (
-        <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs rounded-xl">
-          ✓ {successMsg}
+        <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs rounded-xl flex items-center gap-1.5">
+          <Check className="w-3.5 h-3.5 shrink-0" /> {successMsg}
         </div>
       )}
 
@@ -334,7 +335,7 @@ export default function TeamWorkspaceManager() {
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
-            🏢 {org.name} ({org.active_member_count || 1}/{org.max_seats} Seats)
+            <Building2 className="w-3.5 h-3.5 inline mr-1 -mt-0.5" /> {org.name} ({org.active_member_count || 1}/{org.max_seats} Seats)
           </button>
         ))}
 
@@ -386,7 +387,7 @@ export default function TeamWorkspaceManager() {
                 onClick={handleOpenSeatModal}
                 className="px-4 py-2 bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 text-white text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
               >
-                <span>⚙️ {t('core.teamWorkspaceManager.manageSeatButton')}</span>
+                <span className="flex items-center gap-1.5"><Settings className="w-3.5 h-3.5" /> {t('core.teamWorkspaceManager.manageSeatButton')}</span>
               </button>
             )}
           </div>
@@ -403,9 +404,9 @@ export default function TeamWorkspaceManager() {
                 <button
                   type="button"
                   onClick={handleDeleteOrg}
-                  className="px-2.5 py-1 text-xs font-semibold text-red-600 dark:text-red-400 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/40 border border-red-200 dark:border-red-900/60 rounded-lg transition cursor-pointer"
+                  className="px-2.5 py-1 text-xs font-semibold text-red-600 dark:text-red-400 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/40 border border-red-200 dark:border-red-900/60 rounded-lg transition cursor-pointer inline-flex items-center gap-1"
                 >
-                  🗑️ {t('core.teamWorkspaceManager.deleteOrgButton')}
+                  <Trash2 className="w-3.5 h-3.5" /> {t('core.teamWorkspaceManager.deleteOrgButton')}
                 </button>
               )}
             </div>
@@ -568,7 +569,7 @@ export default function TeamWorkspaceManager() {
               onClick={() => setSeatModalOpen(false)}
               className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             >
-              ✕
+              <X className="w-4 h-4" />
             </button>
             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">{t('core.teamWorkspaceManager.seatModalTitle')}</h3>
             <p

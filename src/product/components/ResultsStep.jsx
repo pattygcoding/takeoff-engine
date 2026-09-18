@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Check, Link2, X, Mail, Sparkles, Truck } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { calculationsApi, formatCurrency, formatNumber } from '@/product/lib/calculations';
 import { formatMarkupBasisNote, formatMarkupLine } from '@/product/lib/markupFormatting';
@@ -436,8 +437,8 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
           </button>
 
           {saveSuccessMsg && (
-            <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 rounded-lg">
-              ✓ {saveSuccessMsg}
+            <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5">
+              <Check className="w-3.5 h-3.5" /> {saveSuccessMsg}
             </span>
           )}
         </div>
@@ -542,8 +543,8 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
           <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl max-w-lg w-full p-6 sm:p-8 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xl">
-                  🔗
+                <div className="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                  <Link2 className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t('product.resultsStep.portalLinkModalTitle')}</h3>
@@ -553,9 +554,9 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
               <button
                 type="button"
                 onClick={() => setShareProposalModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold p-1 cursor-pointer"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 cursor-pointer"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -563,15 +564,15 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
               {/* Direct Email Submission Section */}
               <form onSubmit={handleSendProposalEmail} className="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-700">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-sm font-bold text-slate-800 dark:text-slate-200">✉️ {t('product.resultsStep.emailDirectlyToClient')}</span>
+                  <span className="text-sm font-bold text-slate-800 dark:text-slate-200 inline-flex items-center gap-1.5"><Mail className="w-4 h-4" /> {t('product.resultsStep.emailDirectlyToClient')}</span>
                 </div>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
                   {t('product.resultsStep.emailDirectlyDescription')}
                 </p>
 
                 {emailSentSuccess && (
-                  <div className="mb-3 p-2.5 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs font-semibold text-emerald-800 dark:text-emerald-300">
-                    ✓ {emailSentSuccess}
+                  <div className="mb-3 p-2.5 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs font-semibold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
+                    <Check className="w-3.5 h-3.5 shrink-0" /> {emailSentSuccess}
                   </div>
                 )}
 
@@ -653,7 +654,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
 
               <div className="bg-indigo-50/60 dark:bg-indigo-950/40 p-4 rounded-2xl text-xs text-indigo-900 dark:text-indigo-300 space-y-1.5 border border-indigo-100 dark:border-indigo-900">
                 <p className="font-bold flex items-center gap-1.5">
-                  <span>✨</span> {t('product.resultsStep.whatClientSees')}
+                  <span><Sparkles className="w-3.5 h-3.5" /></span> {t('product.resultsStep.whatClientSees')}
                 </p>
                 <ul className="list-disc pl-4 space-y-1 text-slate-600 dark:text-slate-400">
                   <li>{t('product.resultsStep.benefitBranding')}</li>
@@ -817,7 +818,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
                         <div className="flex items-center gap-1.5 flex-wrap">
                           {item.isEquipment && (
                             <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
-                              🚜 {t('product.takeoffGrid.equipmentBadge', 'Equipment Rental')}
+                              <Truck className="w-2.5 h-2.5" /> {t('product.takeoffGrid.equipmentBadge', 'Equipment Rental')}
                             </span>
                           )}
                           <span>{item.description}</span>

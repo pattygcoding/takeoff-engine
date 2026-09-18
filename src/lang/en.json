@@ -46,10 +46,10 @@
         "titleHighlight": "60 Seconds",
         "subtitle": "Import CSV & Excel sheets directly from Bluebeam, PlanSwift, or Trimble. Auto-calculate trench volumes, production labor hours, and client proposals with digital signatures.",
         "ctaTrial": "Start Free Trial (5 Free Takeoffs)",
-        "ctaCalculator": "Test Live Calculator ↓",
-        "badgeNoCard": "✓ No credit card required",
-        "badgeInstantExports": "✓ Instant PDF & Word exports",
-        "badgeColumnMapper": "✓ Auto column alias mapper"
+        "ctaCalculator": "Test Live Calculator",
+        "badgeNoCard": "No credit card required",
+        "badgeInstantExports": "Instant PDF & Word exports",
+        "badgeColumnMapper": "Auto column alias mapper"
       },
       "calculator": {
         "tag": "Interactive Free Tool",
@@ -69,9 +69,9 @@
         "machineCost": "Excavation Machine Cost",
         "crewProduction": "Crew Production Labor ({{hours}} hrs)",
         "directBid": "Estimated Direct Trench Bid",
-        "importCta": "Import Complete Multi-Line Takeoff Sheet →",
+        "importCta": "Import Complete Multi-Line Takeoff Sheet",
         "exportPrompt": "Want to export this as a Word / PDF bid proposal?",
-        "createAccount": "Create Free Account →"
+        "createAccount": "Create Free Account"
       },
       "comparison": {
         "tag": "Comparison",
@@ -86,21 +86,21 @@
         "row1Excel": "Free (High time cost)",
         "row1Ent": "$3,000 - $10,000/year upfront",
         "row2Label": "Auto Column Header Mapping",
-        "row2Te": "✓ Intelligent Aliases",
-        "row2Excel": "✕ Manual copy-pasting",
-        "row2Ent": "⚠️ Complex setup required",
+        "row2Te": "Intelligent Aliases",
+        "row2Excel": "Manual copy-pasting",
+        "row2Ent": "Complex setup required",
         "row3Label": "One-Click Client Proposal & Word Export",
-        "row3Te": "✓ Branded PDF & .DOCX",
-        "row3Excel": "✕ Manual document formatting",
-        "row3Ent": "⚠️ Clunky reports",
+        "row3Te": "Branded PDF & .DOCX",
+        "row3Excel": "Manual document formatting",
+        "row3Ent": "Clunky reports",
         "row4Label": "Public Portal & Client E-Signature",
-        "row4Te": "✓ Included (US-010)",
-        "row4Excel": "✕ None (Requires DocuSign)",
-        "row4Ent": "✕ None",
+        "row4Te": "Included (US-010)",
+        "row4Excel": "None (Requires DocuSign)",
+        "row4Ent": "None",
         "row5Label": "Reusable Rate & Material Libraries",
-        "row5Te": "✓ 1-Click Library Switcher",
-        "row5Excel": "✕ Broken formula links",
-        "row5Ent": "✓ Database included"
+        "row5Te": "1-Click Library Switcher",
+        "row5Excel": "Broken formula links",
+        "row5Ent": "Database included"
       },
       "pricing": {
         "tag": "Simple Transparent Pricing",
@@ -518,6 +518,11 @@
       "errValidEmail": "Please enter a valid email address.",
       "errPasswordMin": "Password must be at least 6 characters long.",
       "errValidPhone": "Please enter a valid 10-digit phone number.",
+      "errMustAcceptTerms": "You must agree to the Terms of Service and Privacy Policy to create an account.",
+      "agreeToTermsPrefix": "I have read and agree to the",
+      "agreeToTermsAnd": "and",
+      "termsOfServiceLink": "Terms of Service",
+      "privacyPolicyLink": "Privacy Policy",
       "errLoginFailed": "Login failed",
       "errRegisterFailed": "Registration failed",
       "errResetFailed": "Failed to request reset",
@@ -568,7 +573,7 @@
       "enterpriseTierCta": "Select Enterprise",
       "launchingCheckout": "Launching Checkout...",
       "monthlyBilled": "Billed monthly",
-      "skipForNow": "Or continue to dashboard with Free Trial →"
+      "skipForNow": "Or continue to dashboard with Free Trial"
     },
     "authModal": {
       "welcomeBack": "Welcome Back",
@@ -607,6 +612,11 @@
       "errRegisterFailed": "Registration failed",
       "errResetFailed": "Failed to request reset",
       "errValidPhone": "Please enter a valid 10-digit phone number.",
+      "errMustAcceptTerms": "You must agree to the Terms of Service and Privacy Policy to create an account.",
+      "agreeToTermsPrefix": "I have read and agree to the",
+      "agreeToTermsAnd": "and",
+      "termsOfServiceLink": "Terms of Service",
+      "privacyPolicyLink": "Privacy Policy",
       "resetLinkSent": "Password reset link sent to your email."
     },
     "acceptInvite": {

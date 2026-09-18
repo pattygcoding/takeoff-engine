@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Lock } from 'lucide-react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Stepper from './Stepper';
 import EditStep from './EditStep';
@@ -205,25 +206,25 @@ export default function ProjectWorkspace({
             </span>
             {currentProject?.status === 'awarded' && (
               <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/70 border border-emerald-300 dark:border-emerald-800 px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                <span>🔒</span>
+                <span><Lock className="w-3 h-3" /></span>
                 <span>{t('product.projectWorkspace.statusAwarded')}</span>
               </span>
             )}
             {currentProject?.status === 'submitted' && (
               <span className="text-xs font-bold text-blue-800 dark:text-blue-300 bg-blue-100 dark:bg-blue-950/70 border border-blue-300 dark:border-blue-800 px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                <span>🔒</span>
+                <span><Lock className="w-3 h-3" /></span>
                 <span>{t('product.projectWorkspace.statusSubmitted')}</span>
               </span>
             )}
             {currentProject?.status === 'archived' && (
               <span className="text-xs font-bold text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/70 border border-amber-300 dark:border-amber-800 px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                <span>🔒</span>
+                <span><Lock className="w-3 h-3" /></span>
                 <span>{t('product.projectWorkspace.statusArchived')}</span>
               </span>
             )}
             {currentProject?.status === 'declined' && (
               <span className="text-xs font-bold text-red-800 dark:text-red-300 bg-red-100 dark:bg-red-950/70 border border-red-300 dark:border-red-800 px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                <span>🔒</span>
+                <span><Lock className="w-3 h-3" /></span>
                 <span>{t('product.projectWorkspace.statusDeclined')}</span>
               </span>
             )}

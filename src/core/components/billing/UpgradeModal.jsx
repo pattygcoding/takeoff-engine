@@ -5,6 +5,7 @@ import { openPaddleCheckout } from '@/core/lib/billing/paddle';
 import { useAuth } from '@/core/components/context/AuthContext';
 import { useModal } from '@/core/components/context/ModalContext';
 import { useTranslation } from '@/core/components/context/I18nContext';
+import { X, Check, FileText, Info } from 'lucide-react';
 import {
   STARTER_MONTHLY_PRICE,
   PRO_MONTHLY_PRICE,
@@ -51,10 +52,10 @@ export default function UpgradeModal({ isOpen, onClose }) {
             className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
             aria-label="Close"
           >
-            ✕
+            <X className="w-4 h-4" />
           </button>
-          <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
-            ✓
+          <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-4">
+            <Check className="w-6 h-6" />
           </div>
           <h3 className="text-xl font-bold text-slate-900 mb-2">{t('core.upgradeModal.alreadyUnlockedTitle')}</h3>
           <p className="text-sm text-slate-600 mb-6">
@@ -397,7 +398,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
           {/* PDF Benefit Banner for Pro & Enterprise */}
           {(activePlan === 'pro' || activePlan === 'enterprise') && (
             <div className="bg-indigo-900/60 border border-indigo-400/40 rounded-lg p-2.5 mb-3 text-[11px] text-indigo-100 flex items-start gap-2">
-              <span className="text-base">📄</span>
+              <span className="text-base"><FileText className="w-4 h-4" /></span>
               <div>
                 <strong className="text-amber-300">{t('core.upgradeModal.advancedPDFLabel')}:</strong> {t('core.upgradeModal.advancedPDFDescription')}
               </div>
@@ -448,7 +449,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
           {/* Downgrade Explanatory Notice */}
           {isDowngradeSelected && (
             <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-2.5 mb-3 text-[11px] text-amber-200 flex items-start gap-2">
-              <span className="text-base">ℹ️</span>
+              <span className="text-base"><Info className="w-4 h-4" /></span>
               <div>
                 <strong className="text-amber-300">Downgrade Note:</strong> {t('core.upgradeModal.downgradeNotice', {
                   plan: activePlan.toUpperCase(),
@@ -510,10 +511,10 @@ export default function UpgradeModal({ isOpen, onClose }) {
           </form>
 
           {promoErr && (
-            <p className="text-xs text-red-600 font-medium mt-2">✕ {promoErr}</p>
+            <p className="text-xs text-red-600 font-medium mt-2 flex items-center gap-1"><X className="w-3.5 h-3.5 shrink-0" /> {promoErr}</p>
           )}
           {promoMsg && (
-            <p className="text-xs text-emerald-700 font-medium mt-2">✓ {promoMsg}</p>
+            <p className="text-xs text-emerald-700 font-medium mt-2 flex items-center gap-1"><Check className="w-3.5 h-3.5 shrink-0" /> {promoMsg}</p>
           )}
         </div>
 

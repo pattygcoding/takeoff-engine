@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useRef, useEffect } from 'react';
+import { Lock, FileText, Star } from 'lucide-react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { computeEstimate, formatCurrency, formatNumber } from '@/product/lib/calculations';
 import { triggerDownload } from '@/product/lib/csv';
@@ -648,8 +649,8 @@ export default function ExportHubPage({ items, rates, currentProject }) {
         {isCurrentFormatLocked && (
           <div className="no-print rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold shrink-0">
-                🔒
+              <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0">
+                <Lock className="w-4 h-4" />
               </div>
               <div>
                 <h4 className="text-sm font-bold text-amber-900 dark:text-amber-200">
@@ -675,8 +676,8 @@ export default function ExportHubPage({ items, rates, currentProject }) {
           {/* Preview Section Header with Title & Back Button */}
           <div className="no-print flex flex-wrap items-center justify-between gap-3 px-2">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs text-sm">
-                📄
+              <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs">
+                <FileText className="w-4 h-4" />
               </div>
               <div>
                 <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-tight">
@@ -1113,7 +1114,7 @@ function MiniFormatThumbnail({ kind }) {
     return (
       <div className="w-full h-full bg-amber-50/40 rounded border border-amber-300 p-1 flex flex-col justify-between shadow-2xs">
         <div className="text-center font-bold text-[6px] text-amber-900 border-b border-amber-200 pb-0.5">CERTIFICATE</div>
-        <div className="w-4 h-4 rounded-full border border-amber-500 bg-amber-100 mx-auto flex items-center justify-center text-[7px] text-amber-700">★</div>
+        <div className="w-4 h-4 rounded-full border border-amber-500 bg-amber-100 mx-auto flex items-center justify-center text-amber-700"><Star className="w-2.5 h-2.5" fill="currentColor" /></div>
         <div className="w-full h-1 bg-amber-600 rounded-xs" />
       </div>
     );

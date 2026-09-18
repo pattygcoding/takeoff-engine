@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
+import { AlertTriangle, X, Check, PenLine, Info } from 'lucide-react';
 import AccessibleDialog from '@/core/components/shared/AccessibleDialog';
 import { useTranslation } from '@/core/components/context/I18nContext';
 
@@ -93,7 +94,7 @@ export function ModalProvider({ children }) {
             {/* Header Icon & Title */}
             <div className="flex items-start gap-3.5 mb-4">
               <div
-                className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0 ${
+                className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
                   modalState.type === 'confirm' && modalState.confirmVariant === 'danger'
                     ? 'bg-red-100 text-red-600'
                     : modalState.variant === 'error'
@@ -106,17 +107,17 @@ export function ModalProvider({ children }) {
                 }`}
               >
                 {modalState.type === 'confirm' && modalState.confirmVariant === 'danger' ? (
-                  '⚠️'
+                  <AlertTriangle className="w-5 h-5" />
                 ) : modalState.variant === 'error' ? (
-                  '✕'
+                  <X className="w-5 h-5" />
                 ) : modalState.variant === 'success' ? (
-                  '✓'
+                  <Check className="w-5 h-5" />
                 ) : modalState.variant === 'warning' ? (
-                  '⚠️'
+                  <AlertTriangle className="w-5 h-5" />
                 ) : modalState.type === 'prompt' ? (
-                  '✍️'
+                  <PenLine className="w-5 h-5" />
                 ) : (
-                  'ℹ️'
+                  <Info className="w-5 h-5" />
                 )}
               </div>
               <div className="flex-1 min-w-0">

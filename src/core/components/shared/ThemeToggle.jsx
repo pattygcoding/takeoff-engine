@@ -1,4 +1,5 @@
 import React from 'react';
+import { Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/core/components/context/ThemeContext';
 import { useTranslation } from '@/core/components/context/I18nContext';
 
@@ -23,7 +24,7 @@ export default function ThemeToggle({ className = '', variant = 'header' }) {
         title={title}
         aria-label={title}
       >
-        <span>{isDark ? '☀️' : '🌙'}</span>
+        <span>{isDark ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}</span>
         <span>{isDark ? t('core.theme.light', 'Light') : t('core.theme.dark', 'Dark')}</span>
       </button>
     );
@@ -41,7 +42,7 @@ export default function ThemeToggle({ className = '', variant = 'header' }) {
       title={title}
       aria-label={title}
     >
-      <span className="text-sm select-none">{isDark ? '☀️' : '🌙'}</span>
+      <span className="select-none">{isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}</span>
     </button>
   );
 }

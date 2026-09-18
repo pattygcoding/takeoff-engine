@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import { useAuth } from '@/core/components/context/AuthContext';
+import { Ruler } from 'lucide-react';
 
 export default function AppFooter() {
   const navigate = useNavigate();
@@ -30,7 +31,7 @@ export default function AppFooter() {
           {/* Col 1: Brand & Description */}
           <div className="space-y-3 md:col-span-1">
             <div className="flex items-center gap-2">
-              <span className="text-xl">📐</span>
+              <span className="text-xl"><Ruler className="w-5 h-5 text-indigo-400" /></span>
               <span className="font-extrabold text-base tracking-tight text-white">
                 {t('core.footer.brandName')}
               </span>

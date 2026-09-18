@@ -1,4 +1,5 @@
 import { useTranslation } from '@/core/components/context/I18nContext';
+import { Lock } from 'lucide-react';
 
 export default function Stepper({ step, onStepClick, isAwarded = false }) {
   const { t } = useTranslation();
@@ -48,7 +49,7 @@ export default function Stepper({ step, onStepClick, isAwarded = false }) {
                       : 'bg-slate-300 dark:bg-slate-700 text-white dark:text-slate-400'
                   }`}
               >
-                {isStepLocked ? '🔒' : s.id}
+                {isStepLocked ? <Lock className="w-2.5 h-2.5" /> : s.id}
               </span>
               <span className="hidden sm:inline">{s.label}</span>
               {isStepLocked && <span className="text-[10px] text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/60 px-1.5 py-0.2 rounded-full font-semibold hidden sm:inline">{t('product.stepper.lockedBadge')}</span>}

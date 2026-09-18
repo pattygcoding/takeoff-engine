@@ -8,6 +8,7 @@ import { useTranslation } from '@/core/components/context/I18nContext';
 import LanguageSelector from '@/core/components/shared/LanguageSelector';
 import ThemeToggle from '@/core/components/shared/ThemeToggle';
 import ClientCounterOfferModal from './ClientCounterOfferModal';
+import { AlertTriangle, Check, X, Phone, Mail } from 'lucide-react';
 import ScopeSummaryDisplay from './ScopeSummaryDisplay';
 
 export default function ClientProposalView() {
@@ -190,13 +191,13 @@ export default function ClientProposalView() {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4">
         <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-xl max-w-md w-full text-center border border-slate-200 dark:border-slate-800">
-          <div className="w-12 h-12 bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400 rounded-2xl flex items-center justify-center mx-auto mb-4 text-xl">
-            ⚠️
+          <div className="w-12 h-12 bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <AlertTriangle className="w-6 h-6" />
           </div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{t('product.clientProposal.notFoundTitle')}</h2>
           <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">{error || t('product.clientProposal.notFoundMessage')}</p>
           <a
-            href="https://pattygcoding.github.io/takeoff-engine"
+            href="https://takeoffengine.com"
             className="inline-block px-4 py-2 bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white rounded-xl text-sm font-medium transition"
           >
             {t('product.clientProposal.goToApp')}
@@ -219,7 +220,7 @@ export default function ClientProposalView() {
         {isAccepted && (
           <div className="bg-emerald-500 dark:bg-emerald-600 text-white p-4 rounded-2xl shadow-md flex items-center justify-between animate-fade-in">
             <div className="flex items-center gap-3">
-              <span className="text-2xl">✓</span>
+              <span className="text-2xl"><Check className="w-6 h-6" /></span>
               <div>
                 <p className="font-bold text-sm">{t('product.clientProposal.acceptedBannerTitle')}</p>
                 <p className="text-xs text-emerald-100">
@@ -241,7 +242,7 @@ export default function ClientProposalView() {
 
         {isDeclined && (
           <div className="bg-red-500 dark:bg-red-600 text-white p-4 rounded-2xl shadow-md flex items-center gap-3 animate-fade-in">
-            <span className="text-2xl">✕</span>
+            <span className="text-2xl"><X className="w-6 h-6" /></span>
             <div>
               <p className="font-bold text-sm">{t('product.clientProposal.declinedBannerTitle')}</p>
               <p className="text-xs text-red-100">
@@ -280,8 +281,8 @@ export default function ClientProposalView() {
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{contractor.company_address}</p>
                   )}
                   <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400 mt-1">
-                    {contractor?.phone_number && <span>📞 {contractor.phone_number}</span>}
-                    {contractor?.email && <span>✉️ {contractor.email}</span>}
+                    {contractor?.phone_number && <span className="inline-flex items-center gap-1"><Phone className="w-3 h-3" /> {contractor.phone_number}</span>}
+                    {contractor?.email && <span className="inline-flex items-center gap-1"><Mail className="w-3 h-3" /> {contractor.email}</span>}
                     {contractor?.license_number && (
                       <span>
                         {t('product.clientProposal.license', { license: contractor.license_number }) || `License: #${contractor.license_number}`}
@@ -395,8 +396,8 @@ export default function ClientProposalView() {
                 </div>
 
                 {signError && (
-                  <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-300 text-xs rounded-xl">
-                    ✕ {signError}
+                  <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-300 text-xs rounded-xl flex items-center gap-1.5">
+                    <X className="w-3.5 h-3.5 shrink-0" /> {signError}
                   </div>
                 )}
 

@@ -1,4 +1,5 @@
 import { categorizeScope, DEFAULT_SCOPE_ITEMS, formatScopeAddonImpact } from '@/product/lib/scope';
+import { Scale, Check, X } from 'lucide-react';
 import { useTranslation } from '@/core/components/context/I18nContext';
 
 // Drops dark: variants so printable/exported PDF documents always render light, regardless of the app's theme.
@@ -26,12 +27,12 @@ export default function ScopeSummaryDisplay({ scopeItems, className = '', forceL
   return (
     <div className={lightSafe(`pt-6 border-t border-slate-200 dark:border-slate-800 ${className}`, forceLight)}>
       <h3 className={lightSafe('text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wide mb-3 flex items-center gap-2', forceLight)}>
-        <span>⚖️</span> {t('product.scopeSummary.title', 'Scope of Work: Inclusions & Exclusions')}
+        <span><Scale className="w-3.5 h-3.5" /></span> {t('product.scopeSummary.title', 'Scope of Work: Inclusions & Exclusions')}
       </h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <ScopeColumn
           heading={t('product.scopeSummary.includedHeader', 'Included by Contractor')}
-          icon="✓"
+          icon={<Check className="w-3.5 h-3.5" />}
           items={included}
           colorClasses="bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800/60 text-emerald-950 dark:text-emerald-100"
           headingClasses="text-emerald-900 dark:text-emerald-200"
@@ -41,7 +42,7 @@ export default function ScopeSummaryDisplay({ scopeItems, className = '', forceL
         />
         <ScopeColumn
           heading={t('product.scopeSummary.excludedHeader', 'Excluded (By Owner / Others)')}
-          icon="✕"
+          icon={<X className="w-3.5 h-3.5" />}
           items={excluded}
           colorClasses="bg-rose-50/70 dark:bg-rose-950/30 border-rose-200 dark:border-rose-800/60 text-rose-950 dark:text-rose-100"
           headingClasses="text-rose-900 dark:text-rose-200"

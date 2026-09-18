@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, Navigate, Route, Routes, useNavigate, useLocation } from 'react-router-dom';
+import { Globe } from 'lucide-react';
 
 // Core Auth & User Components
 import AccountSettings from '@/core/components/auth/AccountSettings';
@@ -118,7 +119,7 @@ function AppContent() {
                 className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-base text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
                 title="View public marketing site & free trench calculator"
               >
-                <span aria-hidden="true">🌐</span>
+                <Globe aria-hidden="true" className="w-4 h-4" />
               </button>
             </div>
 

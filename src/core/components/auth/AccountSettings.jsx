@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Info, Crown, AlertTriangle, CalendarClock, Check, X } from 'lucide-react';
 import { useAuth } from '@/core/components/context/AuthContext';
 import { authApi } from '@/core/lib/auth/auth';
 import { billingApi } from '@/core/lib/billing/billing';
@@ -356,15 +357,15 @@ export default function AccountSettings() {
           </div>
 
           {cancelMsg && (
-            <div className="mb-4 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-sm border border-amber-200 dark:border-amber-800">
-              ℹ️ {cancelMsg}
+            <div className="mb-4 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-sm border border-amber-200 dark:border-amber-800 flex items-center gap-1.5">
+              <Info className="w-4 h-4 shrink-0" /> {cancelMsg}
             </div>
           )}
 
           {/* Payment Exempt / VIP Notice (US-016) */}
           {(user?.role === 'payment_exempt' || user?.has_unlimited_bypass) && (
             <div className="mb-6 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 flex items-start gap-3">
-              <span className="text-xl">👑</span>
+              <span className="text-xl"><Crown className="w-5 h-5" /></span>
               <div>
                 <h3 className="text-sm font-bold text-emerald-900 dark:text-emerald-200">{t('core.accountSettings.vipAccessTitle')}</h3>
                 <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-1">
@@ -382,7 +383,7 @@ export default function AccountSettings() {
           {/* Cancellation Notice Banner if scheduled */}
           {subDetails?.cancelsAtPeriodEnd && (
             <div className="mb-6 p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 flex items-start gap-3">
-              <span className="text-xl">⚠️</span>
+              <span className="text-xl"><AlertTriangle className="w-5 h-5" /></span>
               <div>
                 <h3 className="text-sm font-bold text-amber-900 dark:text-amber-200">{t('core.accountSettings.cancellationScheduledTitle')}</h3>
                 <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
@@ -403,7 +404,7 @@ export default function AccountSettings() {
           {/* Scheduled Downgrade Notice Banner (Accounting & Billing Cycle Safeguard) */}
           {subDetails?.scheduledTier && !subDetails?.cancelsAtPeriodEnd && (
             <div className="mb-6 p-4 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 flex items-start gap-3">
-              <span className="text-xl">📅</span>
+              <span className="text-xl"><CalendarClock className="w-5 h-5" /></span>
               <div>
                 <h3 className="text-sm font-bold text-blue-900 dark:text-blue-200">
                   {t('core.accountSettings.downgradeScheduledTitle', 'Downgrade Scheduled for Next Billing Cycle')}
@@ -525,7 +526,7 @@ export default function AccountSettings() {
                   onClick={handleRestoreSubscription}
                   className="px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 border border-emerald-600 rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
                 >
-                  <span>✓</span>
+                  <Check className="w-4 h-4" />
                   <span>{restoreLoading ? t('core.accountSettings.restoringSubscription', 'Restoring...') : t('core.accountSettings.restoreSubscription', 'Restore Subscription')}</span>
                 </button>
               )}
@@ -548,13 +549,13 @@ export default function AccountSettings() {
           </div>
 
           {profileMsg && (
-            <div className="mb-4 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 text-sm border border-emerald-200 dark:border-emerald-800">
-              ✓ {profileMsg}
+            <div className="mb-4 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 text-sm border border-emerald-200 dark:border-emerald-800 flex items-center gap-1.5">
+              <Check className="w-4 h-4 shrink-0" /> {profileMsg}
             </div>
           )}
           {profileErr && (
-            <div className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-300 text-sm border border-red-200 dark:border-red-800">
-              ✕ {profileErr}
+            <div className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-300 text-sm border border-red-200 dark:border-red-800 flex items-center gap-1.5">
+              <X className="w-4 h-4 shrink-0" /> {profileErr}
             </div>
           )}
 
@@ -645,7 +646,7 @@ export default function AccountSettings() {
           {!isProOrExempt && (
             <div className="absolute top-4 right-4">
               <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-700 rounded-full">
-                👑 Pro Feature
+                <Crown className="w-3.5 h-3.5" /> Pro Feature
               </span>
             </div>
           )}
@@ -690,7 +691,7 @@ export default function AccountSettings() {
                       className="absolute -top-2 -right-2 bg-red-600 text-white p-1 rounded-full text-xs opacity-0 group-hover:opacity-100 transition shadow cursor-pointer"
                       title={t('core.accountSettings.removeLogoTitle')}
                     >
-                      ✕
+                      <X className="w-3 h-3" />
                     </button>
                   </div>
                 ) : (
@@ -810,13 +811,13 @@ export default function AccountSettings() {
           </div>
 
           {passwordMsg && (
-            <div className="mb-4 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 text-sm border border-emerald-200 dark:border-emerald-800">
-              ✓ {passwordMsg}
+            <div className="mb-4 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 text-sm border border-emerald-200 dark:border-emerald-800 flex items-center gap-1.5">
+              <Check className="w-4 h-4 shrink-0" /> {passwordMsg}
             </div>
           )}
           {passwordErr && (
-            <div className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-300 text-sm border border-red-200 dark:border-red-800">
-              ✕ {passwordErr}
+            <div className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-300 text-sm border border-red-200 dark:border-red-800 flex items-center gap-1.5">
+              <X className="w-4 h-4 shrink-0" /> {passwordErr}
             </div>
           )}
 
@@ -979,8 +980,8 @@ export default function AccountSettings() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/75 backdrop-blur-sm animate-fade-in">
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 max-w-lg w-full p-6 sm:p-7 relative text-slate-900 dark:text-slate-100">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400 flex items-center justify-center text-lg">
-                ⚠️
+              <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400 flex items-center justify-center">
+                <AlertTriangle className="w-5 h-5" />
               </div>
               <div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t('core.accountSettings.cancelSubscriptionTitle')}</h3>
@@ -998,8 +999,8 @@ export default function AccountSettings() {
             </div>
 
             {cancelErr && (
-              <div className="mb-4 p-2.5 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 text-xs border border-red-200 dark:border-red-900">
-                ✕ {cancelErr}
+              <div className="mb-4 p-2.5 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 text-xs border border-red-200 dark:border-red-900 flex items-center gap-1.5">
+                <X className="w-3.5 h-3.5 shrink-0" /> {cancelErr}
               </div>
             )}
 
@@ -1066,8 +1067,8 @@ export default function AccountSettings() {
             </p>
 
             {deleteErr && (
-              <div className="mb-4 p-2.5 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 text-xs border border-red-200 dark:border-red-900">
-                ✕ {deleteErr}
+              <div className="mb-4 p-2.5 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 text-xs border border-red-200 dark:border-red-900 flex items-center gap-1.5">
+                <X className="w-3.5 h-3.5 shrink-0" /> {deleteErr}
               </div>
             )}
 

@@ -4,6 +4,7 @@ import { useAuth } from '@/core/components/context/AuthContext';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import { authApi } from '@/core/lib/auth/auth';
 import UpgradeModal from '@/core/components/billing/UpgradeModal';
+import { Zap, ChevronDown, X } from 'lucide-react';
 
 export default function UserMenu() {
   const { user, logout } = useAuth();
@@ -84,7 +85,7 @@ export default function UserMenu() {
           }`}
           title="Click to view upgrade plans"
         >
-          <span className="text-amber-500 font-bold">⚡</span>
+          <span className="text-amber-500 font-bold"><Zap className="w-3.5 h-3.5" /></span>
           <span>{credits} {credits === 1 ? 'credit' : 'credits'} left</span>
           <span className="font-semibold underline ml-0.5">Upgrade</span>
         </button>
@@ -99,7 +100,7 @@ export default function UserMenu() {
             {user.first_name ? user.first_name[0].toUpperCase() : user.username[0].toUpperCase()}
           </span>
           <span className="max-w-[120px] truncate">{user.first_name || user.username}</span>
-          <span className="text-xs text-slate-400">▼</span>
+          <ChevronDown className="w-3 h-3 text-slate-400" />
         </button>
 
         {isOpen && (
@@ -141,7 +142,7 @@ export default function UserMenu() {
                 }}
                 className="w-full text-left px-4 py-2 text-sm text-purple-700 dark:text-purple-400 font-semibold hover:bg-purple-50 dark:hover:bg-purple-950/50 transition flex items-center gap-2 cursor-pointer"
               >
-                <span>⚡</span>
+                <Zap className="w-4 h-4" />
                 <span>{t('core.userMenu.superAdminPortal')}</span>
               </button>
             )}
@@ -209,7 +210,7 @@ export default function UserMenu() {
               onClick={() => setShowPasswordModal(false)}
               className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-2"
             >
-              ✕
+              <X className="w-4 h-4" />
             </button>
             <h3 className="text-lg font-bold text-slate-800 mb-4">{t('core.userMenu.updatePasswordTitle')}</h3>
 

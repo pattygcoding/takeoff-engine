@@ -1,4 +1,5 @@
 import React from 'react';
+import { Check, Mail } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/core/components/context/AuthContext';
 import { useTranslation } from '@/core/components/context/I18nContext';
@@ -77,7 +78,7 @@ export default function RefundPolicyPage() {
           {/* Section 2: 14-Day Guarantee */}
           <section className="space-y-3 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 p-5">
             <h3 className="text-lg font-bold text-emerald-950 dark:text-emerald-200 flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs font-black">✓</span>
+              <span className="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center"><Check className="w-3.5 h-3.5" /></span>
               {t('core.refundPolicy.s2Title')}
             </h3>
             <p className="text-xs sm:text-sm text-emerald-900 dark:text-emerald-300 leading-relaxed font-medium">
@@ -121,7 +122,7 @@ export default function RefundPolicyPage() {
                 href="mailto:pattygsocials@gmail.com"
                 className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl transition cursor-pointer"
               >
-                ✉ pattygsocials@gmail.com
+                <Mail className="w-4 h-4" /> pattygsocials@gmail.com
               </a>
             </div>
           </section>

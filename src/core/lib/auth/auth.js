@@ -11,7 +11,7 @@ const getAuthHeaders = () => {
 };
 
 export const authApi = {
-  async register({ username, password, firstName, lastName, email, phoneNumber }) {
+  async register({ username, password, firstName, lastName, email, phoneNumber, acceptedTerms, termsVersion, _gotcha, website_url }) {
     const res = await fetch(`${API_BASE_URL}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -22,6 +22,10 @@ export const authApi = {
         lastName,
         email,
         phoneNumber,
+        acceptedTerms,
+        termsVersion,
+        _gotcha,
+        website_url,
       }),
     });
     const data = await res.json();

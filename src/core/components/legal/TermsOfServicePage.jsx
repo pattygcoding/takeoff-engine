@@ -1,4 +1,5 @@
 import React from 'react';
+import { Mail } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/core/components/context/AuthContext';
 import { useTranslation } from '@/core/components/context/I18nContext';
@@ -132,7 +133,7 @@ export default function TermsOfServicePage() {
                 href="mailto:pattygsocials@gmail.com"
                 className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition"
               >
-                ✉ pattygsocials@gmail.com
+                <Mail className="w-4 h-4" /> pattygsocials@gmail.com
               </a>
             </div>
           </section>

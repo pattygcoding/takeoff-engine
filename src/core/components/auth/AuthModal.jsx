@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { X } from 'lucide-react';
 import { useAuth } from '@/core/components/context/AuthContext';
 import { authApi } from '@/core/lib/auth/auth';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import { isValidPhoneNumber } from '@/core/lib/shared/validators';
+import { CURRENT_TERMS_VERSION } from '@/core/constants';
 
 export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
   const { login, register } = useAuth();
@@ -19,6 +22,7 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
   const [registerLastName, setRegisterLastName] = useState('');
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPhone, setRegisterPhone] = useState('');
+  const [registerAcceptedTerms, setRegisterAcceptedTerms] = useState(false);
   const [honeypot, setHoneypot] = useState('');
 
   const [forgotEmail, setForgotEmail] = useState('');
@@ -67,6 +71,11 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
       return;
     }
 
+    if (!registerAcceptedTerms) {
+      setError(t('core.authModal.errMustAcceptTerms'));
+      return;
+    }
+
     setLoading(true);
     try {
       await register({
@@ -76,6 +85,8 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
         lastName: registerLastName,
         email: registerEmail,
         phoneNumber: registerPhone,
+        acceptedTerms: registerAcceptedTerms,
+        termsVersion: CURRENT_TERMS_VERSION,
         _gotcha: honeypot,
       });
       onClose();
@@ -109,7 +120,7 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
           className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
           aria-label="Close"
         >
-          ✕
+          <X className="w-4 h-4" />
         </button>
 
         {error && (
@@ -297,6 +308,27 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
+
+              <label className="flex items-start gap-2.5 pt-1 cursor-pointer">
+                <input
+                  type="checkbox"
+                  required
+                  checked={registerAcceptedTerms}
+                  onChange={(e) => setRegisterAcceptedTerms(e.target.checked)}
+                  className="mt-1 h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                />
+                <span className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                  {t('core.authModal.agreeToTermsPrefix')}{' '}
+                  <Link to="/terms-of-service" target="_blank" rel="noopener noreferrer" className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">
+                    {t('core.authModal.termsOfServiceLink')}
+                  </Link>{' '}
+                  {t('core.authModal.agreeToTermsAnd')}{' '}
+                  <Link to="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">
+                    {t('core.authModal.privacyPolicyLink')}
+                  </Link>
+                  .
+                </span>
+              </label>
 
               <button
                 type="submit"

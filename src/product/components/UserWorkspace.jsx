@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ArrowLeft } from 'lucide-react';
 import { Navigate, Route, Routes, useNavigate, useParams, Link } from 'react-router-dom';
 import Stepper from '@/product/components/Stepper';
 import UploadStep from '@/product/components/UploadStep';
@@ -137,7 +138,7 @@ export default function UserWorkspace() {
                 to={`/${username}`}
                 className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
               >
-                ← Back to Projects Dashboard
+                <ArrowLeft className="w-3.5 h-3.5" /> Back to Projects Dashboard
               </Link>
             </div>
             <Stepper step={1} onStepClick={goToStep} />

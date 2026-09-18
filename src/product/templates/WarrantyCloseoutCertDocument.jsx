@@ -1,4 +1,5 @@
 import React from 'react';
+import { Award } from 'lucide-react';
 import { formatCurrency } from '@/product/lib/calculations';
 import { DocumentSignOff } from './DocumentHeaderSignoff';
 import { useTranslation } from '@/core/components/context/I18nContext';
@@ -13,8 +14,8 @@ export default function WarrantyCloseoutCertDocument({ estimate, branding, curre
   return (
     <div className="space-y-6 font-serif text-center py-4">
       <div className="border-4 border-double border-amber-600 p-8 rounded-3xl bg-amber-50/20 space-y-5">
-        <div className="w-12 h-12 mx-auto rounded-full bg-amber-600 text-white flex items-center justify-center text-xl font-bold shadow-md">
-          ★
+        <div className="w-12 h-12 mx-auto rounded-full bg-amber-600 text-white flex items-center justify-center shadow-md">
+          <Award className="w-6 h-6" />
         </div>
         <h2 className="text-2xl font-bold uppercase tracking-widest text-amber-950">
           {t('product.templates.warrantyCloseout.title')}

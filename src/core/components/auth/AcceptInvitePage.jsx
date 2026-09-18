@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { X, Handshake } from 'lucide-react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '@/core/components/context/AuthContext';
 import { useModal } from '@/core/components/context/ModalContext';
@@ -109,8 +110,8 @@ export default function AcceptInvitePage() {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
         <div className="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 sm:p-8 text-center shadow-2xl space-y-4">
-          <div className="w-14 h-14 bg-red-500/10 text-red-400 rounded-2xl flex items-center justify-center mx-auto text-2xl font-bold border border-red-500/20">
-            ✕
+          <div className="w-14 h-14 bg-red-500/10 text-red-400 rounded-2xl flex items-center justify-center mx-auto border border-red-500/20">
+            <X className="w-6 h-6" />
           </div>
           <h2 className="text-xl font-bold text-white">{t('core.acceptInvite.invitationInvalidOrExpired')}</h2>
           <p className="text-sm text-slate-400">{error}</p>
@@ -138,8 +139,8 @@ export default function AcceptInvitePage() {
     <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
       <div className="bg-slate-800/90 border border-slate-700 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl backdrop-blur relative">
         <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-indigo-500/10 text-indigo-400 rounded-2xl flex items-center justify-center mx-auto text-3xl font-bold border border-indigo-500/20 mb-3 shadow-inner">
-            🤝
+          <div className="w-16 h-16 bg-indigo-500/10 text-indigo-400 rounded-2xl flex items-center justify-center mx-auto border border-indigo-500/20 mb-3 shadow-inner">
+            <Handshake className="w-8 h-8" />
           </div>
           <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-400 bg-indigo-950/80 border border-indigo-800 px-3 py-1 rounded-full">
             {t('core.acceptInvite.workspaceInvitation')}

@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { Shuffle, X } from 'lucide-react';
 import {
   getTargetFields,
   normalizeRowsWithMapping,
@@ -138,8 +139,8 @@ export default function ColumnMappingModal({
         {/* Modal Header */}
         <div className="pb-4 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xl shrink-0">
-              🔀
+            <div className="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+              <Shuffle className="w-5 h-5" />
             </div>
             <div>
               <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-snug">{t('product.columnMappingModal.title')}</h3>
@@ -235,8 +236,8 @@ export default function ColumnMappingModal({
         </div>
 
         {validationError && (
-          <div className="mt-4 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 text-red-700 dark:text-red-300 text-xs rounded-xl">
-            ✕ {validationError}
+          <div className="mt-4 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 text-red-700 dark:text-red-300 text-xs rounded-xl flex items-center gap-1.5">
+            <X className="w-3.5 h-3.5 shrink-0" /> {validationError}
           </div>
         )}
 

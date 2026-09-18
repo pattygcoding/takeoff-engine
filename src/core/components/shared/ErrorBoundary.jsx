@@ -1,4 +1,5 @@
 import React from 'react';
+import { AlertTriangle } from 'lucide-react';
 import { getTranslation } from '@/core/lib/shared/i18n';
 
 export default class ErrorBoundary extends React.Component {
@@ -22,8 +23,8 @@ export default class ErrorBoundary extends React.Component {
       return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
           <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center border border-slate-200">
-            <div className="w-12 h-12 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-xl">
-              ⚠️
+            <div className="w-12 h-12 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <AlertTriangle className="w-6 h-6" />
             </div>
             <h2 className="text-xl font-bold text-slate-900 mb-2">
               {getTranslation('core.errorBoundary.title', {}, savedLang)}

@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/core/components/context/AuthContext';
 import { authApi } from '@/core/lib/auth/auth';
 import { billingApi } from '@/core/lib/billing/billing';
 import { openPaddleCheckout } from '@/core/lib/billing/paddle';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import SeoHead from '@/core/components/shared/SeoHead';
+import { ArrowLeft, AlertTriangle, PartyPopper, Check, ArrowRight } from 'lucide-react';
 import { isValidPhoneNumber } from '@/core/lib/shared/validators';
 import {
   STARTER_MONTHLY_PRICE,
@@ -18,6 +19,7 @@ import {
   STARTER_PLAN_SEATS,
   PRO_PLAN_SEATS,
   ENTERPRISE_PLAN_SEATS,
+  CURRENT_TERMS_VERSION,
 } from '@/core/constants';
 
 export default function LoginPage({ initialView = 'login' }) {
@@ -46,6 +48,7 @@ export default function LoginPage({ initialView = 'login' }) {
   const [registerLastName, setRegisterLastName] = useState('');
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPhone, setRegisterPhone] = useState('');
+  const [registerAcceptedTerms, setRegisterAcceptedTerms] = useState(false);
 
   const [forgotEmail, setForgotEmail] = useState('');
 
@@ -108,6 +111,11 @@ export default function LoginPage({ initialView = 'login' }) {
       return;
     }
 
+    if (!registerAcceptedTerms) {
+      setError(t('core.loginPage.errMustAcceptTerms'));
+      return;
+    }
+
     setLoading(true);
     try {
       await register({
@@ -117,6 +125,8 @@ export default function LoginPage({ initialView = 'login' }) {
         lastName: registerLastName,
         email: registerEmail,
         phoneNumber: registerPhone,
+        acceptedTerms: registerAcceptedTerms,
+        termsVersion: CURRENT_TERMS_VERSION,
       });
 
       // Route immediately to the dedicated /onboarding screen
@@ -236,7 +246,7 @@ export default function LoginPage({ initialView = 'login' }) {
           onClick={() => navigate('/home')}
           className="inline-flex items-center gap-1.5 hover:text-indigo-600 dark:hover:text-indigo-400 transition cursor-pointer"
         >
-          <span>←</span>
+          <ArrowLeft className="w-3.5 h-3.5" />
           <span>{t('core.loginPage.backToHome')}</span>
         </button>
         <div className="flex items-center gap-3">
@@ -278,7 +288,7 @@ export default function LoginPage({ initialView = 'login' }) {
         {error && (
           <div id="auth-error" role="alert" className="mb-4 p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 text-sm text-red-700 dark:text-red-300 space-y-2">
             <div className="flex items-start gap-2">
-              <span aria-hidden="true" className="text-base shrink-0">⚠️</span>
+              <AlertTriangle aria-hidden="true" className="w-4 h-4 shrink-0" />
               <p className="flex-1 font-medium">{error}</p>
             </div>
             {error.toLowerCase().includes('locked') && (
@@ -306,8 +316,8 @@ export default function LoginPage({ initialView = 'login' }) {
         {view === 'plan-select' && (
           <div>
             <div className="text-center mb-8 max-w-2xl mx-auto">
-              <span className="inline-block px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 mb-3">
-                Account Created Successfully 🎉
+              <span className="inline-block px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 mb-3 inline-flex items-center gap-1.5">
+                Account Created Successfully <PartyPopper className="w-3.5 h-3.5" />
               </span>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
                 {t('core.loginPage.selectPlanTitle')}
@@ -339,10 +349,10 @@ export default function LoginPage({ initialView = 'login' }) {
                   </p>
 
                   <ul className="mt-6 space-y-2.5 text-xs text-slate-300">
-                    <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.freeTrial.f1')}</strong></li>
-                    <li className="flex items-center gap-2">✓ {t('core.landing.pricing.freeTrial.f2')}</li>
-                    <li className="flex items-center gap-2">✓ {t('core.landing.pricing.freeTrial.f3')}</li>
-                    <li className="flex items-center gap-2">✓ {t('core.landing.pricing.freeTrial.f4')}</li>
+                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> <strong>{t('core.landing.pricing.freeTrial.f1')}</strong></li>
+                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> {t('core.landing.pricing.freeTrial.f2')}</li>
+                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> {t('core.landing.pricing.freeTrial.f3')}</li>
+                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> {t('core.landing.pricing.freeTrial.f4')}</li>
                   </ul>
                 </div>
 
@@ -373,11 +383,11 @@ export default function LoginPage({ initialView = 'login' }) {
                   </p>
 
                   <ul className="mt-6 space-y-2.5 text-xs text-slate-300">
-                    <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.starter.f1', { seats: STARTER_PLAN_SEATS })}</strong></li>
-                    <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.starter.f2')}</strong></li>
-                    <li className="flex items-center gap-2">✓ {t('core.landing.pricing.starter.f3')}</li>
-                    <li className="flex items-center gap-2">✓ {t('core.landing.pricing.starter.f4')}</li>
-                    <li className="flex items-center gap-2">✓ {t('core.landing.pricing.starter.f5')}</li>
+                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> <strong>{t('core.landing.pricing.starter.f1', { seats: STARTER_PLAN_SEATS })}</strong></li>
+                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> <strong>{t('core.landing.pricing.starter.f2')}</strong></li>
+                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> {t('core.landing.pricing.starter.f3')}</li>
+                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> {t('core.landing.pricing.starter.f4')}</li>
+                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> {t('core.landing.pricing.starter.f5')}</li>
                   </ul>
                 </div>
 
@@ -413,11 +423,11 @@ export default function LoginPage({ initialView = 'login' }) {
                   </p>
 
                   <ul className="mt-6 space-y-2.5 text-xs text-slate-200">
-                    <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.pro.f1', { seats: PRO_PLAN_SEATS })}</strong></li>
-                    <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.pro.f2')}</strong></li>
-                    <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.pro.f3')}</strong></li>
-                    <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.pro.f4')}</strong></li>
-                    <li className="flex items-center gap-2">✓ {t('core.landing.pricing.pro.f5')}</li>
+                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-400 shrink-0" /> <strong>{t('core.landing.pricing.pro.f1', { seats: PRO_PLAN_SEATS })}</strong></li>
+                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-400 shrink-0" /> <strong>{t('core.landing.pricing.pro.f2')}</strong></li>
+                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-400 shrink-0" /> <strong>{t('core.landing.pricing.pro.f3')}</strong></li>
+                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-400 shrink-0" /> <strong>{t('core.landing.pricing.pro.f4')}</strong></li>
+                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-400 shrink-0" /> {t('core.landing.pricing.pro.f5')}</li>
                   </ul>
                 </div>
 
@@ -449,11 +459,11 @@ export default function LoginPage({ initialView = 'login' }) {
                   </p>
 
                   <ul className="mt-6 space-y-2.5 text-xs text-slate-300">
-                    <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.enterprise.f1', { seats: ENTERPRISE_PLAN_SEATS })}</strong></li>
-                    <li className="flex items-center gap-2">✓ <strong>{t('core.landing.pricing.enterprise.f2', { price: EXTRA_SEAT_MONTHLY_PRICE })}</strong></li>
-                    <li className="flex items-center gap-2">✓ {t('core.landing.pricing.enterprise.f3')}</li>
-                    <li className="flex items-center gap-2">✓ {t('core.landing.pricing.enterprise.f4')}</li>
-                    <li className="flex items-center gap-2">✓ {t('core.landing.pricing.enterprise.f5')}</li>
+                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400 shrink-0" /> <strong>{t('core.landing.pricing.enterprise.f1', { seats: ENTERPRISE_PLAN_SEATS })}</strong></li>
+                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400 shrink-0" /> <strong>{t('core.landing.pricing.enterprise.f2', { price: EXTRA_SEAT_MONTHLY_PRICE })}</strong></li>
+                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400 shrink-0" /> {t('core.landing.pricing.enterprise.f3')}</li>
+                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400 shrink-0" /> {t('core.landing.pricing.enterprise.f4')}</li>
+                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400 shrink-0" /> {t('core.landing.pricing.enterprise.f5')}</li>
                   </ul>
                 </div>
 
@@ -473,9 +483,9 @@ export default function LoginPage({ initialView = 'login' }) {
               <button
                 type="button"
                 onClick={handleSelectFreePlan}
-                className="text-xs font-semibold text-slate-400 hover:text-indigo-400 transition cursor-pointer"
+                className="text-xs font-semibold text-slate-400 hover:text-indigo-400 transition cursor-pointer inline-flex items-center gap-1"
               >
-                {t('core.loginPage.skipForNow', 'Or continue to dashboard with Free Trial →')}
+                {t('core.loginPage.skipForNow', 'Or continue to dashboard with Free Trial')} <ArrowRight className="w-3 h-3" />
               </button>
             </div>
           </div>
@@ -696,6 +706,27 @@ export default function LoginPage({ initialView = 'login' }) {
                   </button>
                 </div>
               </div>
+
+              <label className="flex items-start gap-2.5 pt-1 cursor-pointer">
+                <input
+                  type="checkbox"
+                  required
+                  checked={registerAcceptedTerms}
+                  onChange={(e) => setRegisterAcceptedTerms(e.target.checked)}
+                  className="mt-1 h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                />
+                <span className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                  {t('core.loginPage.agreeToTermsPrefix')}{' '}
+                  <Link to="/terms-of-service" target="_blank" rel="noopener noreferrer" className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">
+                    {t('core.loginPage.termsOfServiceLink')}
+                  </Link>{' '}
+                  {t('core.loginPage.agreeToTermsAnd')}{' '}
+                  <Link to="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">
+                    {t('core.loginPage.privacyPolicyLink')}
+                  </Link>
+                  .
+                </span>
+              </label>
 
               <button
                 type="submit"

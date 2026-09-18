@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Check } from 'lucide-react';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import { parseTakeoffFile, buildMappingModalDataFromItems } from '@/product/lib/csv';
 import { DEFAULT_SCOPE_ITEMS, summarizeScope } from '@/product/lib/scope';
@@ -107,7 +108,7 @@ export default function EditStep({
     <div className="max-w-6xl mx-auto px-4 py-8">
       {successToast && (
         <div className="mb-6 p-4 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 rounded-2xl flex items-center gap-2 text-sm font-semibold shadow-xs animate-fade-in">
-          <span>✓</span>
+          <span><Check className="w-4 h-4" /></span>
           <span>{successToast}</span>
         </div>
       )}
