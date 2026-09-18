@@ -159,6 +159,17 @@ export default function TermsOfServicePage() {
               </a>
             </div>
           </section>
+
+          {/* Section 9 */}
+          <section className="space-y-3">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs font-black">9</span>
+              {t('core.termsOfService.s9Title')}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              {t('core.termsOfService.s9Body')}
+            </p>
+          </section>
         </div>
       </div>
     </div>
