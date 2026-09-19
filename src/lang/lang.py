@@ -4,11 +4,14 @@ import threading
 import sys
 import os
 import re
+import random
 from deep_translator import GoogleTranslator
 from copy import deepcopy
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 source_language = "en"
+MIN_REQUEST_DELAY_SECONDS = 4
+MAX_REQUEST_DELAY_SECONDS = 6
 
 target_languages = [
     "es",
@@ -75,6 +78,7 @@ def periodic_progress(total, progress_ref, stop_flag):
         time.sleep(3)
 
 def translate_text(translator, original):
+    time.sleep(random.uniform(MIN_REQUEST_DELAY_SECONDS, MAX_REQUEST_DELAY_SECONDS))
     placeholders = re.findall(r"\{\{.*?\}\}", original)
     if not placeholders:
         return translator.translate(original)
@@ -145,7 +149,6 @@ def translate_one_by_one(json_data, target_language, existing_translations=None)
             print(f"Failed to translate after retries: {original}")
 
         progress[0] += 1
-        time.sleep(0.05)  # small throttle to avoid rate limits
 
     stop_flag[0] = True
     thread.join()
@@ -209,7 +212,6 @@ def retry_failed_translations(base_json, existing_json, target_language):
         if not success:
             still_failed.append(original)
         print(f"✔️ {i}/{total} retried")
-        time.sleep(0.1)
 
     if still_failed:
         print(f"\nStill failed after retry ({len(still_failed)}):")
