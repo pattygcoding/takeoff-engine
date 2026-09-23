@@ -240,7 +240,7 @@ export default function LandingPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="calculator-length" className="block text-[11px] font-mono uppercase tracking-wide text-slate-500 mb-1.5">
+                  <label htmlFor="calculator-length" className="block text-[11px] font-mono uppercase tracking-wide text-slate-400 mb-1.5">
                     {t('core.landing.calculator.pipeLength')}
                   </label>
                   <input
@@ -252,7 +252,7 @@ export default function LandingPage() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="calculator-depth" className="block text-[11px] font-mono uppercase tracking-wide text-slate-500 mb-1.5">
+                  <label htmlFor="calculator-depth" className="block text-[11px] font-mono uppercase tracking-wide text-slate-400 mb-1.5">
                     {t('core.landing.calculator.cutDepth')}
                   </label>
                   <input
@@ -268,7 +268,7 @@ export default function LandingPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="calculator-width" className="block text-[11px] font-mono uppercase tracking-wide text-slate-500 mb-1.5">
+                  <label htmlFor="calculator-width" className="block text-[11px] font-mono uppercase tracking-wide text-slate-400 mb-1.5">
                     {t('core.landing.calculator.trenchWidth')}
                   </label>
                   <input
@@ -281,7 +281,7 @@ export default function LandingPage() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="calculator-diameter" className="block text-[11px] font-mono uppercase tracking-wide text-slate-500 mb-1.5">
+                  <label htmlFor="calculator-diameter" className="block text-[11px] font-mono uppercase tracking-wide text-slate-400 mb-1.5">
                     {t('core.landing.calculator.pipeDiameter')}
                   </label>
                   <input
@@ -296,7 +296,7 @@ export default function LandingPage() {
 
               <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-800">
                 <div>
-                  <label htmlFor="calculator-excavation" className="block text-[11px] font-mono uppercase tracking-wide text-slate-500 mb-1.5">
+                  <label htmlFor="calculator-excavation" className="block text-[11px] font-mono uppercase tracking-wide text-slate-400 mb-1.5">
                     {t('core.landing.calculator.excavationCost')}
                   </label>
                   <input
@@ -308,7 +308,7 @@ export default function LandingPage() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="calculator-labor" className="block text-[11px] font-mono uppercase tracking-wide text-slate-500 mb-1.5">
+                  <label htmlFor="calculator-labor" className="block text-[11px] font-mono uppercase tracking-wide text-slate-400 mb-1.5">
                     {t('core.landing.calculator.crewLaborRate')}
                   </label>
                   <input
@@ -336,16 +336,16 @@ export default function LandingPage() {
 
               <div className="grid grid-cols-2 gap-3 mb-4">
                 <div className="bg-slate-900 p-4 rounded-md border border-slate-800">
-                  <span className="text-[11px] font-mono uppercase text-slate-500 block mb-1">{t('core.landing.calculator.totalExcavation')}</span>
+                  <span className="text-[11px] font-mono uppercase text-slate-400 block mb-1">{t('core.landing.calculator.totalExcavation')}</span>
                   <div className="text-xl font-bold font-mono tabular-nums text-white">
-                    {formatNumber(totalExcavationCuYd, 1)} <span className="text-xs font-normal text-slate-500">CY</span>
+                    {formatNumber(totalExcavationCuYd, 1)} <span className="text-xs font-normal text-slate-400">CY</span>
                   </div>
                 </div>
 
                 <div className="bg-slate-900 p-4 rounded-md border border-slate-800">
-                  <span className="text-[11px] font-mono uppercase text-slate-500 block mb-1">{t('core.landing.calculator.netBackfill')}</span>
+                  <span className="text-[11px] font-mono uppercase text-slate-400 block mb-1">{t('core.landing.calculator.netBackfill')}</span>
                   <div className="text-xl font-bold font-mono tabular-nums text-[#60a5fa]">
-                    {formatNumber(backfillCuYd, 1)} <span className="text-xs font-normal text-slate-500">CY</span>
+                    {formatNumber(backfillCuYd, 1)} <span className="text-xs font-normal text-slate-400">CY</span>
                   </div>
                 </div>
               </div>
@@ -404,7 +404,7 @@ export default function LandingPage() {
         <div tabIndex={0} role="region" aria-label={t('core.landing.comparison.title')} className="overflow-x-auto border border-slate-800 rounded-lg bg-slate-950">
           <table className="w-full table-fixed text-left text-sm border-collapse">
             <thead>
-              <tr className="border-b border-slate-800 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 sticky top-0">
+              <tr className="border-b border-slate-800 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400 sticky top-0">
                 <th className="py-3.5 px-6 bg-slate-900 align-top">{t('core.landing.comparison.thCapability')}</th>
                 <th className="py-3.5 px-6 bg-[#2563eb]/10 text-[#93c5fd] border-x border-[#2563eb]/25 align-top">{t('core.landing.comparison.thTakeoffEngine')}</th>
                 <th className="py-3.5 px-6 bg-slate-900 align-top">{t('core.landing.comparison.thExcel')}</th>
@@ -475,9 +475,9 @@ export default function LandingPage() {
                 <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400">{t('core.landing.pricing.freeTrial.tier')}</span>
                 <div className="mt-4 flex items-baseline gap-1">
                   <span className="text-2xl font-bold font-mono tabular-nums text-white">{t('core.landing.pricing.freeTrial.price')}</span>
-                  <span className="text-xs text-slate-500">{t('core.landing.pricing.freeTrial.cadence')}</span>
+                  <span className="text-xs text-slate-400">{t('core.landing.pricing.freeTrial.cadence')}</span>
                 </div>
-                <div className="text-[10px] text-slate-500 font-medium mt-1">{t('core.landing.pricing.freeTrial.noCard')}</div>
+                <div className="text-[10px] text-slate-400 font-medium mt-1">{t('core.landing.pricing.freeTrial.noCard')}</div>
                 <p className="text-xs text-slate-400 mt-3">{t('core.landing.pricing.freeTrial.description')}</p>
 
                 <ul className="mt-6 space-y-2.5 text-xs text-slate-300">
@@ -502,9 +502,9 @@ export default function LandingPage() {
                 <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400">{t('core.landing.pricing.starter.tier')}</span>
                 <div className="mt-4 flex items-baseline gap-1">
                   <span className="text-2xl font-bold font-mono tabular-nums text-white">{t('core.landing.pricing.starter.price', { price: STARTER_MONTHLY_PRICE })}</span>
-                  <span className="text-xs text-slate-500">{t('core.landing.pricing.starter.cadence')}</span>
+                  <span className="text-xs text-slate-400">{t('core.landing.pricing.starter.cadence')}</span>
                 </div>
-                <div className="text-[10px] text-slate-500 font-medium mt-1">{t('core.landing.pricing.starter.yearly', { yearly: STARTER_YEARLY_PRICE })}</div>
+                <div className="text-[10px] text-slate-400 font-medium mt-1">{t('core.landing.pricing.starter.yearly', { yearly: STARTER_YEARLY_PRICE })}</div>
                 <p className="text-xs text-slate-400 mt-3">{t('core.landing.pricing.starter.description')}</p>
 
                 <ul className="mt-6 space-y-2.5 text-xs text-slate-300">
@@ -534,7 +534,7 @@ export default function LandingPage() {
                 <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#60a5fa]">{t('core.landing.pricing.pro.tier')}</span>
                 <div className="mt-4 flex items-baseline gap-1">
                   <span className="text-2xl font-bold font-mono tabular-nums text-white">{t('core.landing.pricing.pro.price', { price: PRO_MONTHLY_PRICE })}</span>
-                  <span className="text-xs text-slate-500">{t('core.landing.pricing.pro.cadence')}</span>
+                  <span className="text-xs text-slate-400">{t('core.landing.pricing.pro.cadence')}</span>
                 </div>
                 <div className="text-[10px] text-[#60a5fa]/80 font-medium mt-1">{t('core.landing.pricing.pro.yearly', { yearly: PRO_YEARLY_PRICE })}</div>
                 <p className="text-xs text-slate-300 mt-3">{t('core.landing.pricing.pro.description')}</p>
@@ -562,7 +562,7 @@ export default function LandingPage() {
                 <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-amber-400">{t('core.landing.pricing.enterprise.tier')}</span>
                 <div className="mt-4 flex items-baseline gap-1">
                   <span className="text-2xl font-bold font-mono tabular-nums text-white">{t('core.landing.pricing.enterprise.price', { price: ENTERPRISE_MONTHLY_PRICE })}</span>
-                  <span className="text-xs text-slate-500">{t('core.landing.pricing.enterprise.cadence')}</span>
+                  <span className="text-xs text-slate-400">{t('core.landing.pricing.enterprise.cadence')}</span>
                 </div>
                 <div className="text-[10px] text-amber-300/80 font-medium mt-1">{t('core.landing.pricing.enterprise.yearly', { yearly: ENTERPRISE_YEARLY_PRICE })}</div>
                 <p className="text-xs text-slate-300 mt-3">{t('core.landing.pricing.enterprise.description')}</p>
@@ -588,7 +588,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800 py-10 text-center text-xs text-slate-500 bg-slate-950">
+      <footer className="border-t border-slate-800 py-10 text-center text-xs text-slate-400 bg-slate-950">
         <div className="max-w-6xl mx-auto px-4 space-y-5">
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[13px] text-slate-400">
             <button onClick={() => navigate('/home')} className="hover:text-white transition-colors">
@@ -607,7 +607,7 @@ export default function LandingPage() {
               {t('core.landing.footer.createAccount')}
             </button>
             <span className="w-px h-3.5 bg-slate-800" aria-hidden="true" />
-            <button onClick={() => navigate('/terms')} className="text-slate-500 hover:text-white font-medium transition-colors">
+            <button onClick={() => navigate('/terms')} className="text-slate-400 hover:text-white font-medium transition-colors">
               {t('core.footer.acceptableUsePolicy')}
             </button>
             <button onClick={() => navigate('/disclaimer')} className="text-amber-500/80 hover:text-amber-400 font-medium transition-colors">
@@ -616,7 +616,7 @@ export default function LandingPage() {
           </div>
           <div className="pt-5 border-t border-slate-800/70 space-y-1">
             <p className="font-semibold text-slate-400">{t('core.landing.footer.tagline')}</p>
-            <p className="font-mono text-slate-600">{t('core.landing.footer.copyright', { year: new Date().getFullYear() })}</p>
+            <p className="font-mono text-slate-400">{t('core.landing.footer.copyright', { year: new Date().getFullYear() })}</p>
           </div>
         </div>
       </footer>
