@@ -1,4 +1,5 @@
 import { getTranslation } from '@/core/lib/shared/i18n';
+import { clearAccessToken, setAccessToken } from '@/core/lib/auth/sessionToken';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -50,6 +51,7 @@ export const authApi = {
     if (!res.ok) {
       throw new Error(data.error || getTranslation('core.apiErrors.loginFailed'));
     }
+    setAccessToken(data.accessToken);
     return data;
   },
 
@@ -61,6 +63,7 @@ export const authApi = {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Unable to establish a secure session.');
+    setAccessToken(data.accessToken || accessToken);
     return data;
   },
 
@@ -75,6 +78,7 @@ export const authApi = {
     }
     localStorage.removeItem('takeoff_user');
     sessionStorage.removeItem('takeoff_csrf');
+    clearAccessToken();
   },
 
   async getMe() {
@@ -153,6 +157,7 @@ export const authApi = {
     }
     localStorage.removeItem('takeoff_user');
     sessionStorage.removeItem('takeoff_csrf');
+    clearAccessToken();
     return data;
   },
 
