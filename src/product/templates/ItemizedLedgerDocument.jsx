@@ -62,10 +62,10 @@ export default function ItemizedLedgerDocument({ estimate, branding, currentProj
           <p className="font-bold text-slate-900">{formatMarkupLine(t('product.resultsStep.contingencyFixed'), totals.contingencyAmount, rates?.contingencyPercent ?? totals.contingencyPct ?? 5, t)}</p>
         </div>
         <div>
-          <span className="text-indigo-600 font-bold uppercase text-[10px]">
+          <span className="text-blue-600 font-bold uppercase text-[10px]">
             {t('product.templates.itemizedLedger.finalBidAmount')}
           </span>
-          <p className="font-bold text-indigo-700 text-sm">{formatCurrency(totals.finalBidAmount)}</p>
+          <p className="font-bold text-blue-700 text-sm">{formatCurrency(totals.finalBidAmount)}</p>
         </div>
       </div>
 

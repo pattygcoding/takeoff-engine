@@ -16,9 +16,9 @@ export default function KpiSummaryDocument({ estimate, branding, currentProject 
       <DocumentBrandingHeader branding={branding} title={t('product.templates.kpiSummary.title')} project={currentProject} />
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-2xl">
-          <span className="text-[10px] font-bold uppercase text-indigo-500">{t('product.templates.kpiSummary.grossContract')}</span>
-          <p className="text-lg font-bold text-indigo-900">{formatCurrency(totals.finalBidAmount)}</p>
+        <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl">
+          <span className="text-[10px] font-bold uppercase text-blue-500">{t('product.templates.kpiSummary.grossContract')}</span>
+          <p className="text-lg font-bold text-blue-900">{formatCurrency(totals.finalBidAmount)}</p>
         </div>
         <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl">
           <span className="text-[10px] font-bold uppercase text-emerald-600">{t('product.templates.kpiSummary.netProfitMargin')}</span>
@@ -52,7 +52,7 @@ export default function KpiSummaryDocument({ estimate, branding, currentProject 
                   </span>
                 </div>
                 <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                  <div className="bg-indigo-600 h-2 rounded-full" style={{ width: `${pct}%` }} />
+                  <div className="bg-blue-600 h-2 rounded-full" style={{ width: `${pct}%` }} />
                 </div>
               </div>
             );

@@ -70,7 +70,7 @@ export const EXPORT_FORMATS = [
     category: 'Client Presentation',
     tag: 'Standard',
     isProOnly: false,
-    badgeColor: 'bg-indigo-100 text-indigo-700',
+    badgeColor: 'bg-blue-100 text-blue-700',
     description: 'Clean proposal hiding internal markups, displaying line descriptions and bid totals.',
     previewKind: 'proposal',
   },
@@ -478,7 +478,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
           <div className="flex items-center gap-3">
             <Link
               to={backUrl}
-              className="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-xl transition"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-xl transition"
             >
               {t('product.exportHub.backToResults')}
             </Link>
@@ -486,7 +486,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
               <h1 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <span>{t('product.exportHub.exportPrintCenter')}</span>
                 {currentProject?.name && (
-                  <span className="text-xs font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 px-2.5 py-0.5 rounded-md">
+                  <span className="text-xs font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 px-2.5 py-0.5 rounded-md">
                     {currentProject.name}
                   </span>
                 )}
@@ -512,7 +512,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
               type="button"
               onClick={handleExportPdf}
               disabled={exportingType !== null}
-              className="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-60 transition cursor-pointer shadow-xs"
+              className="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 transition cursor-pointer shadow-xs"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -676,12 +676,12 @@ export default function ExportHubPage({ items, rates, currentProject }) {
           {/* Preview Section Header with Title & Back Button */}
           <div className="no-print flex flex-wrap items-center justify-between gap-3 px-2">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs">
+              <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-xs">
                 <FileText className="w-4 h-4" />
               </div>
               <div>
                 <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-tight">
-                  {t('product.exportHub.documentPreview')}: <span className="text-indigo-600 dark:text-indigo-400">{currentFormat.name}</span>
+                  {t('product.exportHub.documentPreview')}: <span className="text-blue-600 dark:text-blue-400">{currentFormat.name}</span>
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
                   {t('product.exportHub.previewDesc')}
@@ -692,9 +692,9 @@ export default function ExportHubPage({ items, rates, currentProject }) {
             <button
               type="button"
               onClick={scrollToFormatSelection}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 border border-slate-200 dark:border-slate-700 hover:border-indigo-200 rounded-xl text-xs font-bold transition shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 border border-slate-200 dark:border-slate-700 hover:border-blue-200 rounded-xl text-xs font-bold transition shadow-2xs cursor-pointer"
             >
-              <svg className="w-4 h-4 text-slate-400 group-hover:text-indigo-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 10l7-7m0 0l7 7m-7-7v18" />
               </svg>
               <span>{t('product.exportHub.backToDocSelection')}</span>
@@ -796,7 +796,7 @@ function FormatCard({ format, isSelected, isPro, onScrollToPreview, onClick }) {
       onClick={onClick}
       className={`group relative flex flex-col justify-between rounded-2xl border-2 p-3 text-left transition-all duration-200 cursor-pointer select-none bg-white dark:bg-slate-800 ${
         isSelected
-          ? 'border-indigo-600 ring-4 ring-indigo-50 dark:ring-indigo-950 shadow-md transform -translate-y-0.5'
+          ? 'border-blue-600 ring-4 ring-blue-50 dark:ring-blue-950 shadow-md transform -translate-y-0.5'
           : 'border-slate-200/80 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-xs'
       }`}
     >
@@ -832,7 +832,7 @@ function FormatCard({ format, isSelected, isPro, onScrollToPreview, onClick }) {
               <button
                 type="button"
                 onClick={handlePreviewClick}
-                className="px-1.5 py-0.5 bg-indigo-50 dark:bg-indigo-950/80 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 hover:text-indigo-900 border border-indigo-200 dark:border-indigo-800 rounded-md text-[9px] font-extrabold tracking-tight transition cursor-pointer shadow-2xs flex items-center gap-0.5"
+                className="px-1.5 py-0.5 bg-blue-50 dark:bg-blue-950/80 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-700 dark:text-blue-300 hover:text-blue-900 border border-blue-200 dark:border-blue-800 rounded-md text-[9px] font-extrabold tracking-tight transition cursor-pointer shadow-2xs flex items-center gap-0.5"
                 title={t('product.exportHub.jumpToPreviewTitle')}
               >
                 <span>{t('product.exportHub.seePreviewBtn')}</span>
@@ -843,7 +843,7 @@ function FormatCard({ format, isSelected, isPro, onScrollToPreview, onClick }) {
             )}
 
             {isSelected && (
-              <span className="w-4 h-4 rounded-full bg-indigo-600 text-white flex items-center justify-center shrink-0">
+              <span className="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0">
                 <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                 </svg>
@@ -876,7 +876,7 @@ function MiniFormatThumbnail({ kind }) {
         <div className="grid grid-cols-3 gap-0.5 pt-1 border-t border-slate-100">
           <div className="h-1.5 bg-slate-100 rounded-xs" />
           <div className="h-1.5 bg-slate-100 rounded-xs" />
-          <div className="h-1.5 bg-indigo-500 rounded-xs" />
+          <div className="h-1.5 bg-blue-500 rounded-xs" />
         </div>
       </div>
     );
@@ -884,16 +884,16 @@ function MiniFormatThumbnail({ kind }) {
 
   if (kind === 'proposal') {
     return (
-      <div className="w-full h-full bg-white rounded border border-indigo-200 p-1 flex flex-col justify-between shadow-2xs">
+      <div className="w-full h-full bg-white rounded border border-blue-200 p-1 flex flex-col justify-between shadow-2xs">
         <div className="flex items-center gap-1">
-          <div className="w-2 h-2 bg-indigo-600 rounded-xs" />
+          <div className="w-2 h-2 bg-blue-600 rounded-xs" />
           <div className="w-8 h-1 bg-slate-700 rounded-full" />
         </div>
         <div className="space-y-0.5">
-          <div className="w-full h-1 bg-indigo-50 rounded-xs" />
+          <div className="w-full h-1 bg-blue-50 rounded-xs" />
           <div className="w-5/6 h-1 bg-slate-200 rounded-xs" />
         </div>
-        <div className="h-2.5 bg-indigo-600 rounded-xs flex items-center justify-end px-1">
+        <div className="h-2.5 bg-blue-600 rounded-xs flex items-center justify-end px-1">
           <div className="w-4 h-0.5 bg-white rounded-full" />
         </div>
       </div>

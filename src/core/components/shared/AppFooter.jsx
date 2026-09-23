@@ -31,7 +31,7 @@ export default function AppFooter() {
           {/* Col 1: Brand & Description */}
           <div className="space-y-3 md:col-span-1">
             <div className="flex items-center gap-2">
-              <span className="text-xl"><Ruler className="w-5 h-5 text-indigo-400" /></span>
+              <span className="text-xl"><Ruler className="w-5 h-5 text-blue-400" /></span>
               <span className="font-extrabold text-base tracking-tight text-white">
                 {t('core.footer.brandName')}
               </span>
@@ -167,7 +167,7 @@ export default function AppFooter() {
             </p>
             <a
               href="mailto:pattygsocials@gmail.com"
-              className="inline-block text-xs font-bold text-indigo-400 hover:text-indigo-300 hover:underline transition"
+              className="inline-block text-xs font-bold text-blue-400 hover:text-blue-300 hover:underline transition"
             >
               pattygsocials@gmail.com
             </a>

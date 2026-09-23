@@ -456,7 +456,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
               onClick={() => setActiveSection('all')}
               className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer shrink-0 ${
                 activeSection === 'all'
-                  ? 'bg-indigo-600 text-white shadow-xs font-bold'
+                  ? 'bg-blue-600 text-white shadow-xs font-bold'
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
@@ -467,7 +467,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
               onClick={() => setActiveSection('templates')}
               className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer shrink-0 ${
                 activeSection === 'templates'
-                  ? 'bg-indigo-600 text-white shadow-xs font-bold'
+                  ? 'bg-blue-600 text-white shadow-xs font-bold'
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
@@ -478,7 +478,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
               onClick={() => setActiveSection('labor')}
               className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer shrink-0 ${
                 activeSection === 'labor'
-                  ? 'bg-indigo-600 text-white shadow-xs font-bold'
+                  ? 'bg-blue-600 text-white shadow-xs font-bold'
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
@@ -489,7 +489,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
               onClick={() => setActiveSection('equipment')}
               className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer shrink-0 ${
                 activeSection === 'equipment'
-                  ? 'bg-indigo-600 text-white shadow-xs font-bold'
+                  ? 'bg-blue-600 text-white shadow-xs font-bold'
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
@@ -500,7 +500,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
               onClick={() => setActiveSection('trenching')}
               className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer shrink-0 ${
                 activeSection === 'trenching'
-                  ? 'bg-indigo-600 text-white shadow-xs font-bold'
+                  ? 'bg-blue-600 text-white shadow-xs font-bold'
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
@@ -511,7 +511,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
               onClick={() => setActiveSection('markups')}
               className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer shrink-0 ${
                 activeSection === 'markups'
-                  ? 'bg-indigo-600 text-white shadow-xs font-bold'
+                  ? 'bg-blue-600 text-white shadow-xs font-bold'
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
@@ -533,12 +533,12 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
 
           {/* Rate Template Switcher */}
           {(activeSection === 'all' || activeSection === 'templates') && (
-            <div className="relative overflow-hidden bg-gradient-to-br from-indigo-50/90 via-indigo-50/40 to-slate-50 dark:from-indigo-950/40 dark:via-slate-800/80 dark:to-slate-800/60 border-2 border-indigo-200/80 dark:border-indigo-800/80 rounded-2xl p-4 shadow-xs">
+            <div className="relative overflow-hidden bg-gradient-to-br from-blue-50/90 via-blue-50/40 to-slate-50 dark:from-blue-950/40 dark:via-slate-800/80 dark:to-slate-800/60 border-2 border-blue-200/80 dark:border-blue-800/80 rounded-2xl p-4 shadow-xs">
               <div className="flex items-center justify-between mb-2.5">
                 <div className="flex items-center gap-2">
-                  <span className="p-1 bg-indigo-600 text-white rounded-lg"><Library className="w-3 h-3" /></span>
+                  <span className="p-1 bg-blue-600 text-white rounded-lg"><Library className="w-3 h-3" /></span>
                   <div>
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-950 dark:text-indigo-200 block">
+                    <span className="text-xs font-bold uppercase tracking-wider text-blue-950 dark:text-blue-200 block">
                       {t('product.ratesDrawer.rateLibraryTemplate')}
                     </span>
                     <span className="text-[11px] text-slate-500 dark:text-slate-400 block -mt-0.5">
@@ -550,7 +550,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                   <button
                     type="button"
                     onClick={() => setShowSaveModal(true)}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-xs transition cursor-pointer"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-xs transition cursor-pointer"
                   >
                     {t('product.ratesDrawer.saveCurrentAsNew')}
                   </button>
@@ -567,7 +567,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                 value={selectedTemplateId}
                 onChange={(e) => handleApplyTemplate(e.target.value)}
                 disabled={readOnly}
-                className="w-full px-3 py-2 text-sm border border-indigo-300/80 dark:border-indigo-700/80 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-medium focus:ring-2 focus:ring-indigo-500 focus:outline-none disabled:opacity-80 disabled:cursor-not-allowed cursor-pointer"
+                className="w-full px-3 py-2 text-sm border border-blue-300/80 dark:border-blue-700/80 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:opacity-80 disabled:cursor-not-allowed cursor-pointer"
               >
                 <option value="">{t('product.ratesDrawer.chooseRateTemplate')}</option>
                 {libraries.userLibraries?.length > 0 && (
@@ -590,10 +590,10 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
 
               {/* Custom Libraries manager pill */}
               {libraries.userLibraries?.length > 0 && (
-                <div className="mt-3 space-y-1.5 border-t border-indigo-100 dark:border-indigo-900/60 pt-2.5">
+                <div className="mt-3 space-y-1.5 border-t border-blue-100 dark:border-blue-900/60 pt-2.5">
                   <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">{t('product.ratesDrawer.savedLibraries')}</p>
                   {libraries.userLibraries.map((lib) => (
-                    <div key={lib.id} className="flex items-center justify-between text-xs py-1 px-2 rounded-lg bg-white dark:bg-slate-900 border border-indigo-100 dark:border-indigo-900/60 shadow-2xs">
+                    <div key={lib.id} className="flex items-center justify-between text-xs py-1 px-2 rounded-lg bg-white dark:bg-slate-900 border border-blue-100 dark:border-blue-900/60 shadow-2xs">
                       <span className="truncate font-medium text-slate-700 dark:text-slate-200 max-w-[220px]">{lib.name}</span>
                       {!readOnly && (
                         <button
@@ -619,8 +619,8 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">{t('product.ratesDrawer.workdayHoursMode')}</h3>
                   <div className="inline-flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 text-xs font-medium">
-                    <button type="button" disabled={readOnly} onClick={() => onChange({ ...rates, workdayHoursMode: 'standard' })} className={`px-2.5 py-1 rounded-md ${workdayHoursMode === 'standard' ? 'bg-indigo-600 text-white shadow-xs font-semibold' : 'text-slate-500 dark:text-slate-400'} disabled:cursor-not-allowed`}>{t('product.ratesDrawer.standardHours')}</button>
-                    <button type="button" disabled={readOnly} onClick={() => onChange({ ...rates, workdayHoursMode: 'perRole' })} className={`px-2.5 py-1 rounded-md ${workdayHoursMode === 'perRole' ? 'bg-indigo-600 text-white shadow-xs font-semibold' : 'text-slate-500 dark:text-slate-400'} disabled:cursor-not-allowed`}>{t('product.ratesDrawer.customHoursPerRole')}</button>
+                    <button type="button" disabled={readOnly} onClick={() => onChange({ ...rates, workdayHoursMode: 'standard' })} className={`px-2.5 py-1 rounded-md ${workdayHoursMode === 'standard' ? 'bg-blue-600 text-white shadow-xs font-semibold' : 'text-slate-500 dark:text-slate-400'} disabled:cursor-not-allowed`}>{t('product.ratesDrawer.standardHours')}</button>
+                    <button type="button" disabled={readOnly} onClick={() => onChange({ ...rates, workdayHoursMode: 'perRole' })} className={`px-2.5 py-1 rounded-md ${workdayHoursMode === 'perRole' ? 'bg-blue-600 text-white shadow-xs font-semibold' : 'text-slate-500 dark:text-slate-400'} disabled:cursor-not-allowed`}>{t('product.ratesDrawer.customHoursPerRole')}</button>
                   </div>
                 </div>
                 <Field
@@ -642,7 +642,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                       onClick={() => handleLaborBasisChange('hourly')}
                       className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
                         laborBasis === 'hourly'
-                          ? 'bg-indigo-600 text-white shadow-xs font-semibold'
+                          ? 'bg-blue-600 text-white shadow-xs font-semibold'
                           : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
                       } disabled:cursor-not-allowed`}
                     >
@@ -654,7 +654,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                       onClick={() => handleLaborBasisChange('daily')}
                       className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
                         laborBasis === 'daily'
-                          ? 'bg-indigo-600 text-white shadow-xs font-semibold'
+                          ? 'bg-blue-600 text-white shadow-xs font-semibold'
                           : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
                       } disabled:cursor-not-allowed`}
                     >
@@ -673,14 +673,14 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                       prefix="$"
                       suffix="/ hr"
                     />
-                    <div className="flex items-center justify-between px-2.5 py-1.5 -mt-2 mb-3 bg-indigo-50/60 dark:bg-indigo-950/40 border border-indigo-100/80 dark:border-indigo-900/60 rounded-lg text-xs text-indigo-700 dark:text-indigo-300">
+                    <div className="flex items-center justify-between px-2.5 py-1.5 -mt-2 mb-3 bg-blue-50/60 dark:bg-blue-950/40 border border-blue-100/80 dark:border-blue-900/60 rounded-lg text-xs text-blue-700 dark:text-blue-300">
                       <span className="font-medium">
                         {t('product.ratesDrawer.effectiveDailyRateBadge', {
                           rate: currentDailyRate.toFixed(2),
                           hours: workdayHours,
                         })}
                       </span>
-                      <span className="text-[11px] text-indigo-500 dark:text-indigo-400">
+                      <span className="text-[11px] text-blue-500 dark:text-blue-400">
                         ({workdayHours} hrs/day)
                       </span>
                     </div>
@@ -695,13 +695,13 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                       prefix="$"
                       suffix="/ day"
                     />
-                    <div className="flex items-center justify-between px-2.5 py-1.5 -mt-2 mb-3 bg-indigo-50/60 dark:bg-indigo-950/40 border border-indigo-100/80 dark:border-indigo-900/60 rounded-lg text-xs text-indigo-700 dark:text-indigo-300">
+                    <div className="flex items-center justify-between px-2.5 py-1.5 -mt-2 mb-3 bg-blue-50/60 dark:bg-blue-950/40 border border-blue-100/80 dark:border-blue-900/60 rounded-lg text-xs text-blue-700 dark:text-blue-300">
                       <span className="font-medium">
                         {t('product.ratesDrawer.effectiveHourlyRateBadge', {
                           rate: currentHourlyRate.toFixed(2),
                         })}
                       </span>
-                      <span className="text-[11px] text-indigo-500 dark:text-indigo-400">
+                      <span className="text-[11px] text-blue-500 dark:text-blue-400">
                         ({workdayHours} hrs/day)
                       </span>
                     </div>
@@ -725,7 +725,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                     <button
                       type="button"
                       onClick={() => setShowCrewCalculator(true)}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 rounded-lg transition-colors border border-indigo-100 dark:border-indigo-900 cursor-pointer"
+                      className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 rounded-lg transition-colors border border-blue-100 dark:border-blue-900 cursor-pointer"
                       title={t('product.ratesDrawer.blendedCrewTooltip', 'Calculate composite blended hourly rate based on crew composition')}
                     >
                       <Users className="w-3.5 h-3.5 inline mr-1 -mt-0.5" />{t('product.ratesDrawer.blendedCrewBtn', 'Crew Blend')}
@@ -745,7 +745,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                           value={role.title}
                           disabled={readOnly}
                           onChange={(e) => handleUpdateRole(role.id, 'title', e.target.value)}
-                          className="flex-1 min-w-0 font-semibold text-xs text-slate-900 dark:text-slate-100 bg-transparent border-b border-transparent focus:border-indigo-500 focus:outline-none"
+                          className="flex-1 min-w-0 font-semibold text-xs text-slate-900 dark:text-slate-100 bg-transparent border-b border-transparent focus:border-blue-500 focus:outline-none"
                         />
                         {!readOnly && laborRoles.length > 1 && (
                           <button
@@ -800,7 +800,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                   <button
                     type="button"
                     onClick={handleAddCustomRole}
-                    className="mt-3 w-full py-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 bg-white dark:bg-slate-800 border border-dashed border-indigo-200 dark:border-indigo-800/80 rounded-xl transition cursor-pointer"
+                    className="mt-3 w-full py-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 bg-white dark:bg-slate-800 border border-dashed border-blue-200 dark:border-blue-800/80 rounded-xl transition cursor-pointer"
                   >
                     + {t('product.ratesDrawer.addCustomRole', 'Add Custom Labor Role')}
                   </button>
@@ -836,7 +836,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                         value={eq.title}
                         disabled={readOnly}
                         onChange={(e) => handleUpdateEquipmentCatalogItem(eq.id, 'title', e.target.value)}
-                        className="flex-1 min-w-0 font-semibold text-xs text-slate-900 dark:text-slate-100 bg-transparent border-b border-transparent focus:border-indigo-500 focus:outline-none"
+                        className="flex-1 min-w-0 font-semibold text-xs text-slate-900 dark:text-slate-100 bg-transparent border-b border-transparent focus:border-blue-500 focus:outline-none"
                       />
                       {!readOnly && equipmentCatalog.length > 1 && (
                         <button
@@ -931,7 +931,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                 <button
                   type="button"
                   onClick={handleAddCustomEquipment}
-                  className="mt-3 w-full py-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 bg-white dark:bg-slate-800 border border-dashed border-indigo-200 dark:border-indigo-800/80 rounded-xl transition cursor-pointer"
+                  className="mt-3 w-full py-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 bg-white dark:bg-slate-800 border border-dashed border-blue-200 dark:border-blue-800/80 rounded-xl transition cursor-pointer"
                 >
                   + {t('product.ratesDrawer.addCustomEquipment', 'Add Custom Equipment Preset')}
                 </button>
@@ -1002,7 +1002,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                     <button
                       type="button"
                       onClick={handleAddMiscItem}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 rounded-lg transition-colors border border-indigo-100 dark:border-indigo-900 cursor-pointer"
+                      className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 rounded-lg transition-colors border border-blue-100 dark:border-blue-900 cursor-pointer"
                     >
                       {t('product.ratesDrawer.addMiscItem')}
                     </button>
@@ -1026,9 +1026,9 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                           value={item.title || ''}
                           disabled={readOnly}
                           onChange={(e) => handleUpdateMiscItem(item.id, 'title', e.target.value)}
-                          className="flex-1 min-w-0 px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                          className="flex-1 min-w-0 px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-blue-500 focus:outline-none"
                         />
-                        <div className="flex items-center bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden w-28 shrink-0 focus-within:ring-1 focus-within:ring-indigo-500">
+                        <div className="flex items-center bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden w-28 shrink-0 focus-within:ring-1 focus-within:ring-blue-500">
                           <span className="pl-2 text-xs text-slate-400 dark:text-slate-500">$</span>
                           <input
                             type="number"
@@ -1085,7 +1085,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                     placeholder={t('product.ratesDrawer.templateNamePlaceholder')}
                     value={templateNameInput}
                     onChange={(e) => setTemplateNameInput(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     autoFocus
                   />
                 </div>
@@ -1099,7 +1099,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                     placeholder={t('product.ratesDrawer.templateDescriptionPlaceholder')}
                     value={templateDescInput}
                     onChange={(e) => setTemplateDescInput(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   />
                 </div>
 
@@ -1114,7 +1114,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                   <button
                     type="submit"
                     disabled={saveLoading}
-                    className="px-4 py-1.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-xs disabled:opacity-50 cursor-pointer"
+                    className="px-4 py-1.5 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-xs disabled:opacity-50 cursor-pointer"
                   >
                     {saveLoading ? t('product.ratesDrawer.saving') : t('product.ratesDrawer.saveTemplate')}
                   </button>
@@ -1206,18 +1206,18 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                 })}
 
                 {/* Live Composite Calculation Result */}
-                <div className="p-3.5 bg-indigo-50/80 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 rounded-xl space-y-1.5">
+                <div className="p-3.5 bg-blue-50/80 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 rounded-xl space-y-1.5">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-indigo-800 dark:text-indigo-300 font-medium">{t('product.ratesDrawer.totalCrewHeadcount', 'Total Crew Size:')}</span>
-                    <span className="font-bold text-indigo-950 dark:text-indigo-100">{blendedResult.totalCrewMembers} {t('product.ratesDrawer.workers', 'workers')}</span>
+                    <span className="text-blue-800 dark:text-blue-300 font-medium">{t('product.ratesDrawer.totalCrewHeadcount', 'Total Crew Size:')}</span>
+                    <span className="font-bold text-blue-950 dark:text-blue-100">{blendedResult.totalCrewMembers} {t('product.ratesDrawer.workers', 'workers')}</span>
                   </div>
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-indigo-800 dark:text-indigo-300 font-medium">{t('product.ratesDrawer.totalCrewCostHour', 'Total Crew Cost / Hour:')}</span>
-                    <span className="font-bold text-indigo-950 dark:text-indigo-100">${blendedResult.totalCrewCostPerHour.toFixed(2)}/hr</span>
+                    <span className="text-blue-800 dark:text-blue-300 font-medium">{t('product.ratesDrawer.totalCrewCostHour', 'Total Crew Cost / Hour:')}</span>
+                    <span className="font-bold text-blue-950 dark:text-blue-100">${blendedResult.totalCrewCostPerHour.toFixed(2)}/hr</span>
                   </div>
-                  <div className="flex items-center justify-between pt-1 border-t border-indigo-200/60 dark:border-indigo-800/60">
-                    <span className="text-sm font-bold text-indigo-900 dark:text-indigo-200">{t('product.ratesDrawer.blendedHourlyRate', 'Blended Hourly Rate:')}</span>
-                    <span className="text-base font-extrabold text-indigo-600 dark:text-indigo-400">${blendedResult.blendedHourlyRate.toFixed(2)}/hr</span>
+                  <div className="flex items-center justify-between pt-1 border-t border-blue-200/60 dark:border-blue-800/60">
+                    <span className="text-sm font-bold text-blue-900 dark:text-blue-200">{t('product.ratesDrawer.blendedHourlyRate', 'Blended Hourly Rate:')}</span>
+                    <span className="text-base font-extrabold text-blue-600 dark:text-blue-400">${blendedResult.blendedHourlyRate.toFixed(2)}/hr</span>
                   </div>
                 </div>
               </div>
@@ -1234,7 +1234,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                   type="button"
                   onClick={handleApplyBlendedRate}
                   disabled={blendedResult.blendedHourlyRate <= 0}
-                  className="px-4 py-1.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-xs disabled:opacity-50 cursor-pointer"
+                  className="px-4 py-1.5 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-xs disabled:opacity-50 cursor-pointer"
                 >
                   {t('product.ratesDrawer.applyAsBaseRate', 'Apply as Base Labor Rate')}
                 </button>
@@ -1265,7 +1265,7 @@ function Field({ label, value, onChange, prefix, suffix, disabled = false }) {
   return (
     <label className="block mb-4">
       <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{label}</span>
-      <div className={`mt-1 flex items-center rounded-md border border-slate-300 dark:border-slate-700 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-indigo-500 overflow-hidden bg-white dark:bg-slate-800 ${disabled ? 'bg-slate-50 dark:bg-slate-800/50 opacity-80' : ''}`}>
+      <div className={`mt-1 flex items-center rounded-md border border-slate-300 dark:border-slate-700 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 overflow-hidden bg-white dark:bg-slate-800 ${disabled ? 'bg-slate-50 dark:bg-slate-800/50 opacity-80' : ''}`}>
         {prefix && <span className="pl-3 text-slate-400 dark:text-slate-500 text-sm">{prefix}</span>}
         <input
           type="number"
@@ -1294,7 +1294,7 @@ function DualModeField({ label, value, onChange, type = 'percent', onTypeChange,
             onClick={() => onTypeChange('percent')}
             className={`px-2 py-0.5 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
               isPercent
-                ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs'
+                ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-xs'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
             } disabled:cursor-not-allowed`}
           >
@@ -1306,7 +1306,7 @@ function DualModeField({ label, value, onChange, type = 'percent', onTypeChange,
             onClick={() => onTypeChange('fixed')}
             className={`px-2 py-0.5 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
               !isPercent
-                ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs'
+                ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-xs'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
             } disabled:cursor-not-allowed`}
           >
@@ -1314,7 +1314,7 @@ function DualModeField({ label, value, onChange, type = 'percent', onTypeChange,
           </button>
         </div>
       </div>
-      <div className={`flex items-center rounded-md border border-slate-300 dark:border-slate-700 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-indigo-500 overflow-hidden bg-white dark:bg-slate-800 ${disabled ? 'bg-slate-50 dark:bg-slate-800/50 opacity-80' : ''}`}>
+      <div className={`flex items-center rounded-md border border-slate-300 dark:border-slate-700 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 overflow-hidden bg-white dark:bg-slate-800 ${disabled ? 'bg-slate-50 dark:bg-slate-800/50 opacity-80' : ''}`}>
         {!isPercent && <span className="pl-3 text-slate-400 dark:text-slate-500 text-sm">$</span>}
         <input
           type="number"

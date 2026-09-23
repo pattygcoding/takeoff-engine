@@ -266,10 +266,10 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
     <div className="space-y-3">
       {/* Bulk Labor Role Action Toolbar */}
       {!readOnly && items.length > 0 && selectedItemIds.size > 0 && (
-        <div className="p-3 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 rounded-xl flex flex-wrap items-center justify-between gap-3 animate-in fade-in duration-150">
+        <div className="p-3 bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 rounded-xl flex flex-wrap items-center justify-between gap-3 animate-in fade-in duration-150">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-indigo-600 dark:bg-indigo-400"></span>
-            <span className="text-xs font-bold text-indigo-900 dark:text-indigo-200">
+            <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400"></span>
+            <span className="text-xs font-bold text-blue-900 dark:text-blue-200">
               {t('product.takeoffGrid.selectedItemsCount', { count: selectedItemIds.size }, `${selectedItemIds.size} items selected`)}
             </span>
           </div>
@@ -277,7 +277,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
             <select
               value={bulkRoleId}
               onChange={(e) => setBulkRoleId(e.target.value)}
-              className="text-xs px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              className="text-xs px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             >
               <option value="">{t('product.takeoffGrid.chooseLaborRole', 'Choose Labor Role...')}</option>
               <option value="base">{t('product.takeoffGrid.projectBaseRate', 'Project Base Rate')}</option>
@@ -291,7 +291,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
               type="button"
               onClick={handleApplyBulkLaborRole}
               disabled={!bulkRoleId}
-              className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-xs disabled:opacity-50 transition cursor-pointer"
+              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-xs disabled:opacity-50 transition cursor-pointer"
             >
               {t('product.takeoffGrid.applyRoleBtn', 'Apply Role')}
             </button>
@@ -316,7 +316,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                     type="checkbox"
                     checked={items.length > 0 && selectedItemIds.size === items.length}
                     onChange={handleToggleSelectAll}
-                    className="rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500"
+                    className="rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500"
                     title={t('product.takeoffGrid.selectAll', 'Select all line items')}
                   />
                 </th>
@@ -338,7 +338,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                       onClick={() => handleSetLaborInputMode('hours')}
                       className={`px-1.5 py-0.2 rounded font-semibold transition-colors cursor-pointer ${
                         laborInputMode === 'hours'
-                          ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs'
+                          ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-xs'
                           : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
                       }`}
                       title={t('product.takeoffGrid.laborHoursPerUnit')}
@@ -350,7 +350,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                       onClick={() => handleSetLaborInputMode('cost')}
                       className={`px-1.5 py-0.2 rounded font-semibold transition-colors cursor-pointer ${
                         laborInputMode === 'cost'
-                          ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs'
+                          ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-xs'
                           : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
                       }`}
                       title={t('product.takeoffGrid.laborUnitCost')}
@@ -378,7 +378,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                       : item.hasMissingScope
                       ? 'bg-amber-50/40 dark:bg-amber-950/20'
                       : ''
-                  } ${selectedItemIds.has(item.id) ? 'bg-indigo-50/40 dark:bg-indigo-950/30' : ''}`}
+                  } ${selectedItemIds.has(item.id) ? 'bg-blue-50/40 dark:bg-blue-950/30' : ''}`}
                 >
                   {!readOnly && (
                     <td className="px-3 py-2 text-center w-8">
@@ -386,7 +386,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                         type="checkbox"
                         checked={selectedItemIds.has(item.id)}
                         onChange={() => handleToggleSelectItem(item.id)}
-                        className="rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500"
+                        className="rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500"
                       />
                     </td>
                   )}
@@ -560,7 +560,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
               <button
                 type="button"
                 onClick={addRow}
-                className="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 cursor-pointer"
+                className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 cursor-pointer"
               >
                 + {t('product.takeoffGrid.addRow')}
               </button>
@@ -609,7 +609,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                 <select
                   value={selectedCatalogId}
                   onChange={handleCatalogSelectChange}
-                  className="w-full px-3 py-2 text-xs border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full px-3 py-2 text-xs border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 >
                   {equipmentCatalog.map((eq) => (
                     <option key={eq.id} value={eq.id}>
@@ -631,7 +631,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                     placeholder="e.g. 50-Ton Crane, Hydro-Vac Truck"
                     value={eqCustomTitle}
                     onChange={(e) => setEqCustomTitle(e.target.value)}
-                    className="w-full px-3 py-2 text-xs border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    className="w-full px-3 py-2 text-xs border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   />
                 </div>
               )}
@@ -643,7 +643,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                 <select
                   value={eqAssociatedScope}
                   onChange={(e) => setEqAssociatedScope(e.target.value)}
-                  className="w-full px-3 py-2 text-xs border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full px-3 py-2 text-xs border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 >
                   <option value="General / Project-Wide">{t('product.takeoffGrid.generalScope', 'General / Project-Wide')}</option>
                   {systemOptions.map((system) => (
@@ -664,7 +664,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                     required
                     value={eqDurationQty}
                     onChange={(e) => setEqDurationQty(e.target.value)}
-                    className="w-full px-3 py-2 text-xs border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    className="w-full px-3 py-2 text-xs border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   />
                 </div>
                 <div>
@@ -674,7 +674,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                   <select
                     value={eqDurationUnit}
                     onChange={(e) => setEqDurationUnit(e.target.value)}
-                    className="w-full px-3 py-2 text-xs border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    className="w-full px-3 py-2 text-xs border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   >
                     <option value="days">{t('product.takeoffGrid.daysUnit', 'Days')}</option>
                     <option value="weeks">{t('product.takeoffGrid.weeksUnit', 'Weeks')}</option>

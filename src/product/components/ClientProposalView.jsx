@@ -180,7 +180,7 @@ export default function ClientProposalView() {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4">
         <div className="text-center">
-          <div className="inline-block w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-3"></div>
+          <div className="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-3"></div>
           <p className="text-sm font-medium text-slate-600 dark:text-slate-400">{t('product.clientProposal.loadingDetails')}</p>
         </div>
       </div>
@@ -323,7 +323,7 @@ export default function ClientProposalView() {
               {formatMarkupBasisNote(t)}
             </p>
             {scopeAddonsCost > 0 && (
-              <p className="text-[11px] text-indigo-600 dark:text-indigo-400 mt-2">
+              <p className="text-[11px] text-blue-600 dark:text-blue-400 mt-2">
                 {t('product.resultsStep.scopeAddonsNote', { amount: formatCurrency(scopeAddonsCost) })}
               </p>
             )}
@@ -412,7 +412,7 @@ export default function ClientProposalView() {
                       placeholder={t('product.clientProposal.legalNamePlaceholder')}
                       value={signerName}
                       onChange={(e) => setSignerName(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                      className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     />
                   </div>
 
@@ -426,7 +426,7 @@ export default function ClientProposalView() {
                       placeholder={t('product.clientProposal.emailPlaceholder')}
                       value={signerEmail}
                       onChange={(e) => setSignerEmail(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                      className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     />
                   </div>
 
@@ -435,7 +435,7 @@ export default function ClientProposalView() {
                       type="checkbox"
                       checked={agreedToTerms}
                       onChange={(e) => setAgreedToTerms(e.target.checked)}
-                      className="mt-1 h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                      className="mt-1 h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 cursor-pointer"
                     />
                     <span className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                       {t('product.clientProposal.agreementCheckbox')}
@@ -521,7 +521,7 @@ export default function ClientProposalView() {
                 placeholder={t('product.clientProposal.declineModalPlaceholder')}
                 value={declineReason}
                 onChange={(e) => setDeclineReason(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none mb-4"
+                className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none mb-4"
               />
 
               <div className="flex justify-end gap-2">

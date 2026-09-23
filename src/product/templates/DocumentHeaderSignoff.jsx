@@ -29,7 +29,7 @@ export function DocumentBrandingHeader({ branding, title, project }) {
       </div>
 
       <div className="text-left sm:text-right space-y-1">
-        <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">{title}</span>
+        <span className="text-xs font-bold uppercase tracking-wider text-blue-600">{title}</span>
         <h3 className="text-sm font-bold text-slate-900">
           {project?.name || t('product.templates.header.defaultProjectName')}
         </h3>

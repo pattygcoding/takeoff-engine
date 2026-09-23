@@ -109,8 +109,8 @@ export default function UploadStep({ onItemsParsed }) {
         onClick={() => inputRef.current?.click()}
         className={`cursor-pointer rounded-2xl border-2 border-dashed p-12 text-center transition duration-200
           ${isDragging
-            ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950/40'
-            : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-indigo-400 dark:hover:border-indigo-500 shadow-sm'}`}
+            ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/40'
+            : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-blue-400 dark:hover:border-blue-500 shadow-sm'}`}
       >
         <input
           ref={inputRef}
@@ -132,7 +132,7 @@ export default function UploadStep({ onItemsParsed }) {
             t('product.uploadStep.parsingMessage')
           ) : (
             <>
-              {t('product.uploadStep.dragDropMessage')} <span className="text-indigo-600 dark:text-indigo-400 underline">{t('product.uploadStep.browseLink')}</span>
+              {t('product.uploadStep.dragDropMessage')} <span className="text-blue-600 dark:text-blue-400 underline">{t('product.uploadStep.browseLink')}</span>
             </>
           )}
         </p>
@@ -173,7 +173,7 @@ export default function UploadStep({ onItemsParsed }) {
         <button
           type="button"
           onClick={() => downloadSampleCsv()}
-          className="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline cursor-pointer"
+          className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline cursor-pointer"
         >
           {t('product.uploadStep.csvTemplate')}
         </button>
@@ -181,7 +181,7 @@ export default function UploadStep({ onItemsParsed }) {
         <button
           type="button"
           onClick={() => downloadSampleExcel()}
-          className="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline cursor-pointer"
+          className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline cursor-pointer"
         >
           {t('product.uploadStep.excelTemplate')}
         </button>
@@ -189,7 +189,7 @@ export default function UploadStep({ onItemsParsed }) {
         <a
           href={`${import.meta.env.BASE_URL}product/samples/sample_edge_cases_takeoff.csv`}
           download="sample_edge_cases_takeoff.csv"
-          className="font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline"
+          className="font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline"
         >
           {t('product.uploadStep.edgeCasesSample', 'Edge Cases Mega Sample')}
         </a>
@@ -197,7 +197,7 @@ export default function UploadStep({ onItemsParsed }) {
         <a
           href={`${import.meta.env.BASE_URL}product/samples/sample_bluebeam_takeoff.csv`}
           download="sample_bluebeam_takeoff.csv"
-          className="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline"
+          className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline"
         >
           {t('product.uploadStep.bluebeamSample')}
         </a>
@@ -205,7 +205,7 @@ export default function UploadStep({ onItemsParsed }) {
         <a
           href={`${import.meta.env.BASE_URL}product/samples/sample_planswift_takeoff.csv`}
           download="sample_planswift_takeoff.csv"
-          className="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline"
+          className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline"
         >
           {t('product.uploadStep.planswiftSample')}
         </a>
@@ -213,7 +213,7 @@ export default function UploadStep({ onItemsParsed }) {
         <a
           href={`${import.meta.env.BASE_URL}product/samples/sample_trimble_agtek_takeoff.csv`}
           download="sample_trimble_agtek_takeoff.csv"
-          className="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline"
+          className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline"
         >
           {t('product.uploadStep.trimbleSample')}
         </a>
@@ -252,7 +252,7 @@ export default function UploadStep({ onItemsParsed }) {
               <div className="space-y-2.5">
                 <div className="border-b border-slate-100 dark:border-slate-700/60 pb-2.5">
                   <div className="flex flex-wrap items-baseline gap-1.5">
-                    <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400">system</span>
+                    <span className="font-mono font-bold text-blue-600 dark:text-blue-400">system</span>
                     <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">({t('product.uploadStep.headersLabel', 'Header aliases')}: <span className="font-mono text-slate-700 dark:text-slate-300">{t('product.uploadStep.exampleSystemHeaders', 'System, Trade, Phase, Division, Div, Category')}</span>)</span>
                   </div>
                   <div className="text-slate-600 dark:text-slate-300 font-mono text-[11px] mt-0.5 pl-2">
@@ -262,7 +262,7 @@ export default function UploadStep({ onItemsParsed }) {
 
                 <div className="border-b border-slate-100 dark:border-slate-700/60 pb-2.5">
                   <div className="flex flex-wrap items-baseline gap-1.5">
-                    <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400">item_description</span>
+                    <span className="font-mono font-bold text-blue-600 dark:text-blue-400">item_description</span>
                     <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">({t('product.uploadStep.headersLabel', 'Header aliases')}: <span className="font-mono text-slate-700 dark:text-slate-300">{t('product.uploadStep.exampleItemDescriptionHeaders', 'Description, Item Description, Scope, Name, Line Item, Item')}</span>)</span>
                   </div>
                   <div className="text-slate-600 dark:text-slate-300 font-mono text-[11px] mt-0.5 pl-2">
@@ -272,7 +272,7 @@ export default function UploadStep({ onItemsParsed }) {
 
                 <div className="border-b border-slate-100 dark:border-slate-700/60 pb-2.5">
                   <div className="flex flex-wrap items-baseline gap-1.5">
-                    <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400">size_spec</span>
+                    <span className="font-mono font-bold text-blue-600 dark:text-blue-400">size_spec</span>
                     <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">({t('product.uploadStep.headersLabel', 'Header aliases')}: <span className="font-mono text-slate-700 dark:text-slate-300">{t('product.uploadStep.exampleSizeSpecHeaders', 'Size, Spec, Size/Spec, Pipe Size, Dimension, Material')}</span>)</span>
                   </div>
                   <div className="text-slate-600 dark:text-slate-300 font-mono text-[11px] mt-0.5 pl-2">
@@ -282,7 +282,7 @@ export default function UploadStep({ onItemsParsed }) {
 
                 <div className="border-b border-slate-100 dark:border-slate-700/60 pb-2.5">
                   <div className="flex flex-wrap items-baseline gap-1.5">
-                    <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400">quantity</span>
+                    <span className="font-mono font-bold text-blue-600 dark:text-blue-400">quantity</span>
                     <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">({t('product.uploadStep.headersLabel', 'Header aliases')}: <span className="font-mono text-slate-700 dark:text-slate-300">{t('product.uploadStep.exampleQuantityHeaders', 'Qty, Quantity, Takeoff Qty, Amount, Est Qty, Count')}</span>)</span>
                   </div>
                   <div className="text-slate-600 dark:text-slate-300 font-mono text-[11px] mt-0.5 pl-2">
@@ -292,7 +292,7 @@ export default function UploadStep({ onItemsParsed }) {
 
                 <div className="border-b border-slate-100 dark:border-slate-700/60 pb-2.5">
                   <div className="flex flex-wrap items-baseline gap-1.5">
-                    <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400">unit</span>
+                    <span className="font-mono font-bold text-blue-600 dark:text-blue-400">unit</span>
                     <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">({t('product.uploadStep.headersLabel', 'Header aliases')}: <span className="font-mono text-slate-700 dark:text-slate-300">{t('product.uploadStep.exampleUnitHeaders', 'Unit, UOM, Units, Unit of Measure, Measure')}</span>)</span>
                   </div>
                   <div className="text-slate-600 dark:text-slate-300 font-mono text-[11px] mt-0.5 pl-2">
@@ -302,7 +302,7 @@ export default function UploadStep({ onItemsParsed }) {
 
                 <div className="border-b border-slate-100 dark:border-slate-700/60 pb-2.5">
                   <div className="flex flex-wrap items-baseline gap-1.5">
-                    <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400">avg_depth_ft</span>
+                    <span className="font-mono font-bold text-blue-600 dark:text-blue-400">avg_depth_ft</span>
                     <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">({t('product.uploadStep.headersLabel', 'Header aliases')}: <span className="font-mono text-slate-700 dark:text-slate-300">{t('product.uploadStep.exampleAvgDepthFtHeaders', 'Depth, Avg Depth, Depth (ft), Average Depth, Trench Depth')}</span>)</span>
                   </div>
                   <div className="text-slate-600 dark:text-slate-300 font-mono text-[11px] mt-0.5 pl-2">
@@ -312,7 +312,7 @@ export default function UploadStep({ onItemsParsed }) {
 
                 <div className="border-b border-slate-100 dark:border-slate-700/60 pb-2.5">
                   <div className="flex flex-wrap items-baseline gap-1.5">
-                    <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400">material_cost_per_unit</span>
+                    <span className="font-mono font-bold text-blue-600 dark:text-blue-400">material_cost_per_unit</span>
                     <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">({t('product.uploadStep.headersLabel', 'Header aliases')}: <span className="font-mono text-slate-700 dark:text-slate-300">{t('product.uploadStep.exampleMaterialCostHeaders', 'Material $/Unit, Material Unit Cost, Mat Rate, Material Price')}</span>)</span>
                   </div>
                   <div className="text-slate-600 dark:text-slate-300 font-mono text-[11px] mt-0.5 pl-2">
@@ -322,7 +322,7 @@ export default function UploadStep({ onItemsParsed }) {
 
                 <div className="border-b border-slate-100 dark:border-slate-700/60 pb-2.5">
                   <div className="flex flex-wrap items-baseline gap-1.5">
-                    <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400">labor_hours_per_unit</span>
+                    <span className="font-mono font-bold text-blue-600 dark:text-blue-400">labor_hours_per_unit</span>
                     <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">({t('product.uploadStep.headersLabel', 'Header aliases')}: <span className="font-mono text-slate-700 dark:text-slate-300">{t('product.uploadStep.exampleLaborHoursHeaders', 'Labor Hrs/Unit, Labor Hours, Crew Hrs/Unit, Manhours/Unit')}</span>)</span>
                   </div>
                   <div className="text-slate-600 dark:text-slate-300 font-mono text-[11px] mt-0.5 pl-2">
@@ -332,7 +332,7 @@ export default function UploadStep({ onItemsParsed }) {
 
                 <div>
                   <div className="flex flex-wrap items-baseline gap-1.5">
-                    <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400">labor_unit_cost</span>
+                    <span className="font-mono font-bold text-blue-600 dark:text-blue-400">labor_unit_cost</span>
                     <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">({t('product.uploadStep.headersLabel', 'Header aliases')}: <span className="font-mono text-slate-700 dark:text-slate-300">{t('product.uploadStep.exampleLaborUnitCostHeaders', 'Labor $/Unit, Labor Unit Rate, Labor Rate/Unit, Labor Cost/Unit')}</span>)</span>
                   </div>
                   <div className="text-slate-600 dark:text-slate-300 font-mono text-[11px] mt-0.5 pl-2">
@@ -348,7 +348,7 @@ export default function UploadStep({ onItemsParsed }) {
           {t('product.uploadStep.needMoreDetail')}{' '}
           <Link
             to="/guide"
-            className="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline"
+            className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline"
           >
             {t('product.uploadStep.readFullGuide')}
           </Link>

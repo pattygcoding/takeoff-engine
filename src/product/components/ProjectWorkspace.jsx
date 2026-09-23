@@ -150,7 +150,7 @@ export default function ProjectWorkspace({
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
           <p className="text-sm font-semibold text-slate-600">
             {t('product.projectWorkspace.loadingTakeoff', { id: projectId || '' })}
           </p>
@@ -171,7 +171,7 @@ export default function ProjectWorkspace({
         <p className="text-sm text-slate-500 mb-5">{loadError}</p>
         <Link
           to={`/${username}`}
-          className="inline-flex items-center gap-1 px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl hover:bg-indigo-700 transition"
+          className="inline-flex items-center gap-1 px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl hover:bg-blue-700 transition"
         >
           {t('product.projectWorkspace.backToProjects')}
         </Link>
@@ -183,7 +183,7 @@ export default function ProjectWorkspace({
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
           <p className="text-sm font-semibold text-slate-600">{t('product.projectWorkspace.redirecting')}</p>
         </div>
       </div>
@@ -195,7 +195,7 @@ export default function ProjectWorkspace({
       <div className="max-w-6xl mx-auto px-4 pt-5 pb-3 flex flex-wrap items-center justify-between gap-3">
         <Link
           to={`/${username}`}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition"
         >
           {t('product.projectWorkspace.backToProjects')}
         </Link>

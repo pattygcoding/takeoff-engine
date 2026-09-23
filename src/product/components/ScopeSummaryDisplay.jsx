@@ -54,9 +54,9 @@ export default function ScopeSummaryDisplay({ scopeItems, className = '', forceL
           heading={t('product.scopeSummary.addonsHeader', 'Optional Add-Ons / Alternates')}
           icon="+"
           items={optionalAddons}
-          colorClasses="bg-indigo-50/70 dark:bg-indigo-950/30 border-indigo-200 dark:border-indigo-800/60 text-indigo-950 dark:text-indigo-100"
-          headingClasses="text-indigo-900 dark:text-indigo-200"
-          bulletClasses="text-indigo-600 dark:text-indigo-400"
+          colorClasses="bg-blue-50/70 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800/60 text-blue-950 dark:text-blue-100"
+          headingClasses="text-blue-900 dark:text-blue-200"
+          bulletClasses="text-blue-600 dark:text-blue-400"
           showImpactBadge
           baseAmount={baseAmount}
           forceLight={forceLight}
@@ -87,7 +87,7 @@ function ScopeColumn({ heading, icon, items, colorClasses, headingClasses, bulle
                 </span>
               </span>
               {addonImpact && (
-                <span className="shrink-0 font-bold bg-indigo-600 text-white px-2 py-0.5 rounded-md whitespace-nowrap">
+                <span className="shrink-0 font-bold bg-blue-600 text-white px-2 py-0.5 rounded-md whitespace-nowrap">
                   {addonImpact}
                 </span>
               )}

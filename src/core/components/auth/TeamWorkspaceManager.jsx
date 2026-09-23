@@ -331,7 +331,7 @@ export default function TeamWorkspaceManager() {
             onClick={() => selectOrganization(org.id)}
             className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
               activeOrg?.id === org.id
-                ? 'bg-indigo-600 text-white shadow-xs'
+                ? 'bg-blue-600 text-white shadow-xs'
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
@@ -346,7 +346,7 @@ export default function TeamWorkspaceManager() {
               placeholder={t('core.teamWorkspaceManager.newOrgPlaceholder')}
               value={newOrgName}
               onChange={(e) => setNewOrgName(e.target.value)}
-              className="px-3 py-1.5 text-xs border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              className="px-3 py-1.5 text-xs border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
             <button
               type="submit"
@@ -369,7 +369,7 @@ export default function TeamWorkspaceManager() {
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                   {t('core.teamWorkspaceManager.subscriptionSeats')}
                 </span>
-                <span className="text-xs bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-bold px-2 py-0.5 rounded">
+                <span className="text-xs bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-bold px-2 py-0.5 rounded">
                   {tier.toUpperCase()} {t('core.teamWorkspaceManager.tier')}
                 </span>
               </div>
@@ -441,7 +441,7 @@ export default function TeamWorkspaceManager() {
                         <select
                           value={m.role}
                           onChange={(e) => handleUpdateRole(m.id, e.target.value)}
-                          className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 text-xs focus:ring-1 focus:ring-indigo-500"
+                          className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 text-xs focus:ring-1 focus:ring-blue-500"
                         >
                           <option value="admin">{t('core.teamWorkspaceManager.roleAdmin')}</option>
                           <option value="estimator">{t('core.teamWorkspaceManager.roleEstimator')}</option>
@@ -466,7 +466,7 @@ export default function TeamWorkspaceManager() {
                           <button
                             type="button"
                             onClick={() => handleCopyInviteLink(m.invite_token)}
-                            className="text-[11px] text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium underline cursor-pointer"
+                            className="text-[11px] text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium underline cursor-pointer"
                             title={t('core.teamWorkspaceManager.copyMagicLinkTitle')}
                           >
                             {t('core.teamWorkspaceManager.copyLink')}
@@ -482,7 +482,7 @@ export default function TeamWorkspaceManager() {
                               <button
                                 type="button"
                                 onClick={() => handleResendInvite(m.id, m.user_email || m.invited_email)}
-                                className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-semibold text-xs cursor-pointer"
+                                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold text-xs cursor-pointer"
                               >
                                 {t('core.teamWorkspaceManager.resend')}
                               </button>
@@ -524,7 +524,7 @@ export default function TeamWorkspaceManager() {
                   placeholder="estimator@contractor.com"
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
-                  className="w-full px-3 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full px-3 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
 
@@ -535,7 +535,7 @@ export default function TeamWorkspaceManager() {
                 <select
                   value={inviteRole}
                   onChange={(e) => setInviteRole(e.target.value)}
-                  className="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 >
                   <option value="estimator">{t('core.teamWorkspaceManager.roleEstimator')}</option>
                   <option value="admin">{t('core.teamWorkspaceManager.roleAdmin')}</option>
@@ -547,7 +547,7 @@ export default function TeamWorkspaceManager() {
                 <button
                   type="submit"
                   disabled={inviting || !inviteEmail.trim()}
-                  className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-xl disabled:opacity-50 shadow-xs transition cursor-pointer"
+                  className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-xl disabled:opacity-50 shadow-xs transition cursor-pointer"
                 >
                   {inviting ? t('core.teamWorkspaceManager.inviting') : t('core.teamWorkspaceManager.sendInviteButton')}
                 </button>
@@ -604,8 +604,8 @@ export default function TeamWorkspaceManager() {
                 </div>
               </div>
               <div className="border-t border-slate-200 dark:border-slate-700 pt-2 flex justify-between items-center text-sm font-bold">
-                <span className="text-indigo-950 dark:text-indigo-300">{t('core.teamWorkspaceManager.newTotalCapacityLabel')}:</span>
-                <span className="text-indigo-600 dark:text-indigo-400 font-extrabold">{baseSeats + targetAddSeats} {t('core.teamWorkspaceManager.seats')}</span>
+                <span className="text-blue-950 dark:text-blue-300">{t('core.teamWorkspaceManager.newTotalCapacityLabel')}:</span>
+                <span className="text-blue-600 dark:text-blue-400 font-extrabold">{baseSeats + targetAddSeats} {t('core.teamWorkspaceManager.seats')}</span>
               </div>
             </div>
 
@@ -621,7 +621,7 @@ export default function TeamWorkspaceManager() {
                 type="button"
                 onClick={handleSaveSeats}
                 disabled={updatingSeats}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition disabled:opacity-50 cursor-pointer"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs transition disabled:opacity-50 cursor-pointer"
               >
                 {updatingSeats ? t('core.teamWorkspaceManager.savingSeats') : t('core.teamWorkspaceManager.saveUpdateBillingButton')}
               </button>

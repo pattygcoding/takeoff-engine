@@ -139,13 +139,13 @@ export default function ColumnMappingModal({
         {/* Modal Header */}
         <div className="pb-4 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
               <Shuffle className="w-5 h-5" />
             </div>
             <div>
               <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-snug">{t('product.columnMappingModal.title')}</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                {t('product.columnMappingModal.confidenceLabel')} <strong className="text-indigo-600 dark:text-indigo-400 font-semibold">{Math.round(overallConfidence * 100)}%</strong>. {t('product.columnMappingModal.confirmOrRemap')}
+                {t('product.columnMappingModal.confidenceLabel')} <strong className="text-blue-600 dark:text-blue-400 font-semibold">{Math.round(overallConfidence * 100)}%</strong>. {t('product.columnMappingModal.confirmOrRemap')}
               </p>
             </div>
           </div>
@@ -185,20 +185,20 @@ export default function ColumnMappingModal({
 
               {/* 2. Side-by-Side Table Area Selector (Distinct Vibrant Indigo Theme) */}
               {hasSubTables && (
-                <div className="p-2.5 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 rounded-2xl flex flex-col gap-1.5">
+                <div className="p-2.5 bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-2xl flex flex-col gap-1.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold text-indigo-900 dark:text-indigo-300 uppercase tracking-wide flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
+                    <span className="text-[11px] font-bold text-blue-900 dark:text-blue-300 uppercase tracking-wide flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-blue-500"></span>
                       {t('product.columnMappingModal.subTableSelect', 'Table Area:')}
                     </span>
-                    <span className="text-[10px] text-indigo-500 dark:text-indigo-400 font-semibold bg-indigo-100/80 dark:bg-indigo-900/60 px-1.5 py-0.2 rounded-md">
+                    <span className="text-[10px] text-blue-500 dark:text-blue-400 font-semibold bg-blue-100/80 dark:bg-blue-900/60 px-1.5 py-0.2 rounded-md">
                       Multi-table detected
                     </span>
                   </div>
                   <select
                     value={activeTableId || subTables[0]?.id}
                     onChange={(e) => onTableChange(e.target.value)}
-                    className="w-full text-xs bg-white dark:bg-slate-800 border border-indigo-300 dark:border-indigo-700 rounded-xl px-2.5 py-1.5 font-bold text-indigo-950 dark:text-indigo-200 shadow-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none truncate"
+                    className="w-full text-xs bg-white dark:bg-slate-800 border border-blue-300 dark:border-blue-700 rounded-xl px-2.5 py-1.5 font-bold text-blue-950 dark:text-blue-200 shadow-xs focus:ring-2 focus:ring-blue-500 focus:outline-none truncate"
                   >
                     {subTables.map((tb) => (
                       <option key={tb.id} value={tb.id}>
@@ -249,12 +249,12 @@ export default function ColumnMappingModal({
               {Object.keys(savedPresets).map((presetKey) => (
                 <div
                   key={presetKey}
-                  className="inline-flex items-center rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 shadow-2xs hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors group overflow-hidden"
+                  className="inline-flex items-center rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 shadow-2xs hover:border-blue-300 dark:hover:border-blue-600 transition-colors group overflow-hidden"
                 >
                   <button
                     type="button"
                     onClick={() => handleApplyPreset(presetKey)}
-                    className="pl-2.5 pr-1.5 py-1 text-slate-700 dark:text-slate-200 group-hover:text-indigo-700 dark:group-hover:text-indigo-400 font-medium text-[11px] transition-colors cursor-pointer"
+                    className="pl-2.5 pr-1.5 py-1 text-slate-700 dark:text-slate-200 group-hover:text-blue-700 dark:group-hover:text-blue-400 font-medium text-[11px] transition-colors cursor-pointer"
                   >
                     {presetKey}
                   </button>
@@ -309,9 +309,9 @@ export default function ColumnMappingModal({
                     <select
                       value={mapping[field.key] || ''}
                       onChange={(e) => handleChange(field.key, e.target.value)}
-                      className={`w-full px-3 py-1.5 text-xs bg-white dark:bg-slate-800 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none cursor-pointer ${
+                      className={`w-full px-3 py-1.5 text-xs bg-white dark:bg-slate-800 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer ${
                         mapping[field.key]
-                          ? 'border-indigo-300 dark:border-indigo-600 font-semibold text-indigo-900 dark:text-indigo-200'
+                          ? 'border-blue-300 dark:border-blue-600 font-semibold text-blue-900 dark:text-blue-200'
                           : field.required
                           ? 'border-amber-300 dark:border-amber-600 text-amber-900 dark:text-amber-300'
                           : 'border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400'
@@ -387,7 +387,7 @@ export default function ColumnMappingModal({
               placeholder={t('product.columnMappingModal.presetPlaceholder')}
               value={presetName}
               onChange={(e) => setPresetName(e.target.value)}
-              className="px-2.5 py-1 text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-1 focus:ring-indigo-500 outline-none w-44"
+              className="px-2.5 py-1 text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-1 focus:ring-blue-500 outline-none w-44"
             />
             <button
               type="button"
@@ -414,7 +414,7 @@ export default function ColumnMappingModal({
           <button
             type="button"
             onClick={handleApply}
-            className="px-6 py-2.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-xs transition cursor-pointer"
+            className="px-6 py-2.5 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-xs transition cursor-pointer"
           >
             {t('product.columnMappingModal.confirmImportTakeoff')}
           </button>

@@ -88,10 +88,10 @@ export default function LanguageSelector({ variant = 'light' }) {
                 className={`w-full flex items-center justify-between px-3 py-2 text-xs font-semibold transition cursor-pointer text-left ${
                   isDark
                     ? isSelected
-                      ? 'bg-indigo-600/40 text-white font-bold'
+                      ? 'bg-blue-600/40 text-white font-bold'
                       : 'hover:bg-slate-800 text-slate-100 hover:text-white'
                     : isSelected
-                    ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-bold'
+                    ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-bold'
                     : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-100 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
@@ -99,7 +99,7 @@ export default function LanguageSelector({ variant = 'light' }) {
                   <span>{lang.label}</span>
                 </div>
                 {isSelected && (
-                  <svg className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                   </svg>
                 )}

@@ -136,7 +136,7 @@ export default function UserWorkspace() {
             <div className="max-w-6xl mx-auto px-4 pt-5 pb-3 flex items-center justify-between">
               <Link
                 to={`/${username}`}
-                className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
+                className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition"
               >
                 <ArrowLeft className="w-3.5 h-3.5" /> Back to Projects Dashboard
               </Link>

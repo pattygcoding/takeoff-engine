@@ -527,7 +527,7 @@ export default function AdminPortal() {
     return (
       <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center p-4">
         <div className="text-center">
-          <div className="inline-block w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-3"></div>
+          <div className="inline-block w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-3"></div>
           <p className="text-sm font-medium text-slate-400">Loading Super-Admin Portal...</p>
         </div>
       </div>
@@ -543,7 +543,7 @@ export default function AdminPortal() {
             <div className="flex items-center gap-3">
               <Zap className="w-6 h-6 text-amber-400" />
               <h1 className="text-2xl font-black tracking-tight text-white">Super-Admin Platform Portal</h1>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">
                 Security &amp; Audit Logs Active
               </span>
             </div>
@@ -557,7 +557,7 @@ export default function AdminPortal() {
               onClick={() => setActiveTab('users')}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
                 activeTab === 'users'
-                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
                   : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
               }`}
             >
@@ -567,7 +567,7 @@ export default function AdminPortal() {
               onClick={() => setActiveTab('promos')}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
                 activeTab === 'promos'
-                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
                   : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
               }`}
             >
@@ -577,7 +577,7 @@ export default function AdminPortal() {
               onClick={() => setActiveTab('audit')}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
                 activeTab === 'audit'
-                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
                   : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
               }`}
             >
@@ -627,7 +627,7 @@ export default function AdminPortal() {
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
                 Total Projects &amp; Estimates
               </span>
-              <div className="text-3xl font-black text-indigo-400">
+              <div className="text-3xl font-black text-blue-400">
                 {formatNumber(stats.totalProjects, 0)}
               </div>
               <span className="text-[11px] text-slate-400 mt-1 block">
@@ -665,7 +665,7 @@ export default function AdminPortal() {
                     placeholder="Search by name, email, or username..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3.5 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <button
@@ -673,7 +673,7 @@ export default function AdminPortal() {
                     setCreateUserError('');
                     setShowCreateUserModal(true);
                   }}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-lg shadow-indigo-600/20 whitespace-nowrap cursor-pointer"
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-lg shadow-blue-600/20 whitespace-nowrap cursor-pointer"
                 >
                   <span>+</span> Create User Account
                 </button>
@@ -707,7 +707,7 @@ export default function AdminPortal() {
                               @{u.username || 'user'}
                             </span>
                             {u.id === user?.id && (
-                              <span className="px-1.5 py-0.2 bg-indigo-500/20 text-indigo-300 text-[10px] rounded font-bold border border-indigo-500/30">
+                              <span className="px-1.5 py-0.2 bg-blue-500/20 text-blue-300 text-[10px] rounded font-bold border border-blue-500/30">
                                 YOU
                               </span>
                             )}
@@ -724,7 +724,7 @@ export default function AdminPortal() {
                           </div>
                           <div className="text-[11px] text-slate-400">{u.email}</div>
                           {u.company_name && (
-                            <div className="text-[10px] text-indigo-400 flex items-center gap-1"><Building2 className="w-2.5 h-2.5" /> {u.company_name}</div>
+                            <div className="text-[10px] text-blue-400 flex items-center gap-1"><Building2 className="w-2.5 h-2.5" /> {u.company_name}</div>
                           )}
                         </td>
                         <td className="py-3 px-4">
@@ -732,7 +732,7 @@ export default function AdminPortal() {
                             value={u.role || 'user'}
                             disabled={u.id === user?.id}
                             onChange={(e) => handleRoleChange(u, e.target.value)}
-                            className={`bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 ${
+                            className={`bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 ${
                               u.id === user?.id ? 'opacity-60 cursor-not-allowed' : ''
                             }`}
                           >
@@ -745,7 +745,7 @@ export default function AdminPortal() {
                           <select
                             value={u.subscription_tier || 'free'}
                             onChange={(e) => handleSubscriptionTierChange(u, e.target.value)}
-                            className="bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
+                            className="bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold"
                           >
                             <option value="free">Free ($0)</option>
                             <option value="starter">Starter (${STARTER_MONTHLY_PRICE})</option>
@@ -776,7 +776,7 @@ export default function AdminPortal() {
                               type="button"
                               title="Click to edit free trial credits"
                               onClick={() => handleSetCredits(u)}
-                              className="inline-flex items-center justify-center gap-1 px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-indigo-300 hover:text-white border border-slate-700 hover:border-indigo-500/50 rounded-lg text-xs font-bold transition cursor-pointer"
+                              className="inline-flex items-center justify-center gap-1 px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-blue-300 hover:text-white border border-slate-700 hover:border-blue-500/50 rounded-lg text-xs font-bold transition cursor-pointer"
                             >
                               <span>{u.trial_uses_remaining ?? 5}</span>
                               <Pencil className="w-2.5 h-2.5 text-slate-400" />
@@ -882,7 +882,7 @@ export default function AdminPortal() {
                   placeholder="e.g. VIP2026"
                   value={newCode}
                   onChange={(e) => setNewCode(e.target.value.toUpperCase())}
-                  className="w-full px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white uppercase font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white uppercase font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -891,7 +891,7 @@ export default function AdminPortal() {
                 <select
                   value={grantTier}
                   onChange={(e) => setGrantTier(e.target.value)}
-                  className="w-full px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="pro">Pro Plan</option>
                   <option value="starter">Starter Plan</option>
@@ -906,7 +906,7 @@ export default function AdminPortal() {
                   min="1"
                   value={maxUses}
                   onChange={(e) => setMaxUses(e.target.value)}
-                  className="w-full px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -916,7 +916,7 @@ export default function AdminPortal() {
                   id="grantUnlimited"
                   checked={grantUnlimited}
                   onChange={(e) => setGrantUnlimited(e.target.checked)}
-                  className="rounded border-slate-700 text-indigo-600 focus:ring-indigo-500"
+                  className="rounded border-slate-700 text-blue-600 focus:ring-blue-500"
                 />
                 <label htmlFor="grantUnlimited" className="text-xs text-slate-300">
                   Unlimited VIP
@@ -926,7 +926,7 @@ export default function AdminPortal() {
               <button
                 type="submit"
                 disabled={creatingPromo || !newCode.trim()}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl disabled:opacity-50 shadow-lg shadow-indigo-600/30 transition"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl disabled:opacity-50 shadow-lg shadow-blue-600/30 transition"
               >
                 {creatingPromo ? 'Creating...' : '+ Create Promo'}
               </button>
@@ -947,7 +947,7 @@ export default function AdminPortal() {
                 <tbody className="divide-y divide-slate-800">
                   {promoCodes.map((p) => (
                     <tr key={p.id} className="hover:bg-slate-800/30">
-                      <td className="py-3 px-4 font-mono font-bold text-indigo-400">{p.code}</td>
+                      <td className="py-3 px-4 font-mono font-bold text-blue-400">{p.code}</td>
                       <td className="py-3 px-4 uppercase text-slate-300 font-semibold">{p.grant_tier || 'Pro'}</td>
                       <td className="py-3 px-4 text-center">
                         {p.grant_unlimited ? (
@@ -1004,7 +1004,7 @@ export default function AdminPortal() {
                         <td className="py-3 px-4 text-slate-400 text-[11px]">
                           {new Date(log.created_at).toLocaleString()}
                         </td>
-                        <td className="py-3 px-4 font-sans text-indigo-300 font-semibold">
+                        <td className="py-3 px-4 font-sans text-blue-300 font-semibold">
                           {log.admin?.email || log.admin?.username || log.admin_id?.slice(0, 8)}
                         </td>
                         <td className="py-3 px-4 font-sans text-slate-300">
@@ -1042,7 +1042,7 @@ export default function AdminPortal() {
             <div className="flex items-center justify-between pb-4 border-b border-slate-800 mb-6">
               <div>
                 <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                  <UserPlus className="w-5 h-5 text-indigo-400" /> Create New User Account
+                  <UserPlus className="w-5 h-5 text-blue-400" /> Create New User Account
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5">
                   Provision a new user account with custom credentials, role, and subscription tier.
@@ -1075,7 +1075,7 @@ export default function AdminPortal() {
                     placeholder="e.g. john_doe"
                     value={userFormData.username}
                     onChange={(e) => setUserFormData({ ...userFormData, username: e.target.value })}
-                    className="w-full px-3.5 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3.5 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div>
@@ -1088,7 +1088,7 @@ export default function AdminPortal() {
                     placeholder="e.g. john@company.com"
                     value={userFormData.email}
                     onChange={(e) => setUserFormData({ ...userFormData, email: e.target.value })}
-                    className="w-full px-3.5 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3.5 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
@@ -1104,7 +1104,7 @@ export default function AdminPortal() {
                   placeholder="••••••••"
                   value={userFormData.password}
                   onChange={(e) => setUserFormData({ ...userFormData, password: e.target.value })}
-                  className="w-full px-3.5 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono"
+                  className="w-full px-3.5 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
                 />
               </div>
 
@@ -1116,7 +1116,7 @@ export default function AdminPortal() {
                     placeholder="e.g. John"
                     value={userFormData.firstName}
                     onChange={(e) => setUserFormData({ ...userFormData, firstName: e.target.value })}
-                    className="w-full px-3.5 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3.5 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div>
@@ -1126,7 +1126,7 @@ export default function AdminPortal() {
                     placeholder="e.g. Doe"
                     value={userFormData.lastName}
                     onChange={(e) => setUserFormData({ ...userFormData, lastName: e.target.value })}
-                    className="w-full px-3.5 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3.5 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
@@ -1139,7 +1139,7 @@ export default function AdminPortal() {
                     placeholder="e.g. Acme Construction"
                     value={userFormData.companyName}
                     onChange={(e) => setUserFormData({ ...userFormData, companyName: e.target.value })}
-                    className="w-full px-3.5 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3.5 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div>
@@ -1149,7 +1149,7 @@ export default function AdminPortal() {
                     placeholder="e.g. (555) 000-0000"
                     value={userFormData.phoneNumber}
                     onChange={(e) => setUserFormData({ ...userFormData, phoneNumber: e.target.value })}
-                    className="w-full px-3.5 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3.5 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
@@ -1160,7 +1160,7 @@ export default function AdminPortal() {
                   <select
                     value={userFormData.role}
                     onChange={(e) => setUserFormData({ ...userFormData, role: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="user">User (Standard)</option>
                     <option value="admin">Super-Admin</option>
@@ -1172,7 +1172,7 @@ export default function AdminPortal() {
                   <select
                     value={userFormData.subscriptionTier}
                     onChange={(e) => setUserFormData({ ...userFormData, subscriptionTier: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="free">Free ($0/mo)</option>
                     <option value="starter">Starter (${STARTER_MONTHLY_PRICE}/mo)</option>
@@ -1189,7 +1189,7 @@ export default function AdminPortal() {
                     max="999"
                     value={userFormData.trialUsesRemaining}
                     onChange={(e) => setUserFormData({ ...userFormData, trialUsesRemaining: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
@@ -1200,7 +1200,7 @@ export default function AdminPortal() {
                   id="hasUnlimitedBypass"
                   checked={userFormData.hasUnlimitedBypass}
                   onChange={(e) => setUserFormData({ ...userFormData, hasUnlimitedBypass: e.target.checked })}
-                  className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-800 border-slate-700"
+                  className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 bg-slate-800 border-slate-700"
                 />
                 <label htmlFor="hasUnlimitedBypass" className="text-xs text-slate-300 cursor-pointer select-none">
                   <span className="font-semibold text-amber-400">Grant VIP Unlimited Bypass</span> — exempts user from all trial meter deductions and subscription checks.
@@ -1213,7 +1213,7 @@ export default function AdminPortal() {
                   id="isTestUser"
                   checked={userFormData.isTestUser}
                   onChange={(e) => setUserFormData({ ...userFormData, isTestUser: e.target.checked })}
-                  className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-800 border-slate-700"
+                  className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 bg-slate-800 border-slate-700"
                 />
                 <label htmlFor="isTestUser" className="text-xs text-slate-300 cursor-pointer select-none">
                   <span className="font-semibold text-cyan-400">Mark as Test User</span> — excludes account from Estimated Active MRR & subscription metrics.
@@ -1227,7 +1227,7 @@ export default function AdminPortal() {
                   placeholder="Reason for creating this account"
                   value={userFormData.reason}
                   onChange={(e) => setUserFormData({ ...userFormData, reason: e.target.value })}
-                  className="w-full px-3.5 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -1242,7 +1242,7 @@ export default function AdminPortal() {
                 <button
                   type="submit"
                   disabled={creatingUser}
-                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition shadow-lg shadow-indigo-600/20 flex items-center gap-2 cursor-pointer"
+                  className="px-5 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition shadow-lg shadow-blue-600/20 flex items-center gap-2 cursor-pointer"
                 >
                   {creatingUser ? (
                     <>

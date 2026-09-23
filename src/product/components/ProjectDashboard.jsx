@@ -236,7 +236,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
 
         <button
           onClick={onNewTakeoff}
-          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-sm hover:shadow transition cursor-pointer"
+          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-sm hover:shadow transition cursor-pointer"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -266,7 +266,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
             placeholder={t('product.projectDashboard.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-slate-800 transition"
+            className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-800 transition"
           />
         </div>
 
@@ -278,7 +278,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
               onClick={() => setStatusFilter(statusKey)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition cursor-pointer ${
                 statusFilter === statusKey
-                  ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 shadow-xs'
+                  ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 shadow-xs'
                   : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
@@ -291,7 +291,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
       {/* Main Content Area */}
       {loading ? (
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-12 text-center shadow-sm">
-          <div className="inline-block animate-spin w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full mb-3" />
+          <div className="inline-block animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mb-3" />
           <p className="text-slate-500 dark:text-slate-400 font-medium">{t('product.projectDashboard.loading')}</p>
         </div>
       ) : error ? (
@@ -307,7 +307,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
         </div>
       ) : filteredProjects.length === 0 ? (
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-12 text-center shadow-sm">
-          <div className="w-16 h-16 bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
@@ -329,7 +329,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
           </p>
           <button
             onClick={onNewTakeoff}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-sm transition cursor-pointer"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-sm transition cursor-pointer"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -354,7 +354,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
             return (
               <div
                 key={project.id}
-                className={`bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-600 hover:shadow-md transition duration-200 flex flex-col justify-between group relative ${
+                className={`bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-md transition duration-200 flex flex-col justify-between group relative ${
                   actionMenuOpenId === project.id ? 'z-30' : 'z-0'
                 }`}
               >
@@ -517,7 +517,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
 
                   <h3
                     onClick={() => handleOpen(project)}
-                    className="text-lg font-bold text-slate-900 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition cursor-pointer line-clamp-1"
+                    className="text-lg font-bold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition cursor-pointer line-clamp-1"
                   >
                     {project.name}
                   </h3>
@@ -550,7 +550,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
                 <div className="p-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
                   <button
                     onClick={() => handleOpen(project, 'results')}
-                    className="w-full py-2 bg-slate-100 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 hover:text-indigo-600 dark:hover:text-indigo-400 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="w-full py-2 bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950/60 hover:text-blue-600 dark:hover:text-blue-400 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     {t('product.projectDashboard.openEstimate')}
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -576,7 +576,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
                 required
                 value={renameInput}
                 onChange={(e) => setRenameInput(e.target.value)}
-                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4"
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
                 placeholder={t('product.projectDashboard.projectNamePlaceholder')}
                 autoFocus
               />
@@ -590,7 +590,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-xs cursor-pointer"
+                  className="px-5 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-xs cursor-pointer"
                 >
                   {t('product.projectDashboard.saveName')}
                 </button>
@@ -615,7 +615,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
                     key={key}
                     className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition ${
                       newStatusInput === key
-                        ? 'border-indigo-600 bg-indigo-50/60 dark:bg-indigo-950/60 font-semibold text-indigo-900 dark:text-indigo-200'
+                        ? 'border-blue-600 bg-blue-50/60 dark:bg-blue-950/60 font-semibold text-blue-900 dark:text-blue-200'
                         : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
                     }`}
                   >
@@ -626,7 +626,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
                         value={key}
                         checked={newStatusInput === key}
                         onChange={(e) => setNewStatusInput(e.target.value)}
-                        className="text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                        className="text-blue-600 focus:ring-blue-500 cursor-pointer"
                       />
                       <span className="text-sm">{config.label}</span>
                     </div>
@@ -646,7 +646,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-xs cursor-pointer"
+                  className="px-5 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-xs cursor-pointer"
                 >
                   {t('product.projectDashboard.updateStatus')}
                 </button>

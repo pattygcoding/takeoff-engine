@@ -32,9 +32,9 @@ export default function StandardEstimateDocument({ estimate, branding, currentPr
             {formatCurrency(totals.overheadCost + totals.profitAmount + totals.contingencyCost)}
           </p>
         </div>
-        <div className="p-3 bg-indigo-50 border border-indigo-200 rounded-xl">
-          <span className="text-[10px] font-bold uppercase text-indigo-500">{t('product.templates.standardEstimate.totalBidAmount')}</span>
-          <p className="text-base font-bold text-indigo-700">{formatCurrency(totals.finalBidAmount)}</p>
+        <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl">
+          <span className="text-[10px] font-bold uppercase text-blue-500">{t('product.templates.standardEstimate.totalBidAmount')}</span>
+          <p className="text-base font-bold text-blue-700">{formatCurrency(totals.finalBidAmount)}</p>
         </div>
       </div>
 

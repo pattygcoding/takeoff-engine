@@ -39,7 +39,7 @@ export default function UsagePolicyPage() {
               </svg>
             </button>
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
                 {t('core.usagePolicy.badge')}
               </span>
               <h1 className="text-base sm:text-lg font-black text-slate-900 dark:text-white leading-tight">
@@ -66,7 +66,7 @@ export default function UsagePolicyPage() {
           {/* Section 1: Introduction & Scope */}
           <section className="space-y-3">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs font-black">1</span>
+              <span className="w-6 h-6 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-black">1</span>
               {t('core.usagePolicy.s1Title')}
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
@@ -93,9 +93,9 @@ export default function UsagePolicyPage() {
           </section>
 
           {/* Section 3: Professional Conduct & Anti-Discrimination (Highlighted) */}
-          <section className="space-y-4 rounded-xl bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-200/80 dark:border-indigo-800/60 p-5">
-            <h3 className="text-lg font-bold text-indigo-950 dark:text-indigo-200 flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-indigo-200/80 dark:bg-indigo-900/60 text-indigo-900 dark:text-indigo-300 flex items-center justify-center text-xs font-black">3</span>
+          <section className="space-y-4 rounded-xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200/80 dark:border-blue-800/60 p-5">
+            <h3 className="text-lg font-bold text-blue-950 dark:text-blue-200 flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-blue-200/80 dark:bg-blue-900/60 text-blue-900 dark:text-blue-300 flex items-center justify-center text-xs font-black">3</span>
               {t('core.usagePolicy.s3Title')}
             </h3>
             <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
@@ -115,7 +115,7 @@ export default function UsagePolicyPage() {
           {/* Section 4: Account Suspension, Termination & Enforcement */}
           <section className="space-y-3">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs font-black">4</span>
+              <span className="w-6 h-6 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-black">4</span>
               {t('core.usagePolicy.s4Title')}
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
@@ -140,7 +140,7 @@ export default function UsagePolicyPage() {
           {/* Section 6: Contact & Reporting Inquiries */}
           <section className="space-y-3 border-t border-slate-100 dark:border-slate-800 pt-6">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs font-black">6</span>
+              <span className="w-6 h-6 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-black">6</span>
               {t('core.usagePolicy.s6Title')}
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">

@@ -159,7 +159,7 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
                   value={loginIdentifier}
                   onChange={(e) => setLoginIdentifier(e.target.value)}
                   placeholder={t('core.authModal.usernameOrEmailPlaceholder')}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
 
@@ -171,7 +171,7 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
                   <button
                     type="button"
                     onClick={() => switchView('forgot')}
-                    className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline"
+                    className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
                   >
                     {t('core.authModal.forgotPassword')}
                   </button>
@@ -182,14 +182,14 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
                   value={loginPassword}
                   onChange={(e) => setLoginPassword(e.target.value)}
                   placeholder={t('core.authModal.passwordPlaceholder')}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm cursor-pointer"
+                className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm cursor-pointer"
               >
                 {loading ? t('core.authModal.loggingIn') : t('core.authModal.logIn')}
               </button>
@@ -200,7 +200,7 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
               <button
                 type="button"
                 onClick={() => switchView('register')}
-                className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline cursor-pointer"
+                className="text-blue-600 dark:text-blue-400 font-semibold hover:underline cursor-pointer"
               >
                 {t('core.authModal.createAccount')}
               </button>
@@ -228,7 +228,7 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
                     value={registerFirstName}
                     onChange={(e) => setRegisterFirstName(e.target.value)}
                     placeholder={t('core.authModal.firstNamePlaceholder')}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                   />
                 </div>
                 <div>
@@ -241,7 +241,7 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
                     value={registerLastName}
                     onChange={(e) => setRegisterLastName(e.target.value)}
                     placeholder={t('core.authModal.lastNamePlaceholder')}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                   />
                 </div>
               </div>
@@ -256,7 +256,7 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
                   value={registerUsername}
                   onChange={(e) => setRegisterUsername(e.target.value)}
                   placeholder={t('core.authModal.usernamePlaceholder')}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
 
@@ -282,7 +282,7 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
                   value={registerEmail}
                   onChange={(e) => setRegisterEmail(e.target.value)}
                   placeholder={t('core.authModal.emailPlaceholder')}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
 
@@ -295,7 +295,7 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
                   value={registerPhone}
                   onChange={(e) => setRegisterPhone(e.target.value)}
                   placeholder={t('core.authModal.phonePlaceholder')}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
 
@@ -310,7 +310,7 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
                   value={registerPassword}
                   onChange={(e) => setRegisterPassword(e.target.value)}
                   placeholder={t('core.authModal.passwordPlaceholder')}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
 
@@ -320,15 +320,15 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
                   required
                   checked={registerAcceptedTerms}
                   onChange={(e) => setRegisterAcceptedTerms(e.target.checked)}
-                  className="mt-1 h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                  className="mt-1 h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 cursor-pointer"
                 />
                 <span className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                   {t('core.authModal.agreeToTermsPrefix')}{' '}
-                  <Link to="/terms-of-service" target="_blank" rel="noopener noreferrer" className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">
+                  <Link to="/terms-of-service" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
                     {t('core.authModal.termsOfServiceLink')}
                   </Link>{' '}
                   {t('core.authModal.agreeToTermsAnd')}{' '}
-                  <Link to="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">
+                  <Link to="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
                     {t('core.authModal.privacyPolicyLink')}
                   </Link>
                   .
@@ -338,7 +338,7 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm cursor-pointer"
+                className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm cursor-pointer"
               >
                 {loading ? t('core.authModal.creatingAccount') : t('core.authModal.createAccount')}
               </button>
@@ -349,7 +349,7 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
               <button
                 type="button"
                 onClick={() => switchView('login')}
-                className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline cursor-pointer"
+                className="text-blue-600 dark:text-blue-400 font-semibold hover:underline cursor-pointer"
               >
                 {t('core.authModal.logIn')}
               </button>
@@ -378,14 +378,14 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
                   value={forgotEmail}
                   onChange={(e) => setForgotEmail(e.target.value)}
                   placeholder={t('core.authModal.yourEmailPlaceholder')}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm cursor-pointer"
+                className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm cursor-pointer"
               >
                 {loading ? t('core.authModal.submitting') : t('core.authModal.sendResetInstructions')}
               </button>
@@ -394,7 +394,7 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
                 <button
                   type="button"
                   onClick={() => switchView('login')}
-                  className="text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
+                  className="text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
                 >
                   {t('core.authModal.backToLogIn')}
                 </button>

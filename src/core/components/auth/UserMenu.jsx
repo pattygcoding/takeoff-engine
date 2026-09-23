@@ -96,7 +96,7 @@ export default function UserMenu() {
           onClick={() => setIsOpen(!isOpen)}
           className="flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition text-sm text-slate-700 dark:text-slate-200 font-medium cursor-pointer"
         >
-          <span className="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">
+          <span className="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs">
             {user.first_name ? user.first_name[0].toUpperCase() : user.username[0].toUpperCase()}
           </span>
           <span className="max-w-[120px] truncate">{user.first_name || user.username}</span>
@@ -127,10 +127,10 @@ export default function UserMenu() {
                   setIsOpen(false);
                   setShowUpgradeModal(true);
                 }}
-                className="w-full text-left px-4 py-2 text-sm text-indigo-600 dark:text-indigo-400 font-medium hover:bg-indigo-50 dark:hover:bg-indigo-950/50 transition flex items-center justify-between cursor-pointer"
+                className="w-full text-left px-4 py-2 text-sm text-blue-600 dark:text-blue-400 font-medium hover:bg-blue-50 dark:hover:bg-blue-950/50 transition flex items-center justify-between cursor-pointer"
               >
                 <span>Upgrade Plan</span>
-                <span className="text-xs bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 px-1.5 py-0.5 rounded">Pro</span>
+                <span className="text-xs bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded">Pro</span>
               </button>
             )}
 
@@ -237,7 +237,7 @@ export default function UserMenu() {
                     value={oldPassword}
                     onChange={(e) => setOldPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full px-3 py-2 pr-10 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    className="w-full px-3 py-2 pr-10 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   />
                   <button
                     type="button"
@@ -270,7 +270,7 @@ export default function UserMenu() {
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full px-3 py-2 pr-10 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    className="w-full px-3 py-2 pr-10 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   />
                   <button
                     type="button"
@@ -294,7 +294,7 @@ export default function UserMenu() {
               <button
                 type="submit"
                 disabled={loading || !oldPassword || !newPassword}
-                className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition mt-2"
+                className="w-full py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition mt-2"
               >
                 {loading ? t('core.userMenu.saving') : t('core.userMenu.updatePassword')}
               </button>

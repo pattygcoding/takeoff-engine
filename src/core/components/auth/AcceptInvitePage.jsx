@@ -99,7 +99,7 @@ export default function AcceptInvitePage() {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
         <div className="text-center space-y-3">
-          <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto" />
+          <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-slate-400 text-sm font-medium">{t('core.acceptInvite.verifyingInvitation')}</p>
         </div>
       </div>
@@ -118,7 +118,7 @@ export default function AcceptInvitePage() {
           <div className="pt-2">
             <Link
               to="/login"
-              className="inline-block px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl transition"
+              className="inline-block px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition"
             >
               {t('core.acceptInvite.returnToTakeoffEngine')}
             </Link>
@@ -139,10 +139,10 @@ export default function AcceptInvitePage() {
     <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
       <div className="bg-slate-800/90 border border-slate-700 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl backdrop-blur relative">
         <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-indigo-500/10 text-indigo-400 rounded-2xl flex items-center justify-center mx-auto border border-indigo-500/20 mb-3 shadow-inner">
+          <div className="w-16 h-16 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center mx-auto border border-blue-500/20 mb-3 shadow-inner">
             <Handshake className="w-8 h-8" />
           </div>
-          <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-400 bg-indigo-950/80 border border-indigo-800 px-3 py-1 rounded-full">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-blue-400 bg-blue-950/80 border border-blue-800 px-3 py-1 rounded-full">
             {t('core.acceptInvite.workspaceInvitation')}
           </span>
           <h1 className="text-2xl font-black text-white mt-3">
@@ -162,7 +162,7 @@ export default function AcceptInvitePage() {
           </div>
           <div className="flex justify-between items-center text-slate-400 border-b border-slate-800 pb-2">
             <span>{t('core.acceptInvite.assignedRole')}</span>
-            <span className="font-semibold text-indigo-300">{roleLabel}</span>
+            <span className="font-semibold text-blue-300">{roleLabel}</span>
           </div>
           <div className="flex justify-between items-center text-slate-400">
             <span>{t('core.acceptInvite.workspace')}</span>
@@ -181,7 +181,7 @@ export default function AcceptInvitePage() {
                 type="button"
                 onClick={handleAcceptInvite}
                 disabled={accepting}
-                className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-bold text-sm rounded-xl shadow-lg shadow-indigo-600/30 transition flex items-center justify-center gap-2"
+                className="w-full py-3 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-bold text-sm rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2"
               >
                 {accepting ? (
                   <>
@@ -201,7 +201,7 @@ export default function AcceptInvitePage() {
               <button
                 type="button"
                 onClick={handleAcceptInvite}
-                className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm rounded-xl shadow-lg shadow-indigo-600/30 transition"
+                className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm rounded-xl shadow-lg shadow-blue-600/30 transition"
               >
                 {t('core.acceptInvite.signInToAccept')}
               </button>

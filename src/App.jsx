@@ -105,7 +105,7 @@ function AppContent() {
                 className="flex items-center gap-2 cursor-pointer"
                 to={isAuthenticated && user?.username ? `/${user.username}` : '/home'}
               >
-                <span className="text-xl font-bold text-indigo-600 dark:text-indigo-400">Takeoff Engine</span>
+                <span className="text-xl font-bold text-blue-600 dark:text-blue-400">Takeoff Engine</span>
                 <span className="hidden sm:inline text-sm text-slate-600 dark:text-slate-400">Construction Estimating</span>
               </Link>
 
@@ -116,7 +116,7 @@ function AppContent() {
                   navigate('/home');
                 }}
                 aria-label="View public marketing site & free trench calculator"
-                className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-base text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+                className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-base text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
                 title="View public marketing site & free trench calculator"
               >
                 <Globe aria-hidden="true" className="w-4 h-4" />
@@ -133,13 +133,13 @@ function AppContent() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => navigate('/login')}
-                    className="px-3.5 py-1.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-300 transition"
+                    className="px-3.5 py-1.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-300 transition"
                   >
                     Log In
                   </button>
                   <button
                     onClick={() => navigate('/register')}
-                    className="px-3.5 py-1.5 text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-sm transition"
+                    className="px-3.5 py-1.5 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition"
                   >
                     Sign Up
                   </button>

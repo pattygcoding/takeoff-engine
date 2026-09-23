@@ -159,7 +159,7 @@ export default function ClientCounterOfferModal({
                     ? formatScopeAddonImpact({ ...item, costImpact: item.amount }, resolvedBaseAmount)
                     : null;
                   const statusBadgeClasses = isAddon
-                    ? 'bg-indigo-600 text-white'
+                    ? 'bg-blue-600 text-white'
                     : item.status === SCOPE_STATUS.INCLUDED
                       ? 'bg-emerald-600 text-white'
                       : item.status === SCOPE_STATUS.EXCLUDED
@@ -171,7 +171,7 @@ export default function ClientCounterOfferModal({
                       key={item.id}
                       className={`p-2.5 rounded-xl border transition ${
                         isAddon
-                          ? 'border-indigo-300 dark:border-indigo-800 bg-indigo-50/60 dark:bg-indigo-950/30'
+                          ? 'border-blue-300 dark:border-blue-800 bg-blue-50/60 dark:bg-blue-950/30'
                           : item.status === SCOPE_STATUS.INCLUDED
                             ? 'border-emerald-300 dark:border-emerald-800 bg-emerald-50/60 dark:bg-emerald-950/30'
                             : item.status === SCOPE_STATUS.EXCLUDED
@@ -189,7 +189,7 @@ export default function ClientCounterOfferModal({
                               </span>
                             )}
                             {isAddon && (
-                              <span className="text-[10px] font-bold bg-indigo-100 dark:bg-indigo-950 text-indigo-900 dark:text-indigo-300 px-1.5 py-0.2 rounded">
+                              <span className="text-[10px] font-bold bg-blue-100 dark:bg-blue-950 text-blue-900 dark:text-blue-300 px-1.5 py-0.2 rounded">
                                 + {t('product.counterOfferModal.addonTag', 'Optional Add-On')}
                               </span>
                             )}
@@ -226,15 +226,15 @@ export default function ClientCounterOfferModal({
                           <label className="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
                             {t('product.counterOfferModal.addonAmountLabel', 'Add-On Amount')}
                           </label>
-                          <div className="inline-flex rounded-lg border border-indigo-200 dark:border-indigo-800 overflow-hidden shrink-0">
+                          <div className="inline-flex rounded-lg border border-blue-200 dark:border-blue-800 overflow-hidden shrink-0">
                             <button
                               type="button"
                               onClick={() => handleAmountTypeChange(item.id, 'flat')}
                               aria-label="Dollar amount"
                               className={`w-7 py-1.5 text-xs font-bold transition cursor-pointer ${
                                 item.costImpactType === 'percent'
-                                  ? 'bg-white dark:bg-slate-800 text-indigo-700 dark:text-indigo-300'
-                                  : 'bg-indigo-600 text-white'
+                                  ? 'bg-white dark:bg-slate-800 text-blue-700 dark:text-blue-300'
+                                  : 'bg-blue-600 text-white'
                               }`}
                             >
                               $
@@ -245,8 +245,8 @@ export default function ClientCounterOfferModal({
                               aria-label="Percentage amount"
                               className={`w-7 py-1.5 text-xs font-bold transition cursor-pointer ${
                                 item.costImpactType === 'percent'
-                                  ? 'bg-indigo-600 text-white'
-                                  : 'bg-white dark:bg-slate-800 text-indigo-700 dark:text-indigo-300'
+                                  ? 'bg-blue-600 text-white'
+                                  : 'bg-white dark:bg-slate-800 text-blue-700 dark:text-blue-300'
                               }`}
                             >
                               %
@@ -264,7 +264,7 @@ export default function ClientCounterOfferModal({
                       )}
 
                       {addonImpact && (
-                        <div className="mt-2 text-[11px] font-semibold text-indigo-700 dark:text-indigo-300">
+                        <div className="mt-2 text-[11px] font-semibold text-blue-700 dark:text-blue-300">
                           {item.costImpactType === 'percent' ? addonImpact : `Current contractor price: ${addonImpact}`}
                         </div>
                       )}

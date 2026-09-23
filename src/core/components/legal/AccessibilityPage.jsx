@@ -17,7 +17,7 @@ export default function AccessibilityPage() {
         <h2 className="text-xl font-bold">{t('core.accessibility.statement.statusTitle')}</h2>
         <p className="leading-relaxed text-slate-700 dark:text-slate-300">{t('core.accessibility.statement.status')}</p>
         <p className="leading-relaxed text-slate-700 dark:text-slate-300">{t('core.accessibility.statement.limitations')}</p>
-        <a href="https://www.w3.org/TR/WCAG22/" className="inline-block py-1 underline text-indigo-700 dark:text-indigo-300">
+        <a href="https://www.w3.org/TR/WCAG22/" className="inline-block py-1 underline text-blue-700 dark:text-blue-300">
           {t('core.accessibility.statement.standard')}
         </a>
       </section>
@@ -28,7 +28,7 @@ export default function AccessibilityPage() {
       <section className="mt-8 space-y-3">
         <h2 className="text-xl font-bold">{t('core.accessibility.statement.contactTitle')}</h2>
         <p className="leading-relaxed text-slate-700 dark:text-slate-300">{t('core.accessibility.statement.contact')}</p>
-        <a href="mailto:pattygsocials@gmail.com" className="inline-block py-1 break-all underline text-indigo-700 dark:text-indigo-300">
+        <a href="mailto:pattygsocials@gmail.com" className="inline-block py-1 break-all underline text-blue-700 dark:text-blue-300">
           pattygsocials@gmail.com
         </a>
         <p className="leading-relaxed text-slate-700 dark:text-slate-300">{t('core.accessibility.statement.details')}</p>

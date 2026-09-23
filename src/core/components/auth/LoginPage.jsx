@@ -244,7 +244,7 @@ export default function LoginPage({ initialView = 'login' }) {
         <button
           type="button"
           onClick={() => navigate('/home')}
-          className="inline-flex items-center gap-1.5 hover:text-indigo-600 dark:hover:text-indigo-400 transition cursor-pointer"
+          className="inline-flex items-center gap-1.5 hover:text-blue-600 dark:hover:text-blue-400 transition cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>{t('core.loginPage.backToHome')}</span>
@@ -259,7 +259,7 @@ export default function LoginPage({ initialView = 'login' }) {
                 if (el) el.scrollIntoView({ behavior: 'smooth' });
               }, 100);
             }}
-            className="hover:text-indigo-600 dark:hover:text-indigo-400 transition cursor-pointer"
+            className="hover:text-blue-600 dark:hover:text-blue-400 transition cursor-pointer"
           >
             {t('core.loginPage.freeCalculator')}
           </button>
@@ -273,7 +273,7 @@ export default function LoginPage({ initialView = 'login' }) {
                 if (el) el.scrollIntoView({ behavior: 'smooth' });
               }, 100);
             }}
-            className="hover:text-indigo-600 dark:hover:text-indigo-400 transition cursor-pointer"
+            className="hover:text-blue-600 dark:hover:text-blue-400 transition cursor-pointer"
           >
             {t('core.loginPage.pricing')}
           </button>
@@ -297,7 +297,7 @@ export default function LoginPage({ initialView = 'login' }) {
                 <button
                   type="button"
                   onClick={() => switchView('forgot')}
-                  className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline cursor-pointer"
+                  className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline cursor-pointer"
                 >
                   {t('core.loginPage.resetPasswordNow')}
                 </button>
@@ -316,7 +316,7 @@ export default function LoginPage({ initialView = 'login' }) {
         {view === 'plan-select' && (
           <div>
             <div className="text-center mb-8 max-w-2xl mx-auto">
-              <span className="inline-block px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 mb-3 inline-flex items-center gap-1.5">
+              <span className="inline-block px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-blue-500/20 text-blue-300 border border-blue-500/30 mb-3 inline-flex items-center gap-1.5">
                 Account Created Successfully <PartyPopper className="w-3.5 h-3.5" />
               </span>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
@@ -402,20 +402,20 @@ export default function LoginPage({ initialView = 'login' }) {
               </div>
 
               {/* 3. Pro Tier (Most Popular) */}
-              <div className="bg-gradient-to-b from-indigo-950/80 to-slate-900 p-6 rounded-3xl border-2 border-indigo-500 shadow-2xl relative flex flex-col justify-between">
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-wider px-3 py-0.5 rounded-full shadow">
+              <div className="bg-gradient-to-b from-blue-950/80 to-slate-900 p-6 rounded-3xl border-2 border-blue-500 shadow-2xl relative flex flex-col justify-between">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[10px] font-black uppercase tracking-wider px-3 py-0.5 rounded-full shadow">
                   {t('core.landing.pricing.pro.mostPopular', 'Most Popular')}
                 </div>
 
                 <div>
-                  <span className="text-xs font-bold uppercase tracking-wider text-indigo-400">
+                  <span className="text-xs font-bold uppercase tracking-wider text-blue-400">
                     {t('core.landing.pricing.pro.tier', 'Pro Tier')}
                   </span>
                   <div className="mt-4 flex items-baseline gap-1">
                     <span className="text-3xl font-black text-white">{t('core.landing.pricing.pro.price', { price: PRO_MONTHLY_PRICE })}</span>
                     <span className="text-xs text-slate-400">{t('core.landing.pricing.pro.cadence', '/ mo')}</span>
                   </div>
-                  <div className="text-[10px] text-indigo-300/80 font-medium mt-0.5">
+                  <div className="text-[10px] text-blue-300/80 font-medium mt-0.5">
                     {t('core.landing.pricing.pro.yearly', { yearly: PRO_YEARLY_PRICE })}
                   </div>
                   <p className="text-xs text-slate-300 mt-2 leading-relaxed min-h-[34px]">
@@ -423,11 +423,11 @@ export default function LoginPage({ initialView = 'login' }) {
                   </p>
 
                   <ul className="mt-6 space-y-2.5 text-xs text-slate-200">
-                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-400 shrink-0" /> <strong>{t('core.landing.pricing.pro.f1', { seats: PRO_PLAN_SEATS })}</strong></li>
-                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-400 shrink-0" /> <strong>{t('core.landing.pricing.pro.f2')}</strong></li>
-                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-400 shrink-0" /> <strong>{t('core.landing.pricing.pro.f3')}</strong></li>
-                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-400 shrink-0" /> <strong>{t('core.landing.pricing.pro.f4')}</strong></li>
-                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-400 shrink-0" /> {t('core.landing.pricing.pro.f5')}</li>
+                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-blue-400 shrink-0" /> <strong>{t('core.landing.pricing.pro.f1', { seats: PRO_PLAN_SEATS })}</strong></li>
+                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-blue-400 shrink-0" /> <strong>{t('core.landing.pricing.pro.f2')}</strong></li>
+                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-blue-400 shrink-0" /> <strong>{t('core.landing.pricing.pro.f3')}</strong></li>
+                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-blue-400 shrink-0" /> <strong>{t('core.landing.pricing.pro.f4')}</strong></li>
+                    <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-blue-400 shrink-0" /> {t('core.landing.pricing.pro.f5')}</li>
                   </ul>
                 </div>
 
@@ -435,7 +435,7 @@ export default function LoginPage({ initialView = 'login' }) {
                   type="button"
                   disabled={checkoutLoadingPlan === 'pro'}
                   onClick={() => handleSelectPaidPlan('pro')}
-                  className="mt-6 w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition cursor-pointer disabled:opacity-50"
+                  className="mt-6 w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-blue-600/30 transition cursor-pointer disabled:opacity-50"
                 >
                   {checkoutLoadingPlan === 'pro' ? t('core.loginPage.launchingCheckout') : t('core.landing.pricing.pro.cta', 'Upgrade to Pro')}
                 </button>
@@ -483,7 +483,7 @@ export default function LoginPage({ initialView = 'login' }) {
               <button
                 type="button"
                 onClick={handleSelectFreePlan}
-                className="text-xs font-semibold text-slate-400 hover:text-indigo-400 transition cursor-pointer inline-flex items-center gap-1"
+                className="text-xs font-semibold text-slate-400 hover:text-blue-400 transition cursor-pointer inline-flex items-center gap-1"
               >
                 {t('core.loginPage.skipForNow', 'Or continue to dashboard with Free Trial')} <ArrowRight className="w-3 h-3" />
               </button>
@@ -512,7 +512,7 @@ export default function LoginPage({ initialView = 'login' }) {
                   value={loginIdentifier}
                   onChange={(e) => setLoginIdentifier(e.target.value)}
                   placeholder={t('core.loginPage.usernameOrEmailPlaceholder')}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
 
@@ -524,7 +524,7 @@ export default function LoginPage({ initialView = 'login' }) {
                   <button
                     type="button"
                     onClick={() => switchView('forgot')}
-                    className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline"
+                    className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
                   >
                     {t('core.loginPage.forgotPassword')}
                   </button>
@@ -538,7 +538,7 @@ export default function LoginPage({ initialView = 'login' }) {
                     value={loginPassword}
                     onChange={(e) => setLoginPassword(e.target.value)}
                     placeholder={t('core.loginPage.passwordPlaceholder')}
-                    className="w-full px-3 py-2 pr-10 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                    className="w-full px-3 py-2 pr-10 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                   />
                   <button
                     type="button"
@@ -563,7 +563,7 @@ export default function LoginPage({ initialView = 'login' }) {
               <button
                 type="submit"
                 aria-disabled={loading}
-                className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 aria-disabled:cursor-wait text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm"
+                className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 aria-disabled:cursor-wait text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm"
               >
                 {loading ? t('core.loginPage.loggingIn') : t('core.loginPage.logIn')}
               </button>
@@ -574,7 +574,7 @@ export default function LoginPage({ initialView = 'login' }) {
               <button
                 type="button"
                 onClick={() => switchView('register')}
-                className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline"
+                className="text-blue-600 dark:text-blue-400 font-semibold hover:underline"
               >
                 {t('core.loginPage.createAccount')}
               </button>
@@ -604,7 +604,7 @@ export default function LoginPage({ initialView = 'login' }) {
                     value={registerFirstName}
                     onChange={(e) => setRegisterFirstName(e.target.value)}
                     placeholder={t('core.loginPage.firstNamePlaceholder')}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                   />
                 </div>
                 <div>
@@ -619,7 +619,7 @@ export default function LoginPage({ initialView = 'login' }) {
                     value={registerLastName}
                     onChange={(e) => setRegisterLastName(e.target.value)}
                     placeholder={t('core.loginPage.lastNamePlaceholder')}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                   />
                 </div>
               </div>
@@ -636,7 +636,7 @@ export default function LoginPage({ initialView = 'login' }) {
                   value={registerUsername}
                   onChange={(e) => setRegisterUsername(e.target.value)}
                   placeholder={t('core.loginPage.usernamePlaceholder')}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
 
@@ -652,7 +652,7 @@ export default function LoginPage({ initialView = 'login' }) {
                   value={registerEmail}
                   onChange={(e) => setRegisterEmail(e.target.value)}
                   placeholder={t('core.loginPage.emailPlaceholder')}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
 
@@ -667,7 +667,7 @@ export default function LoginPage({ initialView = 'login' }) {
                   value={registerPhone}
                   onChange={(e) => setRegisterPhone(e.target.value)}
                   placeholder={t('core.loginPage.phonePlaceholder')}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
 
@@ -685,7 +685,7 @@ export default function LoginPage({ initialView = 'login' }) {
                     value={registerPassword}
                     onChange={(e) => setRegisterPassword(e.target.value)}
                     placeholder={t('core.loginPage.passwordPlaceholder')}
-                    className="w-full px-3 py-2 pr-10 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                    className="w-full px-3 py-2 pr-10 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                   />
                   <button
                     type="button"
@@ -713,15 +713,15 @@ export default function LoginPage({ initialView = 'login' }) {
                   required
                   checked={registerAcceptedTerms}
                   onChange={(e) => setRegisterAcceptedTerms(e.target.checked)}
-                  className="mt-1 h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                  className="mt-1 h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 cursor-pointer"
                 />
                 <span className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                   {t('core.loginPage.agreeToTermsPrefix')}{' '}
-                  <Link to="/terms-of-service" target="_blank" rel="noopener noreferrer" className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">
+                  <Link to="/terms-of-service" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
                     {t('core.loginPage.termsOfServiceLink')}
                   </Link>{' '}
                   {t('core.loginPage.agreeToTermsAnd')}{' '}
-                  <Link to="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">
+                  <Link to="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
                     {t('core.loginPage.privacyPolicyLink')}
                   </Link>
                   .
@@ -731,7 +731,7 @@ export default function LoginPage({ initialView = 'login' }) {
               <button
                 type="submit"
                 aria-disabled={loading}
-                className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 aria-disabled:cursor-wait text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm"
+                className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 aria-disabled:cursor-wait text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm"
               >
                 {loading ? t('core.loginPage.creatingAccount') : t('core.loginPage.createAccount')}
               </button>
@@ -742,7 +742,7 @@ export default function LoginPage({ initialView = 'login' }) {
               <button
                 type="button"
                 onClick={() => switchView('login')}
-                className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline"
+                className="text-blue-600 dark:text-blue-400 font-semibold hover:underline"
               >
                 {t('core.loginPage.logIn')}
               </button>
@@ -773,14 +773,14 @@ export default function LoginPage({ initialView = 'login' }) {
                   value={forgotEmail}
                   onChange={(e) => setForgotEmail(e.target.value)}
                   placeholder={t('core.loginPage.yourEmailPlaceholder')}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
 
               <button
                 type="submit"
                 aria-disabled={loading}
-                className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 aria-disabled:cursor-wait text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm"
+                className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 aria-disabled:cursor-wait text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm"
               >
                 {loading ? t('core.loginPage.submitting') : t('core.loginPage.sendResetInstructions')}
               </button>
@@ -789,7 +789,7 @@ export default function LoginPage({ initialView = 'login' }) {
                 <button
                   type="button"
                   onClick={() => switchView('login')}
-                  className="text-indigo-600 dark:text-indigo-400 hover:underline"
+                  className="text-blue-600 dark:text-blue-400 hover:underline"
                 >
                   {t('core.loginPage.backToLogIn')}
                 </button>

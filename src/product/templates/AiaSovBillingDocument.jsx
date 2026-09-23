@@ -48,11 +48,11 @@ export default function AiaSovBillingDocument({ estimate, branding, currentProje
           <tfoot className="bg-slate-100 font-bold border-t-2 border-slate-900">
             <tr>
               <td colSpan={2} className="p-2.5 font-sans uppercase">{t('product.templates.aiaSovBilling.totalScheduledValues')}</td>
-              <td className="p-2.5 text-right text-indigo-900">{formatCurrency(totals.finalBidAmount)}</td>
+              <td className="p-2.5 text-right text-blue-900">{formatCurrency(totals.finalBidAmount)}</td>
               <td className="p-2.5 text-right">$0.00</td>
               <td className="p-2.5 text-right">$0.00</td>
               <td className="p-2.5 text-right">0.0%</td>
-              <td className="p-2.5 text-right text-indigo-900">{formatCurrency(totals.finalBidAmount)}</td>
+              <td className="p-2.5 text-right text-blue-900">{formatCurrency(totals.finalBidAmount)}</td>
             </tr>
           </tfoot>
         </table>

@@ -103,7 +103,7 @@ export function ModalProvider({ children }) {
                     ? 'bg-emerald-100 text-emerald-600'
                     : modalState.variant === 'warning'
                     ? 'bg-amber-100 text-amber-600'
-                    : 'bg-indigo-100 text-indigo-600'
+                    : 'bg-blue-100 text-blue-600'
                 }`}
               >
                 {modalState.type === 'confirm' && modalState.confirmVariant === 'danger' ? (
@@ -148,7 +148,7 @@ export function ModalProvider({ children }) {
                   value={inputValue}
                   placeholder={modalState.placeholder}
                   onChange={(e) => setInputValue(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
                 />
               </form>
             )}
@@ -177,7 +177,7 @@ export function ModalProvider({ children }) {
                 className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors shadow-sm ${
                   modalState.type === 'confirm' && modalState.confirmVariant === 'danger'
                     ? 'bg-red-600 text-white hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
-                    : 'bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
+                    : 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
                 }`}
               >
                 {modalState.confirmText || t(modalState.type === 'alert' ? 'core.accessibility.ok' : 'core.accessibility.confirm')}

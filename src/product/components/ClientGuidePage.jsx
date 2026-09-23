@@ -155,7 +155,7 @@ function MarkdownRenderer({ content }) {
 
     if (trimmed.startsWith('> ')) {
       elements.push(
-        <blockquote key={key++} className="border-l-4 border-indigo-500 pl-4 py-1.5 my-3 bg-indigo-50/50 dark:bg-indigo-950/40 rounded-r-lg text-xs sm:text-sm text-slate-700 dark:text-slate-300 italic">
+        <blockquote key={key++} className="border-l-4 border-blue-500 pl-4 py-1.5 my-3 bg-blue-50/50 dark:bg-blue-950/40 rounded-r-lg text-xs sm:text-sm text-slate-700 dark:text-slate-300 italic">
           {renderInlineMarkdown(trimmed.slice(2))}
         </blockquote>
       );
@@ -199,7 +199,7 @@ function renderInlineMarkdown(text) {
   return parts.map((part, idx) => {
     if (part.type === 'code') {
       return (
-        <code key={idx} className="bg-slate-100 dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 border border-slate-200 dark:border-slate-700 px-1.5 py-0.5 rounded font-mono text-xs">
+        <code key={idx} className="bg-slate-100 dark:bg-slate-800 text-blue-700 dark:text-blue-300 border border-slate-200 dark:border-slate-700 px-1.5 py-0.5 rounded font-mono text-xs">
           {part.content}
         </code>
       );
@@ -227,7 +227,7 @@ function renderInlineMarkdown(text) {
             href={fMatch[5]}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline font-medium"
+            className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline font-medium"
           >
             {fMatch[4]}
           </a>
@@ -307,7 +307,7 @@ export default function ClientGuidePage() {
               </svg>
             </button>
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
                 {t('product.clientGuide.documentation')}
               </span>
               <h1 className="text-base sm:text-lg font-black text-slate-900 dark:text-white leading-tight">
@@ -320,7 +320,7 @@ export default function ClientGuidePage() {
             <button
               type="button"
               onClick={() => downloadSampleCsv()}
-              className="px-3 py-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800 rounded-xl transition cursor-pointer"
+              className="px-3 py-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 border border-blue-200 dark:border-blue-800 rounded-xl transition cursor-pointer"
             >
               {t('product.clientGuide.csvTemplate')}
             </button>
@@ -340,7 +340,7 @@ export default function ClientGuidePage() {
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs p-6 sm:p-10 min-h-[500px] transition-colors">
           {loading ? (
             <div className="flex items-center justify-center py-20 text-slate-400 dark:text-slate-500">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
               <span className="ml-3 text-sm">{t('product.clientGuide.loadingGuide')}</span>
             </div>
           ) : (

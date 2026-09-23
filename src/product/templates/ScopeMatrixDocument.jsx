@@ -20,7 +20,7 @@ export default function ScopeMatrixDocument({ estimate, branding, currentProject
           <div key={sys.system} className="border border-slate-200 rounded-2xl p-4 bg-slate-50 space-y-2">
             <div className="flex justify-between items-center pb-2 border-b border-slate-200">
               <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900">{sys.system}</h4>
-              <span className="text-xs font-bold text-indigo-600 font-mono">{formatCurrency(sys.factoredBid ?? sys.directCost)}</span>
+              <span className="text-xs font-bold text-blue-600 font-mono">{formatCurrency(sys.factoredBid ?? sys.directCost)}</span>
             </div>
             <ul className="space-y-1 text-xs text-slate-600">
               {sys.items.map((it, i) => (
