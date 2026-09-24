@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { formatMarkupLine, formatMarkupBasisNote } from '../../src/product/lib/markupFormatting.js';
+import { formatMarkupLine, formatMarkupBasisNote } from '../../../src/product/lib/markupFormatting.js';
 
 describe('Markup formatting helper', () => {
   const mockT = (key, params = {}) => {

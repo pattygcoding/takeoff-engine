@@ -12,7 +12,7 @@ import {
 } from '#core/lib/auth/sessionToken.js';
 
 const testDirectory = path.dirname(fileURLToPath(import.meta.url));
-const frontendRoot = path.resolve(testDirectory, '../..');
+const frontendRoot = path.resolve(testDirectory, '../../..');
 
 function installSessionStorage(t) {
   const values = new Map();

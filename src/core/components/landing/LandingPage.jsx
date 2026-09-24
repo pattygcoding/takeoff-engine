@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { formatCurrency, formatNumber } from '@/product/lib/calculations';
+import { formatCurrency, formatNumber } from '@/core/lib/shared/formatting';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import LanguageSelector from '@/core/components/shared/LanguageSelector';
 import SeoHead from '@/core/components/shared/SeoHead';
