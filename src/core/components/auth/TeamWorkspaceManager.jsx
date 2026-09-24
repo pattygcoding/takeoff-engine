@@ -41,13 +41,16 @@ export default function TeamWorkspaceManager() {
   const currentAddSeats = user?.additional_seats || 0;
   const currentTotalSeats = user?.seat_limit || (baseSeats + currentAddSeats);
 
-  const isEnterpriseOrTeam =
+  const canCreateOrganization =
     user?.role === 'admin' ||
     user?.role === 'payment_exempt' ||
     user?.has_unlimited_bypass === true ||
     user?.subscription_tier === 'enterprise' ||
-    user?.subscription_tier === 'pro' ||
     user?.subscription_tier === 'team';
+
+  const canManageSeats =
+    canCreateOrganization ||
+    user?.subscription_tier === 'pro';
 
   useEffect(() => {
     loadOrganizations();
@@ -303,7 +306,7 @@ export default function TeamWorkspaceManager() {
           </p>
         </div>
 
-        {!isEnterpriseOrTeam && (
+        {!canCreateOrganization && (
           <div className="text-xs bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-700 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
             <Crown className="w-3.5 h-3.5 shrink-0" /> {t('core.teamWorkspaceManager.requiresEnterprise', { price: ENTERPRISE_MONTHLY_PRICE })}
           </div>
@@ -339,7 +342,7 @@ export default function TeamWorkspaceManager() {
           </button>
         ))}
 
-        {isEnterpriseOrTeam && (
+        {canCreateOrganization && (
           <form onSubmit={handleCreateOrg} className="flex items-center gap-2">
             <input
               type="text"
@@ -381,7 +384,7 @@ export default function TeamWorkspaceManager() {
               </p>
             </div>
 
-            {isEnterpriseOrTeam && (
+            {canManageSeats && (
               <button
                 type="button"
                 onClick={handleOpenSeatModal}

@@ -1,11 +1,12 @@
 import { getTranslation } from '@/core/lib/shared/i18n';
+import { addAuthorizationHeader } from '@/core/lib/auth/sessionToken';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const getAuthHeaders = () => {
-  return {
+  return addAuthorizationHeader({
     'Content-Type': 'application/json',
-  };
+  });
 };
 
 export const organizationsApi = {

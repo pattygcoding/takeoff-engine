@@ -12,6 +12,9 @@
     "build": "infisical run --env=prod -- vite build",
     "build:local": "vite build",
     "test": "node --test tests/**/*.test.js",
+    "test:unit": "vitest run --config vitest.config.js",
+    "test:unit:watch": "vitest --config vitest.config.js",
+    "test:e2e": "playwright test --config playwright.e2e.config.js",
     "test:a11y": "playwright test",
     "test:a11y:public": "playwright test tests/accessibility/public-pages.spec.js",
     "translate": "python src/lang/lang.py",
@@ -40,11 +43,15 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.63.0",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.7",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.4",
     "gh-pages": "^6.3.0",
+    "jsdom": "^29.1.1",
     "oxlint": "^1.75.0",
-    "vite": "^8.2.0"
+    "vite": "^8.2.0",
+    "vitest": "^5.0.1"
   }
 }
