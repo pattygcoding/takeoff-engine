@@ -12,6 +12,15 @@ import { useModal } from '@/core/components/context/ModalContext';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import UpgradeModal from '@/core/components/billing/UpgradeModal';
 import ScopeSummaryDisplay from './ScopeSummaryDisplay';
+import {
+  ClientViewTabs,
+  InvoiceView,
+  GeneralBidView,
+  ProposalPackageHeader,
+  ProposalPackageFooter,
+  ChangeOrdersView,
+  WarrantyView,
+} from './ClientModeViews';
 import Papa from 'papaparse';
 
 export default function ResultsStep({ items, rates, currentProject, onProjectSaved, onBack, readOnly = false, projectStatus = 'awarded', onDuplicate }) {
@@ -21,6 +30,10 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
   const { showAlert } = useModal();
   const { t } = useTranslation();
   const [proposalMode, setProposalMode] = useState(false);
+  const [clientView, setClientView] = useState('proposal');
+  const [changeOrders, setChangeOrders] = useState(currentProject?.change_orders_json || []);
+  const [warrantyItems, setWarrantyItems] = useState(currentProject?.warranty_items_json || []);
+  const [isSavingRecords, setIsSavingRecords] = useState(false);
   const [isSavingProject, setIsSavingProject] = useState(false);
   const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
   const [showSaveModal, setShowSaveModal] = useState(false);
@@ -88,6 +101,44 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
   }, [items, rates]);
 
   const { totals = {}, bySystem = [] } = estimate;
+
+  useEffect(() => {
+    setChangeOrders(currentProject?.change_orders_json || []);
+    setWarrantyItems(currentProject?.warranty_items_json || []);
+  }, [currentProject?.change_orders_json, currentProject?.warranty_items_json]);
+
+  const saveClientRecords = async (patch) => {
+    if (!currentProject?.id) return false;
+    try {
+      setIsSavingRecords(true);
+      const saved = await projectsApi.update(currentProject.id, patch);
+      if (onProjectSaved) {
+        onProjectSaved({ ...currentProject, ...saved, latestEstimate: saved?.latestEstimate || currentProject.latestEstimate });
+      }
+      return true;
+    } catch (err) {
+      await showAlert({
+        title: t('product.resultsStep.saveFailed'),
+        message: err.message || t('product.clientViews.saveRecordsFailed'),
+        variant: 'error',
+      });
+      return false;
+    } finally {
+      setIsSavingRecords(false);
+    }
+  };
+
+  const saveChangeOrders = async (next) => {
+    const ok = await saveClientRecords({ changeOrders: next });
+    if (ok) setChangeOrders(next);
+    return ok;
+  };
+
+  const saveWarrantyItems = async (next) => {
+    const ok = await saveClientRecords({ warrantyItems: next });
+    if (ok) setWarrantyItems(next);
+    return ok;
+  };
 
   const handleSaveToCloud = async (e) => {
     if (e) e.preventDefault();
@@ -465,6 +516,8 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
       </div>
 
       {/* Save Project Modal */}
+      {proposalMode && <ClientViewTabs value={clientView} onChange={setClientView} />}
+
       {showSaveModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100">
@@ -738,6 +791,47 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
           </div>
         )}
 
+        {proposalMode && clientView === 'invoice' && (
+          <InvoiceView
+            project={currentProject}
+            bySystem={bySystem}
+            totals={totals}
+            changeOrders={changeOrders}
+            warrantyItems={warrantyItems}
+          />
+        )}
+
+        {proposalMode && clientView === 'bid' && (
+          <GeneralBidView project={currentProject} bySystem={bySystem} totals={totals}>
+            <ScopeSummaryDisplay scopeItems={rates?.scopeItems} baseAmount={totals.totalDirectCost} className="mt-8" />
+          </GeneralBidView>
+        )}
+
+        {proposalMode && clientView === 'changeOrders' && (
+          <ChangeOrdersView
+            project={currentProject}
+            totals={totals}
+            changeOrders={changeOrders}
+            onSave={saveChangeOrders}
+            canEdit={Boolean(currentProject?.id)}
+            saving={isSavingRecords}
+          />
+        )}
+
+        {proposalMode && clientView === 'warranty' && (
+          <WarrantyView
+            project={currentProject}
+            warrantyItems={warrantyItems}
+            onSave={saveWarrantyItems}
+            canEdit={Boolean(currentProject?.id)}
+            saving={isSavingRecords}
+          />
+        )}
+
+        {(!proposalMode || clientView === 'proposal') && (
+        <>
+        {proposalMode && <ProposalPackageHeader project={currentProject} />}
+
         {!proposalMode && (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
             <SummaryCard label={t('product.resultsStep.totalMaterialCost')} value={formatCurrency(totals.totalMaterialCost)} />
@@ -905,6 +999,10 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
         )}
 
         <ScopeSummaryDisplay scopeItems={rates?.scopeItems} baseAmount={totals.totalDirectCost} className="mt-8" />
+
+        {proposalMode && <ProposalPackageFooter />}
+        </>
+        )}
       </div>
 
       <UpgradeModal

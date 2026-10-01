@@ -277,12 +277,13 @@ Rules:
 2. User must be an active member of the organization or owner.
 3. User's org role must be `owner` or `admin`.
 4. Email is required.
-5. Backend counts active plus pending memberships.
-6. If occupied seats are greater than or equal to `organizations.max_seats`, the route returns `SEAT_LIMIT_EXCEEDED`.
-7. Backend creates or updates a pending membership row.
-8. Backend generates a secure token with a 7-day expiration.
-9. Backend sends a transactional invite email when email service is available.
-10. Response returns the member row, generated invite URL, and whether email was sent.
+5. Inviting the owner's email or an existing active member returns `ALREADY_MEMBER`.
+6. A lapsed owner (`past_due`, `paused`, `canceled`, `none`, not complimentary) gets `OWNER_SUBSCRIPTION_INACTIVE`.
+7. Under the owner seat lock, backend counts active plus pending seat holders pooled across all of the owner's organizations; if the invite would exceed the owner's entitlement, the route returns `SEAT_LIMIT_EXCEEDED`. Re-sending to an existing pending invite does not need a new seat.
+8. Backend creates or updates a pending membership row (never overwriting an owner or active row).
+9. Backend generates a secure token with a 7-day expiration.
+10. Backend sends a transactional invite email when email service is available.
+11. Response returns the member row, generated invite URL, and whether email was sent.
 
 Existing users are linked through `user_id`; unknown users are tracked by `invited_email` until they accept.
 
@@ -318,9 +319,9 @@ Rules:
 2. Token must exist.
 3. Invitation must not be revoked.
 4. Invitation must not be expired.
-5. Backend sets `user_id` to the authenticated user, changes `status` to `active`, clears `invite_token`, and clears `invite_expires_at`.
-
-Current acceptance logic does not enforce that the authenticated user's email matches `invited_email`. If email matching is required for security/product policy, add that check before accepting the invite.
+5. The authenticated user's email must match `invited_email`.
+6. Under the owner seat lock, acceptance is refused with `SEAT_LIMIT_EXCEEDED` if the owner's pooled entitlement would be exceeded (for example after seats were reduced in the Paddle portal, or the owner is `past_due` / `canceled`).
+7. Backend sets `user_id` to the authenticated user, changes `status` to `active`, clears `invite_token`, and clears `invite_expires_at`. The update only applies while the row is still `pending` with the same token.
 
 ### 4. Resending an Invitation
 
@@ -391,7 +392,29 @@ Rules:
 
 `POST /api/billing/create-checkout` builds Paddle checkout items for Starter, Pro, or Enterprise. Pro and Enterprise can include an extra-seat price item when `additionalSeats > 0`.
 
-Starter checkout blocks if the user already has extra seats or occupied seats in owned organizations.
+- Starter checkout blocks if the user already has extra seats or any non-owner active/pending seats in owned organizations.
+- Checkout is refused with `SUBSCRIPTION_EXISTS` when the user already has a live Paddle subscription (`active`, `trialing`, `past_due`, `paused`). A second checkout would bill them twice.
+- `customData.checkoutSignature` is an HMAC of the user id (`CHECKOUT_SIGNING_SECRET`, falling back to the Paddle webhook secret). Paddle.js custom data is editable in the browser, so the webhook only trusts a `userId` with a valid signature.
+
+### Paddle Webhooks Are the Source of Truth
+
+- Tier and seats are derived only from billed subscription line items. `customData.planTier` / `customData.additionalSeats` are never trusted. Unknown prices never default to a paid tier, and multiple seat lines are summed.
+- A subscription event is applied to the user already linked to that `paddle_subscription_id`, or to a signed checkout user. It never overwrites a user whose different subscription is still live.
+- `users.paddle_subscription_updated_at` discards out-of-order (stale) events.
+- `canceled` resets `seat_limit` to 1 and syncs every owned organization. `past_due` / `paused` keep the stored limit but suspend paid seats (see entitlement below).
+- `transaction.completed` only sends receipts; proration transactions are partial and never change seats.
+- Processing errors return 500 so Paddle retries.
+
+### Seat Entitlement
+
+Seats are pooled across every organization the owner pays for. One person occupies one seat regardless of how many owned organizations they belong to, and the owner always occupies one.
+
+```text
+entitlement = seat_limit   if owner is admin / payment_exempt / has_unlimited_bypass, or status is active / trialing
+entitlement = 1            otherwise (past_due, paused, canceled, none)
+```
+
+Invites and invitation acceptance are checked against this pooled entitlement under a per-owner Postgres advisory lock, so concurrent requests cannot oversell the last seat. Re-sending an existing pending invite reuses its reserved seat. Inviting an active member or the owner's own email returns `ALREADY_MEMBER`.
 
 ### Updating Seats on an Existing Subscription
 
@@ -399,23 +422,31 @@ Request:
 
 ```text
 POST /api/billing/update-seats
-{ "additionalSeats": 2, "orgId": "optional-current-org-id" }
+{ "additionalSeats": 2 }
 ```
+
+`additionalSeats` is required and must be a non-negative integer.
 
 Flow:
 
-1. Backend loads the authenticated user.
-2. Backend calculates base seats from `subscription_tier_limits`.
-3. Backend computes `newTotalSeats = baseSeats + additionalSeats`.
-4. Backend verifies the user may scale seats.
-5. Backend counts active plus pending memberships across all organizations owned by the user.
-6. If `newTotalSeats` is less than occupied seats across owned organizations, the request is rejected.
-7. If the user has a Paddle subscription, backend updates Paddle subscription items and uses immediate prorated billing.
-8. Backend updates the user with the new `seat_limit` and `additional_seats`.
-9. Backend updates every organization owned by the user so `organizations.max_seats = newTotalSeats`.
-10. Response returns updated seat totals and whether Paddle was updated.
+1. Backend loads the authenticated user and verifies the tier may scale seats.
+2. Paying (non-complimentary) users must be `active` or `trialing`, otherwise `SUBSCRIPTION_NOT_ACTIVE`.
+3. Paying users must have a linked Paddle subscription. Without one, the request is refused outside sandbox (`BILLING_SUBSCRIPTION_MISSING`).
+4. Under the owner seat lock, backend rejects totals below pooled occupancy (`SEAT_REDUCTION_BLOCKED`).
+5. Backend sends Paddle the full item list (base plan carried over, matching-interval seat price) with `prorated_immediately` and `onPaymentFailure: prevent_change`.
+6. If Paddle fails or declines payment, no seats are granted (`SEAT_CHANGE_NOT_BILLED` / `BILLING_PROVIDER_ERROR`).
+7. Only after Paddle succeeds, backend updates `seat_limit` / `additional_seats` (never tier, status, bypass, or cancellation state) and syncs `organizations.max_seats`.
 
-Seat capacity is owner-wide in practice because every organization owned by a user is synchronized to the same `seat_limit`. The capacity check for lowering seats also counts occupied seats across all owned organizations.
+Complimentary accounts (platform admin, `payment_exempt`, bypass) change seats without Paddle.
+
+### Cancel and Restore
+
+- Cancel is recorded locally only after Paddle confirms it; otherwise the customer would believe they canceled while still being billed.
+- Restore only undoes a scheduled cancellation on an `active` / `trialing` subscription and requires Paddle confirmation. It never flips `past_due` or `canceled` back to `active`.
+
+### Mock Billing Endpoints
+
+`/api/billing/mock-activate` and `/api/billing/mock-webhook` only run on a local machine: `CLIENT_URL` must point to `localhost` / `127.0.0.1`, the server must not be on Render (`RENDER` unset), and neither `NODE_ENV` nor `PADDLE_ENVIRONMENT` may be `production`. Anything else disables them. `mock-webhook` also requires an authenticated platform admin.
 
 ## Access Control and RLS
 
