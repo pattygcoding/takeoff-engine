@@ -240,7 +240,7 @@ export default function LoginPage({ initialView = 'login' }) {
         canonicalUrl={seoData.canonicalUrl}
       />
       {/* Back to Home / Public site navigation banner */}
-      <div className={`w-full mb-4 flex items-center justify-between text-xs font-medium text-slate-500 dark:text-slate-400 ${view === 'plan-select' ? 'max-w-5xl' : 'max-w-md'}`}>
+      <div className={`w-full mb-4 flex items-center justify-between text-xs font-medium text-slate-600 dark:text-slate-400 ${view === 'plan-select' ? 'max-w-5xl' : 'max-w-md'}`}>
         <button
           type="button"
           onClick={() => navigate('/home')}

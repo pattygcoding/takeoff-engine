@@ -85,6 +85,47 @@ test('accessibility statement is reachable and offers an existing support contac
   await expect(page.locator('article a[href="mailto:pattygsocials@gmail.com"]')).toBeVisible();
 });
 
+const LANDING_AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'];
+
+async function dismissLandingNotice(page) {
+  await page.goto('/home?lang=en');
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+}
+
+test('landing theme toggle is labelled and both themes pass axe', async ({ page }) => {
+  await dismissLandingNotice(page);
+  const toggle = page.getByRole('button', { name: /Switch to (light|dark) mode/ }).filter({ visible: true });
+  await expect(toggle).toHaveCount(1);
+  for (let i = 0; i < 2; i += 1) {
+    await toggle.click();
+    const results = await new AxeBuilder({ page }).withTags(LANDING_AXE_TAGS).analyze();
+    expect(results.violations.map(({ id, nodes }) => ({ id, targets: nodes.map((n) => n.target) }))).toEqual([]);
+  }
+});
+
+test('landing language picker exposes its state and passes axe when open', async ({ page }) => {
+  await dismissLandingNotice(page);
+  const picker = page.getByRole('button', { name: /language/i }).filter({ visible: true });
+  await expect(picker).toHaveAttribute('aria-expanded', 'false');
+  await picker.click();
+  await expect(picker).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.getByRole('button', { name: 'Español' })).toBeVisible();
+  const results = await new AxeBuilder({ page }).withTags(LANDING_AXE_TAGS).analyze();
+  expect(results.violations).toEqual([]);
+  await page.keyboard.press('Escape');
+  await expect(picker).toHaveAttribute('aria-expanded', 'false');
+  await expect(picker).toBeFocused();
+});
+
+test('landing calculator inputs are labelled and results are announced', async ({ page }) => {
+  await dismissLandingNotice(page);
+  const length = page.getByLabel('Pipe Run Length (LF)');
+  await length.fill('1000');
+  await expect(page.locator('#calculator [aria-live="polite"]')).toContainText('555.6');
+});
+
 test('failed login exposes an announced error associated with the form', async ({ page }) => {
   await page.route('**/auth/login', (route) => route.fulfill({
     status: 401,

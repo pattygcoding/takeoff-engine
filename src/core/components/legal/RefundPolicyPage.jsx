@@ -40,7 +40,7 @@ export default function RefundPolicyPage() {
               </svg>
             </button>
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
                 {t('core.refundPolicy.badge')}
               </span>
               <h1 className="text-base sm:text-lg font-black text-slate-900 dark:text-white leading-tight">

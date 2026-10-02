@@ -50,6 +50,38 @@
         "badgeInstantExports": "Instant PDF & Word exports",
         "badgeColumnMapper": "Auto column alias mapper"
       },
+      "topbar": {
+        "tagline": "Civil & Utility Estimating Platform"
+      },
+      "sampleDoc": {
+        "ariaLabel": "Sample proposal generated from a takeoff spreadsheet",
+        "mapped": "4 columns auto-mapped",
+        "title": "Proposal",
+        "project": "Sewer Main Extension – Phase 2",
+        "number": "No. 0147",
+        "colItem": "Item",
+        "colQty": "Qty",
+        "colUnit": "Unit",
+        "colAmount": "Amount",
+        "row1": "Trench excavation",
+        "row2": "8\" PVC pipe",
+        "row3": "Pipe bedding",
+        "row4": "Backfill & compaction",
+        "total": "Total",
+        "acceptedBy": "Accepted by · {{date}}",
+        "eSigned": "E-SIGNED",
+        "note": "Sample document for illustration."
+      },
+      "steps": {
+        "s1Title": "Import",
+        "s1Desc": "CSV & Excel sheets from Bluebeam, PlanSwift, or Trimble.",
+        "s2Title": "Map",
+        "s2Desc": "Column headers matched automatically with intelligent aliases.",
+        "s3Title": "Calculate",
+        "s3Desc": "Trench volumes, production math, and labor hours.",
+        "s4Title": "Send",
+        "s4Desc": "Branded PDF or Word proposal, signed digitally by your client."
+      },
       "calculator": {
         "tag": "Interactive Free Tool",
         "title": "Instant Trench Excavation & Earthwork Calculator",
@@ -99,12 +131,18 @@
         "row5Label": "Reusable Rate & Material Libraries",
         "row5Te": "1-Click Library Switcher",
         "row5Excel": "Broken formula links",
-        "row5Ent": "Database included"
+        "row5Ent": "Database included",
+        "legendIncluded": "Included",
+        "legendLimited": "Limited",
+        "legendNone": "Not available"
       },
       "pricing": {
         "tag": "Simple Transparent Pricing",
         "title": "Start Free, Upgrade When You Win Bids",
         "subtitle": "Every plan includes full calculating features, exports, and instant cloud saves.",
+        "colPlan": "Plan",
+        "colPrice": "Price",
+        "colIncluded": "Included",
         "freeTrial": {
           "tier": "Free Trial",
           "price": "$0",
@@ -159,14 +197,9 @@
         }
       },
       "footer": {
-        "home": "Home",
         "trenchCalculator": "Trench Calculator",
-        "pricingPlans": "Pricing Plans",
         "signIn": "Sign In",
-        "createAccount": "Create Account",
-        "tagline": "Takeoff Engine - Civil & Utility Estimating Platform",
-        "copyright": "© {{year}} Takeoff Engine. All rights reserved.",
-        "acceptableUsePolicy": "Acceptable Use & Suspension Policy"
+        "createAccount": "Create Account"
       },
       "disclaimer": {
         "tag": "Development Preview",
@@ -871,6 +904,9 @@
       "switchToDark": "Switch to dark mode",
       "light": "Light mode",
       "dark": "Dark mode"
+    },
+    "languageSelector": {
+      "label": "Language: {{language}}"
     },
     "common": {
       "loading": "Loading...",

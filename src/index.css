@@ -85,9 +85,87 @@ body:has(dialog[open]) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    /* A tiny duration would give every element an `all` transition, so inherited colours lag a frame per nesting level. */
+    transition: none !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Public landing page palette (light default, dark via html.dark) */
+.landing {
+  --lp-paper: #f2f0e9;
+  --lp-card: #ffffff;
+  --lp-card-alt: #fbfaf6;
+  --lp-ink: #101010;
+  --lp-line: #101010;
+  --lp-muted: #57544c;
+  --lp-rule: #cfcabd;
+  --lp-accent: #2563eb;
+  --lp-accent-text: #1d4ed8;
+  --lp-accent-on-ink: #60a5fa;
+  --lp-band: #2563eb;
+  --lp-tint: #e6edfd;
+  --lp-danger: #a42a14;
+  --lp-inverse: #101010;
+  --lp-inverse-text: #b9b5a9;
+  --lp-inverse-rule: #38352f;
+}
+
+.dark .landing {
+  --lp-paper: #0b0f19;
+  --lp-card: #111827;
+  --lp-card-alt: #0f1626;
+  --lp-ink: #e5e7eb;
+  --lp-line: #3b475c;
+  --lp-muted: #a1a8b5;
+  --lp-rule: #2a3446;
+  --lp-accent: #2563eb;
+  --lp-accent-text: #60a5fa;
+  --lp-accent-on-ink: #1d4ed8;
+  --lp-band: #1e40af;
+  --lp-tint: #14213d;
+  --lp-danger: #f87171;
+  --lp-inverse: #05070c;
+  --lp-inverse-text: #a1a8b5;
+  --lp-inverse-rule: #1e293b;
+}
+
+.landing .lp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1;
+  padding: 15px 22px;
+  border: 2px solid var(--lp-ink);
+  background: var(--lp-ink);
+  color: var(--lp-paper);
+  cursor: pointer;
+  transition: background-color 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.landing .lp-btn:hover {
+  background: var(--lp-accent);
+  border-color: var(--lp-accent);
+  color: #ffffff;
+}
+
+.landing .lp-btn-outline {
+  background: transparent;
+  color: var(--lp-ink);
+}
+
+.landing .lp-btn-outline:hover {
+  background: var(--lp-ink);
+  border-color: var(--lp-ink);
+  color: var(--lp-paper);
+}
+
+.landing .lp-btn-sm {
+  padding: 10px 16px;
+  font-size: 13px;
 }
 
 @media print {

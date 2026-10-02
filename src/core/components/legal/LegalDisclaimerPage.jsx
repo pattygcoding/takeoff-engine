@@ -39,7 +39,7 @@ export default function LegalDisclaimerPage() {
               </svg>
             </button>
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">
                 {t('core.legalDisclaimer.badge')}
               </span>
               <h1 className="text-base sm:text-lg font-black text-slate-900 dark:text-white leading-tight">

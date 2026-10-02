@@ -15,15 +15,15 @@ export default function AppFooter() {
     return null;
   }
 
-  const isDarkLanding = location.pathname === '/home' || (!isAuthenticated && (location.pathname === '/' || location.pathname === ''));
+  // The public landing page renders its own full-width footer.
+  const isLanding = location.pathname === '/home' || (!isAuthenticated && (location.pathname === '/' || location.pathname === ''));
+  if (isLanding) {
+    return null;
+  }
 
   return (
     <footer
-      className={`no-print border-t transition-colors text-xs py-10 ${
-        isDarkLanding
-          ? 'bg-slate-950 border-slate-800/80 text-slate-400'
-          : 'bg-slate-900 border-slate-800 text-slate-400 mt-auto'
-      }`}
+      className="no-print border-t transition-colors text-xs py-10 bg-slate-900 border-slate-800 text-slate-400 mt-auto"
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         {/* Main Multi-Column Grid */}
