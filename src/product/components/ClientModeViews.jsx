@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { Lock, Pencil, Plus, Trash2 } from 'lucide-react';
 import { formatCurrency } from '@/product/lib/calculations';
 import { useTranslation } from '@/core/components/context/I18nContext';
 
@@ -20,26 +20,53 @@ export function billableWarrantyItems(warrantyItems = []) {
   return warrantyItems.filter((w) => !w.covered && Number(w.cost) > 0);
 }
 
-export function ClientViewTabs({ value, onChange }) {
+export function defaultInvoiceNumber(project) {
+  return `INV-${(project?.id || '').slice(0, 8).toUpperCase() || new Date().toISOString().slice(0, 10).replaceAll('-', '')}`;
+}
+
+// Spreads the marked-up bid across systems by direct-cost weight; the last row absorbs rounding drift.
+export function bidDivisionRows(bySystem, totals) {
+  const total = totals.finalBidAmount || 0;
+  const direct = totals.totalDirectCost || 0;
+  const factor = direct > 0 ? total / direct : 0;
+  const rows = bySystem.map((sys) => ({ system: sys.system, count: sys.items.length, amount: Math.round(sys.directCost * factor * 100) / 100 }));
+  if (rows.length > 0) {
+    const drift = Math.round((total - rows.reduce((s, r) => s + r.amount, 0)) * 100) / 100;
+    rows[rows.length - 1].amount += drift;
+  }
+  return rows;
+}
+
+export function ClientViewTabs({ value, onChange, lockedViews = [] }) {
   const { t } = useTranslation();
   return (
     <div role="tablist" className="no-print flex flex-wrap gap-2 mb-6">
-      {CLIENT_VIEWS.map((view) => (
-        <button
-          key={view}
-          type="button"
-          role="tab"
-          aria-selected={value === view}
-          onClick={() => onChange(view)}
-          className={`px-4 py-2 rounded-xl text-sm font-semibold border transition cursor-pointer ${
-            value === view
-              ? 'bg-blue-600 border-blue-600 text-white shadow-xs'
-              : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700'
-          }`}
-        >
-          {t(`product.clientViews.tab_${view}`)}
-        </button>
-      ))}
+      {CLIENT_VIEWS.map((view) => {
+        const locked = lockedViews.includes(view);
+        return (
+          <button
+            key={view}
+            type="button"
+            role="tab"
+            aria-selected={value === view}
+            onClick={() => onChange(view)}
+            title={locked ? t('product.clientViews.pdfProOnly') : undefined}
+            className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold border transition cursor-pointer ${
+              value === view
+                ? 'bg-blue-600 border-blue-600 text-white shadow-xs'
+                : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700'
+            }`}
+          >
+            {t(`product.clientViews.tab_${view}`)}
+            {locked && (
+              <>
+                <Lock className={`w-3.5 h-3.5 ${value === view ? 'text-amber-200' : 'text-amber-500'}`} aria-hidden="true" />
+                <span className="sr-only">{t('product.clientViews.pdfProOnly')}</span>
+              </>
+            )}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -104,12 +131,8 @@ function TotalRow({ label, value, strong }) {
   );
 }
 
-export function InvoiceView({ project, bySystem, totals, changeOrders, warrantyItems }) {
+export function InvoiceView({ bySystem, totals, changeOrders, warrantyItems, project, invoiceNumber, setInvoiceNumber, netDays, setNetDays }) {
   const { t } = useTranslation();
-  const [invoiceNumber, setInvoiceNumber] = useState(
-    `INV-${(project?.id || '').slice(0, 8).toUpperCase() || new Date().toISOString().slice(0, 10).replaceAll('-', '')}`
-  );
-  const [netDays, setNetDays] = useState(30);
   const invoiceDate = new Date();
   const dueDate = new Date(invoiceDate.getTime() + (Number(netDays) || 0) * 86400000);
 
@@ -200,13 +223,7 @@ export function InvoiceView({ project, bySystem, totals, changeOrders, warrantyI
 export function GeneralBidView({ project, bySystem, totals, children }) {
   const { t } = useTranslation();
   const total = totals.finalBidAmount || 0;
-  const direct = totals.totalDirectCost || 0;
-  const factor = direct > 0 ? total / direct : 0;
-  const rows = bySystem.map((sys) => ({ system: sys.system, count: sys.items.length, amount: Math.round(sys.directCost * factor * 100) / 100 }));
-  if (rows.length > 0) {
-    const drift = Math.round((total - rows.reduce((s, r) => s + r.amount, 0)) * 100) / 100;
-    rows[rows.length - 1].amount += drift;
-  }
+  const rows = bidDivisionRows(bySystem, totals);
 
   return (
     <div>

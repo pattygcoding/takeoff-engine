@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Check, Link2, X, Mail, Sparkles, Truck } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { Check, FileDown, Link2, Lock, X, Mail, Sparkles, Truck } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { calculationsApi, formatCurrency, formatNumber } from '@/product/lib/calculations';
 import { formatMarkupBasisNote, formatMarkupLine } from '@/product/lib/markupFormatting';
 import { triggerDownload } from '@/product/lib/csv';
+import { exportNodeToPdf, pdfFileName } from '@/product/lib/pdfExport';
+import { CLIENT_VIEW_DOCUMENTS } from '@/product/templates/ClientViewDocuments';
 import { projectsApi } from '@/product/lib/projects';
 import { proposalsApi } from '@/product/lib/proposals';
 import { authApi } from '@/core/lib/auth/auth';
@@ -13,6 +16,8 @@ import { useTranslation } from '@/core/components/context/I18nContext';
 import UpgradeModal from '@/core/components/billing/UpgradeModal';
 import ScopeSummaryDisplay from './ScopeSummaryDisplay';
 import {
+  CLIENT_VIEWS,
+  defaultInvoiceNumber,
   ClientViewTabs,
   InvoiceView,
   GeneralBidView,
@@ -22,6 +27,18 @@ import {
   WarrantyView,
 } from './ClientModeViews';
 import Papa from 'papaparse';
+
+// Invoice and proposal PDFs are available on every plan; the rest require Pro/Enterprise.
+const FREE_PDF_VIEWS = ['invoice', 'proposal'];
+
+// Must match ids in the backend serverTemplateRegistry so record-export can enforce the tier.
+const CLIENT_PDF_FORMAT_IDS = {
+  invoice: 'client_invoice',
+  proposal: 'client_proposal_package',
+  bid: 'client_general_bid',
+  changeOrders: 'client_change_orders',
+  warranty: 'client_warranty_log',
+};
 
 export default function ResultsStep({ items, rates, currentProject, onProjectSaved, onBack, readOnly = false, projectStatus = 'awarded', onDuplicate }) {
   const { username, projectId } = useParams();
@@ -34,6 +51,9 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
   const [changeOrders, setChangeOrders] = useState(currentProject?.change_orders_json || []);
   const [warrantyItems, setWarrantyItems] = useState(currentProject?.warranty_items_json || []);
   const [isSavingRecords, setIsSavingRecords] = useState(false);
+  const [invoiceNumber, setInvoiceNumber] = useState(() => defaultInvoiceNumber(currentProject));
+  const [netDays, setNetDays] = useState(30);
+  const [pdfView, setPdfView] = useState(null);
   const [isSavingProject, setIsSavingProject] = useState(false);
   const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
   const [showSaveModal, setShowSaveModal] = useState(false);
@@ -75,6 +95,14 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
         brandColor: user?.brand_color || '#0284c7',
       }
     : null;
+
+  // '#0284c7' is the DB column default, so treat it as "no brand color chosen" and let each PDF use its own accent.
+  const docBranding = branding
+    ? { ...branding, brandColor: branding.brandColor.toLowerCase() !== '#0284c7' ? branding.brandColor : '' }
+    : null;
+
+  const lockedPdfViews = isProOrExempt ? [] : CLIENT_VIEWS.filter((view) => !FREE_PDF_VIEWS.includes(view));
+  const isPdfLocked = lockedPdfViews.includes(clientView);
 
   const [estimate, setEstimate] = useState({ totals: {}, bySystem: [], items: [] });
   const [isCalculating, setIsCalculating] = useState(false);
@@ -329,6 +357,62 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
     }
   };
 
+  const handleDownloadClientPdf = async () => {
+    if (isPdfLocked) {
+      setShowUpgradeModal(true);
+      return;
+    }
+    const view = clientView;
+    try {
+      const recordResult = await authApi.recordExport(CLIENT_PDF_FORMAT_IDS[view]);
+      if (recordResult?.trial_uses_remaining !== undefined && setUser) {
+        setUser((prev) => (prev ? { ...prev, trial_uses_remaining: recordResult.trial_uses_remaining } : prev));
+      }
+      if (refreshProfile) await refreshProfile();
+    } catch (err) {
+      if (err.code === 'TRIAL_EXHAUSTED' || err.code === 'FORBIDDEN_TIER_FEATURE' || err.status === 403) {
+        setShowUpgradeModal(true);
+        return;
+      }
+      console.error('[Export Metering Error]', err);
+    }
+    setPdfView(view);
+  };
+
+  // Runs once the off-screen PDF document for pdfView has mounted.
+  useEffect(() => {
+    if (!pdfView) return;
+    const generate = async () => {
+      const node = document.getElementById('client-pdf-canvas');
+      try {
+        await Promise.all(
+          Array.from(node?.querySelectorAll('img') || [])
+            .filter((img) => !img.complete)
+            .map((img) => new Promise((resolve) => {
+              img.addEventListener('load', resolve);
+              img.addEventListener('error', resolve);
+            }))
+        );
+        await exportNodeToPdf(node, pdfFileName(currentProject?.name, CLIENT_PDF_FORMAT_IDS[pdfView]), {
+          pageLabel: (page, total) => t('product.clientViews.pdf.pageLabel', { page, total }),
+        });
+      } catch (err) {
+        console.error('PDF export failed:', err);
+        await showAlert({
+          title: t('product.exportHub.exportFailedTitle'),
+          message: t('product.exportHub.pdfExportFailedMsg'),
+          variant: 'error',
+        });
+      } finally {
+        setPdfView(null);
+      }
+    };
+    generate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pdfView]);
+
+  const PdfDocument = pdfView ? CLIENT_VIEW_DOCUMENTS[pdfView] : null;
+
   const exportCsv = () => {
     processExportWithCreditCheck(async () => {
       const rows = bySystem.flatMap((sys) =>
@@ -515,8 +599,68 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
         </div>
       </div>
 
-      {/* Save Project Modal */}
-      {proposalMode && <ClientViewTabs value={clientView} onChange={setClientView} />}
+      {proposalMode && (
+        <div className="no-print flex flex-wrap items-start justify-between gap-x-3">
+          <ClientViewTabs value={clientView} onChange={setClientView} lockedViews={lockedPdfViews} />
+          <button
+            type="button"
+            onClick={handleDownloadClientPdf}
+            disabled={Boolean(pdfView) || isCalculating}
+            className={`mb-6 inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold shadow-xs transition disabled:opacity-60 cursor-pointer ${
+              isPdfLocked
+                ? 'border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/40'
+                : 'bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-white text-white dark:text-slate-900'
+            }`}
+          >
+            {isPdfLocked ? <Lock className="w-4 h-4" aria-hidden="true" /> : <FileDown className="w-4 h-4" aria-hidden="true" />}
+            {pdfView ? t('product.exportHub.generatingPdf') : t('product.clientViews.downloadPdf')}
+            {isPdfLocked && (
+              <span className="ml-1 px-1.5 py-0.5 rounded-md bg-amber-500 text-white text-[10px] font-bold uppercase tracking-wide">
+                {t('product.clientViews.proBadge')}
+              </span>
+            )}
+          </button>
+        </div>
+      )}
+
+      {proposalMode && isPdfLocked && (
+        <div className="no-print -mt-3 mb-6 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0">
+              <Lock className="w-4 h-4" aria-hidden="true" />
+            </div>
+            <p className="text-xs text-amber-900 dark:text-amber-200">
+              {t('product.clientViews.pdfLockedNotice', { name: t(`product.clientViews.tab_${clientView}`) })}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowUpgradeModal(true)}
+            className="shrink-0 px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold rounded-lg shadow-xs transition cursor-pointer"
+          >
+            {t('product.exportHub.upgradeToUnlockBtn')}
+          </button>
+        </div>
+      )}
+
+      {PdfDocument &&
+        createPortal(
+          <div aria-hidden="true" className="no-print" style={{ position: 'fixed', top: 0, left: '-10000px', width: '720px', pointerEvents: 'none' }}>
+            <div id="client-pdf-canvas" style={{ width: '720px', background: '#ffffff', colorScheme: 'light' }}>
+              <PdfDocument
+                estimate={{ totals, bySystem }}
+                branding={docBranding}
+                currentProject={currentProject}
+                rates={rates}
+                changeOrders={changeOrders}
+                warrantyItems={warrantyItems}
+                invoiceNumber={invoiceNumber}
+                netDays={netDays}
+              />
+            </div>
+          </div>,
+          document.body
+        )}
 
       {showSaveModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
@@ -798,6 +942,10 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
             totals={totals}
             changeOrders={changeOrders}
             warrantyItems={warrantyItems}
+            invoiceNumber={invoiceNumber}
+            setInvoiceNumber={setInvoiceNumber}
+            netDays={netDays}
+            setNetDays={setNetDays}
           />
         )}
 
