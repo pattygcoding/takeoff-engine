@@ -1,0 +1,1 @@
+function e(e){return(Number(e)||0).toLocaleString(`en-US`,{style:`currency`,currency:`USD`,maximumFractionDigits:2})}function t(e,t=2){return(Number(e)||0).toLocaleString(`en-US`,{minimumFractionDigits:t,maximumFractionDigits:t})}export{t as n,e as t};

@@ -1,0 +1,1 @@
+function e(e){let t=(e||``).replace(/\D/g,``);return t.length===11&&t.startsWith(`1`)?t.slice(1):t}function t(t){return!t||!t.trim()||e(t).length===10}function n(e){return typeof e!=`string`||e.length<8?!1:/[a-z]/.test(e)&&/[A-Z]/.test(e)&&/\d/.test(e)&&/[^A-Za-z0-9]/.test(e)}export{t as n,n as t};
