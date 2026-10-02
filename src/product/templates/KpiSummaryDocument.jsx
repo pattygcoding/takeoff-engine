@@ -1,66 +1,131 @@
 import React from 'react';
 import { formatCurrency, formatNumber } from '@/product/lib/calculations';
-import { formatMarkupBasisNote, formatMarkupLine } from '@/product/lib/markupFormatting';
-import { DocumentBrandingHeader, DocumentSignOff } from './DocumentHeaderSignoff';
 import { useTranslation } from '@/core/components/context/I18nContext';
+import {
+  DocumentLetterhead,
+  DocumentSectionHeading,
+  DocumentKeyFigures,
+  DocumentCostSummary,
+  DocumentSignatureBlock,
+  DocumentFooter,
+} from './DocumentHeaderSignoff';
+
+const KEY = 'product.templates.kpiSummary';
+const ACCENT = '#0891b2';
+
+function pctOf(part, whole) {
+  return whole > 0 ? (part / whole) * 100 : 0;
+}
+
+function formatPctText(value) {
+  return `${formatNumber(value, 1)}%`;
+}
 
 /**
  * 6. Executive KPI & Margin Summary Document Layout
  */
 export default function KpiSummaryDocument({ estimate, branding, currentProject }) {
-  const { totals, bySystem } = estimate;
+  const { totals = {}, bySystem = [] } = estimate;
   const { t } = useTranslation();
+  const accent = branding?.brandColor || ACCENT;
+
+  const direct = totals.totalDirectCost || 0;
+  const finalBid = totals.finalBidAmount || 0;
+
+  const ratios = [
+    { label: t(`${KEY}.grossMargin`), value: pctOf(finalBid - direct, finalBid) },
+    { label: t(`${KEY}.markupOnCost`), value: pctOf(finalBid - direct, direct) },
+    { label: t(`${KEY}.materialShare`), value: pctOf(totals.totalMaterialCost, direct) },
+    { label: t(`${KEY}.laborShare`), value: pctOf(totals.totalLaborCost, direct) },
+  ];
 
   return (
-    <div className="space-y-6">
-      <DocumentBrandingHeader branding={branding} title={t('product.templates.kpiSummary.title')} project={currentProject} />
+    <div className="text-slate-800 text-[11px] leading-relaxed tabular-nums">
+      <DocumentLetterhead
+        branding={branding}
+        title={t(`${KEY}.title`)}
+        project={currentProject}
+        accent={accent}
+        badge={t('product.templates.header.internalBadge')}
+      />
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl">
-          <span className="text-[10px] font-bold uppercase text-blue-500">{t('product.templates.kpiSummary.grossContract')}</span>
-          <p className="text-lg font-bold text-blue-900">{formatCurrency(totals.finalBidAmount)}</p>
-        </div>
-        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl">
-          <span className="text-[10px] font-bold uppercase text-emerald-600">{t('product.templates.kpiSummary.netProfitMargin')}</span>
-          <p className="text-lg font-bold text-emerald-800">{formatMarkupLine(t('product.resultsStep.profitFixed'), totals.profitAmount, totals.profitPct ?? 15, t)}</p>
-        </div>
-        <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl">
-          <span className="text-[10px] font-bold uppercase text-slate-400">{t('product.templates.kpiSummary.totalLaborHours')}</span>
-          <p className="text-lg font-bold text-slate-800">
-            {t('product.templates.kpiSummary.laborHoursUnit', { hours: formatNumber(totals.totalLaborHours) })}
-          </p>
-        </div>
-        <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl">
-          <span className="text-[10px] font-bold uppercase text-amber-600">{t('product.templates.kpiSummary.contingencyBuffer')}</span>
-          <p className="text-lg font-bold text-amber-800">{formatMarkupLine(t('product.resultsStep.contingencyFixed'), totals.contingencyAmount, totals.contingencyPct ?? 5, t)}</p>
-        </div>
-      </div>
+      <DocumentKeyFigures
+        accent={accent}
+        figures={[
+          {
+            label: t(`${KEY}.netProfitMargin`),
+            value: formatCurrency(totals.profitAmount),
+            note: formatPctText(totals.profitPct || 0),
+          },
+          {
+            label: t(`${KEY}.contingencyBuffer`),
+            value: formatCurrency(totals.contingencyAmount),
+            note: formatPctText(totals.contingencyPct || 0),
+          },
+          {
+            label: t(`${KEY}.totalLaborHours`),
+            value: t(`${KEY}.laborHoursUnit`, { hours: formatNumber(totals.totalLaborHours) }),
+          },
+        ]}
+        highlight={{ label: t(`${KEY}.grossContract`), value: formatCurrency(finalBid) }}
+      />
 
-      <p className="text-[11px] text-slate-500 italic">{formatMarkupBasisNote(t)}</p>
-
-      <div className="border border-slate-200 rounded-2xl p-5 bg-white space-y-4">
-        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700">{t('product.templates.kpiSummary.costWeightBreakdown')}</h4>
-        <div className="space-y-2.5">
-          {bySystem.map((sys) => {
-            const pct = totals.totalDirectCost > 0 ? (sys.directCost / totals.totalDirectCost) * 100 : 0;
-            return (
-              <div key={sys.system} className="space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span className="font-semibold text-slate-800">{sys.system}</span>
-                  <span className="font-mono text-slate-500">
-                    {formatCurrency(sys.directCost)} ({pct.toFixed(1)}%)
-                  </span>
-                </div>
-                <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                  <div className="bg-blue-600 h-2 rounded-full" style={{ width: `${pct}%` }} />
-                </div>
-              </div>
-            );
-          })}
+      <section className="mt-8 break-inside-avoid">
+        <DocumentSectionHeading accent={accent}>{t(`${KEY}.keyRatiosHeading`)}</DocumentSectionHeading>
+        <div className="grid grid-cols-4 gap-4 pt-1">
+          {ratios.map((r) => (
+            <div key={r.label} className="border-l-2 pl-3" style={{ borderColor: accent }}>
+              <p className="text-[9px] font-bold uppercase tracking-wider text-slate-500">{r.label}</p>
+              <p className="text-base font-bold text-slate-900">{formatPctText(r.value)}</p>
+            </div>
+          ))}
         </div>
-      </div>
+      </section>
 
-      <DocumentSignOff branding={branding} />
+      <section className="mt-8 break-inside-avoid">
+        <DocumentSectionHeading accent={accent}>{t(`${KEY}.costWeightBreakdown`)}</DocumentSectionHeading>
+        {bySystem.length === 0 ? (
+          <p className="py-6 text-center text-slate-400 italic">{t('product.templates.shared.noItems')}</p>
+        ) : (
+          <table className="w-full border-collapse text-left">
+            <thead>
+              <tr className="border-y border-slate-300 bg-slate-100 text-[9px] font-bold uppercase tracking-wider text-slate-600">
+                <th className="py-2 px-2">{t(`${KEY}.colSystem`)}</th>
+                <th className="py-2 px-2 text-right">{t(`${KEY}.colDirectCost`)}</th>
+                <th className="py-2 px-2 text-right">{t(`${KEY}.colShare`)}</th>
+                <th className="py-2 px-2 w-[40%]">{t(`${KEY}.colWeight`)}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {bySystem.map((sys) => {
+                const pct = pctOf(sys.directCost, direct);
+                return (
+                  <tr key={sys.system} className="border-b border-slate-100 break-inside-avoid">
+                    <td className="py-2 px-2 font-medium text-slate-900">{sys.system}</td>
+                    <td className="py-2 px-2 text-right">{formatCurrency(sys.directCost)}</td>
+                    <td className="py-2 px-2 text-right font-semibold text-slate-900">{formatPctText(pct)}</td>
+                    <td className="py-2 px-2">
+                      <div className="h-2 w-full bg-slate-100">
+                        <div className="h-2" style={{ width: `${Math.min(pct, 100)}%`, backgroundColor: accent }} />
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+      </section>
+
+      <DocumentCostSummary totals={totals} accent={accent} />
+
+      <DocumentSignatureBlock
+        accent={accent}
+        heading={t('product.templates.signOff.internalReview')}
+        parties={[{ title: t('product.templates.signOff.preparedBy') }, { title: t('product.templates.signOff.reviewedBy') }]}
+      />
+
+      <DocumentFooter confidential />
     </div>
   );
 }

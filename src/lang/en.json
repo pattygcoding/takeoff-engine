@@ -1622,7 +1622,13 @@
         "clientPrefix": "Client: {{client}}",
         "sitePrefix": "Site: {{site}}",
         "datePrefix": "Date: {{date}}",
-        "defaultProjectName": "Utility Takeoff Estimate"
+        "defaultProjectName": "Utility Takeoff Estimate",
+        "licensePrefix": "License #{{license}}",
+        "metaProject": "Project",
+        "metaClient": "Client",
+        "metaSite": "Site",
+        "metaDate": "Date",
+        "internalBadge": "Internal Use Only"
       },
       "signOff": {
         "submittedByContractor": "Submitted By (Contractor):",
@@ -1630,7 +1636,31 @@
         "authorizedSignature": "Authorized Signature",
         "date": "Date",
         "preparedWith": "Prepared with Takeoff Engine",
-        "confidentialData": "Confidential Estimating Data"
+        "confidentialData": "Confidential Estimating Data",
+        "printedName": "Printed Name & Title",
+        "internalReview": "Internal Review",
+        "preparedBy": "Prepared By (Estimator)",
+        "reviewedBy": "Reviewed / Approved By",
+        "acceptanceHeading": "Acceptance of Proposal",
+        "acceptanceText": "The above prices, specifications, and conditions are satisfactory and are hereby accepted. The contractor is authorized to perform the work as specified."
+      },
+      "shared": {
+        "noItems": "No takeoff items to display.",
+        "itemsCount": "{{count}} line items",
+        "systemSubtotal": "{{system}} Subtotal",
+        "hoursUnit": "{{hours}} hrs",
+        "costSummaryHeading": "Cost Summary",
+        "materialCost": "Material",
+        "laborCost": "Labor",
+        "equipmentLineItems": "Equipment (Line Items)",
+        "equipmentMobilization": "Equipment & Mobilization",
+        "miscCost": "Miscellaneous",
+        "totalDirectCost": "Total Direct Cost",
+        "overhead": "Overhead",
+        "contingency": "Contingency",
+        "profit": "Profit",
+        "labelWithPct": "{{label}} ({{pct}}%)",
+        "finalBidAmount": "Final Bid Amount"
       },
       "standardEstimate": {
         "title": "Internal Cost Estimate",
@@ -1646,19 +1676,20 @@
         "colMaterial": "Material",
         "colLaborHrs": "Labor Hrs",
         "colLaborCost": "Labor $",
-        "colLineTotal": "Line Total"
+        "colLineTotal": "Line Total",
+        "detailHeading": "Cost Detail by System"
       },
       "clientProposal": {
         "title": "Bid Proposal & Scope of Work",
         "proposalIntro": "We are pleased to submit our formal proposal for utility and civil construction scope outlined below. All pricing reflects complete materials, certified labor, equipment installation, site mobilization, and quality testing per project specifications.",
-        "scopeHeader": "{{system}} Scope",
         "colDescription": "Scope Item Description",
         "colSpec": "Size / Material Spec",
         "colPlanQty": "Plan Qty",
         "colUnit": "Unit",
         "colExtendedPrice": "Extended Price",
-        "totalBaseBid": "Total Base Bid",
-        "totalLumpSum": "Total Lump Sum"
+        "totalLumpSum": "Total Lump Sum",
+        "pricingHeading": "Pricing Schedule",
+        "summaryHeading": "Bid Summary"
       },
       "executiveProposal": {
         "title": "Executive Bid Submittal",
@@ -1669,7 +1700,8 @@
         "colPrimaryInclusions": "Primary Inclusions",
         "colItemsCount": "Items Count",
         "colLumpSumTotal": "Lump Sum Total",
-        "totalLumpSumBid": "Total Lump Sum Bid:"
+        "totalLumpSumBid": "Total Lump Sum Bid",
+        "summaryHeading": "Bid Summary by System"
       },
       "itemizedLedger": {
         "title": "Granular Job-Cost Ledger",
@@ -1682,10 +1714,11 @@
         "colLabor": "Labor $",
         "colEquip": "Equip $",
         "colTotal": "Total $",
-        "overheadLabel": "Overhead ({{percent}}%)",
-        "profitMarginLabel": "Profit Margin ({{percent}}%)",
-        "contingencyLabel": "Contingency ({{percent}}%)",
-        "finalBidAmount": "Final Bid Amount"
+        "finalBidAmount": "Final Bid Amount",
+        "totalMaterial": "Total Material",
+        "totalLabor": "Total Labor",
+        "laborHours": "Labor Hours",
+        "detailHeading": "Job-Cost Detail by System"
       },
       "aiaBidSchedule": {
         "title": "AIA Unit Price Bid Schedule",
@@ -1695,9 +1728,11 @@
         "colUnit": "Unit",
         "colUnitPrice": "Unit Price",
         "colTotalItemBid": "Total Item Bid",
-        "totalBaseContractBid": "Total Base Contract Bid:",
+        "totalBaseContractBid": "Total Base Contract Bid",
         "noteStandardSpec": "Note: All unit prices include complete labor, materials, equipment, and mobilization per specifications.",
-        "totalBaseBidSchedule": "Total Base Bid Schedule"
+        "totalBaseBidSchedule": "Total Base Bid Schedule",
+        "scheduleHeading": "Unit Price Schedule of Pay Items",
+        "signatureHeading": "Bid Submittal & Acceptance"
       },
       "kpiSummary": {
         "title": "Executive KPI & Margin Summary",
@@ -1706,11 +1741,26 @@
         "totalLaborHours": "Total Labor Hours",
         "laborHoursUnit": "{{hours}} hrs",
         "contingencyBuffer": "Contingency Buffer",
-        "costWeightBreakdown": "System Cost Weight Breakdown"
+        "costWeightBreakdown": "System Cost Weight Breakdown",
+        "keyRatiosHeading": "Key Ratios",
+        "grossMargin": "Gross Margin",
+        "markupOnCost": "Markup on Direct Cost",
+        "materialShare": "Material % of Direct",
+        "laborShare": "Labor % of Direct",
+        "colSystem": "System",
+        "colDirectCost": "Direct Cost",
+        "colShare": "Share",
+        "colWeight": "Cost Weight"
       },
       "scopeMatrix": {
         "title": "Commercial Scope & Spec Matrix",
-        "totalCombinedBid": "Total Combined Matrix Bid"
+        "totalCombinedBid": "Total Combined Matrix Bid",
+        "matrixHeading": "Scope & Specification Matrix",
+        "summaryHeading": "Bid Summary by System",
+        "colScopeItem": "Scope Item",
+        "colSpec": "Size / Material Spec",
+        "colQty": "Takeoff Qty",
+        "colUnit": "Unit"
       },
       "materialProcurement": {
         "title": "Material Purchase & Supply Order",
@@ -1723,7 +1773,19 @@
         "colUnit": "Unit",
         "colEstUnitMat": "Est. Unit Mat",
         "colTotalMaterial": "Total Material",
-        "totalMaterialCommitment": "Total Material Purchase Commitment:"
+        "totalMaterialCommitment": "Total Material Purchase Commitment",
+        "vendorHeading": "Vendor",
+        "vendorName": "Vendor Name",
+        "vendorContact": "Contact",
+        "vendorPhoneEmail": "Phone / Email",
+        "shipToHeading": "Order & Delivery",
+        "poNumber": "PO Number",
+        "deliverTo": "Deliver To",
+        "requiredBy": "Required By",
+        "orderHeading": "Order Line Items",
+        "authorizationHeading": "Purchase Authorization",
+        "requestedBy": "Requested By",
+        "approvedBy": "Approved By (Purchasing)"
       },
       "crewProduction": {
         "title": "Crew & Equipment Production Schedule",
@@ -1741,19 +1803,29 @@
         "hrsUnit": "{{count}} hrs",
         "dUnit": "{{count}} d",
         "daysUnit": "{{count}} days",
-        "totalFieldLabor": "Total Field Labor:"
+        "totalFieldLabor": "Total Field Labor",
+        "scheduleHeading": "Production Schedule by System",
+        "laborByRoleHeading": "Labor by Crew Role",
+        "colRole": "Crew Role",
+        "assumptionsNote": "Crew days assume a 4-person crew working 8-hour shifts. Excavator utilization is estimated at 40% of production hours.",
+        "preparedByPm": "Prepared By (Project Manager)",
+        "approvedBySuper": "Approved By (Superintendent)"
       },
       "subcontractorScope": {
         "title": "Subcontractor Scope Package",
         "inclusionsTitle": "Scope Inclusions & Performance Obligations",
         "inclusionsDesc": "Subcontractor shall supply all specified materials, tooling, licensed labor, traffic management, and testing to complete the designated scopes below in strict accordance with project plans and manufacturer warranties.",
-        "packageTitle": "{{system}} Specification Package",
-        "scopeItemsCount": "{{count}} Scope Items",
         "colScopeDescription": "Scope Description",
         "colSpecAstm": "Spec / ASTM",
         "colTakeoffQty": "Takeoff Qty",
         "colUnit": "Unit",
-        "colTargetSubtotal": "Target Subcontract Subtotal"
+        "colTargetSubtotal": "Target Subcontract Subtotal",
+        "packageHeading": "Scope Packages by System",
+        "totalTargetValue": "Total Target Subcontract Value",
+        "signatureHeading": "Subcontract Acknowledgement",
+        "signatureText": "Subcontractor acknowledges receipt and review of this scope package and agrees to perform the work described above in accordance with the project plans and specifications.",
+        "issuedBy": "Issued By (Prime Contractor)",
+        "acceptedBy": "Accepted By (Subcontractor)"
       },
       "trenchEarthwork": {
         "title": "Earthwork & Trench Log",
@@ -1772,7 +1844,13 @@
         "colBackfillHaul": "Backfill & Haul",
         "colDirectCost": "Direct Cost",
         "cyUnit": "{{count}} CY",
-        "tnUnit": "{{count}} TN"
+        "tnUnit": "{{count}} TN",
+        "lfUnit": "{{count}} LF",
+        "totalLength": "Total Trench Length",
+        "totalExcavation": "Total Excavation",
+        "assumptionsHeading": "Design Assumptions",
+        "detailHeading": "Earthwork Quantities by System",
+        "calcNote": "Volumes are calculated from takeoff length using the design assumptions above. Items not measured in linear feet are converted at 10 LF per unit."
       },
       "aiaSovBilling": {
         "title": "AIA G702 / G703 Schedule of Values",
@@ -1784,7 +1862,19 @@
         "colTotalPercent": "Total %",
         "colBalance": "Balance",
         "packageSuffix": "{{system}} Package",
-        "totalScheduledValues": "Total Scheduled Values:"
+        "totalScheduledValues": "Total Scheduled Values",
+        "partiesHeading": "Contract Parties",
+        "toOwner": "To Owner",
+        "fromContractor": "From Contractor",
+        "project": "Project",
+        "applicationHeading": "Application for Payment",
+        "applicationNo": "Application No.",
+        "periodTo": "Period To",
+        "contractSum": "Contract Sum",
+        "sovHeading": "Continuation Sheet: Schedule of Values",
+        "certificationHeading": "Contractor's Certification",
+        "certificationText": "The undersigned Contractor certifies that, to the best of the Contractor's knowledge, the work covered by this application has been completed in accordance with the Contract Documents.",
+        "certifiedByOwner": "Reviewed By (Owner / Architect)"
       },
       "formalContract": {
         "title": "Construction Services Agreement",
@@ -1801,7 +1891,11 @@
         "clause3Text": "Progressive monthly billing based on approved Schedule of Values with 10% retainage withheld until final agency signoff.",
         "phaseSummary": "Contract Phase Summary",
         "workItemsCount": "{{count}} Work Items",
-        "totalLumpSumContract": "Total Lump Sum Contract:"
+        "totalLumpSumContract": "Total Lump Sum Contract",
+        "executionHeading": "Execution of Agreement",
+        "executionText": "In witness whereof, the parties have executed this Agreement as of the date first written above.",
+        "contractorParty": "Contractor",
+        "ownerParty": "Owner"
       },
       "phaseMilestoneDraw": {
         "title": "Phase Milestone Draw Schedule",
@@ -1818,7 +1912,13 @@
         "colVerification": "Verification Criteria",
         "colPercentDraw": "% Draw",
         "colPaymentAmount": "Payment Amount",
-        "totalContractDraws": "Total Contract Draws:"
+        "totalContractDraws": "Total Contract Draws",
+        "colCumulative": "Cumulative",
+        "scheduleHeading": "Payment Draw Schedule",
+        "introHeading": "Milestone Payment Terms",
+        "introText": "Payments are released upon verified completion of each milestone below. Each draw is calculated as a fixed percentage of the total contract value.",
+        "contractValue": "Total Contract Value",
+        "acceptanceText": "The milestone schedule and payment percentages above are agreed to by both parties."
       },
       "riskContingency": {
         "title": "Risk & Contingency Matrix",
@@ -1832,21 +1932,36 @@
         "moderateRiskText": "Standard trench / low groundwater probability",
         "riskHigh": "HIGH",
         "riskModerate": "MODERATE",
-        "totalAllocatedReserves": "Total Allocated Risk Reserves:"
+        "totalAllocatedReserves": "Total Allocated Risk Reserves",
+        "totalReserves": "Total Risk Reserves",
+        "contingencyRate": "Contingency Rate",
+        "fixedAmount": "Fixed Amount",
+        "highRiskSystems": "High-Risk Systems",
+        "detailHeading": "Risk Exposure by System",
+        "methodNote": "Risk levels are preliminary and should be confirmed against geotechnical reports and utility locates before construction."
       },
       "fieldDailyReport": {
         "title": "Field Superintendent QA Log",
-        "weatherTemp": "Weather / Temp:",
-        "superintendent": "Superintendent:",
-        "cityInspector": "City Inspector:",
-        "dailySafetyTalk": "Daily Safety Talk:",
-        "completed": "✓ Completed",
+        "weatherTemp": "Weather / Temp",
+        "superintendent": "Superintendent",
+        "cityInspector": "City Inspector",
+        "dailySafetyTalk": "Daily Safety Talk",
+        "completed": "Completed",
         "colItemDescription": "Item Description",
         "colTargetQty": "Target Qty",
         "colUnit": "Unit",
         "colInstalledToday": "Installed Today",
         "colCumulativeQty": "Cumulative Qty",
-        "colQcSign": "QC Sign"
+        "colQcSign": "QC Initials",
+        "conditionsHeading": "Site Conditions",
+        "personnelHeading": "Personnel & Safety",
+        "reportDate": "Report Date",
+        "crewSize": "Crew Size",
+        "progressHeading": "Installed Quantities",
+        "notesHeading": "Field Notes, Delays & Incidents",
+        "signatureHeading": "Daily Sign-Off",
+        "signSuperintendent": "Superintendent",
+        "signInspector": "Inspector"
       },
       "warrantyCloseout": {
         "title": "Certificate of Substantial Completion & Warranty",
@@ -1860,7 +1975,9 @@
         "warrantyPeriodValue": "1-Year Full Coverage",
         "certifiedValueLabel": "Certified Value:",
         "warrantyTerms": "Warranty covers pipe joint integrity, structural backfill compaction, and valve operations against defects in workmanship for 365 calendar days from issuance.",
-        "certifyScopeCompleted": "This certifies that the scope items listed below have been completed in accordance with contract drawings and specifications."
+        "certifyScopeCompleted": "This certifies that the scope items listed below have been completed in accordance with contract drawings and specifications.",
+        "certificateHeading": "Certificate of Completion",
+        "signatureHeading": "Certification & Acceptance"
       }
     },
     "csvParser": {

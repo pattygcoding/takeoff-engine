@@ -1,69 +1,81 @@
 import React from 'react';
 import { formatCurrency, formatNumber } from '@/product/lib/calculations';
-import { DocumentBrandingHeader, DocumentSignOff } from './DocumentHeaderSignoff';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import ScopeSummaryDisplay from '@/product/components/ScopeSummaryDisplay';
+import {
+  DocumentLetterhead,
+  DocumentSectionHeading,
+  DocumentSystemTable,
+  DocumentTotalRow,
+  DocumentSignatureBlock,
+  DocumentFooter,
+} from './DocumentHeaderSignoff';
+
+const KEY = 'product.templates.subcontractorScope';
+const ACCENT = '#0f766e';
 
 /**
  * 10. Subcontractor Scope Submittal Layout
  */
 export default function SubcontractorScopeDocument({ estimate, branding, currentProject }) {
-  const { totals, bySystem, rates } = estimate;
+  const { totals = {}, bySystem = [], rates } = estimate;
   const { t } = useTranslation();
+  const accent = branding?.brandColor || ACCENT;
+  const packageTotal = bySystem.reduce((sum, sys) => sum + (sys.directCost || 0), 0);
+
+  const columns = [
+    { header: t(`${KEY}.colScopeDescription`), render: (it) => it.description },
+    { header: t(`${KEY}.colSpecAstm`), muted: true, render: (it) => it.sizeSpec },
+    { header: t(`${KEY}.colTakeoffQty`), align: 'right', render: (it) => formatNumber(it.quantity, 0) },
+    { header: t(`${KEY}.colUnit`), muted: true, render: (it) => it.unit },
+    { header: t(`${KEY}.colTargetSubtotal`), align: 'right', strong: true, render: (it) => formatCurrency(it.directCost) },
+  ];
 
   return (
-    <div className="space-y-6">
-      <DocumentBrandingHeader branding={branding} title={t('product.templates.subcontractorScope.title')} project={currentProject} />
+    <div className="text-slate-800 text-[11px] leading-relaxed tabular-nums">
+      <DocumentLetterhead branding={branding} title={t(`${KEY}.title`)} project={currentProject} accent={accent} />
 
-      <div className="p-4 bg-teal-50 border border-teal-200 rounded-2xl text-xs text-teal-900 space-y-2">
-        <h4 className="font-bold uppercase tracking-wider text-teal-950">
-          {t('product.templates.subcontractorScope.inclusionsTitle')}
-        </h4>
-        <p className="leading-relaxed">
-          {t('product.templates.subcontractorScope.inclusionsDesc')}
+      <section className="mt-6 break-inside-avoid">
+        <DocumentSectionHeading accent={accent}>{t(`${KEY}.inclusionsTitle`)}</DocumentSectionHeading>
+        <p className="pl-3 border-l-2 text-slate-600" style={{ borderColor: accent }}>
+          {t(`${KEY}.inclusionsDesc`)}
         </p>
+      </section>
+
+      <section className="mt-8">
+        <DocumentSectionHeading accent={accent}>{t(`${KEY}.packageHeading`)}</DocumentSectionHeading>
+        <DocumentSystemTable
+          bySystem={bySystem}
+          columns={columns}
+          accent={accent}
+          subtotal={(sys) => formatCurrency(sys.directCost)}
+        />
+      </section>
+
+      <section className="mt-8 flex justify-end break-inside-avoid">
+        <table className="w-full max-w-[340px] border-collapse">
+          <tbody>
+            <DocumentTotalRow label={t(`${KEY}.totalTargetValue`)} value={formatCurrency(packageTotal)} accent={accent} />
+          </tbody>
+        </table>
+      </section>
+
+      <div className="break-inside-avoid">
+        <ScopeSummaryDisplay scopeItems={rates?.scopeItems} baseAmount={totals.totalDirectCost} forceLight className="mt-8" />
       </div>
 
-      <div className="space-y-4">
-        {bySystem.map((sys) => (
-          <div key={sys.system} className="border border-slate-200 rounded-xl overflow-hidden">
-            <div className="bg-teal-900 text-white px-3.5 py-2 flex justify-between items-center text-xs">
-              <span className="font-bold uppercase">
-                {t('product.templates.subcontractorScope.packageTitle', { system: sys.system })}
-              </span>
-              <span className="font-mono">
-                {t('product.templates.subcontractorScope.scopeItemsCount', { count: sys.items.length })}
-              </span>
-            </div>
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 text-slate-500 border-b border-slate-200">
-                <tr>
-                  <th className="p-2.5">{t('product.templates.subcontractorScope.colScopeDescription')}</th>
-                  <th className="p-2.5">{t('product.templates.subcontractorScope.colSpecAstm')}</th>
-                  <th className="p-2.5 text-right">{t('product.templates.subcontractorScope.colTakeoffQty')}</th>
-                  <th className="p-2.5">{t('product.templates.subcontractorScope.colUnit')}</th>
-                  <th className="p-2.5 text-right">{t('product.templates.subcontractorScope.colTargetSubtotal')}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {sys.items.map((it, idx) => (
-                  <tr key={idx}>
-                    <td className="p-2.5 font-medium">{it.description}</td>
-                    <td className="p-2.5 text-slate-500">{it.sizeSpec}</td>
-                    <td className="p-2.5 text-right font-mono">{formatNumber(it.quantity, 0)}</td>
-                    <td className="p-2.5 text-slate-500">{it.unit}</td>
-                    <td className="p-2.5 text-right font-mono font-bold text-slate-900">{formatCurrency(it.directCost)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ))}
-      </div>
+      <DocumentSignatureBlock
+        accent={accent}
+        heading={t(`${KEY}.signatureHeading`)}
+        intro={t(`${KEY}.signatureText`)}
+        showPrintedName
+        parties={[
+          { title: t(`${KEY}.issuedBy`), subtitle: branding?.companyName },
+          { title: t(`${KEY}.acceptedBy`) },
+        ]}
+      />
 
-      <ScopeSummaryDisplay scopeItems={rates?.scopeItems} baseAmount={totals.totalDirectCost} forceLight />
-
-      <DocumentSignOff branding={branding} clientSignBlock />
+      <DocumentFooter />
     </div>
   );
 }

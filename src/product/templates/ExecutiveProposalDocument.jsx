@@ -1,76 +1,98 @@
 import React from 'react';
 import { formatCurrency } from '@/product/lib/calculations';
-import { DocumentBrandingHeader, DocumentSignOff } from './DocumentHeaderSignoff';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import ScopeSummaryDisplay from '@/product/components/ScopeSummaryDisplay';
+import {
+  DocumentLetterhead,
+  DocumentSectionHeading,
+  DocumentTotalRow,
+  DocumentSignatureBlock,
+  DocumentFooter,
+} from './DocumentHeaderSignoff';
+
+const KEY = 'product.templates.executiveProposal';
+const ACCENT = '#059669';
 
 /**
  * 3. Executive Proposal Document Layout
  */
 export default function ExecutiveProposalDocument({ estimate, branding, currentProject }) {
-  const { totals, bySystem, rates } = estimate;
+  const { totals = {}, bySystem = [], rates } = estimate;
   const { t } = useTranslation();
+  const accent = branding?.brandColor || ACCENT;
 
   return (
-    <div className="space-y-6 font-sans">
-      <div className="border-b-4 border-emerald-600 pb-4">
-        <DocumentBrandingHeader branding={branding} title={t('product.templates.executiveProposal.title')} project={currentProject} />
-      </div>
+    <div className="text-slate-800 text-[11px] leading-relaxed tabular-nums">
+      <DocumentLetterhead branding={branding} title={t(`${KEY}.title`)} project={currentProject} accent={accent} />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl md:col-span-2">
-          <h4 className="text-xs font-bold text-emerald-900 uppercase tracking-wider mb-1">
-            {t('product.templates.executiveProposal.guaranteeTitle')}
-          </h4>
-          <p className="text-xs text-emerald-800 leading-relaxed">
-            {t('product.templates.executiveProposal.guaranteeDesc')}
-          </p>
+      <section className="mt-6 grid grid-cols-3 border border-slate-300 break-inside-avoid">
+        <div className="col-span-2 px-4 py-3 bg-slate-50 border-r border-slate-300">
+          <p className="text-[9px] font-bold uppercase tracking-wider text-slate-500">{t(`${KEY}.guaranteeTitle`)}</p>
+          <p className="mt-1 text-slate-600">{t(`${KEY}.guaranteeDesc`)}</p>
         </div>
-        <div className="p-4 bg-slate-900 text-white rounded-2xl flex flex-col justify-between">
-          <span className="text-[10px] uppercase font-bold text-slate-400">
-            {t('product.templates.executiveProposal.totalContractValue')}
-          </span>
-          <span className="text-xl font-bold text-emerald-400">{formatCurrency(totals.finalBidAmount)}</span>
+        <div className="px-4 py-3 flex flex-col justify-center text-white" style={{ backgroundColor: accent }}>
+          <p className="text-[9px] font-bold uppercase tracking-wider opacity-80">{t(`${KEY}.totalContractValue`)}</p>
+          <p className="mt-1 text-xl font-bold">{formatCurrency(totals.finalBidAmount)}</p>
         </div>
-      </div>
+      </section>
 
-      <div className="border border-slate-200 rounded-2xl overflow-hidden">
-        <table className="w-full text-left text-xs">
-          <thead className="bg-emerald-800 text-white">
-            <tr>
-              <th className="p-3">{t('product.templates.executiveProposal.colSystemPhase')}</th>
-              <th className="p-3">{t('product.templates.executiveProposal.colPrimaryInclusions')}</th>
-              <th className="p-3 text-right">{t('product.templates.executiveProposal.colItemsCount')}</th>
-              <th className="p-3 text-right">{t('product.templates.executiveProposal.colLumpSumTotal')}</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-200">
-            {bySystem.map((sys) => (
-              <tr key={sys.system} className="hover:bg-slate-50">
-                <td className="p-3 font-bold text-slate-900">{sys.system}</td>
-                <td className="p-3 text-slate-600">
-                  {sys.items.map((i) => i.description).slice(0, 3).join(', ')}
-                  {sys.items.length > 3 ? '...' : ''}
-                </td>
-                <td className="p-3 text-right font-mono">{sys.items.length}</td>
-                <td className="p-3 text-right font-mono font-bold text-slate-900">
-                  {formatCurrency(sys.factoredBid ?? sys.directCost)}
-                </td>
+      <section className="mt-8 break-inside-avoid">
+        <DocumentSectionHeading accent={accent}>{t(`${KEY}.summaryHeading`)}</DocumentSectionHeading>
+        {bySystem.length === 0 ? (
+          <p className="py-6 text-center text-slate-400 italic">{t('product.templates.shared.noItems')}</p>
+        ) : (
+          <table className="w-full border-collapse text-left">
+            <thead>
+              <tr className="border-y border-slate-300 bg-slate-100 text-[9px] font-bold uppercase tracking-wider text-slate-600">
+                <th className="py-2 px-2">{t(`${KEY}.colSystemPhase`)}</th>
+                <th className="py-2 px-2">{t(`${KEY}.colPrimaryInclusions`)}</th>
+                <th className="py-2 px-2 text-right">{t(`${KEY}.colItemsCount`)}</th>
+                <th className="py-2 px-2 text-right">{t(`${KEY}.colLumpSumTotal`)}</th>
               </tr>
-            ))}
-          </tbody>
-          <tfoot className="bg-slate-100 font-bold border-t border-slate-300">
-            <tr>
-              <td colSpan={3} className="p-3 text-right text-slate-700">{t('product.templates.executiveProposal.totalLumpSumBid')}</td>
-              <td className="p-3 text-right text-emerald-700 font-mono text-sm">{formatCurrency(totals.finalBidAmount)}</td>
-            </tr>
-          </tfoot>
-        </table>
+            </thead>
+            <tbody>
+              {bySystem.map((sys) => (
+                <tr key={sys.system} className="border-b border-slate-100 even:bg-slate-50/70 break-inside-avoid">
+                  <td className="py-2 px-2 font-bold uppercase tracking-wide text-[10px]" style={{ color: accent }}>
+                    {sys.system}
+                  </td>
+                  <td className="py-2 px-2 text-slate-600">
+                    {sys.items.map((i) => i.description).slice(0, 3).join(', ')}
+                    {sys.items.length > 3 ? '…' : ''}
+                  </td>
+                  <td className="py-2 px-2 text-right">{sys.items.length}</td>
+                  <td className="py-2 px-2 text-right font-semibold text-slate-900">
+                    {formatCurrency(sys.factoredBid ?? sys.directCost)}
+                  </td>
+                </tr>
+              ))}
+              <DocumentTotalRow
+                label={t(`${KEY}.totalLumpSumBid`)}
+                value={formatCurrency(totals.finalBidAmount)}
+                accent={accent}
+                colSpan={3}
+              />
+            </tbody>
+          </table>
+        )}
+      </section>
+
+      <div className="break-inside-avoid">
+        <ScopeSummaryDisplay scopeItems={rates?.scopeItems} baseAmount={totals.totalDirectCost} forceLight className="mt-8" />
       </div>
 
-      <ScopeSummaryDisplay scopeItems={rates?.scopeItems} baseAmount={totals.totalDirectCost} forceLight />
+      <DocumentSignatureBlock
+        accent={accent}
+        heading={t('product.templates.signOff.acceptanceHeading')}
+        intro={t('product.templates.signOff.acceptanceText')}
+        showPrintedName
+        parties={[
+          { title: t('product.templates.signOff.submittedByContractor'), subtitle: branding?.companyName },
+          { title: t('product.templates.signOff.acceptedByClient'), subtitle: currentProject?.client_name },
+        ]}
+      />
 
-      <DocumentSignOff branding={branding} clientSignBlock />
+      <DocumentFooter />
     </div>
   );
 }

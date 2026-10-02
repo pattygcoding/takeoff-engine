@@ -98,3 +98,43 @@ body:has(dialog[open]) {
     padding: 0 !important;
   }
 }
+
+/* Export Hub: print only the portal-rendered document, never the app shell */
+#export-print-root {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: letter portrait;
+    margin: 0.5in;
+  }
+
+  html:has(body.export-print-mode),
+  body.export-print-mode {
+    background: #ffffff !important;
+    color-scheme: light;
+  }
+
+  body.export-print-mode > *:not(#export-print-root) {
+    display: none !important;
+  }
+
+  body.export-print-mode #export-print-root {
+    display: block;
+    width: 100%;
+    background: #ffffff;
+    color: #1e293b;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  #export-print-root thead {
+    display: table-header-group;
+  }
+
+  #export-print-root tr,
+  #export-print-root img {
+    break-inside: avoid;
+  }
+}

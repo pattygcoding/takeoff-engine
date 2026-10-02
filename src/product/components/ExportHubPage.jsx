@@ -1,5 +1,6 @@
-import React, { useMemo, useState, useRef, useEffect } from 'react';
-import { Lock, FileText, Star } from 'lucide-react';
+import React, { memo, useMemo, useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { Lock, FileText } from 'lucide-react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { computeEstimate, formatCurrency, formatNumber } from '@/product/lib/calculations';
 import { triggerDownload } from '@/product/lib/csv';
@@ -62,7 +63,6 @@ export const EXPORT_FORMATS = [
     isProOnly: false,
     badgeColor: 'bg-slate-100 text-slate-700',
     description: 'Full cost visibility with material, labor rate hours, overhead, contingency, and equipment.',
-    previewKind: 'standard',
   },
   {
     id: 'client_proposal',
@@ -72,7 +72,6 @@ export const EXPORT_FORMATS = [
     isProOnly: false,
     badgeColor: 'bg-blue-100 text-blue-700',
     description: 'Clean proposal hiding internal markups, displaying line descriptions and bid totals.',
-    previewKind: 'proposal',
   },
   {
     id: 'executive_presentation',
@@ -82,7 +81,6 @@ export const EXPORT_FORMATS = [
     isProOnly: false,
     badgeColor: 'bg-emerald-100 text-emerald-700',
     description: 'Polished client presentation with company header, acceptance blocks, and formal legal notes.',
-    previewKind: 'executive',
   },
   {
     id: 'itemized_ledger',
@@ -92,7 +90,6 @@ export const EXPORT_FORMATS = [
     isProOnly: true,
     badgeColor: 'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-2xs',
     description: 'Exposes trench volume, linear footage, equipment rates, and production labor breakdowns.',
-    previewKind: 'ledger',
   },
   {
     id: 'aia_bid_schedule',
@@ -102,7 +99,6 @@ export const EXPORT_FORMATS = [
     isProOnly: true,
     badgeColor: 'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-2xs',
     description: 'Standardized unit price bid schedule matching commercial AIA/DOT submittal standards.',
-    previewKind: 'schedule',
   },
 
   // --- ROW 2 (5 Formats) ---
@@ -114,7 +110,6 @@ export const EXPORT_FORMATS = [
     isProOnly: true,
     badgeColor: 'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-2xs',
     description: 'Top-level financial overview featuring profit margins, system weight % charts, and cost pools.',
-    previewKind: 'kpi',
   },
   {
     id: 'scope_matrix',
@@ -124,7 +119,6 @@ export const EXPORT_FORMATS = [
     isProOnly: true,
     badgeColor: 'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-2xs',
     description: 'Compact tabular matrix comparing system specs, take-off units, and inclusions.',
-    previewKind: 'matrix',
   },
   {
     id: 'material_procurement',
@@ -134,7 +128,6 @@ export const EXPORT_FORMATS = [
     isProOnly: true,
     badgeColor: 'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-2xs',
     description: 'Vendor requisition order listing pipe specifications, fitting quantities, and material PO totals.',
-    previewKind: 'po',
   },
   {
     id: 'crew_production_schedule',
@@ -144,7 +137,6 @@ export const EXPORT_FORMATS = [
     isProOnly: true,
     badgeColor: 'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-2xs',
     description: 'Daily gang-hours, excavator machine utilization, and estimated crew days per utility run.',
-    previewKind: 'crew',
   },
   {
     id: 'subcontractor_scope',
@@ -154,7 +146,6 @@ export const EXPORT_FORMATS = [
     isProOnly: true,
     badgeColor: 'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-2xs',
     description: 'Dedicated subcontract package with inclusions, exclusions, site safety rules, and signoff.',
-    previewKind: 'subcontractor',
   },
 
   // --- ROW 3 (5 Formats) ---
@@ -166,7 +157,6 @@ export const EXPORT_FORMATS = [
     isProOnly: true,
     badgeColor: 'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-2xs',
     description: 'Calculated trench cubic yards, bedding volume, spoil haul-away, and backfill tonnage.',
-    previewKind: 'trench',
   },
   {
     id: 'aia_g702_sov',
@@ -176,7 +166,6 @@ export const EXPORT_FORMATS = [
     isProOnly: true,
     badgeColor: 'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-2xs',
     description: 'Schedule of Values (SOV) structure formatted for AIA progressive monthly payment draws.',
-    previewKind: 'sov',
   },
   {
     id: 'formal_contract_agreement',
@@ -186,7 +175,6 @@ export const EXPORT_FORMATS = [
     isProOnly: true,
     badgeColor: 'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-2xs',
     description: 'Formal contract agreement with legal indemnification, payment terms, and double notarization lines.',
-    previewKind: 'contract',
   },
   {
     id: 'phase_milestone_draw',
@@ -196,7 +184,6 @@ export const EXPORT_FORMATS = [
     isProOnly: true,
     badgeColor: 'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-2xs',
     description: 'Milestone-based payment schedule tied to utility installation benchmarks and system testing.',
-    previewKind: 'milestone',
   },
   {
     id: 'risk_contingency_matrix',
@@ -206,7 +193,6 @@ export const EXPORT_FORMATS = [
     isProOnly: true,
     badgeColor: 'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-2xs',
     description: 'System-by-system risk score matrix showing subsurface unknowns and contingency reserves.',
-    previewKind: 'risk',
   },
 
   // --- ROW 4 (2 Formats) ---
@@ -218,7 +204,6 @@ export const EXPORT_FORMATS = [
     isProOnly: true,
     badgeColor: 'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-2xs',
     description: 'Field inspection sheet to track daily installed linear footage, weather, and inspector initials.',
-    previewKind: 'daily',
   },
   {
     id: 'warranty_closeout_cert',
@@ -228,9 +213,28 @@ export const EXPORT_FORMATS = [
     isProOnly: true,
     badgeColor: 'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-2xs',
     description: 'Formal 1-year workmanship warranty certificate and project substantial completion document.',
-    previewKind: 'warranty',
   },
 ];
+
+const DOCUMENT_COMPONENTS = {
+  standard_estimate: StandardEstimateDocument,
+  client_proposal: ClientProposalDocument,
+  executive_presentation: ExecutiveProposalDocument,
+  itemized_ledger: ItemizedLedgerDocument,
+  aia_bid_schedule: AiaBidScheduleDocument,
+  kpi_margin_summary: KpiSummaryDocument,
+  scope_matrix: ScopeMatrixDocument,
+  material_procurement: MaterialProcurementDocument,
+  crew_production_schedule: CrewProductionScheduleDocument,
+  subcontractor_scope: SubcontractorScopeDocument,
+  trench_earthwork_log: TrenchEarthworkLogDocument,
+  aia_g702_sov: AiaSovBillingDocument,
+  formal_contract_agreement: FormalContractAgreementDocument,
+  phase_milestone_draw: PhaseMilestoneDrawDocument,
+  risk_contingency_matrix: RiskContingencyMatrixDocument,
+  field_daily_report: FieldDailyReportDocument,
+  warranty_closeout_cert: WarrantyCloseoutCertDocument,
+};
 
 export default function ExportHubPage({ items, rates, currentProject }) {
   const { t } = useTranslation();
@@ -250,18 +254,35 @@ export default function ExportHubPage({ items, rates, currentProject }) {
     user?.has_unlimited_bypass === true ||
     (user?.subscription_status === 'active' && ['pro', 'enterprise'].includes(user?.subscription_tier));
 
-  const branding = isProOrExempt
-    ? {
-        companyName: user?.company_name || '',
-        companyLogoUrl: user?.company_logo_url || '',
-        companyAddress: user?.company_address || '',
-        companyPhone: user?.phone_number || '',
-        licenseNumber: user?.license_number || '',
-        brandColor: user?.brand_color || '#0284c7',
-      }
-    : null;
+  // '#0284c7' is the DB column default, so treat it as "no brand color chosen" and let each format use its own accent.
+  const chosenBrandColor = user?.brand_color && user.brand_color.toLowerCase() !== '#0284c7' ? user.brand_color : '';
+
+  const branding = useMemo(
+    () =>
+      isProOrExempt
+        ? {
+            companyName: user?.company_name || '',
+            companyLogoUrl: user?.company_logo_url || '',
+            companyAddress: user?.company_address || '',
+            companyPhone: user?.phone_number || '',
+            licenseNumber: user?.license_number || '',
+            brandColor: chosenBrandColor,
+          }
+        : null,
+    [isProOrExempt, user, chosenBrandColor]
+  );
 
   const [estimate, setEstimate] = useState({ totals: {}, bySystem: [], items: [], rates });
+
+  // Thumbnails only show the top of page 1, so trim line items to keep 17 live renders cheap.
+  const thumbnailEstimate = useMemo(
+    () => ({
+      ...estimate,
+      bySystem: (estimate.bySystem || []).slice(0, 3).map((sys) => ({ ...sys, items: sys.items.slice(0, 4) })),
+    }),
+    [estimate]
+  );
+  const thumbnailProps = { estimate: thumbnailEstimate, branding, currentProject, rates };
 
   useEffect(() => {
     let active = true;
@@ -277,12 +298,23 @@ export default function ExportHubPage({ items, rates, currentProject }) {
 
   const { totals, bySystem } = estimate;
 
+  // Lets print CSS hide the app shell and print only the portal-rendered document.
+  useEffect(() => {
+    document.body.classList.add('export-print-mode');
+    return () => document.body.classList.remove('export-print-mode');
+  }, []);
+
   const currentFormat = useMemo(
     () => EXPORT_FORMATS.find((f) => f.id === selectedFormatId) || EXPORT_FORMATS[0],
     [selectedFormatId]
   );
 
   const isCurrentFormatLocked = currentFormat.isProOnly && !isProOrExempt;
+
+  const DocumentComponent = DOCUMENT_COMPONENTS[currentFormat.id];
+  const documentContent = (
+    <DocumentComponent estimate={estimate} branding={branding} currentProject={currentProject} rates={rates} />
+  );
 
   // Metering & export wrapper
   const runExportAction = async (actionFn) => {
@@ -340,10 +372,11 @@ export default function ExportHubPage({ items, rates, currentProject }) {
           onclone: (clonedDoc) => {
             const clonedNode = clonedDoc.getElementById('export-document-canvas');
             if (clonedNode) {
-              clonedNode.style.width = '816px';
-              clonedNode.style.maxWidth = '816px';
-              clonedNode.style.minWidth = '816px';
-              clonedNode.style.padding = '36px 40px';
+              // 7.5in printable width (8.5in Letter minus 0.5in margins) so PDF matches print & preview
+              clonedNode.style.width = '720px';
+              clonedNode.style.maxWidth = '720px';
+              clonedNode.style.minWidth = '720px';
+              clonedNode.style.padding = '0';
               clonedNode.style.margin = '0 auto';
               clonedNode.style.boxSizing = 'border-box';
               clonedNode.style.borderRadius = '0';
@@ -360,7 +393,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
         const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
         const pageWidth = pdf.internal.pageSize.getWidth(); // 612 pt
         const pageHeight = pdf.internal.pageSize.getHeight(); // 792 pt
-        const margin = 24; // 24 pt = ~0.33 in margins for crisp framing
+        const margin = 36; // 0.5in, matches @page margin used for browser print
         const usableWidth = pageWidth - margin * 2;
         const usableHeight = pageHeight - margin * 2;
 
@@ -553,6 +586,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
               {EXPORT_FORMATS.slice(0, 5).map((fmt) => (
                 <FormatCard
                   key={fmt.id}
+                  thumbnailProps={thumbnailProps}
                   format={fmt}
                   isSelected={selectedFormatId === fmt.id}
                   isPro={isProOrExempt}
@@ -578,6 +612,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
               {EXPORT_FORMATS.slice(5, 10).map((fmt) => (
                 <FormatCard
                   key={fmt.id}
+                  thumbnailProps={thumbnailProps}
                   format={fmt}
                   isSelected={selectedFormatId === fmt.id}
                   isPro={isProOrExempt}
@@ -603,6 +638,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
               {EXPORT_FORMATS.slice(10, 15).map((fmt) => (
                 <FormatCard
                   key={fmt.id}
+                  thumbnailProps={thumbnailProps}
                   format={fmt}
                   isSelected={selectedFormatId === fmt.id}
                   isPro={isProOrExempt}
@@ -628,6 +664,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
               {EXPORT_FORMATS.slice(15).map((fmt) => (
                 <FormatCard
                   key={fmt.id}
+                  thumbnailProps={thumbnailProps}
                   format={fmt}
                   isSelected={selectedFormatId === fmt.id}
                   isPro={isProOrExempt}
@@ -705,62 +742,9 @@ export default function ExportHubPage({ items, rates, currentProject }) {
             <div
               id="export-document-canvas"
               ref={printAreaRef}
-              className="w-full max-w-[850px] bg-white text-slate-800 shadow-xl rounded-2xl border border-slate-200 p-6 sm:p-10 transition print:shadow-none print:border-none print:p-0 print:max-w-none print:w-full"
+              className="w-full max-w-[816px] bg-white text-slate-800 shadow-xl rounded-sm border border-slate-200 p-5 sm:p-12 transition"
             >
-            {/* 1-7 Previous Formats */}
-            {selectedFormatId === 'standard_estimate' && (
-              <StandardEstimateDocument estimate={estimate} branding={branding} currentProject={currentProject} />
-            )}
-            {selectedFormatId === 'client_proposal' && (
-              <ClientProposalDocument estimate={estimate} branding={branding} currentProject={currentProject} />
-            )}
-            {selectedFormatId === 'executive_presentation' && (
-              <ExecutiveProposalDocument estimate={estimate} branding={branding} currentProject={currentProject} />
-            )}
-            {selectedFormatId === 'itemized_ledger' && (
-              <ItemizedLedgerDocument estimate={estimate} branding={branding} currentProject={currentProject} rates={rates} />
-            )}
-            {selectedFormatId === 'aia_bid_schedule' && (
-              <AiaBidScheduleDocument estimate={estimate} branding={branding} currentProject={currentProject} />
-            )}
-            {selectedFormatId === 'kpi_margin_summary' && (
-              <KpiSummaryDocument estimate={estimate} branding={branding} currentProject={currentProject} />
-            )}
-            {selectedFormatId === 'scope_matrix' && (
-              <ScopeMatrixDocument estimate={estimate} branding={branding} currentProject={currentProject} />
-            )}
-
-            {/* 8-17 10 New Pro Formats */}
-            {selectedFormatId === 'material_procurement' && (
-              <MaterialProcurementDocument estimate={estimate} branding={branding} currentProject={currentProject} />
-            )}
-            {selectedFormatId === 'crew_production_schedule' && (
-              <CrewProductionScheduleDocument estimate={estimate} branding={branding} currentProject={currentProject} rates={rates} />
-            )}
-            {selectedFormatId === 'subcontractor_scope' && (
-              <SubcontractorScopeDocument estimate={estimate} branding={branding} currentProject={currentProject} />
-            )}
-            {selectedFormatId === 'trench_earthwork_log' && (
-              <TrenchEarthworkLogDocument estimate={estimate} branding={branding} currentProject={currentProject} rates={rates} />
-            )}
-            {selectedFormatId === 'aia_g702_sov' && (
-              <AiaSovBillingDocument estimate={estimate} branding={branding} currentProject={currentProject} />
-            )}
-            {selectedFormatId === 'formal_contract_agreement' && (
-              <FormalContractAgreementDocument estimate={estimate} branding={branding} currentProject={currentProject} rates={rates} />
-            )}
-            {selectedFormatId === 'phase_milestone_draw' && (
-              <PhaseMilestoneDrawDocument estimate={estimate} branding={branding} currentProject={currentProject} />
-            )}
-            {selectedFormatId === 'risk_contingency_matrix' && (
-              <RiskContingencyMatrixDocument estimate={estimate} branding={branding} currentProject={currentProject} rates={rates} />
-            )}
-            {selectedFormatId === 'field_daily_report' && (
-              <FieldDailyReportDocument estimate={estimate} branding={branding} currentProject={currentProject} />
-            )}
-            {selectedFormatId === 'warranty_closeout_cert' && (
-              <WarrantyCloseoutCertDocument estimate={estimate} branding={branding} currentProject={currentProject} />
-            )}
+              {documentContent}
             </div>
           </div>
         </div>
@@ -770,6 +754,8 @@ export default function ExportHubPage({ items, rates, currentProject }) {
         isOpen={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
       />
+
+      {createPortal(<div id="export-print-root">{documentContent}</div>, document.body)}
     </div>
   );
 }
@@ -777,7 +763,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
 /**
  * Format Card Component with Word-style document thumbnail
  */
-function FormatCard({ format, isSelected, isPro, onScrollToPreview, onClick }) {
+function FormatCard({ format, isSelected, isPro, onScrollToPreview, onClick, thumbnailProps }) {
   const { t } = useTranslation();
   const isLocked = format.isProOnly && !isPro;
 
@@ -807,9 +793,9 @@ function FormatCard({ format, isSelected, isPro, onScrollToPreview, onClick }) {
         <span className="text-[9px] font-semibold text-slate-400 dark:text-slate-500 line-clamp-1">{format.category}</span>
       </div>
 
-      {/* Mini Word-like Document Thumbnail */}
-      <div className="relative w-full aspect-[4/5] bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden p-2 flex flex-col justify-between mb-2.5 shadow-2xs group-hover:bg-slate-100/70 dark:group-hover:bg-slate-900/80 transition">
-        <MiniFormatThumbnail kind={format.previewKind} />
+      {/* Live miniature of the actual document, like a Word template gallery */}
+      <div className="relative w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden p-2.5 mb-2.5 transition group-hover:bg-slate-200/70 dark:group-hover:bg-slate-900/80">
+        <DocumentThumbnail formatId={format.id} {...thumbnailProps} />
 
         {isLocked && (
           <div className="absolute inset-0 bg-slate-900/65 backdrop-blur-[2px] rounded-xl flex flex-col items-center justify-center p-2 text-center text-white z-10 transition">
@@ -857,268 +843,41 @@ function FormatCard({ format, isSelected, isPro, onScrollToPreview, onClick }) {
   );
 }
 
+const PAGE_WIDTH_PX = 816; // 8.5in Letter at 96 DPI
+
 /**
- * Thumbnail SVG Visuals
+ * Renders the real document template on a Letter-sized sheet, scaled to fit the card.
  */
-function MiniFormatThumbnail({ kind }) {
-  if (kind === 'standard') {
-    return (
-      <div className="w-full h-full bg-white rounded border border-slate-200 p-1 flex flex-col justify-between shadow-2xs">
-        <div className="flex justify-between pb-1 border-b border-slate-100">
-          <div className="w-6 h-1 bg-slate-800 rounded-full" />
-          <div className="w-3 h-1 bg-slate-300 rounded-full" />
-        </div>
-        <div className="space-y-0.5">
-          <div className="w-full h-1 bg-slate-200 rounded-xs" />
-          <div className="w-4/5 h-1 bg-slate-200 rounded-xs" />
-          <div className="w-3/4 h-1 bg-slate-200 rounded-xs" />
-        </div>
-        <div className="grid grid-cols-3 gap-0.5 pt-1 border-t border-slate-100">
-          <div className="h-1.5 bg-slate-100 rounded-xs" />
-          <div className="h-1.5 bg-slate-100 rounded-xs" />
-          <div className="h-1.5 bg-blue-500 rounded-xs" />
-        </div>
-      </div>
-    );
-  }
+const DocumentThumbnail = memo(function DocumentThumbnail({ formatId, estimate, branding, currentProject, rates }) {
+  const frameRef = useRef(null);
+  const [scale, setScale] = useState(0);
+  const DocumentComponent = DOCUMENT_COMPONENTS[formatId];
 
-  if (kind === 'proposal') {
-    return (
-      <div className="w-full h-full bg-white rounded border border-blue-200 p-1 flex flex-col justify-between shadow-2xs">
-        <div className="flex items-center gap-1">
-          <div className="w-2 h-2 bg-blue-600 rounded-xs" />
-          <div className="w-8 h-1 bg-slate-700 rounded-full" />
-        </div>
-        <div className="space-y-0.5">
-          <div className="w-full h-1 bg-blue-50 rounded-xs" />
-          <div className="w-5/6 h-1 bg-slate-200 rounded-xs" />
-        </div>
-        <div className="h-2.5 bg-blue-600 rounded-xs flex items-center justify-end px-1">
-          <div className="w-4 h-0.5 bg-white rounded-full" />
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    const el = frameRef.current;
+    if (!el) return undefined;
+    const update = () => setScale(el.clientWidth / PAGE_WIDTH_PX);
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
-  if (kind === 'executive') {
-    return (
-      <div className="w-full h-full bg-white rounded border border-emerald-200 p-1 flex flex-col justify-between shadow-2xs">
-        <div className="w-full h-2 bg-emerald-600 rounded-xs" />
-        <div className="space-y-0.5">
-          <div className="w-full h-1 bg-slate-200 rounded-xs" />
-          <div className="w-4/5 h-1 bg-slate-200 rounded-xs" />
+  return (
+    <div
+      ref={frameRef}
+      aria-hidden="true"
+      inert
+      className="relative w-full aspect-[8.5/11] bg-white overflow-hidden rounded-sm shadow-md ring-1 ring-slate-900/5 pointer-events-none select-none"
+    >
+      {scale > 0 && DocumentComponent && (
+        <div
+          className="absolute top-0 left-0 bg-white text-slate-800 p-12"
+          style={{ width: PAGE_WIDTH_PX, transform: `scale(${scale})`, transformOrigin: 'top left' }}
+        >
+          <DocumentComponent estimate={estimate} branding={branding} currentProject={currentProject} rates={rates} />
         </div>
-        <div className="grid grid-cols-2 gap-1">
-          <div className="h-2 bg-emerald-50 rounded-xs border border-emerald-200" />
-          <div className="h-2 bg-emerald-50 rounded-xs border border-emerald-200" />
-        </div>
-      </div>
-    );
-  }
-
-  if (kind === 'ledger') {
-    return (
-      <div className="w-full h-full bg-white rounded border border-amber-200 p-1 flex flex-col justify-between shadow-2xs">
-        <div className="flex justify-between">
-          <div className="w-7 h-1 bg-amber-800 rounded-full" />
-          <div className="w-2 h-1 bg-amber-500 rounded-full" />
-        </div>
-        <div className="space-y-0.5">
-          <div className="w-full h-1 bg-amber-50 rounded-xs" />
-          <div className="w-full h-1 bg-slate-100 rounded-xs" />
-          <div className="w-full h-1 bg-amber-50 rounded-xs" />
-        </div>
-        <div className="w-full h-1.5 bg-amber-600 rounded-xs" />
-      </div>
-    );
-  }
-
-  if (kind === 'schedule') {
-    return (
-      <div className="w-full h-full bg-white rounded border border-slate-300 p-1 flex flex-col justify-between shadow-2xs">
-        <div className="w-9 h-1 bg-slate-900 rounded-full" />
-        <div className="grid grid-cols-3 gap-0.5">
-          <div className="h-1 bg-slate-200" />
-          <div className="h-1 bg-slate-200" />
-          <div className="h-1 bg-slate-200" />
-          <div className="h-1 bg-slate-100" />
-          <div className="h-1 bg-slate-100" />
-          <div className="h-1 bg-slate-100" />
-        </div>
-        <div className="w-full h-1.5 bg-slate-800 rounded-xs" />
-      </div>
-    );
-  }
-
-  if (kind === 'kpi') {
-    return (
-      <div className="w-full h-full bg-white rounded border border-cyan-200 p-1 flex flex-col justify-between shadow-2xs">
-        <div className="w-6 h-1 bg-cyan-800 rounded-full" />
-        <div className="flex items-end gap-1 h-3.5 px-0.5">
-          <div className="w-1/3 h-1.5 bg-cyan-200 rounded-t-xs" />
-          <div className="w-1/3 h-2.5 bg-cyan-400 rounded-t-xs" />
-          <div className="w-1/3 h-3.5 bg-cyan-600 rounded-t-xs" />
-        </div>
-        <div className="w-full h-1 bg-slate-200 rounded-xs" />
-      </div>
-    );
-  }
-
-  if (kind === 'matrix') {
-    return (
-      <div className="w-full h-full bg-white rounded border border-purple-200 p-1 flex flex-col justify-between shadow-2xs">
-        <div className="flex gap-1">
-          <div className="w-3 h-1 bg-purple-700 rounded-full" />
-          <div className="w-3 h-1 bg-purple-400 rounded-full" />
-        </div>
-        <div className="grid grid-cols-2 gap-1">
-          <div className="h-3 bg-purple-50 rounded-xs" />
-          <div className="h-3 bg-purple-100 rounded-xs" />
-        </div>
-        <div className="w-full h-1 bg-purple-800 rounded-xs" />
-      </div>
-    );
-  }
-
-  if (kind === 'po') {
-    return (
-      <div className="w-full h-full bg-white rounded border border-blue-200 p-1 flex flex-col justify-between shadow-2xs">
-        <div className="flex justify-between items-center pb-0.5 border-b border-blue-100">
-          <div className="w-5 h-1 bg-blue-700 rounded-full" />
-          <div className="w-2 h-1 bg-blue-300 rounded-full" />
-        </div>
-        <div className="space-y-0.5">
-          <div className="w-full h-1 bg-blue-50 rounded-xs" />
-          <div className="w-4/5 h-1 bg-blue-50 rounded-xs" />
-          <div className="w-3/4 h-1 bg-slate-200 rounded-xs" />
-        </div>
-        <div className="flex justify-between items-center pt-0.5 border-t border-slate-100">
-          <div className="w-3 h-0.5 bg-slate-300 rounded-full" />
-          <div className="w-4 h-1 bg-blue-600 rounded-full" />
-        </div>
-      </div>
-    );
-  }
-
-  if (kind === 'crew') {
-    return (
-      <div className="w-full h-full bg-white rounded border border-orange-200 p-1 flex flex-col justify-between shadow-2xs">
-        <div className="w-7 h-1 bg-orange-700 rounded-full" />
-        <div className="grid grid-cols-2 gap-1">
-          <div className="h-3 bg-orange-50 rounded-xs border border-orange-100" />
-          <div className="h-3 bg-orange-50 rounded-xs border border-orange-100" />
-        </div>
-        <div className="w-full h-1 bg-orange-600 rounded-xs" />
-      </div>
-    );
-  }
-
-  if (kind === 'subcontractor') {
-    return (
-      <div className="w-full h-full bg-white rounded border border-teal-200 p-1 flex flex-col justify-between shadow-2xs">
-        <div className="w-full h-1.5 bg-teal-700 rounded-xs" />
-        <div className="space-y-0.5">
-          <div className="w-full h-1 bg-slate-200 rounded-xs" />
-          <div className="w-5/6 h-1 bg-teal-50 rounded-xs" />
-          <div className="w-4/5 h-1 bg-slate-200 rounded-xs" />
-        </div>
-        <div className="w-3 h-1 bg-teal-600 rounded-full ml-auto" />
-      </div>
-    );
-  }
-
-  if (kind === 'trench') {
-    return (
-      <div className="w-full h-full bg-amber-50 rounded border border-amber-300 p-1 flex flex-col justify-between shadow-2xs">
-        <div className="w-6 h-1 bg-amber-900 rounded-full" />
-        <div className="flex items-center justify-center my-auto">
-          <div className="w-8 h-3 bg-amber-200 rounded border border-dashed border-amber-400 flex items-center justify-center text-[7px] font-bold text-amber-800">
-            CY³
-          </div>
-        </div>
-        <div className="w-full h-1 bg-amber-700 rounded-xs" />
-      </div>
-    );
-  }
-
-  if (kind === 'sov') {
-    return (
-      <div className="w-full h-full bg-white rounded border border-slate-300 p-1 flex flex-col justify-between shadow-2xs">
-        <div className="w-8 h-1 bg-slate-800 rounded-full" />
-        <div className="grid grid-cols-4 gap-0.5">
-          <div className="h-1 bg-slate-200" /><div className="h-1 bg-slate-200" /><div className="h-1 bg-slate-200" /><div className="h-1 bg-slate-200" />
-          <div className="h-1 bg-slate-100" /><div className="h-1 bg-slate-100" /><div className="h-1 bg-slate-100" /><div className="h-1 bg-slate-100" />
-        </div>
-        <div className="w-full h-1.5 bg-emerald-700 rounded-xs" />
-      </div>
-    );
-  }
-
-  if (kind === 'contract') {
-    return (
-      <div className="w-full h-full bg-white rounded border border-slate-400 p-1 flex flex-col justify-between shadow-2xs">
-        <div className="text-center font-bold text-[6px] text-slate-800 border-b border-slate-200 pb-0.5">AGREEMENT</div>
-        <div className="space-y-0.5">
-          <div className="w-full h-0.5 bg-slate-200" />
-          <div className="w-full h-0.5 bg-slate-200" />
-          <div className="w-3/4 h-0.5 bg-slate-200" />
-        </div>
-        <div className="flex justify-between pt-0.5 border-t border-slate-200">
-          <div className="w-3 h-0.5 bg-slate-400" />
-          <div className="w-3 h-0.5 bg-slate-400" />
-        </div>
-      </div>
-    );
-  }
-
-  if (kind === 'milestone') {
-    return (
-      <div className="w-full h-full bg-white rounded border border-violet-200 p-1 flex flex-col justify-between shadow-2xs">
-        <div className="w-6 h-1 bg-violet-800 rounded-full" />
-        <div className="space-y-1">
-          <div className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-violet-600" /><div className="w-full h-1 bg-violet-100" /></div>
-          <div className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-violet-400" /><div className="w-full h-1 bg-violet-100" /></div>
-        </div>
-        <div className="w-full h-1 bg-violet-700 rounded-xs" />
-      </div>
-    );
-  }
-
-  if (kind === 'risk') {
-    return (
-      <div className="w-full h-full bg-white rounded border border-rose-200 p-1 flex flex-col justify-between shadow-2xs">
-        <div className="w-6 h-1 bg-rose-800 rounded-full" />
-        <div className="grid grid-cols-3 gap-0.5 my-auto">
-          <div className="h-2 bg-emerald-100 rounded-xs" />
-          <div className="h-2 bg-amber-100 rounded-xs" />
-          <div className="h-2 bg-rose-200 rounded-xs" />
-        </div>
-        <div className="w-full h-1 bg-rose-600 rounded-xs" />
-      </div>
-    );
-  }
-
-  if (kind === 'daily') {
-    return (
-      <div className="w-full h-full bg-white rounded border border-sky-200 p-1 flex flex-col justify-between shadow-2xs">
-        <div className="flex justify-between"><div className="w-4 h-1 bg-sky-800" /><div className="w-2 h-1 bg-sky-300" /></div>
-        <div className="space-y-0.5">
-          <div className="w-full h-1 bg-sky-50" /><div className="w-full h-1 bg-slate-100" /><div className="w-4/5 h-1 bg-sky-50" />
-        </div>
-        <div className="w-4 h-1 bg-sky-700 rounded-full ml-auto" />
-      </div>
-    );
-  }
-
-  if (kind === 'warranty') {
-    return (
-      <div className="w-full h-full bg-amber-50/40 rounded border border-amber-300 p-1 flex flex-col justify-between shadow-2xs">
-        <div className="text-center font-bold text-[6px] text-amber-900 border-b border-amber-200 pb-0.5">CERTIFICATE</div>
-        <div className="w-4 h-4 rounded-full border border-amber-500 bg-amber-100 mx-auto flex items-center justify-center text-amber-700"><Star className="w-2.5 h-2.5" fill="currentColor" /></div>
-        <div className="w-full h-1 bg-amber-600 rounded-xs" />
-      </div>
-    );
-  }
-
-  return <div className="w-full h-full bg-slate-100 rounded" />;
-}
+      )}
+    </div>
+  );
+});

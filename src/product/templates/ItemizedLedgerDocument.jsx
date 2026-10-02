@@ -1,77 +1,80 @@
 import React from 'react';
 import { formatCurrency, formatNumber } from '@/product/lib/calculations';
-import { formatMarkupBasisNote, formatMarkupLine } from '@/product/lib/markupFormatting';
-import { DocumentBrandingHeader, DocumentSignOff } from './DocumentHeaderSignoff';
 import { useTranslation } from '@/core/components/context/I18nContext';
+import {
+  DocumentLetterhead,
+  DocumentSectionHeading,
+  DocumentKeyFigures,
+  DocumentSystemTable,
+  DocumentCostSummary,
+  DocumentSignatureBlock,
+  DocumentFooter,
+} from './DocumentHeaderSignoff';
+
+const KEY = 'product.templates.itemizedLedger';
+const ACCENT = '#d97706';
 
 /**
  * 4. Itemized Job-Cost Ledger Document Layout
  */
 export default function ItemizedLedgerDocument({ estimate, branding, currentProject, rates }) {
-  const { totals, bySystem } = estimate;
+  const { totals = {}, bySystem = [] } = estimate;
   const { t } = useTranslation();
+  const accent = branding?.brandColor || ACCENT;
+
+  const equipmentCost = (it) => (rates?.excavatorHourlyRate || 0) * (it.laborHours * 0.4);
+
+  const columns = [
+    { header: t(`${KEY}.colItem`), render: (it) => it.description },
+    { header: t(`${KEY}.colSpec`), muted: true, render: (it) => it.sizeSpec },
+    { header: t(`${KEY}.colQty`), align: 'right', render: (it) => formatNumber(it.quantity, 0) },
+    { header: t(`${KEY}.colUnit`), muted: true, render: (it) => it.unit },
+    { header: t(`${KEY}.colMat`), align: 'right', render: (it) => formatCurrency(it.materialCost) },
+    { header: t(`${KEY}.colHrs`), align: 'right', render: (it) => formatNumber(it.laborHours) },
+    { header: t(`${KEY}.colLabor`), align: 'right', render: (it) => formatCurrency(it.laborCost) },
+    { header: t(`${KEY}.colEquip`), align: 'right', render: (it) => formatCurrency(equipmentCost(it)) },
+    { header: t(`${KEY}.colTotal`), align: 'right', strong: true, render: (it) => formatCurrency(it.directCost) },
+  ];
 
   return (
-    <div className="space-y-6">
-      <DocumentBrandingHeader branding={branding} title={t('product.templates.itemizedLedger.title')} project={currentProject} />
+    <div className="text-slate-800 text-[10px] leading-relaxed tabular-nums">
+      <DocumentLetterhead
+        branding={branding}
+        title={t(`${KEY}.title`)}
+        project={currentProject}
+        accent={accent}
+        badge={t('product.templates.header.internalBadge')}
+      />
 
-      <div className="overflow-x-auto border border-slate-200 rounded-xl">
-        <table className="w-full text-left text-[11px]">
-          <thead className="bg-slate-800 text-white">
-            <tr>
-              <th className="p-2">{t('product.templates.itemizedLedger.colItem')}</th>
-              <th className="p-2">{t('product.templates.itemizedLedger.colSpec')}</th>
-              <th className="p-2 text-right">{t('product.templates.itemizedLedger.colQty')}</th>
-              <th className="p-2">{t('product.templates.itemizedLedger.colUnit')}</th>
-              <th className="p-2 text-right">{t('product.templates.itemizedLedger.colMat')}</th>
-              <th className="p-2 text-right">{t('product.templates.itemizedLedger.colHrs')}</th>
-              <th className="p-2 text-right">{t('product.templates.itemizedLedger.colLabor')}</th>
-              <th className="p-2 text-right">{t('product.templates.itemizedLedger.colEquip')}</th>
-              <th className="p-2 text-right">{t('product.templates.itemizedLedger.colTotal')}</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-200 font-mono">
-            {bySystem.flatMap((s) => s.items).map((it, idx) => (
-              <tr key={idx} className="hover:bg-slate-50">
-                <td className="p-2 font-sans font-medium text-slate-900">{it.description}</td>
-                <td className="p-2 font-sans text-slate-500">{it.sizeSpec}</td>
-                <td className="p-2 text-right">{formatNumber(it.quantity, 0)}</td>
-                <td className="p-2 font-sans text-slate-500">{it.unit}</td>
-                <td className="p-2 text-right">{formatCurrency(it.materialCost)}</td>
-                <td className="p-2 text-right">{formatNumber(it.laborHours)}</td>
-                <td className="p-2 text-right">{formatCurrency(it.laborCost)}</td>
-                <td className="p-2 text-right">{formatCurrency((rates?.excavatorHourlyRate || 0) * (it.laborHours * 0.4))}</td>
-                <td className="p-2 text-right font-bold text-slate-900">{formatCurrency(it.directCost)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <DocumentKeyFigures
+        accent={accent}
+        figures={[
+          { label: t(`${KEY}.totalMaterial`), value: formatCurrency(totals.totalMaterialCost) },
+          { label: t(`${KEY}.totalLabor`), value: formatCurrency(totals.totalLaborCost) },
+          { label: t(`${KEY}.laborHours`), value: t('product.templates.shared.hoursUnit', { hours: formatNumber(totals.totalLaborHours) }) },
+        ]}
+        highlight={{ label: t(`${KEY}.finalBidAmount`), value: formatCurrency(totals.finalBidAmount) }}
+      />
 
-      <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-        <div>
-          <span className="text-slate-400 font-bold uppercase text-[10px]">{t('product.resultsStep.overheadFixed')}</span>
-          <p className="font-bold text-slate-900">{formatMarkupLine(t('product.resultsStep.overheadFixed'), totals.overheadAmount, rates?.overheadPercent ?? totals.overheadPct ?? 10, t)}</p>
-        </div>
-        <div>
-          <span className="text-slate-400 font-bold uppercase text-[10px]">{t('product.resultsStep.profitFixed')}</span>
-          <p className="font-bold text-slate-900">{formatMarkupLine(t('product.resultsStep.profitFixed'), totals.profitAmount, rates?.profitMarginPercent ?? totals.profitPct ?? 15, t)}</p>
-        </div>
-        <div>
-          <span className="text-slate-400 font-bold uppercase text-[10px]">{t('product.resultsStep.contingencyFixed')}</span>
-          <p className="font-bold text-slate-900">{formatMarkupLine(t('product.resultsStep.contingencyFixed'), totals.contingencyAmount, rates?.contingencyPercent ?? totals.contingencyPct ?? 5, t)}</p>
-        </div>
-        <div>
-          <span className="text-blue-600 font-bold uppercase text-[10px]">
-            {t('product.templates.itemizedLedger.finalBidAmount')}
-          </span>
-          <p className="font-bold text-blue-700 text-sm">{formatCurrency(totals.finalBidAmount)}</p>
-        </div>
-      </div>
+      <section className="mt-8">
+        <DocumentSectionHeading accent={accent}>{t(`${KEY}.detailHeading`)}</DocumentSectionHeading>
+        <DocumentSystemTable
+          bySystem={bySystem}
+          columns={columns}
+          accent={accent}
+          subtotal={(sys) => formatCurrency(sys.directCost)}
+        />
+      </section>
 
-      <p className="text-[11px] text-slate-500 italic">{formatMarkupBasisNote(t)}</p>
+      <DocumentCostSummary totals={totals} accent={accent} />
 
-      <DocumentSignOff branding={branding} />
+      <DocumentSignatureBlock
+        accent={accent}
+        heading={t('product.templates.signOff.internalReview')}
+        parties={[{ title: t('product.templates.signOff.preparedBy') }, { title: t('product.templates.signOff.reviewedBy') }]}
+      />
+
+      <DocumentFooter confidential />
     </div>
   );
 }

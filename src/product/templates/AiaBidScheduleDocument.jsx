@@ -1,60 +1,107 @@
 import React from 'react';
 import { formatCurrency, formatNumber } from '@/product/lib/calculations';
-import { DocumentBrandingHeader, DocumentSignOff } from './DocumentHeaderSignoff';
 import { useTranslation } from '@/core/components/context/I18nContext';
+import {
+  DocumentLetterhead,
+  DocumentSectionHeading,
+  DocumentSystemTable,
+  DocumentTotalRow,
+  DocumentSignatureBlock,
+  DocumentFooter,
+} from './DocumentHeaderSignoff';
+
+const KEY = 'product.templates.aiaBidSchedule';
+const ACCENT = '#1e293b';
 
 /**
  * 5. AIA Unit Price Bid Schedule Document Layout
  */
 export default function AiaBidScheduleDocument({ estimate, branding, currentProject }) {
-  const { totals, bySystem } = estimate;
+  const { totals = {}, bySystem = [] } = estimate;
   const { t } = useTranslation();
+  const accent = branding?.brandColor || ACCENT;
+
+  // Pay item numbers run continuously across systems, as on a public bid form.
+  let itemNo = 0;
+  const numberedSystems = bySystem.map((sys) => ({
+    ...sys,
+    items: sys.items.map((it) => ({ ...it, payItemNo: ++itemNo })),
+  }));
+
+  const extended = (it) => it.factoredPrice ?? it.directCost;
+
+  const columns = [
+    {
+      header: t(`${KEY}.colItemNumber`),
+      className: 'font-bold text-slate-500 w-12',
+      render: (it) => String(it.payItemNo).padStart(3, '0'),
+    },
+    {
+      header: t(`${KEY}.colPayItemDesc`),
+      className: 'font-medium text-slate-900',
+      render: (it) => (
+        <>
+          {it.description}
+          {it.sizeSpec && <span className="ml-1 font-normal text-slate-500">— {it.sizeSpec}</span>}
+        </>
+      ),
+    },
+    { header: t(`${KEY}.colEstQty`), align: 'right', render: (it) => formatNumber(it.quantity, 0) },
+    { header: t(`${KEY}.colUnit`), muted: true, render: (it) => it.unit },
+    {
+      header: t(`${KEY}.colUnitPrice`),
+      align: 'right',
+      render: (it) => formatCurrency(it.quantity > 0 ? extended(it) / it.quantity : 0),
+    },
+    { header: t(`${KEY}.colTotalItemBid`), align: 'right', strong: true, render: (it) => formatCurrency(extended(it)) },
+  ];
 
   return (
-    <div className="space-y-6">
-      <DocumentBrandingHeader branding={branding} title={t('product.templates.aiaBidSchedule.title')} project={currentProject} />
+    <div className="text-slate-800 text-[11px] leading-relaxed tabular-nums">
+      <DocumentLetterhead branding={branding} title={t(`${KEY}.title`)} project={currentProject} accent={accent} />
 
-      <div className="border-2 border-slate-800 rounded-xl overflow-hidden">
-        <table className="w-full text-left text-xs">
-          <thead className="bg-slate-900 text-white font-mono uppercase text-[10px]">
-            <tr>
-              <th className="p-2.5">{t('product.templates.aiaBidSchedule.colItemNumber')}</th>
-              <th className="p-2.5">{t('product.templates.aiaBidSchedule.colPayItemDesc')}</th>
-              <th className="p-2.5 text-right">{t('product.templates.aiaBidSchedule.colEstQty')}</th>
-              <th className="p-2.5">{t('product.templates.aiaBidSchedule.colUnit')}</th>
-              <th className="p-2.5 text-right">{t('product.templates.aiaBidSchedule.colUnitPrice')}</th>
-              <th className="p-2.5 text-right">{t('product.templates.aiaBidSchedule.colTotalItemBid')}</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-300 font-mono">
-            {bySystem.flatMap((s) => s.items).map((it, idx) => {
-              const unitPrice = it.quantity > 0 ? (it.factoredPrice ?? it.directCost) / it.quantity : 0;
-              return (
-                <tr key={idx} className="hover:bg-slate-50">
-                  <td className="p-2.5 font-bold text-slate-600">{String(idx + 1).padStart(2, '0')}</td>
-                  <td className="p-2.5 font-sans font-medium text-slate-900">
-                    {it.description} <span className="text-slate-500 font-normal">({it.sizeSpec})</span>
-                  </td>
-                  <td className="p-2.5 text-right">{formatNumber(it.quantity, 0)}</td>
-                  <td className="p-2.5 font-sans text-slate-600">{it.unit}</td>
-                  <td className="p-2.5 text-right">{formatCurrency(unitPrice)}</td>
-                  <td className="p-2.5 text-right font-bold text-slate-900">{formatCurrency(it.factoredPrice ?? it.directCost)}</td>
+      <section className="mt-8">
+        <DocumentSectionHeading accent={accent}>{t(`${KEY}.scheduleHeading`)}</DocumentSectionHeading>
+        <DocumentSystemTable
+          bySystem={numberedSystems}
+          columns={columns}
+          accent={accent}
+          subtotal={(sys) => formatCurrency(sys.factoredBid ?? sys.directCost)}
+        />
+      </section>
+
+      <section className="mt-8 flex justify-end break-inside-avoid">
+        <div className="w-full max-w-[340px]">
+          <DocumentSectionHeading accent={accent}>{t(`${KEY}.totalBaseBidSchedule`)}</DocumentSectionHeading>
+          <table className="w-full border-collapse">
+            <tbody>
+              {bySystem.map((sys) => (
+                <tr key={sys.system} className="border-b border-slate-100">
+                  <td className="py-1.5 pr-3">{sys.system}</td>
+                  <td className="py-1.5 text-right">{formatCurrency(sys.factoredBid ?? sys.directCost)}</td>
                 </tr>
-              );
-            })}
-          </tbody>
-          <tfoot className="bg-slate-100 font-bold border-t-2 border-slate-900 text-xs">
-            <tr>
-              <td colSpan={5} className="p-3 text-right uppercase tracking-wider font-mono">
-                {t('product.templates.aiaBidSchedule.totalBaseContractBid')}
-              </td>
-              <td className="p-3 text-right font-mono text-sm text-slate-900">{formatCurrency(totals.finalBidAmount)}</td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
+              ))}
+              <DocumentTotalRow label={t(`${KEY}.totalBaseContractBid`)} value={formatCurrency(totals.finalBidAmount)} accent={accent} />
+            </tbody>
+          </table>
+        </div>
+      </section>
 
-      <DocumentSignOff branding={branding} clientSignBlock />
+      <p className="mt-6 pl-3 border-l-2 italic text-slate-600 break-inside-avoid" style={{ borderColor: accent }}>
+        {t(`${KEY}.noteStandardSpec`)}
+      </p>
+
+      <DocumentSignatureBlock
+        accent={accent}
+        heading={t(`${KEY}.signatureHeading`)}
+        showPrintedName
+        parties={[
+          { title: t('product.templates.signOff.submittedByContractor'), subtitle: branding?.companyName },
+          { title: t('product.templates.signOff.acceptedByClient'), subtitle: currentProject?.client_name },
+        ]}
+      />
+
+      <DocumentFooter />
     </div>
   );
 }

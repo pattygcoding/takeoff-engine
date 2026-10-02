@@ -1,66 +1,93 @@
 import React from 'react';
 import { formatNumber } from '@/product/lib/calculations';
-import { DocumentBrandingHeader, DocumentSignOff } from './DocumentHeaderSignoff';
 import { useTranslation } from '@/core/components/context/I18nContext';
+import {
+  DocumentLetterhead,
+  DocumentSectionHeading,
+  DocumentSystemTable,
+  DocumentFillLine,
+  DocumentSignatureBlock,
+  DocumentFooter,
+} from './DocumentHeaderSignoff';
+
+const KEY = 'product.templates.fieldDailyReport';
+const ACCENT = '#0369a1';
+const BLANK_CELL = 'h-7 border-x border-slate-200 bg-white min-w-[64px]';
 
 /**
  * 16. Field Superintendent QA Log Layout
  */
 export default function FieldDailyReportDocument({ estimate, branding, currentProject }) {
-  const { bySystem } = estimate;
+  const { bySystem = [] } = estimate;
   const { t } = useTranslation();
+  const accent = branding?.brandColor || ACCENT;
+
+  const columns = [
+    {
+      header: t(`${KEY}.colItemDescription`),
+      render: (it) => (
+        <>
+          {it.description}
+          {it.sizeSpec && <span className="ml-1 font-normal text-slate-500">— {it.sizeSpec}</span>}
+        </>
+      ),
+    },
+    { header: t(`${KEY}.colTargetQty`), align: 'right', render: (it) => formatNumber(it.quantity, 0) },
+    { header: t(`${KEY}.colUnit`), muted: true, render: (it) => it.unit },
+    { header: t(`${KEY}.colInstalledToday`), className: BLANK_CELL, render: () => null },
+    { header: t(`${KEY}.colCumulativeQty`), className: BLANK_CELL, render: () => null },
+    { header: t(`${KEY}.colQcSign`), className: BLANK_CELL, render: () => null },
+  ];
 
   return (
-    <div className="space-y-6">
-      <DocumentBrandingHeader branding={branding} title={t('product.templates.fieldDailyReport.title')} project={currentProject} />
+    <div className="text-slate-800 text-[11px] leading-relaxed tabular-nums">
+      <DocumentLetterhead branding={branding} title={t(`${KEY}.title`)} project={currentProject} accent={accent} />
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs border border-slate-200 rounded-xl p-3 bg-slate-50">
-        <div>
-          <span className="text-slate-400 font-bold">{t('product.templates.fieldDailyReport.weatherTemp')}</span>
-          <div className="border-b border-slate-300 mt-2 h-4" />
+      <section className="mt-6 grid grid-cols-2 gap-6 break-inside-avoid">
+        <div className="border border-slate-300 p-3">
+          <p className="text-[10px] font-bold uppercase tracking-[0.15em] mb-1" style={{ color: accent }}>
+            {t(`${KEY}.conditionsHeading`)}
+          </p>
+          <DocumentFillLine label={t(`${KEY}.reportDate`)} labelWidth="w-28" />
+          <DocumentFillLine label={t(`${KEY}.weatherTemp`)} labelWidth="w-28" />
+          <DocumentFillLine label={t(`${KEY}.crewSize`)} labelWidth="w-28" />
         </div>
-        <div>
-          <span className="text-slate-400 font-bold">{t('product.templates.fieldDailyReport.superintendent')}</span>
-          <div className="border-b border-slate-300 mt-2 h-4" />
+        <div className="border border-slate-300 p-3">
+          <p className="text-[10px] font-bold uppercase tracking-[0.15em] mb-1" style={{ color: accent }}>
+            {t(`${KEY}.personnelHeading`)}
+          </p>
+          <DocumentFillLine label={t(`${KEY}.superintendent`)} labelWidth="w-28" />
+          <DocumentFillLine label={t(`${KEY}.cityInspector`)} labelWidth="w-28" />
+          <div className="flex items-center gap-2 py-1">
+            <span className="shrink-0 text-[9px] font-bold uppercase tracking-wider text-slate-500 w-28">
+              {t(`${KEY}.dailySafetyTalk`)}
+            </span>
+            <span className="inline-block w-3 h-3 border border-slate-400" />
+            <span className="text-slate-600">{t(`${KEY}.completed`)}</span>
+          </div>
         </div>
-        <div>
-          <span className="text-slate-400 font-bold">{t('product.templates.fieldDailyReport.cityInspector')}</span>
-          <div className="border-b border-slate-300 mt-2 h-4" />
-        </div>
-        <div>
-          <span className="text-slate-400 font-bold">{t('product.templates.fieldDailyReport.dailySafetyTalk')}</span>
-          <div className="text-emerald-700 font-bold mt-1">{t('product.templates.fieldDailyReport.completed')}</div>
-        </div>
-      </div>
+      </section>
 
-      <div className="border border-slate-200 rounded-xl overflow-hidden">
-        <table className="w-full text-left text-xs">
-          <thead className="bg-sky-900 text-white">
-            <tr>
-              <th className="p-2">{t('product.templates.fieldDailyReport.colItemDescription')}</th>
-              <th className="p-2 text-right">{t('product.templates.fieldDailyReport.colTargetQty')}</th>
-              <th className="p-2">{t('product.templates.fieldDailyReport.colUnit')}</th>
-              <th className="p-2 text-right">{t('product.templates.fieldDailyReport.colInstalledToday')}</th>
-              <th className="p-2 text-right">{t('product.templates.fieldDailyReport.colCumulativeQty')}</th>
-              <th className="p-2 text-center">{t('product.templates.fieldDailyReport.colQcSign')}</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-200">
-            {bySystem.flatMap((s) => s.items).map((it, idx) => (
-              <tr key={idx} className="hover:bg-slate-50">
-                <td className="p-2 font-medium text-slate-900">{it.description} ({it.sizeSpec})</td>
-                <td className="p-2 text-right font-mono">{formatNumber(it.quantity, 0)}</td>
-                <td className="p-2 text-slate-500">{it.unit}</td>
-                <td className="p-2 text-right border-l border-r border-slate-200 bg-slate-50/50" />
-                <td className="p-2 text-right border-r border-slate-200" />
-                <td className="p-2 text-center text-slate-300">[ &nbsp; &nbsp; ]</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <section className="mt-8">
+        <DocumentSectionHeading accent={accent}>{t(`${KEY}.progressHeading`)}</DocumentSectionHeading>
+        <DocumentSystemTable bySystem={bySystem} columns={columns} accent={accent} />
+      </section>
 
-      <DocumentSignOff branding={branding} />
+      <section className="mt-8 break-inside-avoid">
+        <DocumentSectionHeading accent={accent}>{t(`${KEY}.notesHeading`)}</DocumentSectionHeading>
+        {[0, 1, 2, 3, 4].map((i) => (
+          <div key={i} className="h-7 border-b border-slate-300" />
+        ))}
+      </section>
+
+      <DocumentSignatureBlock
+        accent={accent}
+        heading={t(`${KEY}.signatureHeading`)}
+        showPrintedName
+        parties={[{ title: t(`${KEY}.signSuperintendent`) }, { title: t(`${KEY}.signInspector`) }]}
+      />
+
+      <DocumentFooter />
     </div>
   );
 }

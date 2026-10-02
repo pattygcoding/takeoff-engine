@@ -1,77 +1,97 @@
 import React from 'react';
 import { formatCurrency } from '@/product/lib/calculations';
-import { DocumentSignOff } from './DocumentHeaderSignoff';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import ScopeSummaryDisplay from '@/product/components/ScopeSummaryDisplay';
+import {
+  DocumentLetterhead,
+  DocumentSectionHeading,
+  DocumentTotalRow,
+  DocumentSignatureBlock,
+  DocumentFooter,
+} from './DocumentHeaderSignoff';
+
+const KEY = 'product.templates.formalContract';
+const ACCENT = '#1e293b';
+
+function Clause({ title, children }) {
+  return (
+    <p className="break-inside-avoid">
+      <strong className="text-slate-900">{title}</strong> {children}
+    </p>
+  );
+}
 
 /**
  * 13. Owner-Contractor Formal Agreement Layout
  */
 export default function FormalContractAgreementDocument({ estimate, branding, currentProject }) {
-  const { totals, bySystem, rates } = estimate;
+  const { totals = {}, bySystem = [], rates } = estimate;
   const { t } = useTranslation();
+  const accent = branding?.brandColor || ACCENT;
+  const today = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
 
   return (
-    <div className="space-y-6 font-serif">
-      <div className="text-center border-b-2 border-slate-900 pb-4">
-        <h2 className="text-xl font-bold uppercase tracking-widest text-slate-900">{t('product.templates.formalContract.title')}</h2>
-        <p className="text-xs text-slate-600 font-sans mt-1">{t('product.templates.formalContract.subtitle')}</p>
-      </div>
+    <div className="text-slate-800 text-[11px] leading-relaxed tabular-nums">
+      <DocumentLetterhead branding={branding} title={t(`${KEY}.title`)} project={currentProject} accent={accent} />
 
-      <div className="space-y-3 text-xs text-slate-800 leading-relaxed font-sans">
+      <p className="mt-6 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">{t(`${KEY}.subtitle`)}</p>
+
+      <section className="mt-6 space-y-3 font-serif text-[12px] text-slate-800 text-justify">
         <p>
-          {t('product.templates.formalContract.introAgreement', {
-            date: new Date().toLocaleDateString(),
-            contractor: branding?.companyName || t('product.templates.formalContract.defaultContractor'),
-            owner: currentProject?.client_name || t('product.templates.formalContract.defaultOwner'),
-            site: currentProject?.location || t('product.templates.formalContract.defaultSite')
+          {t(`${KEY}.introAgreement`, {
+            date: today,
+            contractor: branding?.companyName || t(`${KEY}.defaultContractor`),
+            owner: currentProject?.client_name || t(`${KEY}.defaultOwner`),
+            site: currentProject?.location || t(`${KEY}.defaultSite`),
           })}
         </p>
-        <p>
-          <strong>{t('product.templates.formalContract.clause1Title')}</strong> {t('product.templates.formalContract.clause1Text')}
-          <span className="font-bold font-mono text-emerald-800">{formatCurrency(totals.finalBidAmount)}</span>.
-        </p>
-        <p>
-          <strong>{t('product.templates.formalContract.clause2Title')}</strong>{' '}
-          {t('product.templates.formalContract.clause2Text', {
-            systems: bySystem.map((s) => s.system).join(', ')
-          })}
-        </p>
-        <p>
-          <strong>{t('product.templates.formalContract.clause3Title')}</strong> {t('product.templates.formalContract.clause3Text')}
-        </p>
-      </div>
+        <Clause title={t(`${KEY}.clause1Title`)}>
+          {t(`${KEY}.clause1Text`)}
+          <strong className="text-slate-900">{formatCurrency(totals.finalBidAmount)}</strong>.
+        </Clause>
+        <Clause title={t(`${KEY}.clause2Title`)}>
+          {t(`${KEY}.clause2Text`, { systems: bySystem.map((s) => s.system).join(', ') })}
+        </Clause>
+        <Clause title={t(`${KEY}.clause3Title`)}>{t(`${KEY}.clause3Text`)}</Clause>
+      </section>
 
-      <div className="border border-slate-300 rounded-xl overflow-hidden font-sans">
-        <div className="bg-slate-100 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-slate-700">
-          {t('product.templates.formalContract.phaseSummary')}
-        </div>
-        <table className="w-full text-left text-xs">
-          <tbody className="divide-y divide-slate-200">
+      <section className="mt-8 break-inside-avoid">
+        <DocumentSectionHeading accent={accent}>{t(`${KEY}.phaseSummary`)}</DocumentSectionHeading>
+        <table className="w-full border-collapse text-left">
+          <tbody>
             {bySystem.map((s) => (
-              <tr key={s.system}>
-                <td className="p-2.5 font-bold text-slate-800">{s.system}</td>
-                <td className="p-2.5 text-slate-500">
-                  {t('product.templates.formalContract.workItemsCount', { count: s.items.length })}
-                </td>
-                <td className="p-2.5 text-right font-mono font-bold">{formatCurrency(s.factoredBid ?? s.directCost)}</td>
+              <tr key={s.system} className="border-b border-slate-100">
+                <td className="py-1.5 px-2 font-medium text-slate-900">{s.system}</td>
+                <td className="py-1.5 px-2 text-slate-500">{t(`${KEY}.workItemsCount`, { count: s.items.length })}</td>
+                <td className="py-1.5 px-2 text-right font-semibold text-slate-900">{formatCurrency(s.factoredBid ?? s.directCost)}</td>
               </tr>
             ))}
+            <DocumentTotalRow
+              label={t(`${KEY}.totalLumpSumContract`)}
+              value={formatCurrency(totals.finalBidAmount)}
+              accent={accent}
+              colSpan={2}
+            />
           </tbody>
-          <tfoot className="bg-slate-50 font-bold border-t border-slate-300">
-            <tr>
-              <td colSpan={2} className="p-2.5 text-slate-700 uppercase tracking-wider text-[11px]">
-                {t('product.templates.formalContract.totalLumpSumContract')}
-              </td>
-              <td className="p-2.5 text-right font-mono text-emerald-800 text-sm">{formatCurrency(totals.finalBidAmount)}</td>
-            </tr>
-          </tfoot>
         </table>
+      </section>
+
+      <div className="break-inside-avoid">
+        <ScopeSummaryDisplay scopeItems={rates?.scopeItems} baseAmount={totals.totalDirectCost} forceLight className="mt-8" />
       </div>
 
-      <ScopeSummaryDisplay scopeItems={rates?.scopeItems} baseAmount={totals.totalDirectCost} forceLight />
+      <DocumentSignatureBlock
+        accent={accent}
+        heading={t(`${KEY}.executionHeading`)}
+        intro={t(`${KEY}.executionText`)}
+        showPrintedName
+        parties={[
+          { title: t(`${KEY}.contractorParty`), subtitle: branding?.companyName },
+          { title: t(`${KEY}.ownerParty`), subtitle: currentProject?.client_name },
+        ]}
+      />
 
-      <DocumentSignOff branding={branding} clientSignBlock />
+      <DocumentFooter />
     </div>
   );
 }

@@ -1,64 +1,107 @@
 import React from 'react';
 import { formatCurrency } from '@/product/lib/calculations';
-import { DocumentBrandingHeader, DocumentSignOff } from './DocumentHeaderSignoff';
 import { useTranslation } from '@/core/components/context/I18nContext';
+import {
+  DocumentLetterhead,
+  DocumentSectionHeading,
+  DocumentFillLine,
+  DocumentSignatureBlock,
+  DocumentFooter,
+} from './DocumentHeaderSignoff';
+
+const KEY = 'product.templates.aiaSovBilling';
+const ACCENT = '#047857';
+const TH = 'py-2 px-2 text-[9px] font-bold uppercase tracking-wider text-slate-600';
 
 /**
  * 12. AIA G702/G703 SOV Billing Layout
  */
 export default function AiaSovBillingDocument({ estimate, branding, currentProject }) {
-  const { totals, bySystem } = estimate;
+  const { totals = {}, bySystem = [] } = estimate;
   const { t } = useTranslation();
+  const accent = branding?.brandColor || ACCENT;
+  const zero = formatCurrency(0);
 
   return (
-    <div className="space-y-6 font-mono">
-      <DocumentBrandingHeader branding={branding} title={t('product.templates.aiaSovBilling.title')} project={currentProject} />
+    <div className="text-slate-800 text-[11px] leading-relaxed tabular-nums">
+      <DocumentLetterhead branding={branding} title={t(`${KEY}.title`)} project={currentProject} accent={accent} />
 
-      <div className="border-2 border-slate-900 rounded-xl overflow-hidden text-xs">
-        <table className="w-full text-left">
-          <thead className="bg-slate-900 text-white uppercase text-[10px]">
-            <tr>
-              <th className="p-2">{t('product.templates.aiaSovBilling.colItem')}</th>
-              <th className="p-2 font-sans">{t('product.templates.aiaSovBilling.colDescriptionOfWork')}</th>
-              <th className="p-2 text-right">{t('product.templates.aiaSovBilling.colScheduledValue')}</th>
-              <th className="p-2 text-right">{t('product.templates.aiaSovBilling.colWorkDone')}</th>
-              <th className="p-2 text-right">{t('product.templates.aiaSovBilling.colStoredMat')}</th>
-              <th className="p-2 text-right">{t('product.templates.aiaSovBilling.colTotalPercent')}</th>
-              <th className="p-2 text-right">{t('product.templates.aiaSovBilling.colBalance')}</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-300">
-            {bySystem.map((sys, idx) => {
-              const sysVal = sys.factoredBid ?? sys.directCost;
-              return (
-                <tr key={sys.system} className="hover:bg-slate-50">
-                  <td className="p-2 font-bold">{String(idx + 1).padStart(2, '0')}</td>
-                  <td className="p-2 font-sans font-medium text-slate-900">
-                    {t('product.templates.aiaSovBilling.packageSuffix', { system: sys.system })}
-                  </td>
-                  <td className="p-2 text-right font-bold">{formatCurrency(sysVal)}</td>
-                  <td className="p-2 text-right text-slate-500">$0.00</td>
-                  <td className="p-2 text-right text-slate-500">$0.00</td>
-                  <td className="p-2 text-right text-slate-500">0.0%</td>
-                  <td className="p-2 text-right font-bold">{formatCurrency(sysVal)}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-          <tfoot className="bg-slate-100 font-bold border-t-2 border-slate-900">
-            <tr>
-              <td colSpan={2} className="p-2.5 font-sans uppercase">{t('product.templates.aiaSovBilling.totalScheduledValues')}</td>
-              <td className="p-2.5 text-right text-blue-900">{formatCurrency(totals.finalBidAmount)}</td>
-              <td className="p-2.5 text-right">$0.00</td>
-              <td className="p-2.5 text-right">$0.00</td>
-              <td className="p-2.5 text-right">0.0%</td>
-              <td className="p-2.5 text-right text-blue-900">{formatCurrency(totals.finalBidAmount)}</td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
+      <section className="mt-6 grid grid-cols-2 gap-6 break-inside-avoid">
+        <div className="border border-slate-300 p-3">
+          <p className="text-[10px] font-bold uppercase tracking-[0.15em] mb-1" style={{ color: accent }}>
+            {t(`${KEY}.partiesHeading`)}
+          </p>
+          <DocumentFillLine label={t(`${KEY}.toOwner`)} value={currentProject?.client_name} />
+          <DocumentFillLine label={t(`${KEY}.fromContractor`)} value={branding?.companyName} />
+          <DocumentFillLine label={t(`${KEY}.project`)} value={currentProject?.name} />
+        </div>
+        <div className="border border-slate-300 p-3">
+          <p className="text-[10px] font-bold uppercase tracking-[0.15em] mb-1" style={{ color: accent }}>
+            {t(`${KEY}.applicationHeading`)}
+          </p>
+          <DocumentFillLine label={t(`${KEY}.applicationNo`)} />
+          <DocumentFillLine label={t(`${KEY}.periodTo`)} />
+          <DocumentFillLine label={t(`${KEY}.contractSum`)} value={formatCurrency(totals.finalBidAmount)} />
+        </div>
+      </section>
 
-      <DocumentSignOff branding={branding} clientSignBlock />
+      <section className="mt-8 break-inside-avoid">
+        <DocumentSectionHeading accent={accent}>{t(`${KEY}.sovHeading`)}</DocumentSectionHeading>
+        {bySystem.length === 0 ? (
+          <p className="py-6 text-center text-slate-400 italic">{t('product.templates.shared.noItems')}</p>
+        ) : (
+          <table className="w-full border-collapse text-left">
+            <thead>
+              <tr className="border-y border-slate-300 bg-slate-100">
+                <th className={`${TH} w-10`}>{t(`${KEY}.colItem`)}</th>
+                <th className={TH}>{t(`${KEY}.colDescriptionOfWork`)}</th>
+                <th className={`${TH} text-right`}>{t(`${KEY}.colScheduledValue`)}</th>
+                <th className={`${TH} text-right`}>{t(`${KEY}.colWorkDone`)}</th>
+                <th className={`${TH} text-right`}>{t(`${KEY}.colStoredMat`)}</th>
+                <th className={`${TH} text-right`}>{t(`${KEY}.colTotalPercent`)}</th>
+                <th className={`${TH} text-right`}>{t(`${KEY}.colBalance`)}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {bySystem.map((sys, idx) => {
+                const sysVal = sys.factoredBid ?? sys.directCost;
+                return (
+                  <tr key={sys.system} className="border-b border-slate-100 even:bg-slate-50/70 break-inside-avoid">
+                    <td className="py-2 px-2 font-bold text-slate-500">{String(idx + 1).padStart(3, '0')}</td>
+                    <td className="py-2 px-2 font-medium text-slate-900">{t(`${KEY}.packageSuffix`, { system: sys.system })}</td>
+                    <td className="py-2 px-2 text-right font-semibold text-slate-900">{formatCurrency(sysVal)}</td>
+                    <td className="py-2 px-2 text-right text-slate-400">{zero}</td>
+                    <td className="py-2 px-2 text-right text-slate-400">{zero}</td>
+                    <td className="py-2 px-2 text-right text-slate-400">0.0%</td>
+                    <td className="py-2 px-2 text-right font-semibold text-slate-900">{formatCurrency(sysVal)}</td>
+                  </tr>
+                );
+              })}
+              <tr className="text-white font-bold" style={{ backgroundColor: accent }}>
+                <td colSpan={2} className="py-2 px-2 text-[11px] uppercase tracking-wider">{t(`${KEY}.totalScheduledValues`)}</td>
+                <td className="py-2 px-2 text-right">{formatCurrency(totals.finalBidAmount)}</td>
+                <td className="py-2 px-2 text-right">{zero}</td>
+                <td className="py-2 px-2 text-right">{zero}</td>
+                <td className="py-2 px-2 text-right">0.0%</td>
+                <td className="py-2 px-2 text-right">{formatCurrency(totals.finalBidAmount)}</td>
+              </tr>
+            </tbody>
+          </table>
+        )}
+      </section>
+
+      <DocumentSignatureBlock
+        accent={accent}
+        heading={t(`${KEY}.certificationHeading`)}
+        intro={t(`${KEY}.certificationText`)}
+        showPrintedName
+        parties={[
+          { title: t('product.templates.signOff.submittedByContractor'), subtitle: branding?.companyName },
+          { title: t(`${KEY}.certifiedByOwner`), subtitle: currentProject?.client_name },
+        ]}
+      />
+
+      <DocumentFooter />
     </div>
   );
 }

@@ -1,7 +1,6 @@
 /**
  * Barrel export for all 17 Estimating, Engineering, and Proposal Document Templates
  */
-export { DocumentBrandingHeader, DocumentSignOff } from './DocumentHeaderSignoff';
 
 // --- Standard / Free Document Formats (3) ---
 export { default as StandardEstimateDocument } from './StandardEstimateDocument';

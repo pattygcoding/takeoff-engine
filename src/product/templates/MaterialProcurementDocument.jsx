@@ -1,65 +1,110 @@
 import React from 'react';
 import { formatCurrency, formatNumber } from '@/product/lib/calculations';
-import { DocumentBrandingHeader, DocumentSignOff } from './DocumentHeaderSignoff';
 import { useTranslation } from '@/core/components/context/I18nContext';
+import {
+  DocumentLetterhead,
+  DocumentSectionHeading,
+  DocumentSystemTable,
+  DocumentTotalRow,
+  DocumentSignatureBlock,
+  DocumentFillLine as FillLine,
+  DocumentFooter,
+} from './DocumentHeaderSignoff';
+
+const KEY = 'product.templates.materialProcurement';
+const ACCENT = '#1d4ed8';
 
 /**
  * 8. Material Purchase & Supply Order Layout
  */
 export default function MaterialProcurementDocument({ estimate, branding, currentProject }) {
-  const { totals, bySystem } = estimate;
+  const { totals = {}, bySystem = [] } = estimate;
   const { t } = useTranslation();
+  const accent = branding?.brandColor || ACCENT;
+  // Deterministic so the on-screen preview and the print copy show the same PO number.
+  const today = new Date();
+  const poId = [
+    String(today.getFullYear()).slice(-2),
+    String(today.getMonth() + 1).padStart(2, '0'),
+    String(today.getDate()).padStart(2, '0'),
+  ].join('') + (currentProject?.id ? `-${String(currentProject.id).slice(-4).toUpperCase()}` : '');
+
+  const columns = [
+    { header: t(`${KEY}.colItemDescription`), render: (it) => it.description },
+    { header: t(`${KEY}.colMaterialSpec`), muted: true, render: (it) => it.sizeSpec },
+    { header: t(`${KEY}.colOrderQty`), align: 'right', className: 'font-semibold text-slate-900', render: (it) => formatNumber(it.quantity, 0) },
+    { header: t(`${KEY}.colUnit`), muted: true, render: (it) => it.unit },
+    {
+      header: t(`${KEY}.colEstUnitMat`),
+      align: 'right',
+      render: (it) => formatCurrency(it.quantity > 0 ? it.materialCost / it.quantity : 0),
+    },
+    { header: t(`${KEY}.colTotalMaterial`), align: 'right', strong: true, render: (it) => formatCurrency(it.materialCost) },
+  ];
+
+  const systemMaterial = (sys) =>
+    sys.materialCost ?? sys.items.reduce((sum, it) => sum + (it.materialCost || 0), 0);
 
   return (
-    <div className="space-y-6">
-      <DocumentBrandingHeader branding={branding} title={t('product.templates.materialProcurement.title')} project={currentProject} />
+    <div className="text-slate-800 text-[11px] leading-relaxed tabular-nums">
+      <DocumentLetterhead branding={branding} title={t(`${KEY}.title`)} project={currentProject} accent={accent} />
 
-      <div className="p-3.5 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-800 flex justify-between items-center">
-        <span>
-          <strong>{t('product.templates.materialProcurement.vendorNote')}</strong> {t('product.templates.materialProcurement.vendorNoteText')}
-        </span>
-        <span className="font-mono font-bold bg-blue-100 px-2 py-0.5 rounded">
-          {t('product.templates.materialProcurement.poReqPrefix', { id: Date.now().toString().slice(-6) })}
-        </span>
-      </div>
+      <section className="mt-6 grid grid-cols-2 gap-6 break-inside-avoid">
+        <div className="border border-slate-300 p-3">
+          <p className="text-[10px] font-bold uppercase tracking-[0.15em] mb-1" style={{ color: accent }}>
+            {t(`${KEY}.vendorHeading`)}
+          </p>
+          <FillLine label={t(`${KEY}.vendorName`)} />
+          <FillLine label={t(`${KEY}.vendorContact`)} />
+          <FillLine label={t(`${KEY}.vendorPhoneEmail`)} />
+        </div>
+        <div className="border border-slate-300 p-3">
+          <p className="text-[10px] font-bold uppercase tracking-[0.15em] mb-1" style={{ color: accent }}>
+            {t(`${KEY}.shipToHeading`)}
+          </p>
+          <FillLine label={t(`${KEY}.poNumber`)} value={t(`${KEY}.poReqPrefix`, { id: poId })} />
+          <FillLine
+            label={t(`${KEY}.deliverTo`)}
+            value={[currentProject?.name, currentProject?.location].filter(Boolean).join(' — ')}
+          />
+          <FillLine label={t(`${KEY}.requiredBy`)} />
+        </div>
+      </section>
 
-      <div className="border border-slate-200 rounded-xl overflow-hidden">
-        <table className="w-full text-left text-xs">
-          <thead className="bg-blue-900 text-white">
-            <tr>
-              <th className="p-2.5">{t('product.templates.materialProcurement.colItemDescription')}</th>
-              <th className="p-2.5">{t('product.templates.materialProcurement.colMaterialSpec')}</th>
-              <th className="p-2.5 text-right">{t('product.templates.materialProcurement.colOrderQty')}</th>
-              <th className="p-2.5">{t('product.templates.materialProcurement.colUnit')}</th>
-              <th className="p-2.5 text-right">{t('product.templates.materialProcurement.colEstUnitMat')}</th>
-              <th className="p-2.5 text-right">{t('product.templates.materialProcurement.colTotalMaterial')}</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-200 font-mono">
-            {bySystem.flatMap((s) => s.items).map((it, idx) => {
-              const unitMat = it.quantity > 0 ? it.materialCost / it.quantity : 0;
-              return (
-                <tr key={idx} className="hover:bg-slate-50">
-                  <td className="p-2.5 font-sans font-medium text-slate-900">{it.description}</td>
-                  <td className="p-2.5 font-sans text-slate-500">{it.sizeSpec}</td>
-                  <td className="p-2.5 text-right font-bold">{formatNumber(it.quantity, 0)}</td>
-                  <td className="p-2.5 font-sans text-slate-600">{it.unit}</td>
-                  <td className="p-2.5 text-right">{formatCurrency(unitMat)}</td>
-                  <td className="p-2.5 text-right font-bold text-blue-900">{formatCurrency(it.materialCost)}</td>
-                </tr>
-              );
-            })}
+      <p className="mt-4 pl-3 border-l-2 text-slate-600 break-inside-avoid" style={{ borderColor: accent }}>
+        <strong className="text-slate-800">{t(`${KEY}.vendorNote`)}</strong> {t(`${KEY}.vendorNoteText`)}
+      </p>
+
+      <section className="mt-8">
+        <DocumentSectionHeading accent={accent}>{t(`${KEY}.orderHeading`)}</DocumentSectionHeading>
+        <DocumentSystemTable
+          bySystem={bySystem}
+          columns={columns}
+          accent={accent}
+          subtotal={(sys) => formatCurrency(systemMaterial(sys))}
+        />
+      </section>
+
+      <section className="mt-8 flex justify-end break-inside-avoid">
+        <table className="w-full max-w-[340px] border-collapse">
+          <tbody>
+            <DocumentTotalRow
+              label={t(`${KEY}.totalMaterialCommitment`)}
+              value={formatCurrency(totals.totalMaterialCost)}
+              accent={accent}
+            />
           </tbody>
-          <tfoot className="bg-slate-100 border-t border-slate-300 font-bold">
-            <tr>
-              <td colSpan={5} className="p-2.5 text-right text-slate-700">{t('product.templates.materialProcurement.totalMaterialCommitment')}</td>
-              <td className="p-2.5 text-right font-mono text-blue-800">{formatCurrency(totals.totalMaterialCost)}</td>
-            </tr>
-          </tfoot>
         </table>
-      </div>
+      </section>
 
-      <DocumentSignOff branding={branding} />
+      <DocumentSignatureBlock
+        accent={accent}
+        heading={t(`${KEY}.authorizationHeading`)}
+        showPrintedName
+        parties={[{ title: t(`${KEY}.requestedBy`), subtitle: branding?.companyName }, { title: t(`${KEY}.approvedBy`) }]}
+      />
+
+      <DocumentFooter />
     </div>
   );
 }
