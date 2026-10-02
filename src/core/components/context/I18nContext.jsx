@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useMemo, useCallback, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { getTranslation, i18n, SUPPORTED_LANGUAGES } from '@/core/lib/shared/i18n';
+import { getTranslation, i18n, isLanguageLoaded, loadLanguage, SUPPORTED_LANGUAGES } from '@/core/lib/shared/i18n';
 
 const I18nContext = createContext({
   t: (key, params) => key,
@@ -27,9 +27,23 @@ export function I18nProvider({ children, defaultLanguage = 'en' }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [language, setLanguageState] = useState(getInitialLanguage);
+  const [loadedLanguage, setLoadedLanguage] = useState(() => (isLanguageLoaded(language) ? language : 'en'));
 
   useEffect(() => {
     document.documentElement.lang = language;
+  }, [language]);
+
+  useEffect(() => {
+    let cancelled = false;
+    i18n.setLanguage(language);
+    loadLanguage(language)
+      .then(() => {
+        if (!cancelled) setLoadedLanguage(language);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
   }, [language]);
 
   // Synchronize URL search params whenever language changes or location changes
@@ -78,9 +92,9 @@ export function I18nProvider({ children, defaultLanguage = 'en' }) {
 
   const t = useCallback(
     (key, params) => {
-      return getTranslation(key, params, language);
+      return getTranslation(key, params, loadedLanguage);
     },
-    [language]
+    [loadedLanguage]
   );
 
   const value = useMemo(

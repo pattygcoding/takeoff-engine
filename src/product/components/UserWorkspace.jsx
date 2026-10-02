@@ -1,15 +1,16 @@
-import { useState } from 'react';
+import { lazy, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { Navigate, Route, Routes, useNavigate, useParams, Link } from 'react-router-dom';
 import Stepper from '@/product/components/Stepper';
 import UploadStep from '@/product/components/UploadStep';
 import ProjectDashboard from '@/product/components/ProjectDashboard';
-import ProjectWorkspace from '@/product/components/ProjectWorkspace';
-import AccountSettings from '@/core/components/auth/AccountSettings';
 import { useAuth } from '@/core/components/context/AuthContext';
 import { DEFAULT_RATES } from '@/product/lib/calculations';
 import { useLocalStorageState } from '@/core/lib/shared/useLocalStorageState';
 import { projectsApi } from '@/product/lib/projects';
+
+const ProjectWorkspace = lazy(() => import('@/product/components/ProjectWorkspace'));
+const AccountSettings = lazy(() => import('@/core/components/auth/AccountSettings'));
 
 export default function UserWorkspace() {
   const { username } = useParams();

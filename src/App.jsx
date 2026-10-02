@@ -1,23 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { lazy, Suspense, useState, useEffect, useRef } from 'react';
 import { Link, Navigate, Route, Routes, useNavigate, useLocation } from 'react-router-dom';
 import { Globe } from 'lucide-react';
 
 // Core Auth & User Components
-import AccountSettings from '@/core/components/auth/AccountSettings';
 import UserMenu from '@/core/components/auth/UserMenu';
-import LoginPage from '@/core/components/auth/LoginPage';
-import PlanOnboardingPage from '@/core/components/billing/PlanOnboardingPage';
-import AcceptInvitePage from '@/core/components/auth/AcceptInvitePage';
-
-// Core Pages & Portals
-import LandingPage from '@/core/components/landing/LandingPage';
-import AdminPortal from '@/core/components/admin/AdminPortal';
-import UsagePolicyPage from '@/core/components/legal/UsagePolicyPage';
-import LegalDisclaimerPage from '@/core/components/legal/LegalDisclaimerPage';
-import PrivacyPolicyPage from '@/core/components/legal/PrivacyPolicyPage';
-import RefundPolicyPage from '@/core/components/legal/RefundPolicyPage';
-import TermsOfServicePage from '@/core/components/legal/TermsOfServicePage';
-import AccessibilityPage from '@/core/components/legal/AccessibilityPage';
 
 // Core Billing & Shared Components
 import UpgradeModal from '@/core/components/billing/UpgradeModal';
@@ -34,6 +20,20 @@ import { ThemeProvider } from '@/core/components/context/ThemeContext';
 
 // Product Routes (Decoupled Domain Layer)
 import { renderProductRoutes } from '@/product/routes/ProductRoutes';
+
+// Route-level pages are code-split so each route only downloads what it renders.
+const AccountSettings = lazy(() => import('@/core/components/auth/AccountSettings'));
+const LoginPage = lazy(() => import('@/core/components/auth/LoginPage'));
+const PlanOnboardingPage = lazy(() => import('@/core/components/billing/PlanOnboardingPage'));
+const AcceptInvitePage = lazy(() => import('@/core/components/auth/AcceptInvitePage'));
+const LandingPage = lazy(() => import('@/core/components/landing/LandingPage'));
+const AdminPortal = lazy(() => import('@/core/components/admin/AdminPortal'));
+const UsagePolicyPage = lazy(() => import('@/core/components/legal/UsagePolicyPage'));
+const LegalDisclaimerPage = lazy(() => import('@/core/components/legal/LegalDisclaimerPage'));
+const PrivacyPolicyPage = lazy(() => import('@/core/components/legal/PrivacyPolicyPage'));
+const RefundPolicyPage = lazy(() => import('@/core/components/legal/RefundPolicyPage'));
+const TermsOfServicePage = lazy(() => import('@/core/components/legal/TermsOfServicePage'));
+const AccessibilityPage = lazy(() => import('@/core/components/legal/AccessibilityPage'));
 
 function AppContent() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -151,6 +151,13 @@ function AppContent() {
       )}
 
       <main id="main-content" tabIndex={-1}>
+      <Suspense
+        fallback={
+          <div className="min-h-[50vh] flex items-center justify-center">
+            <div role="status" className="text-slate-500 font-medium animate-pulse">{t('core.accessibility.loading')}</div>
+          </div>
+        }
+      >
       <Routes>
         {/* Core Auth & Onboarding Routes */}
         <Route
@@ -265,6 +272,7 @@ function AppContent() {
           }
         />
       </Routes>
+      </Suspense>
       </main>
 
       {/* Persistent Global Application Footer */}

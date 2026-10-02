@@ -1,16 +1,38 @@
 import enTranslations from '@/lang/en.json' with { type: 'json' };
-import esTranslations from '@/lang/es.json' with { type: 'json' };
-import frTranslations from '@/lang/fr.json' with { type: 'json' };
-import ptTranslations from '@/lang/pt.json' with { type: 'json' };
 
 const resources = {
   en: enTranslations,
-  es: esTranslations,
-  fr: frTranslations,
-  pt: ptTranslations,
 };
 
+const localeLoaders = {
+  es: () => import('@/lang/es.json'),
+  fr: () => import('@/lang/fr.json'),
+  pt: () => import('@/lang/pt.json'),
+};
+
+const pendingLoads = {};
+
 export const SUPPORTED_LANGUAGES = ['en', 'es', 'fr', 'pt'];
+
+export function isLanguageLoaded(lang) {
+  return Boolean(resources[lang]);
+}
+
+export function loadLanguage(lang) {
+  if (resources[lang]) return Promise.resolve(resources[lang]);
+  const loader = localeLoaders[lang];
+  if (!loader) return Promise.resolve(resources.en);
+  pendingLoads[lang] ??= loader()
+    .then((mod) => {
+      resources[lang] = mod.default || mod;
+      return resources[lang];
+    })
+    .catch((error) => {
+      delete pendingLoads[lang];
+      throw error;
+    });
+  return pendingLoads[lang];
+}
 
 let currentLanguage = 'en';
 
@@ -60,8 +82,9 @@ export const i18n = {
   t: getTranslation,
   getLanguage: () => currentLanguage,
   setLanguage: (lang) => {
-    if (resources[lang]) {
+    if (SUPPORTED_LANGUAGES.includes(lang)) {
       currentLanguage = lang;
+      loadLanguage(lang).catch(() => {});
     }
   },
   addResource: (lang, translations) => {

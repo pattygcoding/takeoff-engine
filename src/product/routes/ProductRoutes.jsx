@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { lazy } from 'react';
 import { Route, Navigate } from 'react-router-dom';
-import UserWorkspace from '@/product/components/UserWorkspace';
-import ClientProposalView from '@/product/components/ClientProposalView';
-import ClientGuidePage from '@/product/components/ClientGuidePage';
+
+const UserWorkspace = lazy(() => import('@/product/components/UserWorkspace'));
+const ClientProposalView = lazy(() => import('@/product/components/ClientProposalView'));
+const ClientGuidePage = lazy(() => import('@/product/components/ClientGuidePage'));
 
 export function renderProductRoutes(isAuthenticated) {
   return [
