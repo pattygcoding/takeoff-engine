@@ -15,6 +15,8 @@ export default defineConfig({
     },
   },
   plugins: [react(), tailwindcss()],
+  // Playwright runs must not hot-reload mid-test: HMR re-instantiates context modules and crashes open pages.
+  server: process.env.PLAYWRIGHT_TEST_SERVER ? { watch: null, hmr: false } : undefined,
   build: {
     chunkSizeWarningLimit: 600,
     rollupOptions: {

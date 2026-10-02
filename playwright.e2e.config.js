@@ -13,5 +13,6 @@ export default defineConfig({
     command: 'npm run dev:local -- --host 127.0.0.1 --port 4176 --strictPort',
     url: 'http://127.0.0.1:4176',
     reuseExistingServer: false,
+    env: { PLAYWRIGHT_TEST_SERVER: '1' },
   },
 });
