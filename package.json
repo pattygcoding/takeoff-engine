@@ -7,7 +7,7 @@
     "#*": "./src/*"
   },
   "scripts": {
-    "dev": "infisical run -- vite",
+    "dev": "infisical run --env=dev -- vite",
     "dev:local": "vite",
     "build": "infisical run --env=prod -- vite build",
     "build:local": "vite build",

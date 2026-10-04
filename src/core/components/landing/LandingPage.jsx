@@ -6,6 +6,7 @@ import { useTheme } from '@/core/components/context/ThemeContext';
 import LanguageSelector from '@/core/components/shared/LanguageSelector';
 import SeoHead from '@/core/components/shared/SeoHead';
 import AccessibleDialog from '@/core/components/shared/AccessibleDialog';
+import InfisicalEnvironmentBadge from '@/core/components/landing/InfisicalEnvironmentBadge';
 import { ArrowRight, ArrowDown, Sun, Moon } from 'lucide-react';
 import {
   STARTER_MONTHLY_PRICE,
@@ -671,7 +672,10 @@ export default function LandingPage() {
           </div>
           <div className="mt-14 pt-6 border-t border-[var(--lp-inverse-rule)] flex flex-wrap justify-between gap-5 text-[12.5px]">
             <span>{t('core.footer.copyright', { year: new Date().getFullYear() })}</span>
-            <span>Powered by Takeoff Engine · Merchant of Record: Paddle.com</span>
+            <span className="inline-flex items-center gap-2">
+              <InfisicalEnvironmentBadge />
+              <span>Powered by Takeoff Engine · Merchant of Record: Paddle.com</span>
+            </span>
           </div>
         </div>
       </footer>

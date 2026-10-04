@@ -750,7 +750,12 @@
       "contact": "Contact & Support",
       "productCol": "Product",
       "legalCol": "Legal & Compliance",
-      "contactCol": "Contact"
+      "contactCol": "Contact",
+      "devInfisicalEnvironment": "B",
+      "prodInfisicalEnvironment": "A",
+      "devInfisicalEnvironmentDescription": "Dev Infisical values are in use",
+      "prodInfisicalEnvironmentDescription": "Prod Infisical values are in use",
+      "unknownInfisicalEnvironmentDescription": "Infisical environment could not be identified"
     },
     "privacyPolicy": {
       "badge": "Privacy & Data Protection",
