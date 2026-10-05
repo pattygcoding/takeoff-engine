@@ -464,7 +464,7 @@ export default function LoginPage({ initialView = 'login' }) {
                     {t('core.landing.pricing.enterprise.yearly', { yearly: ENTERPRISE_YEARLY_PRICE })}
                   </div>
                   <p className="text-xs text-slate-300 mt-2 leading-relaxed min-h-[34px]">
-                    {t('core.landing.pricing.enterprise.description', 'Multi-seat collaboration for growing teams.')}
+                    {t('core.landing.pricing.enterprise.description', 'Extra seats and team member management for growing companies.')}
                   </p>
 
                   <ul className="mt-6 space-y-2.5 text-xs text-slate-300">

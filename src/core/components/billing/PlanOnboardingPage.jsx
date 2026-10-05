@@ -270,14 +270,14 @@ export default function PlanOnboardingPage() {
                 {isAnnual ? 'billed annually • plus tax' : t('core.landing.pricing.enterprise.yearly', { yearly: ENTERPRISE_YEARLY_PRICE })}
               </div>
               <p className="text-xs text-slate-300 mt-2 leading-relaxed min-h-[34px]">
-                {t('core.landing.pricing.enterprise.description', 'Multi-seat collaboration for growing teams.')}
+                {t('core.landing.pricing.enterprise.description', 'Extra seats and team member management for growing companies.')}
               </p>
 
               <ul className="mt-6 space-y-2.5 text-xs text-slate-300">
                 <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400 shrink-0" /> <strong>{t('core.landing.pricing.enterprise.f1', { seats: ENTERPRISE_PLAN_SEATS })}</strong></li>
                 <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400 shrink-0" /> <strong>{t('core.landing.pricing.enterprise.f2', { price: isAnnual ? EXTRA_SEAT_YEARLY_PRICE : EXTRA_SEAT_MONTHLY_PRICE })}</strong></li>
                 <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400 shrink-0" /> {t('core.landing.pricing.enterprise.f3', 'All 17+ Advanced PDF Formats')}</li>
-                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400 shrink-0" /> {t('core.landing.pricing.enterprise.f4', 'Team Workspaces & Shared Libraries')}</li>
+                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400 shrink-0" /> {t('core.landing.pricing.enterprise.f4', 'Team Workspaces & Member Roles')}</li>
                 <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400 shrink-0" /> {t('core.landing.pricing.enterprise.f5', 'All Pro features + priority support')}</li>
               </ul>
             </div>

@@ -195,11 +195,11 @@
           "price": "${{price}}",
           "cadence": "/ mo",
           "yearly": "or ${{yearly}}/yr • plus tax",
-          "description": "Multi-seat collaboration for growing teams.",
+          "description": "Extra seats and team member management for growing companies.",
           "f1": "{{seats}} Base Team Seats Included",
           "f2": "+${{price}}/mo per extra seat (+ tax)",
           "f3": "All 17+ Advanced PDF Formats",
-          "f4": "Team Workspaces & Shared Libraries",
+          "f4": "Team Workspaces & Member Roles",
           "f5": "All Pro features + priority support",
           "cta": "Choose Enterprise"
         }
@@ -241,7 +241,7 @@
       "title": "Team Workspace & Seat Management",
       "subtitle": "Invite team members, manage roles, and allocate seats.",
       "loading": "Loading workspace data...",
-      "collaborate": "Collaborate with junior estimators, project managers, and shared rate libraries.",
+      "collaborate": "Workspaces currently handle invitations, roles, and seats. Projects and rate libraries are not shared between team members yet.",
       "requiresEnterprise": "Team workspaces require the Pro (${{price}}/mo + tax) or Enterprise plan.",
       "yourOrganizations": "Your Organizations",
       "noOrganizations": "You don't have any organizations yet.",
@@ -307,7 +307,7 @@
       "roleLabel": "Select Role",
       "sendInviteButton": "Send Invite",
       "inviting": "Inviting...",
-      "noWorkspaces": "No team workspace created yet. Create one above to begin collaborating.",
+      "noWorkspaces": "No team workspace created yet. Create one above to start inviting team members.",
       "seatModalTitle": "Adjust Team Seat Capacity",
       "seatModalDescription": "Scale your team capacity. Additional seats are billed at <strong>+${{price}}/mo each (+ tax)</strong> and prorated immediately on your subscription.",
       "basePlanSeatsLabel": "Base Plan Seats ({{tier}})",
@@ -319,7 +319,7 @@
       "saveUpdateBillingButton": "Save & Update Billing",
       "deleteOrgButton": "Delete Organization",
       "deleteOrgTitle": "Delete Organization Workspace?",
-      "deleteOrgMessage": "Are you sure you want to delete \"{{name}}\"? This will remove all associated organization rate libraries and workspace associations. This action cannot be undone.",
+      "deleteOrgMessage": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
       "deleteOrgConfirmButton": "Delete Workspace",
       "deleteOrgSuccess": "Organization \"{{name}}\" was deleted successfully.",
       "deleteOrgErrorTitle": "Delete Error",
@@ -354,7 +354,7 @@
       "proDescription": "Full 17+ PDF templates, branding & portal.",
       "enterpriseTier": "Enterprise",
       "enterpriseTaxAndSeats": "plus tax • {{seats}} Seats incl.",
-      "enterpriseDescription": "Full PDF suite + team collaboration.",
+      "enterpriseDescription": "Full PDF suite + extra team seats.",
       "popularBadge": "Popular",
       "multiSeatBadge": "Multi-Seat",
       "teamSeatsLabel": "Team Seats",
@@ -518,7 +518,7 @@
       "confirmCancellation": "Confirm Cancellation",
       "deleteConfirmTitle": "Are you absolutely sure?",
       "deleteConfirmMessage": "This will permanently delete your user account @{{username}} and all associated cloud estimates and projects.",
-      "deleteRetentionNotice": "You will be removed from any team workspaces you belong to; work saved inside a team workspace stays with that team. Proposals your clients have signed are kept as legal records. If you own a workspace that other people are still using, remove them first.",
+      "deleteRetentionNotice": "You will be removed from any team workspaces you belong to. Proposals your clients have signed are kept as legal records. If you own a workspace that other people are still using, remove them first.",
       "typeUsernameToConfirm": "Type your username {{username}} to confirm:",
       "cancelButton": "Cancel",
       "deletingAccount": "Deleting Account...",
@@ -915,7 +915,7 @@
       },
       "login": {
         "title": "Sign In to Takeoff Engine | Contractor & Estimator Portal",
-        "description": "Sign in to manage your construction takeoffs, project estimates, rate libraries, and team proposals."
+        "description": "Sign in to manage your construction takeoffs, project estimates, rate libraries, and client proposals."
       },
       "register": {
         "title": "Create Your Account | Takeoff Engine Estimating",
