@@ -1,5 +1,12 @@
 {
   "core": {
+    "catalogPricing": {
+      "loading": "Loading pricing...",
+      "unavailableShort": "Pricing unavailable",
+      "unavailable": "Pricing is temporarily unavailable. Please try again before purchasing or changing paid seats.",
+      "retry": "Retry pricing",
+      "catalogNotice": "Base catalog prices in {{currency}}. Checkout confirms applicable taxes, discounts, and prorations."
+    },
     "accessibility": {
       "skipToContent": "Skip to main content",
       "toggleMenu": "Toggle navigation menu",

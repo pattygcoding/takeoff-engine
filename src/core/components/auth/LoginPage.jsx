@@ -4,18 +4,11 @@ import { useAuth } from '@/core/components/context/AuthContext';
 import { authApi } from '@/core/lib/auth/auth';
 import { billingApi } from '@/core/lib/billing/billing';
 import { openPaddleCheckout } from '@/core/lib/billing/paddle';
-import { useTranslation } from '@/core/components/context/I18nContext';
+import { PricingStatus, usePricingDisplay } from '@/core/components/context/PricingContext';
 import SeoHead from '@/core/components/shared/SeoHead';
 import { ArrowLeft, AlertTriangle, PartyPopper, Check, ArrowRight } from 'lucide-react';
 import { isValidPassword, isValidPhoneNumber, PASSWORD_MIN_LENGTH } from '@/core/lib/shared/validators';
 import {
-  STARTER_MONTHLY_PRICE,
-  PRO_MONTHLY_PRICE,
-  ENTERPRISE_MONTHLY_PRICE,
-  STARTER_YEARLY_PRICE,
-  PRO_YEARLY_PRICE,
-  ENTERPRISE_YEARLY_PRICE,
-  EXTRA_SEAT_MONTHLY_PRICE,
   STARTER_PLAN_SEATS,
   PRO_PLAN_SEATS,
   ENTERPRISE_PLAN_SEATS,
@@ -24,7 +17,11 @@ import {
 
 export default function LoginPage({ initialView = 'login' }) {
   const { login, register, refreshProfile, user } = useAuth();
-  const { t } = useTranslation();
+  const { t, prices, ready } = usePricingDisplay();
+  const {
+    STARTER_MONTHLY_PRICE, PRO_MONTHLY_PRICE, ENTERPRISE_MONTHLY_PRICE,
+    STARTER_YEARLY_PRICE, PRO_YEARLY_PRICE, ENTERPRISE_YEARLY_PRICE, EXTRA_SEAT_MONTHLY_PRICE,
+  } = prices;
   const navigate = useNavigate();
   const [view, setView] = useState(initialView); // 'login' | 'register' | 'forgot' | 'plan-select'
 
@@ -315,6 +312,7 @@ export default function LoginPage({ initialView = 'login' }) {
         {/* POST-REGISTRATION PLAN SELECTION VIEW */}
         {view === 'plan-select' && (
           <div>
+            <PricingStatus />
             <div className="text-center mb-8 max-w-2xl mx-auto">
               <span className="inline-block px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-blue-500/20 text-blue-300 border border-blue-500/30 mb-3 inline-flex items-center gap-1.5">
                 Account Created Successfully <PartyPopper className="w-3.5 h-3.5" />
@@ -393,7 +391,7 @@ export default function LoginPage({ initialView = 'login' }) {
 
                 <button
                   type="button"
-                  disabled={checkoutLoadingPlan === 'starter'}
+                  disabled={!ready || checkoutLoadingPlan === 'starter'}
                   onClick={() => handleSelectPaidPlan('starter')}
                   className="mt-6 w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition cursor-pointer disabled:opacity-50"
                 >
@@ -433,7 +431,7 @@ export default function LoginPage({ initialView = 'login' }) {
 
                 <button
                   type="button"
-                  disabled={checkoutLoadingPlan === 'pro'}
+                  disabled={!ready || checkoutLoadingPlan === 'pro'}
                   onClick={() => handleSelectPaidPlan('pro')}
                   className="mt-6 w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-blue-600/30 transition cursor-pointer disabled:opacity-50"
                 >
@@ -469,7 +467,7 @@ export default function LoginPage({ initialView = 'login' }) {
 
                 <button
                   type="button"
-                  disabled={checkoutLoadingPlan === 'enterprise'}
+                  disabled={!ready || checkoutLoadingPlan === 'enterprise'}
                   onClick={() => handleSelectPaidPlan('enterprise')}
                   className="mt-6 w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold rounded-xl shadow-lg shadow-amber-500/20 transition cursor-pointer disabled:opacity-50"
                 >

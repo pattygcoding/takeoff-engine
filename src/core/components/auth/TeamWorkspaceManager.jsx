@@ -4,17 +4,13 @@ import { organizationsApi } from '@/core/lib/auth/organizations';
 import { billingApi } from '@/core/lib/billing/billing';
 import { useAuth } from '@/core/components/context/AuthContext';
 import { useModal } from '@/core/components/context/ModalContext';
-import { useTranslation } from '@/core/components/context/I18nContext';
-import {
-  ENTERPRISE_MONTHLY_PRICE,
-  EXTRA_SEAT_MONTHLY_PRICE,
-  ENTERPRISE_PLAN_SEATS,
-} from '@/core/constants';
+import { PricingStatus, usePricingDisplay } from '@/core/components/context/PricingContext';
 
 export default function TeamWorkspaceManager() {
   const { user, refreshProfile } = useAuth();
   const { showAlert, showConfirm } = useModal();
-  const { t } = useTranslation();
+  const { t, prices, ready } = usePricingDisplay();
+  const { ENTERPRISE_MONTHLY_PRICE, EXTRA_SEAT_MONTHLY_PRICE } = prices;
   const [organizations, setOrganizations] = useState([]);
   const [activeOrg, setActiveOrg] = useState(null);
   const [members, setMembers] = useState([]);
@@ -296,6 +292,7 @@ export default function TeamWorkspaceManager() {
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-6 text-slate-900 dark:text-slate-100">
+      <PricingStatus />
       <div className="flex items-center justify-between flex-wrap gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
         <div>
           <div className="flex items-center gap-2">
@@ -388,6 +385,7 @@ export default function TeamWorkspaceManager() {
               <button
                 type="button"
                 onClick={handleOpenSeatModal}
+                disabled={!ready}
                 className="px-4 py-2 bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 text-white text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
               >
                 <span className="flex items-center gap-1.5"><Settings className="w-3.5 h-3.5" /> {t('core.teamWorkspaceManager.manageSeatButton')}</span>
@@ -577,7 +575,7 @@ export default function TeamWorkspaceManager() {
             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">{t('core.teamWorkspaceManager.seatModalTitle')}</h3>
             <p
               className="text-xs text-slate-500 dark:text-slate-400 mb-4"
-              dangerouslySetInnerHTML={{ __html: t('core.teamWorkspaceManager.seatModalDescription') }}
+              dangerouslySetInnerHTML={{ __html: t('core.teamWorkspaceManager.seatModalDescription', { price: EXTRA_SEAT_MONTHLY_PRICE }) }}
             />
 
             <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl p-4 mb-4 space-y-3">
@@ -586,7 +584,7 @@ export default function TeamWorkspaceManager() {
                 <span className="font-bold text-slate-900 dark:text-white">{baseSeats} {t('core.teamWorkspaceManager.seats')}</span>
               </div>
               <div className="flex justify-between items-center text-xs">
-                <span className="text-slate-600 dark:text-slate-400">{t('core.teamWorkspaceManager.additionalSeatsLabel')}:</span>
+                <span className="text-slate-600 dark:text-slate-400">{t('core.teamWorkspaceManager.additionalSeatsLabel', { price: EXTRA_SEAT_MONTHLY_PRICE })}:</span>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
@@ -623,7 +621,7 @@ export default function TeamWorkspaceManager() {
               <button
                 type="button"
                 onClick={handleSaveSeats}
-                disabled={updatingSeats}
+                disabled={!ready || updatingSeats}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs transition disabled:opacity-50 cursor-pointer"
               >
                 {updatingSeats ? t('core.teamWorkspaceManager.savingSeats') : t('core.teamWorkspaceManager.saveUpdateBillingButton')}

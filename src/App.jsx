@@ -17,6 +17,7 @@ import { AuthProvider, useAuth } from '@/core/components/context/AuthContext';
 import { ModalProvider } from '@/core/components/context/ModalContext';
 import { I18nProvider, useTranslation } from '@/core/components/context/I18nContext';
 import { ThemeProvider } from '@/core/components/context/ThemeContext';
+import { PricingProvider } from '@/core/components/context/PricingContext';
 
 // Product Routes (Decoupled Domain Layer)
 import { renderProductRoutes } from '@/product/routes/ProductRoutes';
@@ -292,11 +293,13 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider>
         <I18nProvider>
+          <PricingProvider>
           <AuthProvider>
             <ModalProvider>
               <AppContent />
             </ModalProvider>
           </AuthProvider>
+          </PricingProvider>
         </I18nProvider>
       </ThemeProvider>
     </ErrorBoundary>

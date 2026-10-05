@@ -79,6 +79,9 @@ npm run build
 
 The optimized static build is generated in the `dist/` directory.
 
+For Paddle catalog pricing and frontend/backend configuration ownership,
+see the [backend environment variable reference](../takeoff-engine-backend/docs/environment_variables_reference.md).
+
 ### 4. Locale & Translation Generation
 Generate multilingual locale translation files (`es.json`, `fr.json`, `pt.json`) from `en.json`:
 ```powershell
@@ -139,4 +142,3 @@ Any future `git push` to your main branch will automatically trigger a new deplo
 3. Click **Add new site > Import an existing project**, then select your repository.
 4. Set the build command to `npm run build` and the publish directory to `dist`.
 5. Click **Deploy site**. Netlify will give you a live URL once the build completes.
-

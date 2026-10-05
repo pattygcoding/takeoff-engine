@@ -3,17 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/core/components/context/AuthContext';
 import { billingApi } from '@/core/lib/billing/billing';
 import { openPaddleCheckout } from '@/core/lib/billing/paddle';
-import { useTranslation } from '@/core/components/context/I18nContext';
+import { PricingStatus, usePricingDisplay } from '@/core/components/context/PricingContext';
 import { Check, ArrowRight } from 'lucide-react';
 import {
-  STARTER_MONTHLY_PRICE,
-  PRO_MONTHLY_PRICE,
-  ENTERPRISE_MONTHLY_PRICE,
-  STARTER_YEARLY_PRICE,
-  PRO_YEARLY_PRICE,
-  ENTERPRISE_YEARLY_PRICE,
-  EXTRA_SEAT_MONTHLY_PRICE,
-  EXTRA_SEAT_YEARLY_PRICE,
   STARTER_PLAN_SEATS,
   PRO_PLAN_SEATS,
   ENTERPRISE_PLAN_SEATS,
@@ -21,7 +13,12 @@ import {
 
 export default function PlanOnboardingPage() {
   const { user, refreshProfile } = useAuth();
-  const { t } = useTranslation();
+  const { t, prices, ready, formatPrice } = usePricingDisplay();
+  const {
+    STARTER_MONTHLY_PRICE, PRO_MONTHLY_PRICE, ENTERPRISE_MONTHLY_PRICE,
+    STARTER_YEARLY_PRICE, PRO_YEARLY_PRICE, ENTERPRISE_YEARLY_PRICE,
+    EXTRA_SEAT_MONTHLY_PRICE, EXTRA_SEAT_YEARLY_PRICE,
+  } = prices;
   const navigate = useNavigate();
   const [billingInterval, setBillingInterval] = useState('monthly'); // 'monthly' | 'annually'
   const [checkoutLoadingPlan, setCheckoutLoadingPlan] = useState('');
@@ -94,6 +91,7 @@ export default function PlanOnboardingPage() {
   return (
     <div className="min-h-[calc(100vh-80px)] bg-slate-950 text-white flex flex-col items-center justify-center px-4 py-12">
       <div className="max-w-6xl w-full">
+        <PricingStatus />
         {error && (
           <div className="mb-6 max-w-md mx-auto p-3.5 rounded-xl bg-red-900/40 border border-red-500/50 text-sm text-red-200 text-center">
             {error}
@@ -150,7 +148,7 @@ export default function PlanOnboardingPage() {
               </span>
               <div className="mt-4 flex items-baseline gap-1">
                 <span className="text-3xl font-black text-white">
-                  ${isAnnual ? STARTER_YEARLY_PRICE : STARTER_MONTHLY_PRICE}
+                  {formatPrice(isAnnual ? STARTER_YEARLY_PRICE : STARTER_MONTHLY_PRICE)}
                 </span>
                 <span className="text-xs text-slate-400">
                   {isAnnual ? '/ yr' : '/ mo'}
@@ -184,7 +182,7 @@ export default function PlanOnboardingPage() {
             ) : (
               <button
                 type="button"
-                disabled={checkoutLoadingPlan === 'starter'}
+                disabled={!ready || checkoutLoadingPlan === 'starter'}
                 onClick={() => handleSelectPaidPlan('starter')}
                 className="mt-6 w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition cursor-pointer disabled:opacity-50"
               >
@@ -205,7 +203,7 @@ export default function PlanOnboardingPage() {
               </span>
               <div className="mt-4 flex items-baseline gap-1">
                 <span className="text-3xl font-black text-white">
-                  ${isAnnual ? PRO_YEARLY_PRICE : PRO_MONTHLY_PRICE}
+                  {formatPrice(isAnnual ? PRO_YEARLY_PRICE : PRO_MONTHLY_PRICE)}
                 </span>
                 <span className="text-xs text-slate-400">
                   {isAnnual ? '/ yr' : '/ mo'}
@@ -238,7 +236,7 @@ export default function PlanOnboardingPage() {
             ) : (
               <button
                 type="button"
-                disabled={checkoutLoadingPlan === 'pro'}
+                disabled={!ready || checkoutLoadingPlan === 'pro'}
                 onClick={() => handleSelectPaidPlan('pro')}
                 className="mt-6 w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-blue-600/30 transition cursor-pointer disabled:opacity-50"
               >
@@ -262,7 +260,7 @@ export default function PlanOnboardingPage() {
               </div>
               <div className="mt-4 flex items-baseline gap-1">
                 <span className="text-3xl font-black text-white">
-                  ${isAnnual ? ENTERPRISE_YEARLY_PRICE : ENTERPRISE_MONTHLY_PRICE}
+                  {formatPrice(isAnnual ? ENTERPRISE_YEARLY_PRICE : ENTERPRISE_MONTHLY_PRICE)}
                 </span>
                 <span className="text-xs text-slate-400">
                   {isAnnual ? '/ yr' : '/ mo'}
@@ -295,7 +293,7 @@ export default function PlanOnboardingPage() {
             ) : (
               <button
                 type="button"
-                disabled={checkoutLoadingPlan === 'enterprise'}
+                disabled={!ready || checkoutLoadingPlan === 'enterprise'}
                 onClick={() => handleSelectPaidPlan('enterprise')}
                 className="mt-6 w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold rounded-xl shadow-lg shadow-amber-500/20 transition cursor-pointer disabled:opacity-50"
               >

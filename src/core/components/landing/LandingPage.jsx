@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { formatCurrency, formatNumber } from '@/core/lib/shared/formatting';
-import { useTranslation } from '@/core/components/context/I18nContext';
+import { PricingStatus, usePricingDisplay } from '@/core/components/context/PricingContext';
 import { useTheme } from '@/core/components/context/ThemeContext';
 import LanguageSelector from '@/core/components/shared/LanguageSelector';
 import SeoHead from '@/core/components/shared/SeoHead';
@@ -9,13 +9,6 @@ import AccessibleDialog from '@/core/components/shared/AccessibleDialog';
 import InfisicalEnvironmentBadge from '@/core/components/landing/InfisicalEnvironmentBadge';
 import { ArrowRight, ArrowDown, Sun, Moon } from 'lucide-react';
 import {
-  STARTER_MONTHLY_PRICE,
-  PRO_MONTHLY_PRICE,
-  ENTERPRISE_MONTHLY_PRICE,
-  STARTER_YEARLY_PRICE,
-  PRO_YEARLY_PRICE,
-  ENTERPRISE_YEARLY_PRICE,
-  EXTRA_SEAT_MONTHLY_PRICE,
   STARTER_PLAN_SEATS,
   PRO_PLAN_SEATS,
   ENTERPRISE_PLAN_SEATS,
@@ -91,7 +84,11 @@ function CalcField({ id, label, value, onChange, step, min = 0 }) {
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, prices, ready } = usePricingDisplay();
+  const {
+    STARTER_MONTHLY_PRICE, PRO_MONTHLY_PRICE, ENTERPRISE_MONTHLY_PRICE,
+    STARTER_YEARLY_PRICE, PRO_YEARLY_PRICE, ENTERPRISE_YEARLY_PRICE, EXTRA_SEAT_MONTHLY_PRICE,
+  } = prices;
   const { isDark, toggleTheme } = useTheme();
   const [showDevDisclaimer, setShowDevDisclaimer] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -521,7 +518,7 @@ export default function LandingPage() {
                 <tr>
                   <td className="px-[22px] py-5 border-b border-[var(--lp-rule)] font-bold w-[24%]">{t('core.landing.comparison.row1Label')}</td>
                   <td className="px-[22px] py-5 border-b border-[var(--lp-rule)] bg-[var(--lp-tint)] font-semibold border-x-2 border-x-[var(--lp-ink)]">
-                    {t('core.landing.comparison.row1Te', { price: Math.floor(STARTER_MONTHLY_PRICE) })}
+                    {t('core.landing.comparison.row1Te', { price: STARTER_MONTHLY_PRICE })}
                   </td>
                   <td className="px-[22px] py-5 border-b border-[var(--lp-rule)] text-[var(--lp-muted)]">{t('core.landing.comparison.row1Excel')}</td>
                   <td className="px-[22px] py-5 border-b border-[var(--lp-rule)] text-[var(--lp-danger)] font-semibold">{t('core.landing.comparison.row1Ent')}</td>
@@ -564,6 +561,7 @@ export default function LandingPage() {
             title={t('core.landing.pricing.title')}
             description={t('core.landing.pricing.subtitle')}
           />
+          <PricingStatus />
 
           <div className="border-2 border-[var(--lp-ink)] bg-[var(--lp-card)]">
             <div className="hidden lg:grid grid-cols-[1.15fr_.85fr_1.9fr_auto] gap-9 px-[30px] py-[13px] bg-[var(--lp-paper)] border-b-2 border-[var(--lp-ink)] text-xs font-bold tracking-[0.06em] uppercase text-[var(--lp-muted)]">
@@ -613,6 +611,7 @@ export default function LandingPage() {
                 </ul>
                 <button
                   type="button"
+                  disabled={plan.key !== 'freeTrial' && !ready}
                   onClick={() => navigate('/register')}
                   className={`lp-btn sm:col-span-2 lg:col-span-1 lg:min-w-[170px] ${plan.highlight ? '' : 'lp-btn-outline'}`}
                 >

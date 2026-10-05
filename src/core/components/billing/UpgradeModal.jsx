@@ -4,17 +4,9 @@ import { billingApi } from '@/core/lib/billing/billing';
 import { openPaddleCheckout } from '@/core/lib/billing/paddle';
 import { useAuth } from '@/core/components/context/AuthContext';
 import { useModal } from '@/core/components/context/ModalContext';
-import { useTranslation } from '@/core/components/context/I18nContext';
+import { PricingStatus, usePricingDisplay } from '@/core/components/context/PricingContext';
 import { X, Check, FileText, Info } from 'lucide-react';
 import {
-  STARTER_MONTHLY_PRICE,
-  PRO_MONTHLY_PRICE,
-  ENTERPRISE_MONTHLY_PRICE,
-  STARTER_YEARLY_PRICE,
-  PRO_YEARLY_PRICE,
-  ENTERPRISE_YEARLY_PRICE,
-  EXTRA_SEAT_MONTHLY_PRICE,
-  EXTRA_SEAT_YEARLY_PRICE,
   STARTER_PLAN_SEATS,
   PRO_PLAN_SEATS,
   ENTERPRISE_PLAN_SEATS,
@@ -23,7 +15,12 @@ import {
 export default function UpgradeModal({ isOpen, onClose }) {
   const { user, logout, refreshProfile } = useAuth();
   const { showAlert, showConfirm } = useModal();
-  const { t } = useTranslation();
+  const { t, prices, ready, formatPrice } = usePricingDisplay();
+  const {
+    STARTER_MONTHLY_PRICE, PRO_MONTHLY_PRICE, ENTERPRISE_MONTHLY_PRICE,
+    STARTER_YEARLY_PRICE, PRO_YEARLY_PRICE, ENTERPRISE_YEARLY_PRICE,
+    EXTRA_SEAT_MONTHLY_PRICE, EXTRA_SEAT_YEARLY_PRICE,
+  } = prices;
   const navigate = useNavigate();
   const [promoCodeInput, setPromoCodeInput] = useState('');
   const [promoLoading, setPromoLoading] = useState(false);
@@ -73,6 +70,14 @@ export default function UpgradeModal({ isOpen, onClose }) {
   }
 
   const handleLaunchCheckout = async (selectedPlan) => {
+    if (!ready) {
+      await showAlert({
+        title: t('core.upgradeModal.checkoutErrorTitle'),
+        message: t('core.catalogPricing.unavailable'),
+        variant: 'error',
+      });
+      return;
+    }
     if (selectedPlan === currentTier && user?.subscription_status === 'active') {
       return;
     }
@@ -259,6 +264,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
         </div>
 
         {/* Plan Switcher - 3 Tiers */}
+        <PricingStatus />
         <div className="grid grid-cols-3 gap-2.5 mb-4">
           <button
             type="button"
@@ -279,7 +285,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
             )}
             <div className="text-xs font-bold uppercase tracking-wider text-slate-600 mb-0.5">{t('core.upgradeModal.starterTier')}</div>
             <div className="text-sm font-extrabold text-slate-900">
-              ${isAnnual ? STARTER_YEARLY_PRICE : STARTER_MONTHLY_PRICE}
+              {formatPrice(isAnnual ? STARTER_YEARLY_PRICE : STARTER_MONTHLY_PRICE)}
               <span className="text-[10px] font-normal text-slate-500">{isAnnual ? '/yr' : '/mo'}</span>
             </div>
             <div className="text-[9px] text-slate-400 font-medium">{t('core.upgradeModal.starterTaxAndSeats', { seats: STARTER_PLAN_SEATS })}</div>
@@ -306,7 +312,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
             )}
             <div className="text-xs font-bold uppercase tracking-wider text-blue-700 mb-0.5">{t('core.upgradeModal.proTier')}</div>
             <div className="text-sm font-extrabold text-slate-900">
-              ${isAnnual ? PRO_YEARLY_PRICE : PRO_MONTHLY_PRICE}
+              {formatPrice(isAnnual ? PRO_YEARLY_PRICE : PRO_MONTHLY_PRICE)}
               <span className="text-[10px] font-normal text-slate-500">{isAnnual ? '/yr' : '/mo'}</span>
             </div>
             <div className="text-[9px] text-blue-600 font-bold">{t('core.upgradeModal.proTaxAndSeats', { seats: PRO_PLAN_SEATS })}</div>
@@ -333,7 +339,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
             )}
             <div className="text-xs font-bold uppercase tracking-wider text-amber-700 mb-0.5">{t('core.upgradeModal.enterpriseTier')}</div>
             <div className="text-sm font-extrabold text-slate-900">
-              ${isAnnual ? ENTERPRISE_YEARLY_PRICE : ENTERPRISE_MONTHLY_PRICE}
+              {formatPrice(isAnnual ? ENTERPRISE_YEARLY_PRICE : ENTERPRISE_MONTHLY_PRICE)}
               <span className="text-[10px] font-normal text-slate-500">{isAnnual ? '/yr' : '/mo'}</span>
             </div>
             <div className="text-[9px] text-amber-700 font-bold">{t('core.upgradeModal.enterpriseTaxAndSeats', { seats: ENTERPRISE_PLAN_SEATS })}</div>
@@ -386,7 +392,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
                 {activePlan === 'enterprise' && t('core.upgradeModal.enterprisePlanLabel', { seats: totalSeats })}
               </span>
               <h3 className="text-xl font-bold text-white flex items-baseline gap-1.5">
-                ${activeTotalPrice.toFixed(2)} {isAnnual ? '/ year' : '/ month'}
+                {formatPrice(activeTotalPrice)} {isAnnual ? '/ year' : '/ month'}
                 <span className="text-[11px] font-normal text-slate-400">({t('core.upgradeModal.plusTax')})</span>
               </h3>
             </div>
@@ -461,7 +467,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
 
           <button
             onClick={() => handleLaunchCheckout(activePlan)}
-            disabled={checkoutLoading || isCurrentPlanSelected}
+            disabled={!ready || checkoutLoading || isCurrentPlanSelected}
             className={`w-full py-2.5 px-4 rounded-lg font-semibold text-sm shadow-md transition-all text-center ${
               isCurrentPlanSelected
                 ? 'bg-slate-700 text-slate-400 cursor-not-allowed border border-slate-600'
@@ -477,12 +483,12 @@ export default function UpgradeModal({ isOpen, onClose }) {
               : isDowngradeSelected
               ? t('core.upgradeModal.downgradeButton', {
                   plan: activePlan === 'starter' ? t('core.upgradeModal.starterTier') : activePlan === 'pro' ? t('core.upgradeModal.proTier') : t('core.upgradeModal.enterpriseTier'),
-                  price: activeTotalPrice.toFixed(2),
+                  price: ready ? activeTotalPrice.toFixed(2) : undefined,
                   interval: isAnnual ? '/yr' : '/mo',
                 })
               : t('core.upgradeModal.upgradeButton', { 
                   plan: activePlan === 'starter' ? t('core.upgradeModal.starterTier') : activePlan === 'pro' ? t('core.upgradeModal.proTier') : t('core.upgradeModal.enterpriseTier'),
-                  price: activeTotalPrice.toFixed(2),
+                  price: ready ? activeTotalPrice.toFixed(2) : undefined,
                   interval: isAnnual ? '/yr' : '/mo',
                 })}
           </button>

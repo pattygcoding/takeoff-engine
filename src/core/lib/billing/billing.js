@@ -9,6 +9,24 @@ const getAuthHeaders = () => {
 };
 
 export const billingApi = {
+  async getPricing() {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10_000);
+    try {
+      const res = await fetch(`${API_BASE_URL}/billing/pricing`, {
+        method: 'GET',
+        headers: getAuthHeaders(),
+        signal: controller.signal,
+      });
+      if (!res.ok) {
+        throw new Error(getTranslation('core.catalogPricing.unavailable'));
+      }
+      return await res.json();
+    } finally {
+      clearTimeout(timer);
+    }
+  },
+
   /**
    * Get billing configuration
    */

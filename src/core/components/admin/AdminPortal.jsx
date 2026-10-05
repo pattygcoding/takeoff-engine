@@ -6,13 +6,11 @@ import { useAuth } from '@/core/components/context/AuthContext';
 import { useModal } from '@/core/components/context/ModalContext';
 import { useNavigate } from 'react-router-dom';
 import { isValidPassword, isValidPhoneNumber, PASSWORD_MIN_LENGTH } from '@/core/lib/shared/validators';
-import {
-  STARTER_MONTHLY_PRICE,
-  PRO_MONTHLY_PRICE,
-  ENTERPRISE_MONTHLY_PRICE,
-} from '@/core/constants';
+import { PricingStatus, usePricingDisplay } from '@/core/components/context/PricingContext';
 
 export default function AdminPortal() {
+  const { prices, formatPrice } = usePricingDisplay();
+  const { STARTER_MONTHLY_PRICE, PRO_MONTHLY_PRICE, ENTERPRISE_MONTHLY_PRICE } = prices;
   const { user } = useAuth();
   const { showAlert, showPrompt, showConfirm } = useModal();
   const navigate = useNavigate();
@@ -536,6 +534,7 @@ export default function AdminPortal() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 py-8 px-4 sm:px-6 lg:px-8 font-sans">
+      <PricingStatus />
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-6">
@@ -748,9 +747,9 @@ export default function AdminPortal() {
                             className="bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold"
                           >
                             <option value="free">Free ($0)</option>
-                            <option value="starter">Starter (${STARTER_MONTHLY_PRICE})</option>
-                            <option value="pro">Pro (${PRO_MONTHLY_PRICE})</option>
-                            <option value="enterprise">Enterprise (${ENTERPRISE_MONTHLY_PRICE})</option>
+                            <option value="starter">Starter ({formatPrice(STARTER_MONTHLY_PRICE)})</option>
+                            <option value="pro">Pro ({formatPrice(PRO_MONTHLY_PRICE)})</option>
+                            <option value="enterprise">Enterprise ({formatPrice(ENTERPRISE_MONTHLY_PRICE)})</option>
                           </select>
                         </td>
                         <td className="py-3 px-4 text-center">
@@ -1175,9 +1174,9 @@ export default function AdminPortal() {
                     className="w-full px-3 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="free">Free ($0/mo)</option>
-                    <option value="starter">Starter (${STARTER_MONTHLY_PRICE}/mo)</option>
-                    <option value="pro">Pro (${PRO_MONTHLY_PRICE}/mo)</option>
-                    <option value="enterprise">Enterprise (${ENTERPRISE_MONTHLY_PRICE}/mo)</option>
+                    <option value="starter">Starter ({formatPrice(STARTER_MONTHLY_PRICE)}/mo)</option>
+                    <option value="pro">Pro ({formatPrice(PRO_MONTHLY_PRICE)}/mo)</option>
+                    <option value="enterprise">Enterprise ({formatPrice(ENTERPRISE_MONTHLY_PRICE)}/mo)</option>
                   </select>
                 </div>
 
