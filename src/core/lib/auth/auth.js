@@ -146,10 +146,11 @@ export const authApi = {
     return data;
   },
 
-  async deleteAccount() {
+  async deleteAccount(confirmUsername) {
     const res = await fetch(`${API_BASE_URL}/auth/account`, {
       method: 'DELETE',
       headers: getAuthHeaders(),
+      body: JSON.stringify({ confirmUsername }),
     });
     const data = await res.json();
     if (!res.ok) {

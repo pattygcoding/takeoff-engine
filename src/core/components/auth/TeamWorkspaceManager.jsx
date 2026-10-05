@@ -10,10 +10,11 @@ export default function TeamWorkspaceManager() {
   const { user, refreshProfile } = useAuth();
   const { showAlert, showConfirm } = useModal();
   const { t, prices, ready } = usePricingDisplay();
-  const { ENTERPRISE_MONTHLY_PRICE, EXTRA_SEAT_MONTHLY_PRICE } = prices;
+  const { EXTRA_SEAT_MONTHLY_PRICE, PRO_MONTHLY_PRICE } = prices;
   const [organizations, setOrganizations] = useState([]);
   const [activeOrg, setActiveOrg] = useState(null);
   const [members, setMembers] = useState([]);
+  const [myRole, setMyRole] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
@@ -37,29 +38,34 @@ export default function TeamWorkspaceManager() {
   const currentAddSeats = user?.additional_seats || 0;
   const currentTotalSeats = user?.seat_limit || (baseSeats + currentAddSeats);
 
+  const hasActiveTeamPlan = user?.subscription_status === 'active'
+    && ['pro', 'enterprise', 'team'].includes(user?.subscription_tier);
   const canCreateOrganization =
     user?.role === 'admin' ||
     user?.role === 'payment_exempt' ||
     user?.has_unlimited_bypass === true ||
-    user?.subscription_tier === 'enterprise' ||
-    user?.subscription_tier === 'team';
+    hasActiveTeamPlan;
 
-  const canManageSeats =
-    canCreateOrganization ||
-    user?.subscription_tier === 'pro';
+  const canManageSeats = canCreateOrganization;
 
   useEffect(() => {
     loadOrganizations();
   }, []);
 
-  const loadOrganizations = async () => {
+  /** Reload the workspace list and show `preferredOrgId` (falls back to the first workspace). */
+  const loadOrganizations = async (preferredOrgId = null) => {
     try {
       setLoading(true);
       setError('');
       const list = await organizationsApi.list();
       setOrganizations(list);
       if (list.length > 0) {
-        selectOrganization(list[0].id);
+        const target = list.some((org) => org.id === preferredOrgId) ? preferredOrgId : list[0].id;
+        await selectOrganization(target);
+      } else {
+        setActiveOrg(null);
+        setMembers([]);
+        setMyRole(null);
       }
     } catch (err) {
       setError(err.message || t('core.teamWorkspaceManager.failedLoadWorkspaces'));
@@ -73,6 +79,7 @@ export default function TeamWorkspaceManager() {
       const data = await organizationsApi.get(orgId);
       setActiveOrg(data.organization);
       setMembers(data.members || []);
+      setMyRole(data.myRole || null);
     } catch (err) {
       setError(err.message || t('core.teamWorkspaceManager.failedFetchDetails'));
     }
@@ -90,8 +97,7 @@ export default function TeamWorkspaceManager() {
       const newOrg = await organizationsApi.create({ name: newOrgName.trim() });
       setNewOrgName('');
       setSuccessMsg(t('core.teamWorkspaceManager.createdOrgSuccess', { name: newOrg.name }));
-      await loadOrganizations();
-      await selectOrganization(newOrg.id);
+      await loadOrganizations(newOrg.id);
     } catch (err) {
       setError(err.message || t('core.teamWorkspaceManager.failedCreateWorkspace'));
     } finally {
@@ -199,8 +205,7 @@ export default function TeamWorkspaceManager() {
         variant: 'success',
       });
       setSeatModalOpen(false);
-      await loadOrganizations();
-      if (activeOrg) await selectOrganization(activeOrg.id);
+      await loadOrganizations(activeOrg?.id);
     } catch (err) {
       await showAlert({
         title: t('core.teamWorkspaceManager.seatsUpdateErrorTitle'),
@@ -249,10 +254,51 @@ export default function TeamWorkspaceManager() {
   };
 
   const isOwnerOfActiveOrg = activeOrg?.owner_id === user?.id;
+  const isManager = myRole === 'owner' || myRole === 'admin';
+  // Mirrors the server rule: owners manage everyone; admins manage estimators and viewers only.
+  const canManageMember = (member) => {
+    if (member.role === 'owner') return false;
+    if (myRole === 'owner') return true;
+    return myRole === 'admin' && member.role !== 'admin';
+  };
+  const occupiedMembers = members.filter((m) => m.status === 'active' || m.status === 'pending');
+  const roleLabels = {
+    owner: t('core.teamWorkspaceManager.roleOwner'),
+    admin: t('core.teamWorkspaceManager.roleAdmin'),
+    estimator: t('core.teamWorkspaceManager.roleEstimator'),
+    viewer: t('core.teamWorkspaceManager.roleViewer'),
+  };
   const otherOccupiedMembers = members.filter(
     (m) => m.role !== 'owner' && m.user_id !== user?.id && (m.status === 'active' || m.status === 'pending')
   );
   const canDeleteActiveOrg = isOwnerOfActiveOrg && otherOccupiedMembers.length === 0;
+
+  const handleLeaveOrg = async () => {
+    if (!activeOrg) return;
+    const orgName = activeOrg.name;
+    const confirmed = await showConfirm({
+      title: t('core.teamWorkspaceManager.leaveWorkspaceTitle'),
+      message: t('core.teamWorkspaceManager.leaveWorkspaceMessage', { name: orgName }),
+      confirmText: t('core.teamWorkspaceManager.leaveWorkspaceConfirmButton'),
+      confirmVariant: 'danger',
+    });
+    if (!confirmed) return;
+
+    try {
+      await organizationsApi.leave(activeOrg.id);
+      setSuccessMsg(t('core.teamWorkspaceManager.leftWorkspaceSuccess', { name: orgName }));
+      setActiveOrg(null);
+      setMembers([]);
+      setMyRole(null);
+      await loadOrganizations();
+    } catch (err) {
+      await showAlert({
+        title: t('core.teamWorkspaceManager.leaveErrorTitle'),
+        message: err.message,
+        variant: 'error',
+      });
+    }
+  };
 
   const handleDeleteOrg = async () => {
     if (!activeOrg) return;
@@ -305,7 +351,7 @@ export default function TeamWorkspaceManager() {
 
         {!canCreateOrganization && (
           <div className="text-xs bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-700 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
-            <Crown className="w-3.5 h-3.5 shrink-0" /> {t('core.teamWorkspaceManager.requiresEnterprise', { price: ENTERPRISE_MONTHLY_PRICE })}
+            <Crown className="w-3.5 h-3.5 shrink-0" /> {t('core.teamWorkspaceManager.requiresEnterprise', { price: PRO_MONTHLY_PRICE })}
           </div>
         )}
       </div>
@@ -343,6 +389,7 @@ export default function TeamWorkspaceManager() {
           <form onSubmit={handleCreateOrg} className="flex items-center gap-2">
             <input
               type="text"
+              aria-label={t('core.teamWorkspaceManager.newOrgNameLabel')}
               placeholder={t('core.teamWorkspaceManager.newOrgPlaceholder')}
               value={newOrgName}
               onChange={(e) => setNewOrgName(e.target.value)}
@@ -374,14 +421,14 @@ export default function TeamWorkspaceManager() {
                 </span>
               </div>
               <div className="text-lg font-black text-slate-900 dark:text-white mt-1">
-                {members.length} {t('core.teamWorkspaceManager.of')} {activeOrg.max_seats} {t('core.teamWorkspaceManager.seatsUsed')}
+                {occupiedMembers.length} {t('core.teamWorkspaceManager.of')} {activeOrg.max_seats} {t('core.teamWorkspaceManager.seatsUsed')}
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 {t('core.teamWorkspaceManager.seatsBreakdown', { baseSeats, currentAddSeats, price: EXTRA_SEAT_MONTHLY_PRICE })}
               </p>
             </div>
 
-            {canManageSeats && (
+            {isOwnerOfActiveOrg && canManageSeats && (
               <button
                 type="button"
                 onClick={handleOpenSeatModal}
@@ -395,12 +442,26 @@ export default function TeamWorkspaceManager() {
 
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">
-              {t('core.teamWorkspaceManager.workspaceMembers')} ({members.length} / {activeOrg.max_seats} {t('core.teamWorkspaceManager.seatsUsed')})
+              {t('core.teamWorkspaceManager.workspaceMembers')} ({occupiedMembers.length} / {activeOrg.max_seats} {t('core.teamWorkspaceManager.seatsUsed')})
             </h3>
             <div className="flex items-center gap-3">
               <span className="text-xs text-slate-400 dark:text-slate-500">
                 {t('core.teamWorkspaceManager.owner')}: {activeOrg.owner_email || t('core.teamWorkspaceManager.you')}
               </span>
+              {myRole && (
+                <span className="text-xs text-slate-400 dark:text-slate-500">
+                  {t('core.teamWorkspaceManager.yourRole')}: <strong>{roleLabels[myRole] || myRole}</strong>
+                </span>
+              )}
+              {myRole && myRole !== 'owner' && (
+                <button
+                  type="button"
+                  onClick={handleLeaveOrg}
+                  className="px-2.5 py-1 text-xs font-semibold text-red-600 dark:text-red-400 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/40 border border-red-200 dark:border-red-900/60 rounded-lg transition cursor-pointer"
+                >
+                  {t('core.teamWorkspaceManager.leaveWorkspaceButton')}
+                </button>
+              )}
               {canDeleteActiveOrg && (
                 <button
                   type="button"
@@ -434,20 +495,25 @@ export default function TeamWorkspaceManager() {
                       )}
                     </td>
                     <td className="py-2.5 px-3">
-                      {m.role === 'owner' ? (
-                        <span className="px-2 py-0.5 bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 font-bold rounded-md">
-                          {t('core.teamWorkspaceManager.roleOwner')}
-                        </span>
-                      ) : (
+                      {canManageMember(m) ? (
                         <select
                           value={m.role}
+                          aria-label={t('core.teamWorkspaceManager.memberRoleLabel', { email: m.user_email || m.invited_email })}
                           onChange={(e) => handleUpdateRole(m.id, e.target.value)}
                           className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 text-xs focus:ring-1 focus:ring-blue-500"
                         >
-                          <option value="admin">{t('core.teamWorkspaceManager.roleAdmin')}</option>
+                          {myRole === 'owner' && <option value="admin">{t('core.teamWorkspaceManager.roleAdmin')}</option>}
                           <option value="estimator">{t('core.teamWorkspaceManager.roleEstimator')}</option>
                           <option value="viewer">{t('core.teamWorkspaceManager.roleViewer')}</option>
                         </select>
+                      ) : (
+                        <span className={`px-2 py-0.5 font-bold rounded-md ${
+                          m.role === 'owner'
+                            ? 'bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                        }`}>
+                          {roleLabels[m.role] || m.role}
+                        </span>
                       )}
                     </td>
                     <td className="py-2.5 px-3">
@@ -463,7 +529,7 @@ export default function TeamWorkspaceManager() {
                         >
                           {m.status}
                         </span>
-                          {m.status === 'pending' && m.invite_token && (
+                          {m.status === 'pending' && m.invite_token && canManageMember(m) && (
                           <button
                             type="button"
                             onClick={() => handleCopyInviteLink(m.invite_token)}
@@ -476,7 +542,7 @@ export default function TeamWorkspaceManager() {
                       </div>
                     </td>
                     <td className="py-2.5 px-3 text-right">
-                      {m.role !== 'owner' && (
+                      {canManageMember(m) && (
                         <div className="flex items-center justify-end gap-2">
                           {m.status === 'pending' && (
                             <>
@@ -513,13 +579,14 @@ export default function TeamWorkspaceManager() {
           </div>
 
           {/* Invite Form */}
-          {members.length < activeOrg.max_seats && (
+          {isManager && occupiedMembers.length < activeOrg.max_seats && (
             <form onSubmit={handleInviteMember} className="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-wrap gap-3 items-center">
               <div className="flex-1 min-w-[200px]">
-                <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                <label htmlFor="team-invite-email" className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
                   {t('core.teamWorkspaceManager.inviteEmailLabel')}
                 </label>
                 <input
+                  id="team-invite-email"
                   type="email"
                   required
                   placeholder="estimator@contractor.com"
@@ -530,16 +597,17 @@ export default function TeamWorkspaceManager() {
               </div>
 
               <div className="w-32">
-                <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                <label htmlFor="team-invite-role" className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
                   {t('core.teamWorkspaceManager.roleLabel')}
                 </label>
                 <select
+                  id="team-invite-role"
                   value={inviteRole}
                   onChange={(e) => setInviteRole(e.target.value)}
                   className="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 >
                   <option value="estimator">{t('core.teamWorkspaceManager.roleEstimator')}</option>
-                  <option value="admin">{t('core.teamWorkspaceManager.roleAdmin')}</option>
+                  {myRole === 'owner' && <option value="admin">{t('core.teamWorkspaceManager.roleAdmin')}</option>}
                   <option value="viewer">{t('core.teamWorkspaceManager.roleViewer')}</option>
                 </select>
               </div>

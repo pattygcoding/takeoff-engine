@@ -241,7 +241,7 @@
       "subtitle": "Invite team members, manage roles, and allocate seats.",
       "loading": "Loading workspace data...",
       "collaborate": "Collaborate with junior estimators, project managers, and shared rate libraries.",
-      "requiresEnterprise": "Multi-user team workspaces require the Enterprise / Team (${{price}}/mo + tax) tier.",
+      "requiresEnterprise": "Team workspaces require the Pro (${{price}}/mo + tax) or Enterprise plan.",
       "yourOrganizations": "Your Organizations",
       "noOrganizations": "You don't have any organizations yet.",
       "createNewOrg": "Create New Organization",
@@ -323,7 +323,16 @@
       "deleteOrgSuccess": "Organization \"{{name}}\" was deleted successfully.",
       "deleteOrgErrorTitle": "Delete Error",
       "deleteOrgErrorMessage": "Failed to delete organization.",
-      "cannotDeleteOrgOccupied": "Cannot delete organization while other members or pending invitations occupy seats. Remove all members and revoke invitations first."
+      "cannotDeleteOrgOccupied": "Cannot delete organization while other members or pending invitations occupy seats. Remove all members and revoke invitations first.",
+      "newOrgNameLabel": "New organization name",
+      "memberRoleLabel": "Role for {{email}}",
+      "yourRole": "Your role",
+      "leaveWorkspaceButton": "Leave Workspace",
+      "leaveWorkspaceTitle": "Leave Workspace?",
+      "leaveWorkspaceMessage": "You will lose access to \"{{name}}\" until an administrator invites you again.",
+      "leaveWorkspaceConfirmButton": "Leave Workspace",
+      "leftWorkspaceSuccess": "You left \"{{name}}\".",
+      "leaveErrorTitle": "Could Not Leave Workspace"
     },
     "upgradeModal": {
       "alreadyUnlockedTitle": "Account Already Unlocked",
@@ -686,7 +695,8 @@
       "joiningWorkspace": "Joining Workspace...",
       "acceptAndJoin": "Accept Invitation & Join Workspace",
       "signInPrompt": "To accept this invitation, sign in or register your Takeoff Engine account.",
-      "signInToAccept": "Sign In to Accept"
+      "signInToAccept": "Sign In to Accept",
+      "createAccountToAccept": "Create an Account to Accept"
     },
     "apiErrors": {
       "generateProposalFailed": "Failed to generate proposal link.",
@@ -720,6 +730,7 @@
       "fetchPromoCodesFailed": "Failed to fetch promo codes.",
       "createPromoCodeFailed": "Failed to create promo code.",
       "fetchOrganizationsFailed": "Failed to fetch organizations.",
+      "leaveOrganizationFailed": "Failed to leave the workspace.",
       "createOrganizationFailed": "Failed to create organization.",
       "deleteOrganizationFailed": "Failed to delete organization.",
       "fetchOrganizationDetailsFailed": "Failed to fetch organization details.",

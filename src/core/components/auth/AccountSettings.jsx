@@ -290,7 +290,7 @@ export default function AccountSettings() {
     setDeleteErr('');
 
     try {
-      await authApi.deleteAccount();
+      await authApi.deleteAccount(deleteConfirmText);
       await logout();
       navigate('/login');
     } catch (err) {
@@ -1073,10 +1073,11 @@ export default function AccountSettings() {
             )}
 
             <div className="mb-4">
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+              <label htmlFor="delete-account-confirm" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                 Type your username <span className="font-bold text-slate-900 dark:text-white">{user?.username}</span> to confirm:
               </label>
               <input
+                id="delete-account-confirm"
                 type="text"
                 placeholder={user?.username}
                 value={deleteConfirmText}

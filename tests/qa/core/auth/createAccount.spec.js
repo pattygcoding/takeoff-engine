@@ -3,7 +3,7 @@ import { createVerifiedAccount, expect, expectProfile, getJson, label, PLAN_CTA_
 test.use({ customerLabel: 'signup' });
 
 test('user can create a new account', async ({ page, db, customer, settings }) => {
-  const authUser = await createVerifiedAccount(page, db, customer, settings);
+  const authUser = await createVerifiedAccount(page, db, customer, settings, { verification: 'link' });
 
   // The profile is persisted with what the visitor entered, on the free tier, with terms evidence.
   const profile = await expectProfile(db, authUser.id, (row) => Boolean(row.terms_accepted_at), 'profile with terms acceptance');

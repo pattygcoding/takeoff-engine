@@ -3,6 +3,9 @@ import { addAuthorizationHeader } from '@/core/lib/auth/sessionToken';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
+/** sessionStorage key holding an invitation to resume after the invitee signs in. */
+export const PENDING_INVITE_KEY = 'pending_invite_token';
+
 const getAuthHeaders = () => {
   return addAuthorizationHeader({
     'Content-Type': 'application/json',
@@ -133,6 +136,21 @@ export const organizationsApi = {
     const data = await res.json();
     if (!res.ok) {
       throw new Error(data.error || getTranslation('core.apiErrors.removeMemberFailed'));
+    }
+    return data;
+  },
+
+  /**
+   * Leave an organization (non-owner members)
+   */
+  async leave(orgId) {
+    const res = await fetch(`${API_BASE_URL}/organizations/${orgId}/leave`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || getTranslation('core.apiErrors.leaveOrganizationFailed'));
     }
     return data;
   },

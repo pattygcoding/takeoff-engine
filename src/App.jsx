@@ -21,6 +21,13 @@ import { PricingProvider } from '@/core/components/context/PricingContext';
 
 // Product Routes (Decoupled Domain Layer)
 import { renderProductRoutes } from '@/product/routes/ProductRoutes';
+import { PENDING_INVITE_KEY } from '@/core/lib/auth/organizations';
+
+/** Where a freshly signed-in user lands: a pending team invitation wins over their workspace. */
+function postLoginPath(username) {
+  const pendingInvite = sessionStorage.getItem(PENDING_INVITE_KEY);
+  return pendingInvite ? `/accept-invite?token=${encodeURIComponent(pendingInvite)}` : `/${username}`;
+}
 
 // Route-level pages are code-split so each route only downloads what it renders.
 const AccountSettings = lazy(() => import('@/core/components/auth/AccountSettings'));
@@ -165,7 +172,7 @@ function AppContent() {
           path="/login"
           element={
             isAuthenticated && user?.username ? (
-              <Navigate to={`/${user.username}`} replace />
+              <Navigate to={postLoginPath(user.username)} replace />
             ) : (
               <LoginPage initialView="login" />
             )

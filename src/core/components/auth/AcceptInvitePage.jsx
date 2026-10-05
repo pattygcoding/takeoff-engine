@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '@/core/components/context/AuthContext';
 import { useModal } from '@/core/components/context/ModalContext';
 import { useTranslation } from '@/core/components/context/I18nContext';
+import { PENDING_INVITE_KEY } from '@/core/lib/auth/organizations';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -11,7 +12,7 @@ export default function AcceptInvitePage() {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
-  const { user, token: authToken, refreshProfile } = useAuth();
+  const { user, isAuthenticated, refreshProfile } = useAuth();
   const { showAlert } = useModal();
   const navigate = useNavigate();
 
@@ -52,9 +53,9 @@ export default function AcceptInvitePage() {
 
   // 2. Handle accepting invitation
   const handleAcceptInvite = async () => {
-    if (!authToken) {
-      // Prompt user to login or signup with this token saved
-      sessionStorage.setItem('pending_invite_token', token);
+    if (!isAuthenticated) {
+      // Resume this invitation once the visitor has signed in (see the /login route in App.jsx)
+      sessionStorage.setItem(PENDING_INVITE_KEY, token);
       navigate('/login');
       return;
     }
@@ -63,12 +64,10 @@ export default function AcceptInvitePage() {
     setError(null);
 
     try {
+      // The session cookie authenticates this request; the global fetch wrapper adds the CSRF header.
       const res = await fetch(`${API_BASE_URL}/organizations/invitations/accept`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`,
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token }),
       });
 
@@ -79,7 +78,7 @@ export default function AcceptInvitePage() {
 
       setSuccess(true);
       if (refreshProfile) await refreshProfile();
-      sessionStorage.removeItem('pending_invite_token');
+      sessionStorage.removeItem(PENDING_INVITE_KEY);
 
       await showAlert({
         title: t('core.acceptInvite.teamJoinedTitle'),
@@ -87,12 +86,18 @@ export default function AcceptInvitePage() {
         variant: 'success',
       });
 
-      navigate(user?.username ? `/${user.username}` : '/login');
+      navigate(user?.username ? `/${user.username}/settings` : '/login');
     } catch (err) {
+      sessionStorage.removeItem(PENDING_INVITE_KEY);
       setError(err.message || t('core.acceptInvite.acceptFailedError'));
     } finally {
       setAccepting(false);
     }
+  };
+
+  const handleCreateAccount = () => {
+    sessionStorage.setItem(PENDING_INVITE_KEY, token);
+    navigate('/register');
   };
 
   if (loading || verifying) {
@@ -204,6 +209,13 @@ export default function AcceptInvitePage() {
                 className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm rounded-xl shadow-lg shadow-blue-600/30 transition"
               >
                 {t('core.acceptInvite.signInToAccept')}
+              </button>
+              <button
+                type="button"
+                onClick={handleCreateAccount}
+                className="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold text-sm rounded-xl transition"
+              >
+                {t('core.acceptInvite.createAccountToAccept')}
               </button>
             </div>
           )}

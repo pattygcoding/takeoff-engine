@@ -47,18 +47,26 @@ async function listTables(db, schemas) {
   return rows;
 }
 
+const ROW_DETAIL_LIMIT = 5000;
+
 async function fingerprintTables(db, tables) {
   const snapshot = {};
   for (const { schema_name: schema, table_name: table } of tables) {
     const name = `${schema}.${table}`;
+    const relation = `${quoteIdent(schema)}.${quoteIdent(table)}`;
     await db.query('SAVEPOINT fingerprint');
     try {
       const { rows: [result] } = await db.query(
         `SELECT count(*)::text AS row_count,
                 coalesce(md5(string_agg(md5(t::text), '' ORDER BY md5(t::text))), '') AS digest
-           FROM ${quoteIdent(schema)}.${quoteIdent(table)} AS t`,
+           FROM ${relation} AS t`,
       );
       snapshot[name] = { rows: Number(result.row_count), digest: result.digest };
+      // Per-row hashes (keyed by id when present) let a failed comparison name the exact rows.
+      if (snapshot[name].rows > 0 && snapshot[name].rows <= ROW_DETAIL_LIMIT) {
+        const { rows } = await db.query(`SELECT coalesce(to_jsonb(t)->>'id', md5(t::text)) AS key, md5(t::text) AS hash FROM ${relation} AS t`);
+        Object.defineProperty(snapshot[name], 'rowHashes', { value: new Map(rows.map((row) => [row.key, row.hash])), enumerable: false });
+      }
       await db.query('RELEASE SAVEPOINT fingerprint');
     } catch (error) {
       await db.query('ROLLBACK TO SAVEPOINT fingerprint');
@@ -75,6 +83,21 @@ export function diffSnapshots(before, after) {
     .map((name) => ({ table: name, before: before[name] ?? null, after: after[name] ?? null }));
 }
 
+function describeRowChanges(before, after) {
+  if (!before?.rowHashes && !after?.rowHashes) return '';
+  const old = before?.rowHashes || new Map();
+  const now = after?.rowHashes || new Map();
+  const added = [...now.keys()].filter((key) => !old.has(key));
+  const removed = [...old.keys()].filter((key) => !now.has(key));
+  const changed = [...now.keys()].filter((key) => old.has(key) && old.get(key) !== now.get(key));
+  const list = (keys) => keys.slice(0, 5).join(', ') + (keys.length > 5 ? `, +${keys.length - 5} more` : '');
+  return [
+    added.length ? `added: ${list(added)}` : '',
+    removed.length ? `removed: ${list(removed)}` : '',
+    changed.length ? `changed: ${list(changed)}` : '',
+  ].filter(Boolean).map((line) => `\n      ${line}`).join('');
+}
+
 export function formatSnapshotDiff(diff) {
   const describe = (state) => {
     if (!state) return 'missing';
@@ -83,7 +106,7 @@ export function formatSnapshotDiff(diff) {
   };
   return diff.map(({ table, before, after }) => {
     const sameCount = before?.rows === after?.rows;
-    return `  - ${table}: ${describe(before)} -> ${describe(after)}${sameCount ? ' (row contents changed)' : ''}`;
+    return `  - ${table}: ${describe(before)} -> ${describe(after)}${sameCount ? ' (row contents changed)' : ''}${describeRowChanges(before, after)}`;
   }).join('\n');
 }
 

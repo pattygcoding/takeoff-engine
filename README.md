@@ -121,7 +121,8 @@ When testing upgrades in non-production (`VITE_PADDLE_ENVIRONMENT=sandbox`), use
 ### Automated Full-Stack QA (signup + paid checkout)
 `npm run test:qa` runs Playwright QA tests for the core SaaS flows: creating an account, buying the Starter,
 Pro, and Enterprise subscriptions (monthly and yearly) with the Paddle sandbox test card, upgrading and
-downgrading between plans, and cancelling and restoring a subscription. Every run proves the database is
+downgrading between plans, cancelling and restoring a subscription, and teams (workspaces, invitations, seats,
+seat billing, and the Admin/Estimator/Viewer roles). Every run proves the database is
 identical before and after. These are separate from unit tests (`npm run test:unit`). See
 [tests/qa/README.md](./tests/qa/README.md).
 

@@ -8,7 +8,7 @@ import { QA_TAG } from './qaEnvironment.js';
  * Signups for QA-tagged addresses become Admin "generate_link" calls: Supabase creates the same
  * unconfirmed user (same metadata, same profile trigger) but returns the verification token
  * instead of emailing it. No email is sent, so Supabase's email rate limit never applies to QA
- * runs. The harness then completes verification through Supabase's real /verify endpoint.
+ * runs. QA sign-ins that hit Supabase's per-IP auth rate limit are retried until it clears.
  * Everything else is forwarded untouched.
  */
 
@@ -60,17 +60,40 @@ async function signUpWithoutEmail(url, body, res) {
 
 async function forward(req, res, url, body) {
   const headers = Object.fromEntries(Object.entries(req.headers).filter(([name]) => !HOP_BY_HOP.has(name)));
-  const response = await fetch(`${target}${url.pathname}${url.search}`, {
+  const send = () => fetch(`${target}${url.pathname}${url.search}`, {
     method: req.method,
     headers,
     body: ['GET', 'HEAD'].includes(req.method) ? undefined : body,
   });
+
+  let response = await send();
+  // QA sign-ins wait out Supabase's per-IP auth rate limit instead of failing the test.
+  if (response.status === 429 && isQaSignIn(req, url, body)) {
+    const deadline = Date.now() + RATE_LIMIT_WAIT_MS;
+    while (response.status === 429 && Date.now() < deadline) {
+      const retryAfter = Number(response.headers.get('retry-after')) || 10;
+      await new Promise((resolve) => setTimeout(resolve, Math.min(retryAfter, 15) * 1000));
+      response = await send();
+    }
+  }
+
   const responseHeaders = {};
   response.headers.forEach((value, name) => {
     if (!HOP_BY_HOP.has(name) && name !== 'content-encoding') responseHeaders[name] = value;
   });
   res.writeHead(response.status, responseHeaders);
   res.end(Buffer.from(await response.arrayBuffer()));
+}
+
+const RATE_LIMIT_WAIT_MS = 120_000;
+
+function isQaSignIn(req, url, body) {
+  if (req.method !== 'POST' || url.pathname !== '/auth/v1/token') return false;
+  try {
+    return isQaEmail(JSON.parse(body.toString('utf8') || '{}').email);
+  } catch {
+    return false;
+  }
 }
 
 const server = http.createServer(async (req, res) => {

@@ -107,6 +107,10 @@ export function loadQaSettings(env = process.env) {
     paddle: {
       apiBaseUrl: 'https://sandbox-api.paddle.com',
       priceIds: planPriceIds(env),
+      seatPriceIds: {
+        monthly: env.PADDLE_PRICE_ID_EXTRA_SEAT_MONTHLY || env.PADDLE_PRICE_ID_EXTRA_SEAT,
+        annually: env.PADDLE_PRICE_ID_EXTRA_SEAT_ANNUALLY,
+      },
       webhookSecret: webhookSecretOf(env),
     },
     card: {
@@ -133,8 +137,8 @@ export function createQaIdentity(label, { emailTemplate = DEFAULTS.emailTemplate
     firstName: 'QA',
     lastName: `Automation ${label}`,
     phone: '5555550123',
-    // Each simulated customer gets its own TEST-NET-3 address, so the backend's per-IP auth
-    // rate limiter sees separate clients instead of one machine signing up repeatedly.
-    clientIp: `203.0.113.${crypto.randomInt(1, 255)}`,
+    // Each simulated customer gets its own documentation-range IPv6 address, so the backend's
+    // per-IP auth rate limiter sees separate clients instead of one machine signing up repeatedly.
+    clientIp: `2001:db8::${crypto.randomBytes(8).toString('hex').match(/.{4}/g).join(':')}`,
   };
 }

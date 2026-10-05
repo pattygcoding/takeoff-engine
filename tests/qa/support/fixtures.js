@@ -3,6 +3,7 @@ import { expect, test as base } from '@playwright/test';
 import { findAuthUserByEmail, findProfile, openDatabase } from './database.js';
 import { createPaddleSandboxApi, deliverPaddleWebhook, payWithPaddleOverlay } from './paddleSandbox.js';
 import { createQaIdentity, loadQaSettings } from './qaEnvironment.js';
+import { createSupabaseAdmin } from './supabaseAdmin.js';
 
 // UI labels come from the English locale so copy changes don't silently break selectors.
 const en = JSON.parse(fs.readFileSync(new URL('../../../src/lang/en.json', import.meta.url), 'utf8'));
@@ -46,12 +47,47 @@ export const test = base.extend({
   /** A brand-new customer whose browser traffic to the API comes from their own client IP. */
   customer: async ({ page, settings, customerLabel }, provide) => {
     const customer = createQaIdentity(customerLabel, { emailTemplate: settings.emailTemplate });
-    await page.route(`${settings.apiUrl}/**`, (route) => route.continue({
-      headers: { ...route.request().headers(), 'x-forwarded-for': customer.clientIp },
-    }));
+    await routeAsClient(page, settings, customer);
     await provide(customer);
   },
+
+  /**
+   * Factory for additional people in a scenario (team members, outsiders). Each gets a brand-new
+   * QA identity in its own browser context (separate cookies/session) and client IP.
+   *   const admin = await persona('admin');             // signed up, verified, and logged in
+   *   const invitee = await persona('new', { signUp: false });
+   */
+  persona: async ({ browser, db, settings }, provide, testInfo) => {
+    const contexts = [];
+    await provide(async (personaLabel, { signUp = true, verification = 'admin' } = {}) => {
+      const context = await browser.newContext({
+        baseURL: settings.frontendUrl,
+        viewport: { width: 1440, height: 900 },
+        permissions: ['clipboard-read', 'clipboard-write'],
+      });
+      contexts.push(context);
+      const page = await context.newPage();
+      const customer = createQaIdentity(personaLabel, { emailTemplate: settings.emailTemplate });
+      await routeAsClient(page, settings, customer);
+      const authUser = signUp ? await createVerifiedAccount(page, db, customer, settings, { verification }) : null;
+      return { context, page, customer, authUser };
+    });
+    if (testInfo.status !== testInfo.expectedStatus) {
+      for (const [index, context] of contexts.entries()) {
+        for (const page of context.pages()) {
+          await testInfo.attach(`persona-${index + 1}`, { body: await page.screenshot().catch(() => Buffer.alloc(0)), contentType: 'image/png' });
+        }
+      }
+    }
+    for (const context of contexts) await context.close().catch(() => {});
+  },
 });
+
+async function routeAsClient(page, settings, customer) {
+  await page.route(`${settings.apiUrl}/**`, (route) => route.continue({
+    headers: { ...route.request().headers(), 'x-forwarded-for': customer.clientIp },
+  }));
+}
 
 export { expect };
 
@@ -78,46 +114,84 @@ export async function registerThroughUi(page, customer) {
 }
 
 /**
- * The customer clicks the link in their verification email. The QA gateway kept the token that
- * email would have carried; it is redeemed at Supabase's real /verify endpoint.
+ * The customer verifies their email address.
+ *  - 'link' (default for signup-focused tests): the QA gateway kept the token the verification
+ *    email would have carried; it is redeemed at Supabase's real /verify endpoint.
+ *  - 'admin': setup accounts are confirmed through the Auth Admin API, which keeps large
+ *    multi-account scenarios clear of Supabase's per-IP verification rate limit.
  */
-export async function verifyEmail(db, customer, settings) {
+export async function verifyEmail(db, customer, settings, { method = 'link' } = {}) {
   const authUser = await findAuthUserByEmail(db, customer.email);
   expect(authUser, `no auth user was created for ${customer.email}`).toBeTruthy();
   expect(authUser.email_confirmed_at, 'new accounts must start unverified').toBeNull();
 
-  const tokenRes = await fetch(`${settings.supabaseGatewayUrl}/__qa/verification-token?email=${encodeURIComponent(customer.email)}`);
-  expect(tokenRes.ok, 'the signup produced no verification token').toBeTruthy();
-  const { tokenHash } = await tokenRes.json();
+  if (method === 'admin') {
+    await createSupabaseAdmin().confirmEmail(authUser.id);
+  } else {
+    const tokenRes = await fetch(`${settings.supabaseGatewayUrl}/__qa/verification-token?email=${encodeURIComponent(customer.email)}`);
+    expect(tokenRes.ok, 'the signup produced no verification token').toBeTruthy();
+    const { tokenHash } = await tokenRes.json();
 
-  const verifyRes = await fetch(`${process.env.SUPABASE_URL.replace(/\/+$/, '')}/auth/v1/verify`, {
-    method: 'POST',
-    headers: { apikey: process.env.SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ type: 'signup', token_hash: tokenHash }),
-  });
-  expect(verifyRes.ok, `email verification failed: ${await verifyRes.text()}`).toBeTruthy();
+    const verifyRes = await withRateLimitRetry(() => fetch(`${process.env.SUPABASE_URL.replace(/\/+$/, '')}/auth/v1/verify`, {
+      method: 'POST',
+      headers: { apikey: process.env.SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'signup', token_hash: tokenHash }),
+    }));
+    expect(verifyRes.ok, `email verification failed: ${await verifyRes.text()}`).toBeTruthy();
+  }
 
   const verified = await findAuthUserByEmail(db, customer.email);
   expect(verified.email_confirmed_at, 'email should be confirmed after verification').toBeTruthy();
   return verified;
 }
 
-export async function loginThroughUi(page, customer) {
-  await page.goto('/login?lang=en');
+/** Waits out Supabase's per-IP auth rate limit (HTTP 429) instead of failing the test. */
+async function withRateLimitRetry(send, { timeoutMs = 120_000 } = {}) {
+  const deadline = Date.now() + timeoutMs;
+  let response = await send();
+  while (response.status === 429 && Date.now() < deadline) {
+    const retryAfter = Number(response.headers.get('retry-after')) || 10;
+    await new Promise((resolve) => setTimeout(resolve, Math.min(retryAfter, 15) * 1000));
+    response = await send();
+  }
+  return response;
+}
+
+/** Fill in and submit the login form; where the user lands depends on the scenario. */
+export async function submitLoginForm(page, customer) {
   const form = page.locator('form').filter({ has: page.locator('#login-identifier') });
   await form.locator('#login-identifier').fill(customer.email);
   await form.locator('#login-password').fill(customer.password);
   await form.getByRole('button', { name: label('core.loginPage.logIn'), exact: true }).click();
+}
+
+export async function loginThroughUi(page, customer) {
+  await page.goto('/login?lang=en');
+  await submitLoginForm(page, customer);
   // Signed-in customers are taken to their own workspace route.
   await page.waitForURL(new RegExp(`/${customer.username}(\\?|$)`));
 }
 
 /** Registration -> email verification -> first login. Returns the auth user. */
-export async function createVerifiedAccount(page, db, customer, settings) {
+export async function createVerifiedAccount(page, db, customer, settings, { verification = 'admin' } = {}) {
   await registerThroughUi(page, customer);
-  const authUser = await verifyEmail(db, customer, settings);
+  const authUser = await verifyEmail(db, customer, settings, { method: verification });
   await loginThroughUi(page, customer);
   return authUser;
+}
+
+/**
+ * Call the API as the user signed in on `page` (session cookie + the CSRF token the app keeps in
+ * sessionStorage). Returns { status, body } and never throws on HTTP errors.
+ */
+export async function apiAs(page, settings, method, path, body) {
+  const csrfToken = await page.evaluate(() => sessionStorage.getItem('takeoff_csrf'));
+  const res = await page.request.fetch(`${settings.apiUrl}${path}`, {
+    method,
+    headers: { 'Content-Type': 'application/json', ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {}) },
+    data: body === undefined ? undefined : JSON.stringify(body),
+  });
+  return { status: res.status(), body: await res.json().catch(() => ({})) };
 }
 
 export async function getJson(page, url) {
@@ -145,10 +219,12 @@ export const paddleApi = (settings) => createPaddleSandboxApi({ baseUrl: setting
 
 /**
  * Deliver Paddle's current state of a subscription to the app's webhook, as Paddle would after
- * any change (created, updated, canceled, ...). Returns the subscription that was delivered.
+ * any change (created, updated, canceled, ...). `overrides` simulates states the sandbox cannot
+ * produce on demand (e.g. a failed renewal payment). Returns the subscription that was delivered.
  */
-export async function forwardSubscriptionWebhook(settings, subscriptionId, eventType) {
-  const data = await paddleApi(settings).getSubscription(subscriptionId);
+export async function forwardSubscriptionWebhook(settings, subscriptionId, eventType, overrides = null) {
+  const current = await paddleApi(settings).getSubscription(subscriptionId);
+  const data = overrides ? { ...current, ...overrides, updated_at: new Date().toISOString() } : current;
   await deliverPaddleWebhook({
     backendUrl: settings.backendInternalUrl,
     secret: settings.paddle.webhookSecret,

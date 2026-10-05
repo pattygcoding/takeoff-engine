@@ -1,5 +1,5 @@
 /**
- * Minimal Supabase Auth Admin API client (service role), used by QA cleanup only.
+ * Minimal Supabase Auth Admin API client (service role) for QA setup and cleanup.
  */
 export function createSupabaseAdmin({ url = process.env.SUPABASE_URL, serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY } = {}) {
   const baseUrl = url.replace(/\/+$/, '');
@@ -21,6 +21,7 @@ export function createSupabaseAdmin({ url = process.env.SUPABASE_URL, serviceRol
   }
 
   return {
+    confirmEmail: (userId) => request('PUT', `/users/${userId}`, { email_confirm: true }),
     deleteUser: (userId) => request('DELETE', `/users/${userId}`),
   };
 }

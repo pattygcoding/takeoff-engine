@@ -4,7 +4,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
 vi.mock('@/core/components/context/AuthContext', () => ({
-  useAuth: () => ({ user: null, token: null, refreshProfile: vi.fn() }),
+  useAuth: () => ({ user: null, isAuthenticated: false, refreshProfile: vi.fn() }),
 }));
 vi.mock('@/core/components/context/ModalContext', () => ({
   useModal: () => ({ showAlert: vi.fn() }),
@@ -18,7 +18,7 @@ import AcceptInvitePage from '@/core/components/auth/AcceptInvitePage';
 describe('AcceptInvitePage component harness', () => {
   afterEach(() => vi.unstubAllGlobals());
 
-  it('verifies an invite without rendering its token and offers sign-in to anonymous recipients', async () => {
+  it('verifies an invite without rendering its token and offers sign-in or sign-up to anonymous recipients', async () => {
     const token = 'private-invite-token';
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
@@ -36,6 +36,7 @@ describe('AcceptInvitePage component harness', () => {
     await waitFor(() => expect(screen.queryByText('Acme Construction')).not.toBeNull());
     expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining(`token=${token}`));
     expect(document.body.textContent).not.toContain(token);
-    expect(screen.getByRole('button').disabled).toBe(false);
+    expect(screen.getByRole('button', { name: 'core.acceptInvite.signInToAccept' }).disabled).toBe(false);
+    expect(screen.getByRole('button', { name: 'core.acceptInvite.createAccountToAccept' }).disabled).toBe(false);
   });
 });

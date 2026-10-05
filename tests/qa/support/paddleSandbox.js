@@ -40,6 +40,26 @@ export async function payWithPaddleOverlay(page, { email, cardholderName, card }
   }
 
   await checkout.getByTestId('cardPaymentFormSubmitButton').click();
+  if (card.threeDSecure) await completeThreeDSecureChallenge(page);
+}
+
+/**
+ * Sandbox cards that require 3D Secure show Stripe's test challenge page inside the checkout;
+ * the customer approves it with "Complete".
+ */
+async function completeThreeDSecureChallenge(page, timeoutMs = 60_000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    for (const frame of page.frames()) {
+      const complete = frame.getByRole('button', { name: /^complete/i });
+      if (await complete.isVisible().catch(() => false)) {
+        await complete.click();
+        return;
+      }
+    }
+    await page.waitForTimeout(500);
+  }
+  throw new Error('The 3D Secure challenge did not appear.');
 }
 
 /**
@@ -111,6 +131,11 @@ export function createPaddleSandboxApi({ apiKey = process.env.PADDLE_API_KEY, ba
     },
     archiveCustomer: (customerId) => request('PATCH', `/customers/${customerId}`, { status: 'archived' }),
     getSubscription: async (subscriptionId) => (await request('GET', `/subscriptions/${subscriptionId}`)).data,
+    /** Change line items directly, as the customer would in Paddle's billing portal. */
+    updateItems: async (subscriptionId, items) => (await request('PATCH', `/subscriptions/${subscriptionId}`, {
+      items: items.map(({ priceId, quantity }) => ({ price_id: priceId, quantity })),
+      proration_billing_mode: 'prorated_immediately',
+    })).data,
     listTransactions: (subscriptionId, origin) => listAll(`/transactions?subscription_id=${subscriptionId}${origin ? `&origin=${origin}` : ''}`),
 
     /**

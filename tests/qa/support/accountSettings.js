@@ -36,8 +36,9 @@ export async function cancelThroughSettings(page, settings) {
 /**
  * Account settings -> "Upgrade to Pro" / "Change Plan" -> pick a plan in the upgrade modal ->
  * Upgrade/Downgrade button (and the downgrade confirmation). Returns the change-plan response.
+ * With `expectFailure`, the app's error notice is acknowledged and the modal is closed.
  */
-export async function changePlanThroughSettings(page, { plan, direction, settings }) {
+export async function changePlanThroughSettings(page, { plan, direction, settings, expectFailure = false }) {
   const openModal = page.getByRole('button', { name: label('core.accountSettings.upgradeToPro'), exact: true })
     .or(page.getByRole('button', { name: label('core.accountSettings.changePlanOrRedeemCode'), exact: true }));
   await openModal.click();
@@ -62,6 +63,13 @@ export async function changePlanThroughSettings(page, { plan, direction, setting
   }
   const response = await changed;
   const body = await response.json();
+  if (expectFailure) {
+    expect(response.status(), 'the plan change should have been refused').toBeGreaterThanOrEqual(400);
+    await acknowledgeNotice(page, 'core.upgradeModal.checkoutErrorTitle');
+    await modal.getByRole('button', { name: 'Close' }).click();
+    await expect(modal).toBeHidden();
+    return body;
+  }
   expect(response.status(), `plan change failed: ${JSON.stringify(body)}`).toBe(200);
 
   await acknowledgeNotice(page, direction === 'upgrade' ? 'core.upgradeModal.successTitle' : 'core.upgradeModal.downgradeScheduledTitle');
