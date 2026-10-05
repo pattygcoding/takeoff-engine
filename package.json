@@ -15,6 +15,8 @@
     "test:unit": "vitest run --config vitest.config.js",
     "test:unit:watch": "vitest --config vitest.config.js",
     "test:e2e": "playwright test --config playwright.e2e.config.js",
+    "test:qa": "infisical run --env=dev -- playwright test --config playwright.qa.config.js",
+    "test:qa:local": "playwright test --config playwright.qa.config.js",
     "test:a11y": "playwright test",
     "test:a11y:public": "playwright test tests/accessibility/public-pages.spec.js",
     "translate": "python src/lang/lang.py",
@@ -51,6 +53,7 @@
     "gh-pages": "^6.3.0",
     "jsdom": "^29.1.1",
     "oxlint": "^1.75.0",
+    "pg": "^8.23.1",
     "vite": "^8.2.0",
     "vitest": "^5.0.1"
   }

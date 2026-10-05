@@ -126,8 +126,9 @@ export default function LoginPage({ initialView = 'login' }) {
         termsVersion: CURRENT_TERMS_VERSION,
       });
 
-      setMessage(registration.message || t('core.loginPage.emailVerificationSent'));
+      // switchView resets the form (including messages), so the confirmation is set afterwards.
       switchView('login');
+      setMessage(registration.message || t('core.loginPage.emailVerificationSent'));
     } catch (err) {
       setError(err.message || t('core.loginPage.errRegisterFailed'));
     } finally {
