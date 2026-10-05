@@ -85,3 +85,24 @@ export function PricingStatus() {
   }
   return <p className="p-3 text-xs">{t('core.catalogPricing.catalogNotice', { currency: catalog.currencyCode })}</p>;
 }
+
+/** Sign-up stays closed while the catalog is unavailable; the backend enforces the same rule. */
+export function useAccountCreationDisabled() {
+  const { loading, error } = usePricing();
+  return Boolean(error) && !loading;
+}
+
+export function AccountCreationDisabledNotice({ className = '' }) {
+  const { retry } = usePricing();
+  const disabled = useAccountCreationDisabled();
+  const { t } = useTranslation();
+  if (!disabled) return null;
+  return (
+    <div role="alert" className={`p-3 text-sm border border-red-500 rounded-lg ${className}`}>
+      <p>{t('core.catalogPricing.accountCreationDisabled')}</p>
+      <button type="button" onClick={retry} className="mt-2 underline cursor-pointer">
+        {t('core.catalogPricing.retry')}
+      </button>
+    </div>
+  );
+}

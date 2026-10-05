@@ -47,7 +47,7 @@ test('landing uses Paddle catalog amounts and currency with one shared request',
   expect(errors).toEqual([]);
 });
 
-test('catalog outage blocks paid choices but leaves free tools and login usable; retry recovers', async ({ page }) => {
+test('catalog outage blocks paid choices and account creation but leaves free tools and login usable; retry recovers', async ({ page }) => {
   const api = await mockApi(page, { failInitially: true });
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));
@@ -56,18 +56,30 @@ test('catalog outage blocks paid choices but leaves free tools and login usable;
   const pricing = page.locator('#pricing');
   await expect(pricing.getByRole('alert')).toContainText('Pricing is temporarily unavailable');
   await expect(pricing.getByRole('button', { name: 'Choose Starter' })).toBeDisabled();
-  await expect(pricing.getByRole('button', { name: 'Get Started Free' })).toBeEnabled();
+  await expect(pricing.getByRole('button', { name: 'Get Started Free' })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Start Free Trial (5 Free Takeoffs)' })).toBeDisabled();
+  await expect(page.locator('#features').getByRole('alert'))
+    .toContainText('Account creation is disabled because pricing is unavailable');
   await expect(page.locator('#calculator input').first()).toBeEnabled();
   await expect(pricing).not.toContainText('NaN');
   await expect(pricing).not.toContainText('{{price}}');
   api.recover();
   await pricing.getByRole('button', { name: 'Retry pricing' }).click();
   await expect(pricing.getByRole('button', { name: 'Choose Starter' })).toBeEnabled();
+  await expect(pricing.getByRole('button', { name: 'Get Started Free' })).toBeEnabled();
   await expect(pricing).toContainText(formatMoney(prices.STARTER_MONTHLY_PRICE));
   expect(api.lookups()).toBe(2);
   await page.goto('/login?lang=en');
   await expect(page.locator('#login-identifier')).toBeEnabled();
   expect(errors).toEqual([]);
+});
+
+test('create-account page disables submission and explains why while pricing is unavailable', async ({ page }) => {
+  await mockApi(page, { failInitially: true });
+  await page.goto('/register?lang=en');
+  await expect(page.getByRole('alert'))
+    .toContainText('Account creation is disabled because pricing is unavailable');
+  await expect(page.locator('form').getByRole('button', { name: 'Create Account' })).toBeDisabled();
 });
 
 test('onboarding disables purchases during errors and uses full annual amounts after retry', async ({ page }) => {

@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { formatCurrency, formatNumber } from '@/core/lib/shared/formatting';
-import { PricingStatus, usePricingDisplay } from '@/core/components/context/PricingContext';
+import {
+  AccountCreationDisabledNotice,
+  PricingStatus,
+  useAccountCreationDisabled,
+  usePricingDisplay,
+} from '@/core/components/context/PricingContext';
 import { useTheme } from '@/core/components/context/ThemeContext';
 import LanguageSelector from '@/core/components/shared/LanguageSelector';
 import SeoHead from '@/core/components/shared/SeoHead';
@@ -85,6 +90,8 @@ function CalcField({ id, label, value, onChange, step, min = 0 }) {
 export default function LandingPage() {
   const navigate = useNavigate();
   const { t, prices, ready } = usePricingDisplay();
+  const accountCreationDisabled = useAccountCreationDisabled();
+  const accountCreationTitle = accountCreationDisabled ? t('core.catalogPricing.accountCreationDisabled') : undefined;
   const {
     STARTER_MONTHLY_PRICE, PRO_MONTHLY_PRICE, ENTERPRISE_MONTHLY_PRICE,
     STARTER_YEARLY_PRICE, PRO_YEARLY_PRICE, ENTERPRISE_YEARLY_PRICE, EXTRA_SEAT_MONTHLY_PRICE,
@@ -239,7 +246,13 @@ export default function LandingPage() {
             <button type="button" onClick={() => navigate('/login')} className="hover:text-[var(--lp-accent-text)] transition-colors">
               {t('core.landing.nav.signIn')}
             </button>
-            <button type="button" onClick={() => navigate('/register')} className="lp-btn lp-btn-sm">
+            <button
+              type="button"
+              onClick={() => navigate('/register')}
+              disabled={accountCreationDisabled}
+              title={accountCreationTitle}
+              className="lp-btn lp-btn-sm"
+            >
               {t('core.landing.nav.getStartedFree')}
             </button>
           </div>
@@ -302,6 +315,8 @@ export default function LandingPage() {
                 setMobileMenuOpen(false);
                 navigate('/register');
               }}
+              disabled={accountCreationDisabled}
+              title={accountCreationTitle}
               className="lp-btn lp-btn-sm"
             >
               {t('core.landing.nav.getStartedFree')}
@@ -324,13 +339,20 @@ export default function LandingPage() {
             <div>
               <p className="text-[19px] leading-[1.55] max-w-[30em] text-[var(--lp-ink)]/85">{t('core.landing.hero.subtitle')}</p>
               <div className="flex flex-wrap gap-3 mt-8">
-                <button type="button" onClick={() => navigate('/register')} className="lp-btn">
+                <button
+                  type="button"
+                  onClick={() => navigate('/register')}
+                  disabled={accountCreationDisabled}
+                  title={accountCreationTitle}
+                  className="lp-btn"
+                >
                   {t('core.landing.hero.ctaTrial')}
                 </button>
                 <a href="#calculator" className="lp-btn lp-btn-outline">
                   {t('core.landing.hero.ctaCalculator')} <ArrowDown className="w-4 h-4" aria-hidden="true" />
                 </a>
               </div>
+              <AccountCreationDisabledNotice className="mt-4 max-w-[30em]" />
               <div className="mt-6 pt-[18px] border-t border-[var(--lp-rule)] text-[13.5px] text-[var(--lp-muted)] flex flex-wrap gap-x-[22px] gap-y-1.5">
                 {[t('core.landing.hero.badgeNoCard'), t('core.landing.hero.badgeInstantExports'), t('core.landing.hero.badgeColumnMapper')].map((badge) => (
                   <span key={badge} className="inline-flex items-center gap-[9px]">
@@ -476,7 +498,13 @@ export default function LandingPage() {
                   {formatCurrency(estimatedTotalTrenchBid)}
                 </b>
               </div>
-              <button type="button" onClick={() => navigate('/register')} className="lp-btn mt-[26px] w-full">
+              <button
+                type="button"
+                onClick={() => navigate('/register')}
+                disabled={accountCreationDisabled}
+                title={accountCreationTitle}
+                className="lp-btn mt-[26px] w-full"
+              >
                 {t('core.landing.calculator.importCta')} <ArrowRight className="w-4 h-4" aria-hidden="true" />
               </button>
               <p className="text-[13px] text-[var(--lp-muted)] mt-3.5">
@@ -484,7 +512,9 @@ export default function LandingPage() {
                 <button
                   type="button"
                   onClick={() => navigate('/register')}
-                  className="text-[var(--lp-ink)] font-semibold underline underline-offset-[3px] hover:text-[var(--lp-accent-text)]"
+                  disabled={accountCreationDisabled}
+                  title={accountCreationTitle}
+                  className="text-[var(--lp-ink)] font-semibold underline underline-offset-[3px] hover:text-[var(--lp-accent-text)] disabled:opacity-50 disabled:cursor-not-allowed disabled:no-underline"
                 >
                   {t('core.landing.calculator.createAccount')}
                 </button>
@@ -611,7 +641,8 @@ export default function LandingPage() {
                 </ul>
                 <button
                   type="button"
-                  disabled={plan.key !== 'freeTrial' && !ready}
+                  disabled={accountCreationDisabled || (plan.key !== 'freeTrial' && !ready)}
+                  title={accountCreationTitle}
                   onClick={() => navigate('/register')}
                   className={`lp-btn sm:col-span-2 lg:col-span-1 lg:min-w-[170px] ${plan.highlight ? '' : 'lp-btn-outline'}`}
                 >
@@ -645,7 +676,15 @@ export default function LandingPage() {
                 <li><Link to="/guide" className="hover:text-white">{t('core.footer.documentation')}</Link></li>
                 <li><a href="#pricing" className="hover:text-white">{t('core.footer.pricing')}</a></li>
                 <li><Link to="/login" className="hover:text-white">{t('core.landing.footer.signIn')}</Link></li>
-                <li><Link to="/register" className="hover:text-white">{t('core.landing.footer.createAccount')}</Link></li>
+                <li>
+                  {accountCreationDisabled ? (
+                    <span aria-disabled="true" title={accountCreationTitle} className="opacity-50 cursor-not-allowed">
+                      {t('core.landing.footer.createAccount')}
+                    </span>
+                  ) : (
+                    <Link to="/register" className="hover:text-white">{t('core.landing.footer.createAccount')}</Link>
+                  )}
+                </li>
               </ul>
             </div>
             <div>

@@ -5,6 +5,7 @@
       "unavailableShort": "Pricing unavailable",
       "unavailable": "Pricing is temporarily unavailable. Please try again before purchasing or changing paid seats.",
       "retry": "Retry pricing",
+      "accountCreationDisabled": "Account creation is disabled because pricing is unavailable. Please try again later.",
       "catalogNotice": "Base catalog prices in {{currency}}. Checkout confirms applicable taxes, discounts, and prorations."
     },
     "accessibility": {

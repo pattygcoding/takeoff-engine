@@ -36,7 +36,9 @@ export const authApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || getTranslation('core.apiErrors.registrationFailed'));
+      const error = new Error(data.error || getTranslation('core.apiErrors.registrationFailed'));
+      error.code = data.code;
+      throw error;
     }
     return data;
   },

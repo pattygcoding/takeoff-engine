@@ -168,6 +168,21 @@ body:has(dialog[open]) {
   font-size: 13px;
 }
 
+.landing .lp-btn:disabled,
+.landing .lp-btn:disabled:hover {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--lp-ink);
+  border-color: var(--lp-ink);
+  color: var(--lp-paper);
+}
+
+.landing .lp-btn-outline:disabled,
+.landing .lp-btn-outline:disabled:hover {
+  background: transparent;
+  color: var(--lp-ink);
+}
+
 @media print {
   .no-print {
     display: none !important;

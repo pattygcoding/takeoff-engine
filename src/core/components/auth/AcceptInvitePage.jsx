@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '@/core/components/context/AuthContext';
 import { useModal } from '@/core/components/context/ModalContext';
 import { useTranslation } from '@/core/components/context/I18nContext';
+import { AccountCreationDisabledNotice, useAccountCreationDisabled } from '@/core/components/context/PricingContext';
 import { PENDING_INVITE_KEY } from '@/core/lib/auth/organizations';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -14,6 +15,7 @@ export default function AcceptInvitePage() {
   const token = searchParams.get('token');
   const { user, isAuthenticated, refreshProfile } = useAuth();
   const { showAlert } = useModal();
+  const accountCreationDisabled = useAccountCreationDisabled();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
@@ -96,6 +98,7 @@ export default function AcceptInvitePage() {
   };
 
   const handleCreateAccount = () => {
+    if (accountCreationDisabled) return;
     sessionStorage.setItem(PENDING_INVITE_KEY, token);
     navigate('/register');
   };
@@ -213,10 +216,12 @@ export default function AcceptInvitePage() {
               <button
                 type="button"
                 onClick={handleCreateAccount}
-                className="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold text-sm rounded-xl transition"
+                disabled={accountCreationDisabled}
+                className="w-full py-3 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-slate-700 text-white font-bold text-sm rounded-xl transition"
               >
                 {t('core.acceptInvite.createAccountToAccept')}
               </button>
+              <AccountCreationDisabledNotice className="text-red-300" />
             </div>
           )}
         </div>

@@ -4,7 +4,13 @@ import { useAuth } from '@/core/components/context/AuthContext';
 import { authApi } from '@/core/lib/auth/auth';
 import { billingApi } from '@/core/lib/billing/billing';
 import { openPaddleCheckout } from '@/core/lib/billing/paddle';
-import { PricingStatus, usePricingDisplay } from '@/core/components/context/PricingContext';
+import {
+  AccountCreationDisabledNotice,
+  PricingStatus,
+  useAccountCreationDisabled,
+  usePricing,
+  usePricingDisplay,
+} from '@/core/components/context/PricingContext';
 import SeoHead from '@/core/components/shared/SeoHead';
 import { ArrowLeft, AlertTriangle, PartyPopper, Check, ArrowRight } from 'lucide-react';
 import { isValidPassword, isValidPhoneNumber, PASSWORD_MIN_LENGTH } from '@/core/lib/shared/validators';
@@ -18,6 +24,8 @@ import {
 export default function LoginPage({ initialView = 'login' }) {
   const { login, register, refreshProfile, user } = useAuth();
   const { t, prices, ready } = usePricingDisplay();
+  const { retry: retryPricing } = usePricing();
+  const accountCreationDisabled = useAccountCreationDisabled();
   const {
     STARTER_MONTHLY_PRICE, PRO_MONTHLY_PRICE, ENTERPRISE_MONTHLY_PRICE,
     STARTER_YEARLY_PRICE, PRO_YEARLY_PRICE, ENTERPRISE_YEARLY_PRICE, EXTRA_SEAT_MONTHLY_PRICE,
@@ -89,7 +97,7 @@ export default function LoginPage({ initialView = 'login' }) {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    if (loading) return;
+    if (loading || accountCreationDisabled) return;
     setError('');
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -130,6 +138,8 @@ export default function LoginPage({ initialView = 'login' }) {
       switchView('login');
       setMessage(registration.message || t('core.loginPage.emailVerificationSent'));
     } catch (err) {
+      // The server closed sign-up because pricing went down; resync so the form disables itself.
+      if (err.code === 'PRICING_UNAVAILABLE') retryPricing();
       setError(err.message || t('core.loginPage.errRegisterFailed'));
     } finally {
       setLoading(false);
@@ -573,7 +583,9 @@ export default function LoginPage({ initialView = 'login' }) {
               <button
                 type="button"
                 onClick={() => switchView('register')}
-                className="text-blue-600 dark:text-blue-400 font-semibold hover:underline"
+                disabled={accountCreationDisabled}
+                title={accountCreationDisabled ? t('core.catalogPricing.accountCreationDisabled') : undefined}
+                className="text-blue-600 dark:text-blue-400 font-semibold hover:underline disabled:opacity-50 disabled:cursor-not-allowed disabled:no-underline"
               >
                 {t('core.loginPage.createAccount')}
               </button>
@@ -589,6 +601,7 @@ export default function LoginPage({ initialView = 'login' }) {
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t('core.loginPage.getStartedSubtitle')}</p>
             </div>
 
+            <AccountCreationDisabledNotice className="mb-4 text-red-700 dark:text-red-300" />
             <form onSubmit={handleRegister} aria-describedby={error ? 'auth-error' : undefined} aria-busy={loading} className="space-y-3.5">
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -730,7 +743,8 @@ export default function LoginPage({ initialView = 'login' }) {
               <button
                 type="submit"
                 aria-disabled={loading}
-                className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 aria-disabled:cursor-wait text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm"
+                disabled={accountCreationDisabled}
+                className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 aria-disabled:cursor-wait disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-600 text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm"
               >
                 {loading ? t('core.loginPage.creatingAccount') : t('core.loginPage.createAccount')}
               </button>

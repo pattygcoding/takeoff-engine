@@ -4,12 +4,14 @@ import { X } from 'lucide-react';
 import { useAuth } from '@/core/components/context/AuthContext';
 import { authApi } from '@/core/lib/auth/auth';
 import { useTranslation } from '@/core/components/context/I18nContext';
+import { AccountCreationDisabledNotice, useAccountCreationDisabled } from '@/core/components/context/PricingContext';
 import { isValidPassword, isValidPhoneNumber, PASSWORD_MIN_LENGTH } from '@/core/lib/shared/validators';
 import { CURRENT_TERMS_VERSION } from '@/core/constants';
 
 export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
   const { login, register } = useAuth();
   const { t } = useTranslation();
+  const accountCreationDisabled = useAccountCreationDisabled();
   const [view, setView] = useState(initialView); // 'login' | 'register' | 'forgot' | 'reset'
 
   // Form states
@@ -64,6 +66,7 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    if (accountCreationDisabled) return;
     setError('');
 
     if (!isValidPhoneNumber(registerPhone)) {
@@ -200,7 +203,9 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
               <button
                 type="button"
                 onClick={() => switchView('register')}
-                className="text-blue-600 dark:text-blue-400 font-semibold hover:underline cursor-pointer"
+                disabled={accountCreationDisabled}
+                title={accountCreationDisabled ? t('core.catalogPricing.accountCreationDisabled') : undefined}
+                className="text-blue-600 dark:text-blue-400 font-semibold hover:underline cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:no-underline"
               >
                 {t('core.authModal.createAccount')}
               </button>
@@ -216,6 +221,7 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t('core.authModal.getStartedSubtitle')}</p>
             </div>
 
+            <AccountCreationDisabledNotice className="mb-4 text-red-700 dark:text-red-300" />
             <form onSubmit={handleRegister} className="space-y-3.5">
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -337,8 +343,8 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
 
               <button
                 type="submit"
-                disabled={loading}
-                className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm cursor-pointer"
+                disabled={loading || accountCreationDisabled}
+                className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm cursor-pointer"
               >
                 {loading ? t('core.authModal.creatingAccount') : t('core.authModal.createAccount')}
               </button>

@@ -17,7 +17,7 @@ import { AuthProvider, useAuth } from '@/core/components/context/AuthContext';
 import { ModalProvider } from '@/core/components/context/ModalContext';
 import { I18nProvider, useTranslation } from '@/core/components/context/I18nContext';
 import { ThemeProvider } from '@/core/components/context/ThemeContext';
-import { PricingProvider } from '@/core/components/context/PricingContext';
+import { PricingProvider, useAccountCreationDisabled } from '@/core/components/context/PricingContext';
 
 // Product Routes (Decoupled Domain Layer)
 import { renderProductRoutes } from '@/product/routes/ProductRoutes';
@@ -46,6 +46,7 @@ const AccessibilityPage = lazy(() => import('@/core/components/legal/Accessibili
 function AppContent() {
   const { user, isAuthenticated, loading } = useAuth();
   const { t } = useTranslation();
+  const accountCreationDisabled = useAccountCreationDisabled();
   const [showAutoUpgradeModal, setShowAutoUpgradeModal] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -147,7 +148,9 @@ function AppContent() {
                   </button>
                   <button
                     onClick={() => navigate('/register')}
-                    className="px-3.5 py-1.5 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition"
+                    disabled={accountCreationDisabled}
+                    title={accountCreationDisabled ? t('core.catalogPricing.accountCreationDisabled') : undefined}
+                    className="px-3.5 py-1.5 text-sm font-medium bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-600 text-white rounded-lg shadow-sm transition"
                   >
                     Sign Up
                   </button>
