@@ -88,9 +88,9 @@ export default function LanguageSelector({ variant = 'light' }) {
       {isOpen && (
         <div
           id={listId}
-          className={`absolute right-0 mt-1.5 w-36 border shadow-xl z-50 py-1 overflow-hidden animate-fade-in ${
+          className={`absolute right-0 mt-1.5 w-36 max-w-[min(12rem,calc(100vw-1.5rem))] border shadow-xl z-50 py-1 overflow-hidden animate-fade-in ${
             isLanding
-              ? 'left-0 right-auto bg-[var(--lp-card)] border-[var(--lp-line)] text-[var(--lp-ink)] divide-y divide-[var(--lp-rule)]'
+              ? 'bg-[var(--lp-card)] border-[var(--lp-line)] text-[var(--lp-ink)] divide-y divide-[var(--lp-rule)]'
               : isDark
                 ? 'rounded-xl bg-slate-900 border-slate-700 text-slate-100 divide-y divide-slate-800'
                 : 'rounded-xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 divide-y divide-slate-100 dark:divide-slate-800'
