@@ -3,6 +3,17 @@ import { QA_TAG } from './qaEnvironment.js';
 
 const LIVE_SUBSCRIPTION_STATUSES = 'active,trialing,past_due,paused';
 const CHECKOUT_FRAME = 'iframe[name="paddle_frame"]';
+const REQUEST_TIMEOUT_MS = 30_000;
+
+/** fetch that fails with a descriptive error instead of hanging until the test timeout. */
+async function fetchWithTimeout(url, init, description) {
+  try {
+    return await fetch(url, { ...init, signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
+  } catch (error) {
+    if (error.name === 'TimeoutError') throw new Error(`${description} got no response within ${REQUEST_TIMEOUT_MS / 1000}s.`);
+    throw error;
+  }
+}
 
 /**
  * Pays in the Paddle overlay checkout using sandbox test card details. Handles both checkout
@@ -68,11 +79,11 @@ async function completeThreeDSecureChallenge(page, timeoutMs = 60_000) {
  */
 export function createPaddleSandboxApi({ apiKey = process.env.PADDLE_API_KEY, baseUrl = 'https://sandbox-api.paddle.com' } = {}) {
   async function request(method, path, body) {
-    const res = await fetch(`${baseUrl}${path}`, {
+    const res = await fetchWithTimeout(`${baseUrl}${path}`, {
       method,
       headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
       body: body ? JSON.stringify(body) : undefined,
-    });
+    }, `Paddle ${method} ${path}`);
     const payload = await res.json().catch(() => ({}));
     if (!res.ok) {
       throw new Error(`Paddle ${method} ${path} failed: ${res.status} ${payload?.error?.detail || JSON.stringify(payload)}`);
@@ -173,11 +184,11 @@ export async function deliverPaddleWebhook({ backendUrl, secret, eventType, data
   });
   const ts = Math.floor(Date.now() / 1000);
   const h1 = crypto.createHmac('sha256', secret).update(`${ts}:${body}`).digest('hex');
-  const res = await fetch(`${backendUrl}/api/webhooks/paddle`, {
+  const res = await fetchWithTimeout(`${backendUrl}/api/webhooks/paddle`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Paddle-Signature': `ts=${ts};h1=${h1}` },
     body,
-  });
+  }, `Webhook ${eventType} to ${backendUrl}`);
   const payload = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(`Webhook ${eventType} was rejected: ${res.status} ${JSON.stringify(payload)}`);
   return payload;
