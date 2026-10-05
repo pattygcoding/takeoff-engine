@@ -2,6 +2,7 @@ import { lazy, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { Navigate, Route, Routes, useNavigate, useParams, Link } from 'react-router-dom';
 import Stepper from '@/product/components/Stepper';
+import NotFoundPage from '@/core/components/shared/NotFoundPage';
 import UploadStep from '@/product/components/UploadStep';
 import ProjectDashboard from '@/product/components/ProjectDashboard';
 import { useAuth } from '@/core/components/context/AuthContext';
@@ -249,7 +250,7 @@ export default function UserWorkspace() {
           />
         }
       />
-      <Route path="*" element={<Navigate to={`/${username}`} replace />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }

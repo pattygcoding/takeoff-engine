@@ -11,6 +11,7 @@ import AppFooter from '@/core/components/shared/AppFooter';
 import LanguageSelector from '@/core/components/shared/LanguageSelector';
 import ThemeToggle from '@/core/components/shared/ThemeToggle';
 import ErrorBoundary from '@/core/components/shared/ErrorBoundary';
+import NotFoundPage from '@/core/components/shared/NotFoundPage';
 
 // Core Context & Providers
 import { AuthProvider, useAuth } from '@/core/components/context/AuthContext';
@@ -295,16 +296,7 @@ function AppContent() {
             )
           }
         />
-        <Route
-          path="*"
-          element={
-            isAuthenticated && user?.username ? (
-              <Navigate to={`/${user.username}`} replace />
-            ) : (
-              <LandingPage />
-            )
-          }
-        />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
       </Suspense>
       </main>

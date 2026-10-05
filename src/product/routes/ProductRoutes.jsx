@@ -1,9 +1,18 @@
 import React, { lazy } from 'react';
-import { Route, Navigate } from 'react-router-dom';
+import { Route, Navigate, useParams } from 'react-router-dom';
+import NotFoundPage from '@/core/components/shared/NotFoundPage';
+import { isWorkspacePath } from '@/product/routes/workspacePaths';
 
 const UserWorkspace = lazy(() => import('@/product/components/UserWorkspace'));
 const ClientProposalView = lazy(() => import('@/product/components/ClientProposalView'));
 const ClientGuidePage = lazy(() => import('@/product/components/ClientGuidePage'));
+
+// /:username/* also catches typos; only known workspace pages get the login redirect or the workspace.
+function UserWorkspaceRoute({ isAuthenticated }) {
+  const { '*': subPath } = useParams();
+  if (!isWorkspacePath(subPath)) return <NotFoundPage />;
+  return isAuthenticated ? <UserWorkspace /> : <Navigate to="/login" replace />;
+}
 
 export function renderProductRoutes(isAuthenticated) {
   return [
@@ -13,13 +22,7 @@ export function renderProductRoutes(isAuthenticated) {
     <Route
       key="user-workspace"
       path="/:username/*"
-      element={
-        !isAuthenticated ? (
-          <Navigate to="/login" replace />
-        ) : (
-          <UserWorkspace />
-        )
-      }
+      element={<UserWorkspaceRoute isAuthenticated={isAuthenticated} />}
     />,
   ];
 }

@@ -1,24 +1,43 @@
 import React from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { getTranslation } from '@/core/lib/shared/i18n';
+import { isStaleBuildError, reloadForStaleBuild } from '@/core/lib/shared/staleBuild';
 
 export default class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, error: null, staleBuild: false, reloading: false };
   }
 
   static getDerivedStateFromError(error) {
-    return { hasError: true, error };
+    return { hasError: true, error, staleBuild: isStaleBuildError(error) };
   }
 
   componentDidCatch(error, errorInfo) {
+    if (isStaleBuildError(error) && reloadForStaleBuild()) {
+      this.setState({ reloading: true });
+      return;
+    }
     console.error('ErrorBoundary caught an error:', error, errorInfo);
   }
 
   render() {
     if (this.state.hasError) {
       const savedLang = typeof localStorage !== 'undefined' ? localStorage.getItem('takeoff_lang') || 'en' : 'en';
+
+      if (this.state.reloading) {
+        return (
+          <div className="min-h-screen bg-slate-100 dark:bg-slate-950 flex items-center justify-center">
+            <div role="status" className="text-slate-600 dark:text-slate-400 font-medium animate-pulse">
+              {getTranslation('core.errorBoundary.updating', {}, savedLang)}
+            </div>
+          </div>
+        );
+      }
+
+      const message = this.state.staleBuild
+        ? getTranslation('core.errorBoundary.newVersionMessage', {}, savedLang)
+        : this.state.error?.message || getTranslation('core.errorBoundary.defaultMessage', {}, savedLang);
 
       return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
@@ -30,7 +49,7 @@ export default class ErrorBoundary extends React.Component {
               {getTranslation('core.errorBoundary.title', {}, savedLang)}
             </h2>
             <p className="text-sm text-slate-600 mb-6">
-              {this.state.error?.message || getTranslation('core.errorBoundary.defaultMessage', {}, savedLang)}
+              {message}
             </p>
             <button
               type="button"

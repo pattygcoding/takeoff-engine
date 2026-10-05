@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { createCatalogFixture } from '../helpers/paddleCatalogFixture.js';
 
-const routes = ['/home', '/login', '/register', '/forgot-password', '/terms', '/privacy', '/refund', '/acceptable-use', '/disclaimer', '/guide', '/accessibility'];
+const routes = ['/home', '/login', '/register', '/forgot-password', '/terms', '/privacy', '/refund', '/acceptable-use', '/disclaimer', '/guide', '/accessibility', '/someone/not-a-real-page'];
 
 // No backend runs during this suite; serve a generated catalog so pricing-gated controls stay enabled.
 test.beforeEach(async ({ page }) => {
@@ -91,6 +91,18 @@ test('accessibility statement is reachable and offers an existing support contac
   await page.getByRole('link', { name: 'Accessibility', exact: true }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Accessibility' })).toBeFocused();
   await expect(page.locator('article a[href="mailto:pattygsocials@gmail.com"]')).toBeVisible();
+});
+
+test('unknown pages show a not-found page while workspace links still ask visitors to log in', async ({ page }) => {
+  await page.goto('/someone/not-a-real-page?lang=en');
+  await expect(page.getByRole('heading', { level: 1, name: 'Page not found' })).toBeVisible();
+  await expect(page).toHaveTitle('Page not found - Takeoff Engine');
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
+  await page.getByRole('link', { name: 'Go to Home Page' }).click();
+  await expect(page).toHaveURL(/\/home(\?|#|$)/);
+
+  await page.goto('/someone/projects?lang=en');
+  await expect(page).toHaveURL(/\/login(\?|$)/);
 });
 
 const LANDING_AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'];

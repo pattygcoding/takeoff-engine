@@ -37,7 +37,16 @@
     "errorBoundary": {
       "title": "Something went wrong",
       "defaultMessage": "An unexpected error occurred while rendering this page.",
-      "reloadPage": "Reload Page"
+      "reloadPage": "Reload Page",
+      "newVersionMessage": "A new version of Takeoff Engine is available. Reload the page to update.",
+      "updating": "Loading the latest version…"
+    },
+    "notFound": {
+      "title": "Page not found",
+      "message": "The page you're looking for doesn't exist or may have moved. Check the address, or use one of the links below.",
+      "goToWorkspace": "Go to My Projects",
+      "logIn": "Log In",
+      "goHome": "Go to Home Page"
     },
     "landing": {
       "nav": {
