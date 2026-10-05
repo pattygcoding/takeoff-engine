@@ -55,11 +55,34 @@ function AppContent() {
   useEffect(() => {
     if (loading || previousPath.current === location.pathname) return;
     previousPath.current = location.pathname;
-    const content = document.getElementById('main-content');
-    const target = content?.querySelector('h1') || content;
-    target?.setAttribute('tabindex', '-1');
-    target?.focus({ preventScroll: true });
     window.scrollTo({ top: 0, behavior: 'instant' });
+    const content = document.getElementById('main-content');
+    if (!content) return undefined;
+    const focusTarget = (target) => {
+      target.setAttribute('tabindex', '-1');
+      target.focus({ preventScroll: true });
+    };
+    const heading = content.querySelector('h1');
+    if (heading) {
+      focusTarget(heading);
+      return undefined;
+    }
+    // Lazy routes show the Suspense fallback first; move focus to the heading once the page mounts.
+    focusTarget(content);
+    const observer = new MutationObserver(() => {
+      const mountedHeading = content.querySelector('h1');
+      if (!mountedHeading) return;
+      observer.disconnect();
+      if (document.activeElement === content || document.activeElement === document.body) {
+        focusTarget(mountedHeading);
+      }
+    });
+    observer.observe(content, { childList: true, subtree: true });
+    const timeout = setTimeout(() => observer.disconnect(), 10000);
+    return () => {
+      observer.disconnect();
+      clearTimeout(timeout);
+    };
   }, [location.pathname, loading]);
 
   const isExempt =
@@ -80,8 +103,8 @@ function AppContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-100 flex items-center justify-center">
-        <div role="status" className="text-slate-500 font-medium animate-pulse">{t('core.accessibility.loading')}</div>
+      <div className="min-h-screen bg-slate-100 dark:bg-slate-950 flex items-center justify-center">
+        <div role="status" className="text-slate-600 dark:text-slate-400 font-medium animate-pulse">{t('core.accessibility.loading')}</div>
       </div>
     );
   }
@@ -165,7 +188,7 @@ function AppContent() {
       <Suspense
         fallback={
           <div className="min-h-[50vh] flex items-center justify-center">
-            <div role="status" className="text-slate-500 font-medium animate-pulse">{t('core.accessibility.loading')}</div>
+            <div role="status" className="text-slate-600 dark:text-slate-400 font-medium animate-pulse">{t('core.accessibility.loading')}</div>
           </div>
         }
       >

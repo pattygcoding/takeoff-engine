@@ -1,12 +1,20 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { createCatalogFixture } from '../helpers/paddleCatalogFixture.js';
 
 const routes = ['/home', '/login', '/register', '/forgot-password', '/terms', '/privacy', '/refund', '/acceptable-use', '/disclaimer', '/guide', '/accessibility'];
+
+// No backend runs during this suite; serve a generated catalog so pricing-gated controls stay enabled.
+test.beforeEach(async ({ page }) => {
+  await page.route('**/api/billing/pricing', (route) => route.fulfill({ json: createCatalogFixture().catalog }));
+});
 
 for (const route of routes) {
   test(`${route} has no detected WCAG A/AA violations and reflows`, async ({ page }) => {
     await page.goto(`${route}?lang=en`);
     await expect(page.locator('#main-content')).toBeVisible();
+    // Routes are lazy-loaded; scan the rendered page rather than the Suspense fallback.
+    await expect(page.locator('#main-content h1').first()).toBeVisible();
     if (route === '/home') {
       await expect(page.getByRole('dialog')).toBeVisible();
       const dialogResults = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
