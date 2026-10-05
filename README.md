@@ -119,8 +119,9 @@ When testing upgrades in non-production (`VITE_PADDLE_ENVIRONMENT=sandbox`), use
 4. Alternatively, use the test endpoint `POST /api/billing/mock-webhook` with `{ "eventType": "subscription.created", "userId": "<UUID>" }` to test webhook event triggers without external network tunnels.
 
 ### Automated Full-Stack QA (signup + paid checkout)
-`npm run test:qa` runs Playwright QA tests for the core SaaS flows: creating an account, then buying the
-Starter, Pro, and Enterprise subscriptions with the Paddle sandbox test card. Every run proves the database is
+`npm run test:qa` runs Playwright QA tests for the core SaaS flows: creating an account, buying the Starter,
+Pro, and Enterprise subscriptions (monthly and yearly) with the Paddle sandbox test card, upgrading and
+downgrading between plans, and cancelling and restoring a subscription. Every run proves the database is
 identical before and after. These are separate from unit tests (`npm run test:unit`). See
 [tests/qa/README.md](./tests/qa/README.md).
 

@@ -6,7 +6,9 @@ tests and drive the real app: real frontend, real backend, real database, and re
 | Spec | What it proves |
 | --- | --- |
 | `core/auth/createAccount.spec.js` | A visitor can sign up, verify their email, and log in. The free account is stored correctly. |
-| `core/billing/subscriptionCheckout.spec.js` | A new customer can buy **Starter**, **Pro**, or **Enterprise** with the sandbox test card. Paddle creates the subscription, the webhook grants the plan (tier, status, seats, Paddle IDs), and the plan picker shows it as current. |
+| `core/billing/subscriptionCheckout.spec.js` | A new customer can buy **Starter**, **Pro**, or **Enterprise**, **monthly or yearly**, with the sandbox test card. Paddle creates the subscription on the right price and billing cycle. The webhook grants the plan (tier, status, seats, Paddle IDs, and a renewal date one cycle out), and the plan picker shows it as current. |
+| `core/billing/subscriptionCancellation.spec.js` | For each plan, a subscriber can click **Cancel Subscription** in Account Settings, give a reason, and confirm. Paddle then schedules the cancellation for the end of the period. The account keeps access with the reason recorded, the page shows "Access ends on" and **Restore Subscription**, and Paddle's follow-up webhook doesn't undo it. A separate test proves **Restore Subscription** undoes the cancellation in Paddle, the database, and the UI. |
+| `core/billing/planChanges.spec.js` | **Upgrades free → Starter → Pro → Enterprise.** Free → Starter goes through checkout. Each later step uses the upgrade modal in Account Settings: the same Paddle subscription moves to the higher price, Paddle collects a prorated charge right away, and the plan and seats apply immediately. **Downgrades Enterprise → Pro → Starter → Free.** Paddle switches to the lower price for the next renewal and charges nothing now. The customer keeps the current plan (with a "Downgrade Scheduled" banner) until the renewal, then gets the lower plan. Free = cancel, then the paid period ends. |
 
 Only core routes and APIs are used (`/register`, `/login`, `/onboarding`, `/api/auth`, `/api/billing`,
 `/api/webhooks/paddle`), so the suite carries over to another product built on the core.
@@ -58,14 +60,25 @@ database during a run, the comparison reports exactly which tables changed. Re-r
 - **Admin bootstrap.** Backend startup normally re-promotes the configured admin accounts. The QA backend
   disables this so it can't touch real rows.
 
-**Webhooks.** Paddle's sandbox can't reach `localhost`. After paying, the harness fetches the real subscription
-from the Paddle sandbox API and posts it to `/api/webhooks/paddle`, signed the same way Paddle signs
-notifications. The app's own signature verification and entitlement logic run unchanged.
+**Webhooks.** Paddle's sandbox can't reach `localhost`. After each Paddle change (purchase, plan change, cancel,
+restore), the harness fetches the real subscription from the Paddle sandbox API and posts it to
+`/api/webhooks/paddle`, signed the same way Paddle signs notifications. The app's own signature verification and
+entitlement logic run unchanged.
+
+**Time.** The sandbox can't fast-forward to a renewal or the end of a billing period, so two moments are simulated:
+
+- **Renewal** (when a scheduled downgrade takes effect): the harness delivers the real subscription with its
+  billing period moved forward one cycle.
+- **End of a canceled period:** Paddle ends the subscription immediately, and the harness then delivers Paddle's
+  real `subscription.canceled` notification.
+
+**Emails.** The app never emails anyone during QA runs. Paddle's sandbox may still send its own emails, such as
+seller notifications or webhook-delivery alerts.
 
 ## Required variables (all present in Infisical `dev`)
 
 `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL`, `PADDLE_ENVIRONMENT`,
-`PADDLE_API_KEY`, `PADDLE_WEBHOOK_SECRET_KEY`, `PADDLE_PRICE_ID_{STARTER,PRO,ENTERPRISE}_MONTHLY`,
+`PADDLE_API_KEY`, `PADDLE_WEBHOOK_SECRET_KEY`, `PADDLE_PRICE_ID_{STARTER,PRO,ENTERPRISE}_{MONTHLY,ANNUALLY}`,
 `VITE_PADDLE_ENVIRONMENT`, `VITE_PADDLE_CLIENT_TOKEN`.
 
 Optional: `QA_EMAIL_TEMPLATE` (default `delivered+{tag}@resend.dev`), `QA_SNAPSHOT_SCHEMAS`

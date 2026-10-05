@@ -390,9 +390,10 @@
       "annualSeatOption": "Annual Seats (${{rate}}/yr each)",
       "totalRecurringSummary": "Updated Total: ${{totalPrice}} {{interval}} + tax",
       "confirmDowngradeBtn": "Proceed with Downgrade",
-      "cancelDowngradeBtn": "Keep Enterprise Plan",
+      "cancelDowngradeBtn": "Keep Current Plan",
       "downgradeScheduledTitle": "Downgrade Scheduled",
-      "successTitle": "Upgrade Successful"
+      "successTitle": "Upgrade Successful",
+      "planOptionsLabel": "Plans"
     },
     "accountSettings": {
       "title": "Account Settings",
@@ -707,6 +708,7 @@
       "exportRecordingFailed": "Export recording failed.",
       "fetchSubscriptionDetailsFailed": "Failed to fetch subscription details.",
       "createCheckoutSessionFailed": "Failed to create checkout session.",
+      "changePlanFailed": "Failed to change plan.",
       "mockActivationFailed": "Mock activation failed.",
       "downgradePreviewFailed": "Failed to preview plan downgrade.",
       "updateSeatsFailed": "Failed to update seats.",

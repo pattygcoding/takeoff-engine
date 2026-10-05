@@ -39,6 +39,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
   const activeTierRank = tierHierarchy[activePlan] || 0;
   const isCurrentPlanSelected = user?.subscription_status === 'active' && currentTier === activePlan;
   const isDowngradeSelected = user?.subscription_status === 'active' && activeTierRank < currentTierRank;
+  const hasActiveSubscription = Boolean(user?.paddle_subscription_id) && user?.subscription_status === 'active';
 
   if (user?.role === 'payment_exempt' || user?.has_unlimited_bypass) {
     return (
@@ -99,6 +100,22 @@ export default function UpgradeModal({ isOpen, onClose }) {
 
     setCheckoutLoading(true);
     try {
+      // Existing subscribers change the plan on their current Paddle subscription; a second checkout would bill twice.
+      if (hasActiveSubscription) {
+        const res = await billingApi.changePlan(selectedPlan);
+        if (res.user) localStorage.setItem('takeoff_user', JSON.stringify(res.user));
+        if (refreshProfile) await refreshProfile();
+        await showAlert({
+          title: res.changeType === 'upgrade'
+            ? t('core.upgradeModal.successTitle', 'Upgrade Successful')
+            : t('core.upgradeModal.downgradeScheduledTitle', 'Downgrade Scheduled'),
+          message: res.message,
+          variant: res.changeType === 'upgrade' ? 'success' : 'info',
+        });
+        onClose();
+        return;
+      }
+
       const seatsToAdd = (selectedPlan === 'enterprise' || selectedPlan === 'pro') ? additionalSeats : 0;
       const checkoutParams = await billingApi.createCheckout(selectedPlan, billingInterval, seatsToAdd);
 
@@ -207,7 +224,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto p-4 sm:p-6 bg-slate-900/80 backdrop-blur-sm animate-fade-in flex min-h-full items-center justify-center">
-      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-2xl w-full p-6 sm:p-8 relative my-auto">
+      <div role="dialog" aria-modal="true" aria-labelledby="upgrade-modal-title" className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-2xl w-full p-6 sm:p-8 relative my-auto">
         {!isOutOfCredits && (
           <button
             onClick={onClose}
@@ -226,7 +243,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">{t('core.upgradeModal.title')}</h2>
+          <h2 id="upgrade-modal-title" className="text-2xl font-bold text-slate-900 tracking-tight">{t('core.upgradeModal.title')}</h2>
           <p className="text-sm text-slate-500 mt-1 max-w-sm mx-auto">
             {t('core.upgradeModal.subtitle')}
           </p>
@@ -265,9 +282,10 @@ export default function UpgradeModal({ isOpen, onClose }) {
 
         {/* Plan Switcher - 3 Tiers */}
         <PricingStatus />
-        <div className="grid grid-cols-3 gap-2.5 mb-4">
+        <div role="group" aria-label={t('core.upgradeModal.planOptionsLabel')} className="grid grid-cols-3 gap-2.5 mb-4">
           <button
             type="button"
+            aria-pressed={activePlan === 'starter'}
             onClick={() => {
               setActivePlan('starter');
               setAdditionalSeats(0);
@@ -294,6 +312,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
 
           <button
             type="button"
+            aria-pressed={activePlan === 'pro'}
             onClick={() => setActivePlan('pro')}
             className={`p-3 rounded-xl border text-left relative transition-all ${
               activePlan === 'pro'
@@ -321,6 +340,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
 
           <button
             type="button"
+            aria-pressed={activePlan === 'enterprise'}
             onClick={() => setActivePlan('enterprise')}
             className={`p-3 rounded-xl border text-left relative transition-all ${
               activePlan === 'enterprise'

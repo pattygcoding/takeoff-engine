@@ -502,8 +502,8 @@ export default function AccountSettings() {
                 </button>
               )}
 
-              {/* Cancel Subscription Button for active paid subscribers */}
-              {isProOrExempt && !subDetails?.cancelsAtPeriodEnd && user?.role !== 'admin' && (
+              {/* Cancel Subscription Button for active paid subscribers (every paid tier, including Starter) */}
+              {isPaidOrExempt && !subDetails?.cancelsAtPeriodEnd && user?.role !== 'admin' && (
                 <button
                   type="button"
                   onClick={() => {

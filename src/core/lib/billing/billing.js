@@ -70,6 +70,22 @@ export const billingApi = {
   },
 
   /**
+   * Move an existing paid subscription to another plan (upgrade now, downgrade at renewal)
+   */
+  async changePlan(plan) {
+    const res = await fetch(`${API_BASE_URL}/billing/change-plan`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ plan }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || getTranslation('core.apiErrors.changePlanFailed'));
+    }
+    return data;
+  },
+
+  /**
    * Mock upgrade in non-prod sandbox mode
    */
   async mockActivate(plan = 'pro', interval = 'monthly', additionalSeats = 0) {

@@ -5,6 +5,7 @@ import crypto from 'node:crypto';
 export const QA_TAG = 'qae2e';
 
 export const QA_PLANS = ['starter', 'pro', 'enterprise'];
+export const QA_INTERVALS = ['monthly', 'annually'];
 
 const DEFAULTS = {
   frontendPort: 4177,
@@ -29,11 +30,19 @@ const lower = (value) => String(value || '').trim().toLowerCase();
 
 export const webhookSecretOf = (env = process.env) => env.PADDLE_WEBHOOK_SECRET || env.PADDLE_WEBHOOK_SECRET_KEY || '';
 
-export function monthlyPriceIds(env = process.env) {
+/** Paddle catalog price IDs for each plan, by billing interval (same keys the backend reads). */
+export function planPriceIds(env = process.env) {
   return {
-    starter: env.PADDLE_PRICE_ID_STARTER_MONTHLY || env.PADDLE_PRICE_ID_STARTER,
-    pro: env.PADDLE_PRICE_ID_PRO_MONTHLY || env.PADDLE_PRICE_ID_PRO,
-    enterprise: env.PADDLE_PRICE_ID_ENTERPRISE_MONTHLY || env.PADDLE_PRICE_ID_ENTERPRISE,
+    monthly: {
+      starter: env.PADDLE_PRICE_ID_STARTER_MONTHLY || env.PADDLE_PRICE_ID_STARTER,
+      pro: env.PADDLE_PRICE_ID_PRO_MONTHLY || env.PADDLE_PRICE_ID_PRO,
+      enterprise: env.PADDLE_PRICE_ID_ENTERPRISE_MONTHLY || env.PADDLE_PRICE_ID_ENTERPRISE,
+    },
+    annually: {
+      starter: env.PADDLE_PRICE_ID_STARTER_ANNUALLY,
+      pro: env.PADDLE_PRICE_ID_PRO_ANNUALLY,
+      enterprise: env.PADDLE_PRICE_ID_ENTERPRISE_ANNUALLY,
+    },
   };
 }
 
@@ -45,8 +54,10 @@ export function monthlyPriceIds(env = process.env) {
 export function findSafetyViolations(env = process.env) {
   const problems = REQUIRED.filter((key) => !env[key]).map((key) => `${key} is not set.`);
   if (!webhookSecretOf(env)) problems.push('PADDLE_WEBHOOK_SECRET_KEY (or PADDLE_WEBHOOK_SECRET) is not set.');
-  for (const [plan, priceId] of Object.entries(monthlyPriceIds(env))) {
-    if (!priceId) problems.push(`PADDLE_PRICE_ID_${plan.toUpperCase()}_MONTHLY is not set.`);
+  for (const [interval, prices] of Object.entries(planPriceIds(env))) {
+    for (const [plan, priceId] of Object.entries(prices)) {
+      if (!priceId) problems.push(`PADDLE_PRICE_ID_${plan.toUpperCase()}_${interval.toUpperCase()} is not set.`);
+    }
   }
   if (problems.length) return problems;
 
@@ -95,7 +106,7 @@ export function loadQaSettings(env = process.env) {
     snapshotSchemas: csv(env.QA_SNAPSHOT_SCHEMAS || DEFAULTS.snapshotSchemas),
     paddle: {
       apiBaseUrl: 'https://sandbox-api.paddle.com',
-      priceIds: monthlyPriceIds(env),
+      priceIds: planPriceIds(env),
       webhookSecret: webhookSecretOf(env),
     },
     card: {

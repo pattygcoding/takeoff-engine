@@ -97,8 +97,21 @@ export function createPaddleSandboxApi({ apiKey = process.env.PADDLE_API_KEY, ba
     },
 
     cancelSubscriptionNow: (subscriptionId) => request('POST', `/subscriptions/${subscriptionId}/cancel`, { effective_from: 'immediately' }),
+    clearScheduledChange: (subscriptionId) => request('PATCH', `/subscriptions/${subscriptionId}`, { scheduled_change: null }),
+
+    /** Ends a subscription now, even one that already has a scheduled (end-of-period) cancellation. */
+    async endSubscription(subscription) {
+      try {
+        await api.cancelSubscriptionNow(subscription.id);
+      } catch (error) {
+        if (!subscription.scheduled_change) throw error;
+        await api.clearScheduledChange(subscription.id);
+        await api.cancelSubscriptionNow(subscription.id);
+      }
+    },
     archiveCustomer: (customerId) => request('PATCH', `/customers/${customerId}`, { status: 'archived' }),
     getSubscription: async (subscriptionId) => (await request('GET', `/subscriptions/${subscriptionId}`)).data,
+    listTransactions: (subscriptionId, origin) => listAll(`/transactions?subscription_id=${subscriptionId}${origin ? `&origin=${origin}` : ''}`),
 
     /**
      * Cancels every live QA subscription and archives every QA customer (found by tag, plus any
@@ -108,7 +121,7 @@ export function createPaddleSandboxApi({ apiKey = process.env.PADDLE_API_KEY, ba
       const tagged = (await api.findQaCustomers()).map((customer) => customer.id);
       const customerIds = [...new Set([...tagged, ...extraCustomerIds.filter(Boolean)])];
       const subscriptions = await api.listLiveSubscriptions(customerIds);
-      for (const subscription of subscriptions) await api.cancelSubscriptionNow(subscription.id);
+      for (const subscription of subscriptions) await api.endSubscription(subscription);
       for (const customerId of customerIds) {
         await api.archiveCustomer(customerId).catch((error) => {
           if (!/already|archived/i.test(error.message)) throw error;

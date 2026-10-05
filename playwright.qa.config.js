@@ -17,7 +17,7 @@ export default defineConfig({
   globalSetup: './tests/qa/globalSetup.js',
   timeout: 180_000,
   expect: { timeout: 20_000 },
-  workers: 2,
+  workers: 3,
   retries: 0,
   reporter: 'list',
   use: {

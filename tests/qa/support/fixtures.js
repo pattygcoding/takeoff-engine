@@ -141,12 +141,66 @@ export async function baseSeatsFor(db, tier) {
   return row?.base_seats ?? null;
 }
 
+export const paddleApi = (settings) => createPaddleSandboxApi({ baseUrl: settings.paddle.apiBaseUrl });
+
 /**
- * Choose a paid plan on the core plan picker and pay in the Paddle sandbox overlay. Then deliver
- * Paddle's resulting subscription to the app's webhook, the path that grants entitlements.
+ * Deliver Paddle's current state of a subscription to the app's webhook, as Paddle would after
+ * any change (created, updated, canceled, ...). Returns the subscription that was delivered.
  */
-export async function purchasePlanThroughUi(page, { plan, customer, settings }) {
+export async function forwardSubscriptionWebhook(settings, subscriptionId, eventType) {
+  const data = await paddleApi(settings).getSubscription(subscriptionId);
+  await deliverPaddleWebhook({
+    backendUrl: settings.backendInternalUrl,
+    secret: settings.paddle.webhookSecret,
+    eventType,
+    data,
+  });
+  return data;
+}
+
+/**
+ * Paddle notifies the app when a subscription renews, but a real renewal is a billing cycle away
+ * and the sandbox cannot fast-forward time. This delivers the renewal notification Paddle would
+ * send: the real subscription with its billing period advanced by one cycle. Only the clock is
+ * simulated; items, prices, and the account link come from Paddle.
+ */
+export async function forwardRenewalWebhook(settings, subscriptionId) {
+  const data = await paddleApi(settings).getSubscription(subscriptionId);
+  const startsAt = new Date(data.next_billed_at || data.current_billing_period.ends_at);
+  const endsAt = new Date(startsAt);
+  if (data.billing_cycle?.interval === 'year') endsAt.setUTCFullYear(endsAt.getUTCFullYear() + 1);
+  else endsAt.setUTCMonth(endsAt.getUTCMonth() + 1);
+
+  const renewed = {
+    ...data,
+    current_billing_period: { starts_at: startsAt.toISOString(), ends_at: endsAt.toISOString() },
+    next_billed_at: endsAt.toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+  await deliverPaddleWebhook({
+    backendUrl: settings.backendInternalUrl,
+    secret: settings.paddle.webhookSecret,
+    eventType: 'subscription.updated',
+    data: renewed,
+  });
+  return renewed;
+}
+
+/** Paddle transactions created by plan changes on a subscription (proration charges). */
+export async function planChangeCharges(settings, subscriptionId) {
+  return paddleApi(settings).listTransactions(subscriptionId, 'subscription_update');
+}
+
+/**
+ * Choose a paid plan and billing interval on the core plan picker and pay in the Paddle sandbox
+ * overlay. Then deliver Paddle's resulting subscription to the app's webhook, the path that
+ * grants entitlements. Returns the subscription as Paddle reports it.
+ */
+export async function purchasePlanThroughUi(page, { plan, interval = 'monthly', customer, settings }) {
   await page.goto('/onboarding?lang=en');
+  if (interval === 'annually') {
+    await page.getByRole('button', { name: new RegExp(label('core.upgradeModal.annualBilling')) }).click();
+  }
   const choosePlan = page.getByRole('button', { name: label(PLAN_CTA_KEYS[plan]), exact: true });
   await expect(choosePlan).toBeEnabled({ timeout: 30_000 });
   await choosePlan.click();
@@ -157,17 +211,40 @@ export async function purchasePlanThroughUi(page, { plan, customer, settings }) 
     card: settings.card,
   });
 
-  const paddle = createPaddleSandboxApi({ baseUrl: settings.paddle.apiBaseUrl });
-  const priceId = settings.paddle.priceIds[plan];
-  const subscription = await paddle.waitForSubscription({ email: customer.email, priceId });
+  const priceId = settings.paddle.priceIds[interval][plan];
+  const subscription = await paddleApi(settings).waitForSubscription({ email: customer.email, priceId });
   // Let the app's own post-checkout handling settle before the harness navigates anywhere.
   await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {});
 
-  await deliverPaddleWebhook({
-    backendUrl: settings.backendInternalUrl,
-    secret: settings.paddle.webhookSecret,
-    eventType: 'subscription.created',
-    data: await paddle.getSubscription(subscription.id),
-  });
-  return subscription;
+  return forwardSubscriptionWebhook(settings, subscription.id, 'subscription.created');
 }
+
+/** New customer -> verified account -> paid plan, with the account linked to its subscription. */
+export async function buyPlan(page, db, { plan, interval = 'monthly', customer, settings }) {
+  const authUser = await createVerifiedAccount(page, db, customer, settings);
+  const subscription = await purchasePlanThroughUi(page, { plan, interval, customer, settings });
+  const profile = await expectProfile(
+    db,
+    authUser.id,
+    (row) => row.paddle_subscription_id === subscription.id && row.subscription_tier === plan,
+    `profile entitled to ${plan} via Paddle subscription ${subscription.id}`,
+  );
+  return { authUser, subscription, profile };
+}
+
+/** The customer's core account settings page, with its billing section loaded. */
+export async function openAccountSettings(page, customer, settings) {
+  const details = page.waitForResponse((res) => res.url().startsWith(`${settings.apiUrl}/billing/subscription-details`));
+  await page.goto(`/${customer.username}/settings?lang=en`);
+  await details;
+}
+
+/** Acknowledge the app's notice dialog with the given title. */
+export async function acknowledgeNotice(page, titleKey) {
+  const notice = page.getByRole('dialog', { name: label(titleKey) });
+  await expect(notice).toBeVisible();
+  await notice.getByRole('button', { name: label('core.accessibility.ok'), exact: true }).click();
+  await expect(notice).toBeHidden();
+}
+
+export const daysUntil = (isoDate) => (new Date(isoDate).getTime() - Date.now()) / 86_400_000;
