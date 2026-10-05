@@ -7,6 +7,7 @@ import { useTranslation } from '@/core/components/context/I18nContext';
 import { AccountCreationDisabledNotice, useAccountCreationDisabled } from '@/core/components/context/PricingContext';
 import { isValidPassword, isValidPhoneNumber, PASSWORD_MIN_LENGTH } from '@/core/lib/shared/validators';
 import { CURRENT_TERMS_VERSION } from '@/core/constants';
+import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
 
 export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
   const { login, register } = useAuth();
@@ -35,6 +36,7 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const guard = useSingleFlight();
   if (!isOpen) return null;
 
   const resetForm = () => {
@@ -50,7 +52,7 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
     setView(newView);
   };
 
-  const handleLogin = async (e) => {
+  const handleLogin = guard('login', async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -62,9 +64,9 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
     } finally {
       setLoading(false);
     }
-  };
+  });
 
-  const handleRegister = async (e) => {
+  const handleRegister = guard('register', async (e) => {
     e.preventDefault();
     if (accountCreationDisabled) return;
     setError('');
@@ -103,9 +105,9 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
     } finally {
       setLoading(false);
     }
-  };
+  });
 
-  const handleForgotPassword = async (e) => {
+  const handleForgotPassword = guard('forgot-password', async (e) => {
     e.preventDefault();
     setError('');
     setMessage('');
@@ -118,7 +120,7 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
     } finally {
       setLoading(false);
     }
-  };
+  });
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto">

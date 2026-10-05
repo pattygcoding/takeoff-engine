@@ -10,6 +10,7 @@ import ThemeToggle from '@/core/components/shared/ThemeToggle';
 import ClientCounterOfferModal from './ClientCounterOfferModal';
 import { AlertTriangle, Check, X, Phone, Mail } from 'lucide-react';
 import ScopeSummaryDisplay from './ScopeSummaryDisplay';
+import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
 
 export default function ClientProposalView() {
   const { publicToken } = useParams();
@@ -36,6 +37,7 @@ export default function ClientProposalView() {
   const [showCounterModal, setShowCounterModal] = useState(false);
   const [submittingCounter, setSubmittingCounter] = useState(false);
 
+  const guard = useSingleFlight();
   useEffect(() => {
     if (publicToken) {
       loadProposal();
@@ -58,7 +60,7 @@ export default function ClientProposalView() {
     }
   };
 
-  const handleSign = async (e) => {
+  const handleSign = guard('sign', async (e) => {
     e.preventDefault();
     if (!signerName.trim()) {
       setSignError(t('product.clientProposal.legalNameRequired'));
@@ -88,9 +90,9 @@ export default function ClientProposalView() {
     } finally {
       setSubmitting(false);
     }
-  };
+  });
 
-  const handleDecline = async (e) => {
+  const handleDecline = guard('decline', async (e) => {
     e.preventDefault();
     setDeclining(true);
     try {
@@ -110,9 +112,9 @@ export default function ClientProposalView() {
     } finally {
       setDeclining(false);
     }
-  };
+  });
 
-  const handleCounterOffer = async ({ counterNotes, scopeChanges, clientName: cName, signerEmail: cEmail }) => {
+  const handleCounterOffer = guard('counter-offer', async ({ counterNotes, scopeChanges, clientName: cName, signerEmail: cEmail }) => {
     setSubmittingCounter(true);
     try {
       await proposalsApi.submitPublicCounterOffer(publicToken, {
@@ -137,7 +139,7 @@ export default function ClientProposalView() {
     } finally {
       setSubmittingCounter(false);
     }
-  };
+  });
 
   const { proposal = {}, contractor = {} } = data || {};
   const snapshot = proposal?.proposal_data_json || {};

@@ -7,6 +7,7 @@ import ResultsStep from './ResultsStep';
 import ExportHubPage from './ExportHubPage';
 import { projectsApi } from '@/product/lib/projects';
 import { useTranslation } from '@/core/components/context/I18nContext';
+import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
 
 export default function ProjectWorkspace({
   step = 2,
@@ -25,6 +26,7 @@ export default function ProjectWorkspace({
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState(null);
 
+  const guard = useSingleFlight();
   // When projectId is in the URL, only fetch if current project is not loaded or does not match
   useEffect(() => {
     let isMounted = true;
@@ -130,7 +132,7 @@ export default function ProjectWorkspace({
     }
   }, [loading, projectId, items, username, navigate]);
 
-  const handleDuplicate = async () => {
+  const handleDuplicate = guard(() => `duplicate:${currentProject?.id || 'none'}`, async () => {
     if (!currentProject?.id) return;
     try {
       setLoading(true);
@@ -144,7 +146,7 @@ export default function ProjectWorkspace({
     } finally {
       setLoading(false);
     }
-  };
+  });
 
   if (loading) {
     return (

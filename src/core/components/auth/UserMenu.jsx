@@ -5,6 +5,7 @@ import { useTranslation } from '@/core/components/context/I18nContext';
 import { authApi } from '@/core/lib/auth/auth';
 import UpgradeModal from '@/core/components/billing/UpgradeModal';
 import { Zap, ChevronDown, X } from 'lucide-react';
+import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
 
 export default function UserMenu() {
   const { user, logout } = useAuth();
@@ -22,6 +23,7 @@ export default function UserMenu() {
   const [err, setErr] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const guard = useSingleFlight();
   const isExempt =
     user?.role === 'admin' ||
     user?.role === 'payment_exempt' ||
@@ -41,7 +43,7 @@ export default function UserMenu() {
 
   const credits = typeof user?.trial_uses_remaining === 'number' ? user.trial_uses_remaining : 5;
 
-  const handleUpdatePassword = async (e) => {
+  const handleUpdatePassword = guard('update-password', async (e) => {
     e.preventDefault();
     if (!oldPassword) {
       setErr(t('core.accountSettings.currentPasswordRequired', 'Current password is required'));
@@ -61,7 +63,7 @@ export default function UserMenu() {
     } finally {
       setLoading(false);
     }
-  };
+  });
 
   if (!user) return null;
 

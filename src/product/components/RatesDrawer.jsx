@@ -4,6 +4,7 @@ import { ratesApi } from '@/product/lib/rates';
 import { useAuth } from '@/core/components/context/AuthContext';
 import { useModal } from '@/core/components/context/ModalContext';
 import { useTranslation } from '@/core/components/context/I18nContext';
+import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
 import {
   DEFAULT_WORKDAY_HOURS,
   DEFAULT_LABOR_ROLES,
@@ -31,6 +32,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [activeSection, setActiveSection] = useState('all'); // 'all' | 'templates' | 'labor' | 'equipment' | 'trenching' | 'markups'
 
+  const guard = useSingleFlight();
   useEffect(() => {
     if (open && user) {
       loadRates();
@@ -66,7 +68,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
     }
   };
 
-  const handleSaveCurrentAsTemplate = async (e) => {
+  const handleSaveCurrentAsTemplate = guard('save-rate-template', async (e) => {
     e.preventDefault();
     if (!templateNameInput.trim()) return;
 
@@ -95,9 +97,9 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
     } finally {
       setSaveLoading(false);
     }
-  };
+  });
 
-  const handleDeleteTemplate = async (templateId, e) => {
+  const handleDeleteTemplate = guard((templateId) => `delete-template:${templateId}`, async (templateId, e) => {
     e.stopPropagation();
     const confirmed = await showConfirm({
       title: t('product.ratesDrawer.deleteTitle'),
@@ -118,7 +120,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
         variant: 'error',
       });
     }
-  };
+  });
 
   const update = (field) => (e) => {
     const value = e.target.value;
@@ -598,7 +600,10 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                       {!readOnly && (
                         <button
                           type="button"
-                          onClick={(e) => handleDeleteTemplate(lib.id, e)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteTemplate(lib.id, e);
+                          }}
                           className="text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition ml-2 cursor-pointer"
                           title={t('product.ratesDrawer.deleteLibrary')}
                         >

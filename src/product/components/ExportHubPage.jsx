@@ -10,6 +10,7 @@ import { useAuth } from '@/core/components/context/AuthContext';
 import { useModal } from '@/core/components/context/ModalContext';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import UpgradeModal from '@/core/components/billing/UpgradeModal';
+import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
 import {
   StandardEstimateDocument,
   ClientProposalDocument,
@@ -249,6 +250,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const printAreaRef = useRef(null);
 
+  const guard = useSingleFlight();
   const isProOrExempt =
     user?.role === 'admin' ||
     user?.role === 'payment_exempt' ||
@@ -344,14 +346,14 @@ export default function ExportHubPage({ items, rates, currentProject }) {
   };
 
   // 1. Browser Print Handler
-  const handlePrint = async () => {
+  const handlePrint = guard('record-export', async () => {
     await runExportAction(() => {
       window.print();
     });
-  };
+  });
 
   // 2. PDF Generator (Generates standard Letter 8.5" x 11" with 1:1 Print Preview fidelity & multi-page support)
-  const handleExportPdf = async () => {
+  const handleExportPdf = guard('record-export', async () => {
     await runExportAction(async () => {
       const node = document.getElementById('export-document-canvas');
       if (!node) return;
@@ -369,10 +371,10 @@ export default function ExportHubPage({ items, rates, currentProject }) {
         setExportingType(null);
       }
     });
-  };
+  });
 
   // 3. Word DOCX Generator
-  const handleExportWord = async () => {
+  const handleExportWord = guard('record-export', async () => {
     await runExportAction(async () => {
       setExportingType('word');
       try {
@@ -396,7 +398,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
         setExportingType(null);
       }
     });
-  };
+  });
 
   // Back link target
   const backUrl = projectId

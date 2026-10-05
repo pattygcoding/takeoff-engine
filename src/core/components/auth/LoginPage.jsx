@@ -4,6 +4,7 @@ import { useAuth } from '@/core/components/context/AuthContext';
 import { authApi } from '@/core/lib/auth/auth';
 import { billingApi } from '@/core/lib/billing/billing';
 import { openPaddleCheckout } from '@/core/lib/billing/paddle';
+import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
 import {
   AccountCreationDisabledNotice,
   PricingStatus,
@@ -64,6 +65,7 @@ export default function LoginPage({ initialView = 'login' }) {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const guard = useSingleFlight();
   const resetForm = () => {
     setError('');
     setMessage('');
@@ -81,7 +83,7 @@ export default function LoginPage({ initialView = 'login' }) {
     else if (newView === 'forgot') navigate('/forgot-password');
   };
 
-  const handleLogin = async (e) => {
+  const handleLogin = guard('login', async (e) => {
     e.preventDefault();
     if (loading) return;
     setError('');
@@ -93,9 +95,9 @@ export default function LoginPage({ initialView = 'login' }) {
     } finally {
       setLoading(false);
     }
-  };
+  });
 
-  const handleRegister = async (e) => {
+  const handleRegister = guard('register', async (e) => {
     e.preventDefault();
     if (loading || accountCreationDisabled) return;
     setError('');
@@ -144,14 +146,14 @@ export default function LoginPage({ initialView = 'login' }) {
     } finally {
       setLoading(false);
     }
-  };
+  });
 
   const handleSelectFreePlan = () => {
     const targetUsername = registeredUser?.username || user?.username || registerUsername;
     navigate(`/${targetUsername}`);
   };
 
-  const handleSelectPaidPlan = async (planKey) => {
+  const handleSelectPaidPlan = guard('checkout', async (planKey) => {
     setError('');
     setCheckoutLoadingPlan(planKey);
 
@@ -197,9 +199,9 @@ export default function LoginPage({ initialView = 'login' }) {
     } finally {
       setCheckoutLoadingPlan('');
     }
-  };
+  });
 
-  const handleForgotPassword = async (e) => {
+  const handleForgotPassword = guard('forgot-password', async (e) => {
     e.preventDefault();
     if (loading) return;
     setError('');
@@ -213,7 +215,7 @@ export default function LoginPage({ initialView = 'login' }) {
     } finally {
       setLoading(false);
     }
-  };
+  });
 
   const getSeoData = () => {
     switch (view) {

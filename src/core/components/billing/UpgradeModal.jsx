@@ -6,6 +6,7 @@ import { useAuth } from '@/core/components/context/AuthContext';
 import { useModal } from '@/core/components/context/ModalContext';
 import { PricingStatus, usePricingDisplay } from '@/core/components/context/PricingContext';
 import { X, Check, FileText, Info } from 'lucide-react';
+import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
 import {
   STARTER_PLAN_SEATS,
   PRO_PLAN_SEATS,
@@ -31,6 +32,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
   const [billingInterval, setBillingInterval] = useState('monthly'); // 'monthly' | 'annually'
   const [additionalSeats, setAdditionalSeats] = useState(0);
 
+  const guard = useSingleFlight();
   if (!isOpen) return null;
 
   const currentTier = user?.subscription_status === 'active' ? (user?.subscription_tier || 'free') : 'free';
@@ -70,7 +72,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
     );
   }
 
-  const handleLaunchCheckout = async (selectedPlan) => {
+  const handleLaunchCheckout = guard('checkout', async (selectedPlan) => {
     if (!ready) {
       await showAlert({
         title: t('core.upgradeModal.checkoutErrorTitle'),
@@ -170,9 +172,9 @@ export default function UpgradeModal({ isOpen, onClose }) {
     } finally {
       setCheckoutLoading(false);
     }
-  };
+  });
 
-  const handleRedeemCode = async (e) => {
+  const handleRedeemCode = guard('redeem-code', async (e) => {
     e.preventDefault();
     if (!promoCodeInput.trim()) return;
 
@@ -193,7 +195,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
     } finally {
       setPromoLoading(false);
     }
-  };
+  });
 
   const isAnnual = billingInterval === 'annually';
 

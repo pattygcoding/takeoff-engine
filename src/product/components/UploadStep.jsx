@@ -1,8 +1,9 @@
-import { useCallback, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { downloadSampleCsv, downloadSampleExcel, parseTakeoffFile } from '@/product/lib/csv';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import ColumnMappingModal from './ColumnMappingModal';
+import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
 
 export default function UploadStep({ onItemsParsed }) {
   const { t } = useTranslation();
@@ -15,8 +16,8 @@ export default function UploadStep({ onItemsParsed }) {
   const [checksumSummary, setChecksumSummary] = useState(null);
   const inputRef = useRef(null);
 
-  const handleFile = useCallback(
-    async (file, explicitSheetName = null, explicitTableId = null) => {
+  const guard = useSingleFlight();
+  const handleFile = guard('parse', async (file, explicitSheetName = null, explicitTableId = null) => {
       if (!file) return;
       setFileName(file.name);
       setCurrentUploadedFile(file);
@@ -52,9 +53,7 @@ export default function UploadStep({ onItemsParsed }) {
       } finally {
         setIsParsing(false);
       }
-    },
-    [onItemsParsed]
-  );
+  });
 
   const handleSheetChange = (sheetName) => {
     if (currentUploadedFile) {

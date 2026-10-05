@@ -6,6 +6,7 @@ import { useModal } from '@/core/components/context/ModalContext';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import { AccountCreationDisabledNotice, useAccountCreationDisabled } from '@/core/components/context/PricingContext';
 import { PENDING_INVITE_KEY } from '@/core/lib/auth/organizations';
+import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -25,6 +26,7 @@ export default function AcceptInvitePage() {
   const [accepting, setAccepting] = useState(false);
   const [success, setSuccess] = useState(false);
 
+  const guard = useSingleFlight();
   // 1. Verify invitation token on mount
   useEffect(() => {
     async function verifyToken() {
@@ -54,7 +56,7 @@ export default function AcceptInvitePage() {
   }, [token, t]);
 
   // 2. Handle accepting invitation
-  const handleAcceptInvite = async () => {
+  const handleAcceptInvite = guard('accept-invite', async () => {
     if (!isAuthenticated) {
       // Resume this invitation once the visitor has signed in (see the /login route in App.jsx)
       sessionStorage.setItem(PENDING_INVITE_KEY, token);
@@ -95,7 +97,7 @@ export default function AcceptInvitePage() {
     } finally {
       setAccepting(false);
     }
-  };
+  });
 
   const handleCreateAccount = () => {
     if (accountCreationDisabled) return;

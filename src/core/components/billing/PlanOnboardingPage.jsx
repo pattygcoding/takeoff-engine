@@ -5,6 +5,7 @@ import { billingApi } from '@/core/lib/billing/billing';
 import { openPaddleCheckout } from '@/core/lib/billing/paddle';
 import { PricingStatus, usePricingDisplay } from '@/core/components/context/PricingContext';
 import { Check, ArrowRight } from 'lucide-react';
+import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
 import {
   STARTER_PLAN_SEATS,
   PRO_PLAN_SEATS,
@@ -24,6 +25,7 @@ export default function PlanOnboardingPage() {
   const [checkoutLoadingPlan, setCheckoutLoadingPlan] = useState('');
   const [error, setError] = useState('');
 
+  const guard = useSingleFlight();
   const isAnnual = billingInterval === 'annually';
   const targetUsername = user?.username || '';
   const currentTier = (user?.subscription_status === 'active' || user?.has_unlimited_bypass || user?.role === 'payment_exempt')
@@ -38,7 +40,7 @@ export default function PlanOnboardingPage() {
     }
   };
 
-  const handleSelectPaidPlan = async (planKey) => {
+  const handleSelectPaidPlan = guard('checkout', async (planKey) => {
     setError('');
     setCheckoutLoadingPlan(planKey);
 
@@ -86,7 +88,7 @@ export default function PlanOnboardingPage() {
     } finally {
       setCheckoutLoadingPlan('');
     }
-  };
+  });
 
   return (
     <div className="min-h-[calc(100vh-80px)] bg-slate-950 text-white flex flex-col items-center justify-center px-4 py-12">

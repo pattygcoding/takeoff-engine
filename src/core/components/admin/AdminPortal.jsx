@@ -7,6 +7,7 @@ import { useModal } from '@/core/components/context/ModalContext';
 import { useNavigate } from 'react-router-dom';
 import { isValidPassword, isValidPhoneNumber, PASSWORD_MIN_LENGTH } from '@/core/lib/shared/validators';
 import { PricingStatus, usePricingDisplay } from '@/core/components/context/PricingContext';
+import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
 
 export default function AdminPortal() {
   const { prices, formatPrice } = usePricingDisplay();
@@ -53,6 +54,7 @@ export default function AdminPortal() {
     reason: 'Admin created account',
   });
 
+  const guard = useSingleFlight();
   useEffect(() => {
     if (user?.role !== 'admin') {
       navigate('/');
@@ -82,7 +84,7 @@ export default function AdminPortal() {
     }
   };
 
-  const handleToggleBypass = async (u) => {
+  const handleToggleBypass = guard((u) => `bypass:${u.id}`, async (u) => {
     const isGranting = !u.has_unlimited_bypass;
     const reason = await showPrompt({
       title: isGranting ? 'Grant VIP Unlimited Bypass' : 'Revoke VIP Bypass',
@@ -110,9 +112,9 @@ export default function AdminPortal() {
         variant: 'error',
       });
     }
-  };
+  });
 
-  const handleSetCredits = async (targetUser) => {
+  const handleSetCredits = guard((targetUser) => `credits:${targetUser.id}`, async (targetUser) => {
     const input = await showPrompt({
       title: 'Set Takeoff Credits',
       message: `Enter the exact number of takeoff credits to set for ${targetUser.email} (current: ${targetUser.trial_uses_remaining ?? 0}):`,
@@ -157,9 +159,9 @@ export default function AdminPortal() {
         variant: 'error',
       });
     }
-  };
+  });
 
-  const handleToggleStatus = async (targetUser) => {
+  const handleToggleStatus = guard((targetUser) => `status:${targetUser.id}`, async (targetUser) => {
     const isCurrentlySuspended = targetUser.is_disabled || targetUser.status === 'suspended' || targetUser.status === 'disabled';
     const actionName = isCurrentlySuspended ? 'Activate' : 'Suspend';
 
@@ -213,9 +215,9 @@ export default function AdminPortal() {
         variant: 'error',
       });
     }
-  };
+  });
 
-  const handleUnlockAccount = async (targetUser) => {
+  const handleUnlockAccount = guard((targetUser) => `unlock:${targetUser.id}`, async (targetUser) => {
     const confirmed = await showConfirm({
       title: 'Unlock Account',
       message: `Unlock ${targetUser.email} and reset their failed password attempt counter immediately?`,
@@ -242,9 +244,9 @@ export default function AdminPortal() {
         variant: 'error',
       });
     }
-  };
+  });
 
-  const handleToggleTestUser = async (targetUser) => {
+  const handleToggleTestUser = guard((targetUser) => `test-user:${targetUser.id}`, async (targetUser) => {
     const isNowTest = !targetUser.is_test_user;
     const actionLabel = isNowTest ? 'Mark as Test User' : 'Unmark as Test User';
 
@@ -283,9 +285,9 @@ export default function AdminPortal() {
         variant: 'error',
       });
     }
-  };
+  });
 
-  const handleResetPassword = async (targetUser) => {
+  const handleResetPassword = guard((targetUser) => `reset-password:${targetUser.id}`, async (targetUser) => {
     const confirmed = await showConfirm({
       title: 'Send Password Reset Email',
       message: `Send an automated password reset recovery link to ${targetUser.email}?`,
@@ -320,9 +322,9 @@ export default function AdminPortal() {
         variant: 'error',
       });
     }
-  };
+  });
 
-  const handleRoleChange = async (targetUser, newRole) => {
+  const handleRoleChange = guard((targetUser) => `role:${targetUser.id}`, async (targetUser, newRole) => {
     if (targetUser.id === user.id && newRole !== 'admin') {
       await showAlert({
         title: 'Action Prohibited',
@@ -368,9 +370,9 @@ export default function AdminPortal() {
         variant: 'error',
       });
     }
-  };
+  });
 
-  const handleSubscriptionTierChange = async (targetUser, newTier) => {
+  const handleSubscriptionTierChange = guard((targetUser) => `tier:${targetUser.id}`, async (targetUser, newTier) => {
     const reason = await showPrompt({
       title: `Update Subscription to ${newTier.toUpperCase()}`,
       message: `Enter an audit reason for updating ${targetUser.email}'s plan tier to "${newTier}":`,
@@ -397,9 +399,9 @@ export default function AdminPortal() {
         variant: 'error',
       });
     }
-  };
+  });
 
-  const handleCreatePromo = async (e) => {
+  const handleCreatePromo = guard('create-promo', async (e) => {
     e.preventDefault();
     if (!newCode.trim()) return;
 
@@ -430,9 +432,9 @@ export default function AdminPortal() {
     } finally {
       setCreatingPromo(false);
     }
-  };
+  });
 
-  const handleCreateUser = async (e) => {
+  const handleCreateUser = guard('create-user', async (e) => {
     e.preventDefault();
     setCreateUserError('');
     setCreatingUser(true);
@@ -494,7 +496,7 @@ export default function AdminPortal() {
     } finally {
       setCreatingUser(false);
     }
-  };
+  });
 
   const filteredUsers = users
     .filter((u) => {

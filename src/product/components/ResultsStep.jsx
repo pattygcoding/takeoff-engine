@@ -15,6 +15,7 @@ import { useModal } from '@/core/components/context/ModalContext';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import UpgradeModal from '@/core/components/billing/UpgradeModal';
 import ScopeSummaryDisplay from './ScopeSummaryDisplay';
+import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
 import {
   CLIENT_VIEWS,
   defaultInvoiceNumber,
@@ -73,6 +74,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [emailSentSuccess, setEmailSentSuccess] = useState('');
 
+  const guard = useSingleFlight();
   const isExempt =
     user?.role === 'admin' ||
     user?.role === 'payment_exempt' ||
@@ -156,19 +158,19 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
     }
   };
 
-  const saveChangeOrders = async (next) => {
+  const saveChangeOrders = guard('save-change-orders', async (next) => {
     const ok = await saveClientRecords({ changeOrders: next });
     if (ok) setChangeOrders(next);
     return ok;
-  };
+  });
 
-  const saveWarrantyItems = async (next) => {
+  const saveWarrantyItems = guard('save-warranty-items', async (next) => {
     const ok = await saveClientRecords({ warrantyItems: next });
     if (ok) setWarrantyItems(next);
     return ok;
-  };
+  });
 
-  const handleSaveToCloud = async (e) => {
+  const handleSaveToCloud = guard('save-project', async (e) => {
     if (e) e.preventDefault();
     if (!projectNameInput.trim()) {
       setShowSaveModal(true);
@@ -239,9 +241,9 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
     } finally {
       setIsSavingProject(false);
     }
-  };
+  });
 
-  const handleGenerateShareableProposal = async () => {
+  const handleGenerateShareableProposal = guard('share-proposal', async () => {
     if (!user) {
       await showAlert({
         title: t('product.resultsStep.authRequired'),
@@ -291,9 +293,9 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
     } finally {
       setIsGeneratingShareLink(false);
     }
-  };
+  });
 
-  const handleSendProposalEmail = async (e) => {
+  const handleSendProposalEmail = guard('send-proposal-email', async (e) => {
     e.preventDefault();
     if (!clientRecipientEmail || !clientRecipientEmail.trim()) {
       await showAlert({
@@ -332,7 +334,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
     } finally {
       setIsSendingEmail(false);
     }
-  };
+  });
 
   /**
    * Records export and decrements credit count before completing file download
@@ -357,7 +359,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
     }
   };
 
-  const handleDownloadClientPdf = async () => {
+  const handleDownloadClientPdf = guard('record-export', async () => {
     if (isPdfLocked) {
       setShowUpgradeModal(true);
       return;
@@ -377,7 +379,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
       console.error('[Export Metering Error]', err);
     }
     setPdfView(view);
-  };
+  });
 
   // Runs once the off-screen PDF document for pdfView has mounted.
   useEffect(() => {
@@ -413,8 +415,8 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
 
   const PdfDocument = pdfView ? CLIENT_VIEW_DOCUMENTS[pdfView] : null;
 
-  const exportCsv = () => {
-    processExportWithCreditCheck(async () => {
+  const exportCsv = guard('record-export', async () => {
+    await processExportWithCreditCheck(async () => {
       const rows = bySystem.flatMap((sys) =>
         sys.items.map((item) => ({
           System: item.system,
@@ -435,7 +437,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
       const csv = Papa.unparse(rows);
       triggerDownload(csv, proposalMode ? 'proposal_summary.csv' : 'internal_cost_breakdown.csv', 'text/csv');
     });
-  };
+  });
 
   const navigateToExportHub = () => {
     if (projectId || currentProject?.id) {

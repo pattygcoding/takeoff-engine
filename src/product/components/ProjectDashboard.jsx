@@ -4,6 +4,7 @@ import { projectsApi } from '@/product/lib/projects';
 import { useAuth } from '@/core/components/context/AuthContext';
 import { useModal } from '@/core/components/context/ModalContext';
 import { useTranslation } from '@/core/components/context/I18nContext';
+import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
 
 const STATUS_CONFIG = {
   draft: {
@@ -48,6 +49,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
   const [isDeletingId, setIsDeletingId] = useState(null);
   const [isCloningId, setIsCloningId] = useState(null);
 
+  const guard = useSingleFlight();
   const fetchProjects = async () => {
     try {
       setLoading(true);
@@ -86,7 +88,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
     onOpenProject(project, targetStep);
   };
 
-  const handleClone = async (project) => {
+  const handleClone = guard((project) => `clone:${project.id}`, async (project) => {
     try {
       setIsCloningId(project.id);
       setActionMenuOpenId(null);
@@ -101,9 +103,9 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
     } finally {
       setIsCloningId(null);
     }
-  };
+  });
 
-  const handleArchiveToggle = async (project) => {
+  const handleArchiveToggle = guard((project) => `archive:${project.id}`, async (project) => {
     const rawStatus = (project.status || 'draft').toLowerCase().trim();
     const isArchived = rawStatus === 'archived';
     const nextStatus = isArchived ? 'draft' : 'archived';
@@ -132,9 +134,9 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
         variant: 'error',
       });
     }
-  };
+  });
 
-  const handleDelete = async (project, isAdminDelete = false) => {
+  const handleDelete = guard((project) => `delete:${project.id}`, async (project, isAdminDelete = false) => {
     const isSpecialAdminDelete = isAdminDelete || (isAdmin && !['draft', 'archived'].includes(project.status));
 
     const confirmed = await showConfirm({
@@ -162,9 +164,9 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
     } finally {
       setIsDeletingId(null);
     }
-  };
+  });
 
-  const handleRenameSubmit = async (e) => {
+  const handleRenameSubmit = guard(() => `rename:${renameModalProject?.id || 'none'}`, async (e) => {
     e.preventDefault();
     if (!renameInput.trim() || !renameModalProject) return;
 
@@ -184,9 +186,9 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
         variant: 'error',
       });
     }
-  };
+  });
 
-  const handleStatusSubmit = async (e) => {
+  const handleStatusSubmit = guard(() => `status:${statusModalProject?.id || 'none'}`, async (e) => {
     e.preventDefault();
     if (!statusModalProject) return;
 
@@ -205,7 +207,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
         variant: 'error',
       });
     }
-  };
+  });
 
   const formatCurrency = (val) => {
     if (!val || isNaN(val)) return '$0.00';

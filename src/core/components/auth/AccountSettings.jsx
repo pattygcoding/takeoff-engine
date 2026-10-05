@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { isValidPassword, isValidPhoneNumber, PASSWORD_MIN_LENGTH } from '@/core/lib/shared/validators';
 import TeamWorkspaceManager from './TeamWorkspaceManager';
 import UpgradeModal from '@/core/components/billing/UpgradeModal';
+import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
 
 export default function AccountSettings() {
   const { user, setUser, logout, refreshProfile } = useAuth();
@@ -63,6 +64,7 @@ export default function AccountSettings() {
   const [cancelErr, setCancelErr] = useState('');
   const [portalLoading, setPortalLoading] = useState(false);
 
+  const guard = useSingleFlight();
   useEffect(() => {
     loadSubscriptionDetails();
   }, [user]);
@@ -79,7 +81,7 @@ export default function AccountSettings() {
     }
   };
 
-  const handleOpenCustomerPortal = async () => {
+  const handleOpenCustomerPortal = guard('customer-portal', async () => {
     try {
       setPortalLoading(true);
       const res = await billingApi.getCustomerPortal();
@@ -101,9 +103,9 @@ export default function AccountSettings() {
     } finally {
       setPortalLoading(false);
     }
-  };
+  });
 
-  const handleCancelSubscription = async (e) => {
+  const handleCancelSubscription = guard('cancel-subscription', async (e) => {
     e.preventDefault();
     setCancelLoading(true);
     setCancelErr('');
@@ -133,9 +135,9 @@ export default function AccountSettings() {
     } finally {
       setCancelLoading(false);
     }
-  };
+  });
 
-  const handleRestoreSubscription = async () => {
+  const handleRestoreSubscription = guard('restore-subscription', async () => {
     setRestoreLoading(true);
     try {
       const res = await billingApi.restoreSubscription();
@@ -159,7 +161,7 @@ export default function AccountSettings() {
     } finally {
       setRestoreLoading(false);
     }
-  };
+  });
 
   const isPaidOrExempt =
     user?.role === 'admin' ||
@@ -173,7 +175,7 @@ export default function AccountSettings() {
     user?.has_unlimited_bypass === true ||
     (user?.subscription_status === 'active' && ['pro', 'enterprise'].includes(user?.subscription_tier));
 
-  const handleLogoFileChange = async (e) => {
+  const handleLogoFileChange = guard('upload-logo', async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -186,30 +188,34 @@ export default function AccountSettings() {
     setLogoError('');
 
     try {
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const base64Data = reader.result;
-        try {
-          const res = await authApi.uploadLogo(base64Data, file.name);
-          setCompanyLogoUrl(res.logoUrl);
-          if (res.user) {
-            setUser(res.user);
-            localStorage.setItem('takeoff_user', JSON.stringify(res.user));
+      await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = async () => {
+          const base64Data = reader.result;
+          try {
+            const res = await authApi.uploadLogo(base64Data, file.name);
+            setCompanyLogoUrl(res.logoUrl);
+            if (res.user) {
+              setUser(res.user);
+              localStorage.setItem('takeoff_user', JSON.stringify(res.user));
+            }
+          } catch (uploadErr) {
+            setLogoError(uploadErr.message || 'Logo upload failed.');
+          } finally {
+            setLogoUploading(false);
+            resolve();
           }
-        } catch (uploadErr) {
-          setLogoError(uploadErr.message || 'Logo upload failed.');
-        } finally {
-          setLogoUploading(false);
-        }
-      };
-      reader.readAsDataURL(file);
+        };
+        reader.onerror = () => reject(reader.error || new Error('Failed to read image.'));
+        reader.readAsDataURL(file);
+      });
     } catch (err) {
       setLogoError(err.message || 'Failed to read image.');
       setLogoUploading(false);
     }
-  };
+  });
 
-  const handleUpdateProfile = async (e) => {
+  const handleUpdateProfile = guard('update-profile', async (e) => {
     e.preventDefault();
     setProfileErr('');
     setProfileMsg('');
@@ -243,9 +249,9 @@ export default function AccountSettings() {
     } finally {
       setProfileLoading(false);
     }
-  };
+  });
 
-  const handleUpdatePassword = async (e) => {
+  const handleUpdatePassword = guard('update-password', async (e) => {
     e.preventDefault();
     setPasswordErr('');
     setPasswordMsg('');
@@ -278,9 +284,9 @@ export default function AccountSettings() {
     } finally {
       setPasswordLoading(false);
     }
-  };
+  });
 
-  const handleDeleteAccount = async () => {
+  const handleDeleteAccount = guard('delete-account', async () => {
     if (deleteConfirmText !== user?.username) {
       setDeleteErr(`Please type "${user?.username}" to confirm.`);
       return;
@@ -297,7 +303,7 @@ export default function AccountSettings() {
       setDeleteErr(err.message || 'Failed to delete account.');
       setDeleteLoading(false);
     }
-  };
+  });
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 text-slate-900 dark:text-slate-100">

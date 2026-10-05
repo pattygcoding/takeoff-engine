@@ -5,6 +5,7 @@ import { billingApi } from '@/core/lib/billing/billing';
 import { useAuth } from '@/core/components/context/AuthContext';
 import { useModal } from '@/core/components/context/ModalContext';
 import { PricingStatus, usePricingDisplay } from '@/core/components/context/PricingContext';
+import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
 
 export default function TeamWorkspaceManager() {
   const { user, refreshProfile } = useAuth();
@@ -32,7 +33,10 @@ export default function TeamWorkspaceManager() {
   const [seatModalOpen, setSeatModalOpen] = useState(false);
   const [targetAddSeats, setTargetAddSeats] = useState(0);
   const [updatingSeats, setUpdatingSeats] = useState(false);
+  const [busyMemberAction, setBusyMemberAction] = useState(null);
+  const [busyAction, setBusyAction] = useState(null);
 
+  const guard = useSingleFlight();
   const tier = user?.subscription_tier || 'free';
   const baseSeats = tier === 'enterprise' ? 8 : tier === 'pro' ? 3 : 1;
   const currentAddSeats = user?.additional_seats || 0;
@@ -85,7 +89,7 @@ export default function TeamWorkspaceManager() {
     }
   };
 
-  const handleCreateOrg = async (e) => {
+  const handleCreateOrg = guard('create-org', async (e) => {
     e.preventDefault();
     if (!newOrgName.trim()) return;
 
@@ -103,9 +107,9 @@ export default function TeamWorkspaceManager() {
     } finally {
       setCreatingOrg(false);
     }
-  };
+  });
 
-  const handleInviteMember = async (e) => {
+  const handleInviteMember = guard('invite-member', async (e) => {
     e.preventDefault();
     if (!activeOrg || !inviteEmail.trim()) return;
 
@@ -126,10 +130,11 @@ export default function TeamWorkspaceManager() {
     } finally {
       setInviting(false);
     }
-  };
+  });
 
-  const handleResendInvite = async (memberId, targetEmail) => {
+  const handleResendInvite = guard((memberId) => `resend:${memberId}`, async (memberId, targetEmail) => {
     if (!activeOrg) return;
+    setBusyMemberAction(`resend:${memberId}`);
     try {
       const res = await organizationsApi.resendInvite(activeOrg.id, memberId);
       await showAlert({
@@ -144,10 +149,12 @@ export default function TeamWorkspaceManager() {
         message: err.message || t('core.teamWorkspaceManager.resendFailedMessage'),
         variant: 'error',
       });
+    } finally {
+      setBusyMemberAction(null);
     }
-  };
+  });
 
-  const handleRevokeInvite = async (memberId) => {
+  const handleRevokeInvite = guard((memberId) => `revoke:${memberId}`, async (memberId) => {
     if (!activeOrg) return;
     const confirmed = await showConfirm({
       title: t('core.teamWorkspaceManager.revokeInviteTitle'),
@@ -157,6 +164,7 @@ export default function TeamWorkspaceManager() {
     });
     if (!confirmed) return;
 
+    setBusyMemberAction(`revoke:${memberId}`);
     try {
       await organizationsApi.revokeInvite(activeOrg.id, memberId);
       setSuccessMsg(t('core.teamWorkspaceManager.inviteRevoked'));
@@ -167,8 +175,10 @@ export default function TeamWorkspaceManager() {
         message: err.message || t('core.teamWorkspaceManager.revokeErrorMessage'),
         variant: 'error',
       });
+    } finally {
+      setBusyMemberAction(null);
     }
-  };
+  });
 
   const handleCopyInviteLink = async (rawToken) => {
     if (!rawToken) return;
@@ -194,7 +204,7 @@ export default function TeamWorkspaceManager() {
     setSeatModalOpen(true);
   };
 
-  const handleSaveSeats = async () => {
+  const handleSaveSeats = guard('save-seats', async () => {
     setUpdatingSeats(true);
     try {
       const res = await billingApi.updateSeats(targetAddSeats, activeOrg?.id);
@@ -215,10 +225,11 @@ export default function TeamWorkspaceManager() {
     } finally {
       setUpdatingSeats(false);
     }
-  };
+  });
 
-  const handleUpdateRole = async (memberId, role) => {
+  const handleUpdateRole = guard((memberId) => `role:${memberId}`, async (memberId, role) => {
     if (!activeOrg) return;
+    setBusyMemberAction(`role:${memberId}`);
     try {
       await organizationsApi.updateMemberRole(activeOrg.id, memberId, role);
       await selectOrganization(activeOrg.id);
@@ -228,10 +239,12 @@ export default function TeamWorkspaceManager() {
         message: err.message || t('core.teamWorkspaceManager.updateRoleErrorMessage'),
         variant: 'error',
       });
+    } finally {
+      setBusyMemberAction(null);
     }
-  };
+  });
 
-  const handleRemoveMember = async (memberId) => {
+  const handleRemoveMember = guard((memberId) => `remove:${memberId}`, async (memberId) => {
     if (!activeOrg) return;
     const confirmed = await showConfirm({
       title: t('core.teamWorkspaceManager.removeMemberTitle'),
@@ -241,6 +254,7 @@ export default function TeamWorkspaceManager() {
     });
     if (!confirmed) return;
 
+    setBusyMemberAction(`remove:${memberId}`);
     try {
       await organizationsApi.removeMember(activeOrg.id, memberId);
       await selectOrganization(activeOrg.id);
@@ -250,8 +264,10 @@ export default function TeamWorkspaceManager() {
         message: err.message || t('core.teamWorkspaceManager.removeErrorMessage'),
         variant: 'error',
       });
+    } finally {
+      setBusyMemberAction(null);
     }
-  };
+  });
 
   const isOwnerOfActiveOrg = activeOrg?.owner_id === user?.id;
   const isManager = myRole === 'owner' || myRole === 'admin';
@@ -273,7 +289,7 @@ export default function TeamWorkspaceManager() {
   );
   const canDeleteActiveOrg = isOwnerOfActiveOrg && otherOccupiedMembers.length === 0;
 
-  const handleLeaveOrg = async () => {
+  const handleLeaveOrg = guard('leave-org', async () => {
     if (!activeOrg) return;
     const orgName = activeOrg.name;
     const confirmed = await showConfirm({
@@ -284,6 +300,7 @@ export default function TeamWorkspaceManager() {
     });
     if (!confirmed) return;
 
+    setBusyAction('leave-org');
     try {
       await organizationsApi.leave(activeOrg.id);
       setSuccessMsg(t('core.teamWorkspaceManager.leftWorkspaceSuccess', { name: orgName }));
@@ -297,10 +314,12 @@ export default function TeamWorkspaceManager() {
         message: err.message,
         variant: 'error',
       });
+    } finally {
+      setBusyAction(null);
     }
-  };
+  });
 
-  const handleDeleteOrg = async () => {
+  const handleDeleteOrg = guard('delete-org', async () => {
     if (!activeOrg) return;
 
     if (!canDeleteActiveOrg) {
@@ -320,6 +339,7 @@ export default function TeamWorkspaceManager() {
     });
     if (!confirmed) return;
 
+    setBusyAction('delete-org');
     try {
       const orgName = activeOrg.name;
       await organizationsApi.delete(activeOrg.id);
@@ -333,8 +353,10 @@ export default function TeamWorkspaceManager() {
         message: err.message || t('core.teamWorkspaceManager.deleteOrgErrorMessage'),
         variant: 'error',
       });
+    } finally {
+      setBusyAction(null);
     }
-  };
+  });
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-6 text-slate-900 dark:text-slate-100">
@@ -457,7 +479,8 @@ export default function TeamWorkspaceManager() {
                 <button
                   type="button"
                   onClick={handleLeaveOrg}
-                  className="px-2.5 py-1 text-xs font-semibold text-red-600 dark:text-red-400 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/40 border border-red-200 dark:border-red-900/60 rounded-lg transition cursor-pointer"
+                  disabled={busyAction === 'leave-org'}
+                  className="px-2.5 py-1 text-xs font-semibold text-red-600 dark:text-red-400 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/40 border border-red-200 dark:border-red-900/60 rounded-lg transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {t('core.teamWorkspaceManager.leaveWorkspaceButton')}
                 </button>
@@ -466,7 +489,8 @@ export default function TeamWorkspaceManager() {
                 <button
                   type="button"
                   onClick={handleDeleteOrg}
-                  className="px-2.5 py-1 text-xs font-semibold text-red-600 dark:text-red-400 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/40 border border-red-200 dark:border-red-900/60 rounded-lg transition cursor-pointer inline-flex items-center gap-1"
+                  disabled={busyAction === 'delete-org'}
+                  className="px-2.5 py-1 text-xs font-semibold text-red-600 dark:text-red-400 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/40 border border-red-200 dark:border-red-900/60 rounded-lg transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-1"
                 >
                   <Trash2 className="w-3.5 h-3.5" /> {t('core.teamWorkspaceManager.deleteOrgButton')}
                 </button>
@@ -500,7 +524,8 @@ export default function TeamWorkspaceManager() {
                           value={m.role}
                           aria-label={t('core.teamWorkspaceManager.memberRoleLabel', { email: m.user_email || m.invited_email })}
                           onChange={(e) => handleUpdateRole(m.id, e.target.value)}
-                          className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 text-xs focus:ring-1 focus:ring-blue-500"
+                          disabled={busyMemberAction === `role:${m.id}`}
+                          className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 text-xs focus:ring-1 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {myRole === 'owner' && <option value="admin">{t('core.teamWorkspaceManager.roleAdmin')}</option>}
                           <option value="estimator">{t('core.teamWorkspaceManager.roleEstimator')}</option>
@@ -549,14 +574,16 @@ export default function TeamWorkspaceManager() {
                               <button
                                 type="button"
                                 onClick={() => handleResendInvite(m.id, m.user_email || m.invited_email)}
-                                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold text-xs cursor-pointer"
+                                disabled={busyMemberAction === `resend:${m.id}`}
+                                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold text-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                               >
                                 {t('core.teamWorkspaceManager.resend')}
                               </button>
                               <button
                                 type="button"
                                 onClick={() => handleRevokeInvite(m.id)}
-                                className="text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 font-semibold text-xs cursor-pointer"
+                                disabled={busyMemberAction === `revoke:${m.id}`}
+                                className="text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 font-semibold text-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                               >
                                 {t('core.teamWorkspaceManager.revoke')}
                               </button>
@@ -565,7 +592,8 @@ export default function TeamWorkspaceManager() {
                           <button
                             type="button"
                             onClick={() => handleRemoveMember(m.id)}
-                            className="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 font-semibold text-xs cursor-pointer"
+                            disabled={busyMemberAction === `remove:${m.id}`}
+                            className="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 font-semibold text-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {t('core.teamWorkspaceManager.remove')}
                           </button>
