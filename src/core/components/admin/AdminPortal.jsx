@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Zap, ArrowLeft, XCircle, CheckCircle2, Lock, LockOpen, Building2, Pencil, FlaskConical, KeyRound, UserPlus, X, AlertTriangle } from 'lucide-react';
 import { adminApi } from '@/core/lib/admin/admin';
-import { formatCurrency, formatNumber } from '@/core/lib/shared/formatting';
+import { formatNumber } from '@/core/lib/shared/formatting';
 import { useAuth } from '@/core/components/context/AuthContext';
 import { useModal } from '@/core/components/context/ModalContext';
 import { useNavigate } from 'react-router-dom';
@@ -615,7 +615,7 @@ export default function AdminPortal() {
                 Estimated Active MRR
               </span>
               <div className="text-3xl font-black text-emerald-400">
-                {formatCurrency(stats.estimatedMRR)}
+                {formatPrice(stats.estimatedMRR)}
               </div>
               <span className="text-[11px] text-slate-400 mt-1 block">
                 {stats.activeSubscriptionsCount} active paid subscriptions

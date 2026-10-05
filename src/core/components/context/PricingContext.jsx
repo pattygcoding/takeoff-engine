@@ -58,7 +58,7 @@ export function usePricingDisplay() {
       return t(loading ? 'core.catalogPricing.loading' : 'core.catalogPricing.unavailableShort');
     }
     return new Intl.NumberFormat(language, {
-      style: 'currency', currency: catalog.currencyCode, currencyDisplay: 'code',
+      style: 'currency', currency: catalog.currencyCode, currencyDisplay: 'symbol',
     }).format(amount);
   };
   return {

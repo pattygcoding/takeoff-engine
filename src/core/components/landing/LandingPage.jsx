@@ -564,7 +564,7 @@ export default function LandingPage() {
           <PricingStatus />
 
           <div className="border-2 border-[var(--lp-ink)] bg-[var(--lp-card)]">
-            <div className="hidden lg:grid grid-cols-[1.15fr_.85fr_1.9fr_auto] gap-9 px-[30px] py-[13px] bg-[var(--lp-paper)] border-b-2 border-[var(--lp-ink)] text-xs font-bold tracking-[0.06em] uppercase text-[var(--lp-muted)]">
+            <div className="hidden lg:grid grid-cols-[1.15fr_minmax(160px,.85fr)_1.9fr_auto] gap-9 px-[30px] py-[13px] bg-[var(--lp-paper)] border-b-2 border-[var(--lp-ink)] text-xs font-bold tracking-[0.06em] uppercase text-[var(--lp-muted)]">
               <span>{t('core.landing.pricing.colPlan')}</span>
               <span>{t('core.landing.pricing.colPrice')}</span>
               <span>{t('core.landing.pricing.colIncluded')}</span>
@@ -574,7 +574,7 @@ export default function LandingPage() {
             {plans.map((plan, idx) => (
               <div
                 key={plan.key}
-                className={`relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.15fr_.85fr_1.9fr_auto] gap-x-9 gap-y-5 p-6 sm:p-[30px] items-center ${
+                className={`relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.15fr_minmax(160px,.85fr)_1.9fr_auto] gap-x-9 gap-y-5 p-6 sm:p-[30px] items-center ${
                   idx < plans.length - 1 ? 'border-b border-[var(--lp-ink)]' : ''
                 } ${plan.highlight ? 'bg-[var(--lp-tint)] pl-9 sm:pl-[38px]' : ''}`}
               >
@@ -593,9 +593,9 @@ export default function LandingPage() {
                   <p className="text-sm text-[var(--lp-muted)] mt-1.5 max-w-[19em]">{t(`core.landing.pricing.${plan.key}.description`)}</p>
                 </div>
                 <div>
-                  <div className="font-mono font-semibold text-[30px] tracking-[-0.04em] tabular-nums">
-                    {plan.price}
-                    <small className="ml-1 font-sans font-normal text-[13px] tracking-normal text-[var(--lp-muted)]">
+                  <div className={`flex items-baseline gap-1 font-mono font-semibold text-[30px] lg:text-[26px] xl:text-[30px] tracking-[-0.04em] tabular-nums ${ready || plan.key === 'freeTrial' ? 'flex-nowrap whitespace-nowrap' : 'flex-wrap'}`}>
+                    <span data-price-amount>{plan.price}</span>
+                    <small data-price-cadence className="shrink-0 whitespace-nowrap font-sans font-normal text-[13px] tracking-normal text-[var(--lp-muted)]">
                       {t(`core.landing.pricing.${plan.key}.cadence`)}
                     </small>
                   </div>

@@ -5,15 +5,20 @@ import { billingApi } from '@/core/lib/billing/billing';
 import { PRICE_FIELDS, translateCatalogPrice, validateCatalogPricing } from '@/core/lib/billing/catalogPricing';
 import { getTranslation } from '@/core/lib/shared/i18n';
 import { PricingProvider, PricingStatus, usePricingDisplay } from '@/core/components/context/PricingContext';
+import { createCatalogFixture, formatMoney } from '../../helpers/paddleCatalogFixture.js';
 
 vi.mock('@/core/components/context/I18nContext', () => ({
   useTranslation: () => ({ t: (key, params) => getTranslation(key, params, 'en'), language: 'en' }),
 }));
 
+// Prices come from a mocked Paddle catalog generated per run; expectations are derived from it.
+const fixture = createCatalogFixture();
+const { prices } = fixture.catalog;
+
 function catalog(overrides = {}) {
   return {
-    currencyCode: 'USD',
-    prices: Object.fromEntries(PRICE_FIELDS.map((key, index) => [key, 31.25 + index])),
+    ...fixture.catalog,
+    prices: { ...prices },
     fetchedAt: new Date().toISOString(),
     expiresAt: new Date(Date.now() + 300_000).toISOString(),
     ...overrides,
@@ -57,7 +62,7 @@ describe('catalog response validation', () => {
     expect(() => validateCatalogPricing(data)).toThrow();
   });
 
-  it.each([NaN, Infinity, -1, '29.99', null, undefined])('rejects invalid amount %s', (amount) => {
+  it.each([NaN, Infinity, -1, String(prices.STARTER_MONTHLY_PRICE), null, undefined])('rejects invalid amount %s', (amount) => {
     const data = catalog();
     data.prices.STARTER_MONTHLY_PRICE = amount;
     expect(() => validateCatalogPricing(data)).toThrow();
@@ -70,26 +75,28 @@ describe('catalog response validation', () => {
 });
 
 describe('currency interpolation without modifying locale files', () => {
-  const formatPrice = (value) => new Intl.NumberFormat('en', {
-    style: 'currency', currency: 'USD', currencyDisplay: 'code',
-  }).format(value);
+  const formatPrice = (value) => formatMoney(value);
+  const price = prices.STARTER_MONTHLY_PRICE;
+  const yearly = prices.STARTER_YEARLY_PRICE;
 
   it.each([
-    ['${{price}}', 'USD\u00a031.25'],
-    ['{{price}} €', 'USD\u00a031.25'],
-    ['R$ {{price}}', 'USD\u00a031.25'],
-    ['+{{price}} €/mo', '+USD\u00a031.25/mo'],
-    ['or ${{yearly}}/yr', 'or USD\u00a0312.50/yr'],
+    ['${{price}}', () => formatMoney(price)],
+    ['{{price}} €', () => formatMoney(price)],
+    ['R$ {{price}}', () => formatMoney(price)],
+    ['+{{price}} €/mo', () => `+${formatMoney(price)}/mo`],
+    ['or ${{yearly}}/yr', () => `or ${formatMoney(yearly)}/yr`],
   ])('uses catalog currency in %s', (template, expected) => {
     const t = (_, params) => template.replace(/\{\{(\w+)\}\}/g, (_, name) => params[name]);
-    expect(translateCatalogPrice(t, 'key', { price: 31.25, yearly: 312.5 }, formatPrice)).toBe(expected);
+    expect(translateCatalogPrice(t, 'key', { price, yearly }, formatPrice)).toBe(expected());
   });
 
   it('keeps seat billing interval suffixes and HTML markup', () => {
-    expect(translateCatalogPrice(getTranslation, 'core.upgradeModal.addExtraSeats', { price: '31.25/yr' }, formatPrice))
-      .toContain('USD\u00a031.25/yr');
-    expect(translateCatalogPrice(getTranslation, 'core.teamWorkspaceManager.seatModalDescription', { price: 31.25 }, formatPrice))
-      .toContain('<strong>+USD\u00a031.25/mo each (+ tax)</strong>');
+    const seatYearly = prices.EXTRA_SEAT_YEARLY_PRICE;
+    const seatMonthly = prices.EXTRA_SEAT_MONTHLY_PRICE;
+    expect(translateCatalogPrice(getTranslation, 'core.upgradeModal.addExtraSeats', { price: `${seatYearly}/yr` }, formatPrice))
+      .toContain(`${formatMoney(seatYearly)}/yr`);
+    expect(translateCatalogPrice(getTranslation, 'core.teamWorkspaceManager.seatModalDescription', { price: seatMonthly }, formatPrice))
+      .toContain(`<strong>+${formatMoney(seatMonthly)}/mo each (+ tax)</strong>`);
   });
 });
 
@@ -104,9 +111,10 @@ describe('shared frontend pricing state', () => {
     expect(screen.getByText('Unrelated workspace')).toBeTruthy();
     expect(billingApi.getPricing).toHaveBeenCalledTimes(1);
     await act(async () => resolve(catalog()));
-    expect(screen.getByTestId('translated').textContent).toBe('USD\u00a031.25');
+    expect(screen.getByTestId('translated').textContent).toBe(formatMoney(prices.STARTER_MONTHLY_PRICE));
     expect(screen.getByRole('button', { name: 'Paid checkout' }).disabled).toBe(false);
-    expect(screen.getByTestId('seat-total').textContent).toBe('USD\u00a0106.75');
+    expect(screen.getByTestId('seat-total').textContent)
+      .toBe(formatMoney(prices.PRO_MONTHLY_PRICE + 2 * prices.EXTRA_SEAT_MONTHLY_PRICE));
   });
 
   it('shows an explicit error and retries successfully without stale defaults', async () => {

@@ -1,11 +1,15 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
+import { createCatalogFixture, randomMinorUnits, toMinor } from '../../helpers/paddleCatalogFixture.js';
 
 describe('Frontend Billing, Subscriptions & Paddle Checkout Tests', () => {
+  // Prices come from a mocked Paddle catalog generated per run; seat counts are plan entitlements.
+  const { catalog, minorUnits } = createCatalogFixture();
+  const { prices } = catalog;
   const PLANS_CONFIG = {
-    starter: { basePriceMonthly: 19.99, basePriceAnnual: 199.99, baseSeats: 1, maxSeats: 1, additionalSeatPriceMonthly: 0 },
-    pro: { basePriceMonthly: 79.99, basePriceAnnual: 799.99, baseSeats: 3, maxSeats: 10, additionalSeatPriceMonthly: 29.99, additionalSeatPriceAnnual: 299.99 },
-    enterprise: { basePriceMonthly: 199.99, basePriceAnnual: 1999.99, baseSeats: 8, maxSeats: 20, additionalSeatPriceMonthly: 24.99, additionalSeatPriceAnnual: 249.99 },
+    starter: { basePriceMonthly: prices.STARTER_MONTHLY_PRICE, basePriceAnnual: prices.STARTER_YEARLY_PRICE, baseSeats: 1, maxSeats: 1, additionalSeatPriceMonthly: 0 },
+    pro: { basePriceMonthly: prices.PRO_MONTHLY_PRICE, basePriceAnnual: prices.PRO_YEARLY_PRICE, baseSeats: 3, maxSeats: 10, additionalSeatPriceMonthly: prices.EXTRA_SEAT_MONTHLY_PRICE, additionalSeatPriceAnnual: prices.EXTRA_SEAT_YEARLY_PRICE },
+    enterprise: { basePriceMonthly: prices.ENTERPRISE_MONTHLY_PRICE, basePriceAnnual: prices.ENTERPRISE_YEARLY_PRICE, baseSeats: 8, maxSeats: 20, additionalSeatPriceMonthly: prices.EXTRA_SEAT_MONTHLY_PRICE, additionalSeatPriceAnnual: prices.EXTRA_SEAT_YEARLY_PRICE },
   };
 
   describe('Pricing Calculations & Seat Additions (TeamWorkspaceManager & Upgrade Modal)', () => {
@@ -20,16 +24,22 @@ describe('Frontend Billing, Subscriptions & Paddle Checkout Tests', () => {
         return parseFloat(total.toFixed(2));
       };
 
-      // Pro Monthly base (3 seats)
-      assert.strictEqual(calculatePlanCost('pro', 'monthly', 0), 79.99);
+      // Pro Monthly base
+      assert.strictEqual(calculatePlanCost('pro', 'monthly', 0), prices.PRO_MONTHLY_PRICE);
 
-      // Pro Monthly with 2 extra seats (5 total seats)
-      // 79.99 + 2 * 29.99 = 79.99 + 59.98 = 139.97
-      assert.strictEqual(calculatePlanCost('pro', 'monthly', 2), 139.97);
+      // Pro Monthly with extra seats
+      const monthlySeats = 1 + (randomMinorUnits() % 7);
+      assert.strictEqual(
+        toMinor(calculatePlanCost('pro', 'monthly', monthlySeats)),
+        minorUnits.PRO_MONTHLY_PRICE + monthlySeats * minorUnits.EXTRA_SEAT_MONTHLY_PRICE,
+      );
 
-      // Pro Annual with 4 extra seats (7 total seats)
-      // 799.99 + 4 * 299.99 = 799.99 + 1199.96 = 1999.95
-      assert.strictEqual(calculatePlanCost('pro', 'annual', 4), 1999.95);
+      // Pro Annual with extra seats
+      const annualSeats = 1 + (randomMinorUnits() % 7);
+      assert.strictEqual(
+        toMinor(calculatePlanCost('pro', 'annual', annualSeats)),
+        minorUnits.PRO_YEARLY_PRICE + annualSeats * minorUnits.EXTRA_SEAT_YEARLY_PRICE,
+      );
     });
 
     it('enforces maximum seat bounds in seat increment controls', () => {
