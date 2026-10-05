@@ -52,6 +52,7 @@ test.describe('deleting workspaces and accounts', () => {
       await openTeam(page, customer, settings);
       const refused = await deleteAccountViaUi(page, settings, customer);
       expect(refused.status).toBe(409);
+      expect(refused.body.code).toBe('OWNS_TEAM_WITH_MEMBERS');
       await expect(page.getByText(refused.body.error)).toBeVisible();
       await page.getByRole('button', { name: label('core.accountSettings.cancelButton'), exact: true }).click();
       expect(await findProfile(db, authUser.id)).toBeTruthy();

@@ -518,6 +518,7 @@
       "confirmCancellation": "Confirm Cancellation",
       "deleteConfirmTitle": "Are you absolutely sure?",
       "deleteConfirmMessage": "This will permanently delete your user account @{{username}} and all associated cloud estimates and projects.",
+      "deleteRetentionNotice": "You will be removed from any team workspaces you belong to; work saved inside a team workspace stays with that team. Proposals your clients have signed are kept as legal records. If you own a workspace that other people are still using, remove them first.",
       "typeUsernameToConfirm": "Type your username {{username}} to confirm:",
       "cancelButton": "Cancel",
       "deletingAccount": "Deleting Account...",

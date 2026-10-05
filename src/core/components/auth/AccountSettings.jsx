@@ -1065,6 +1065,9 @@ export default function AccountSettings() {
             <p className="text-xs text-slate-600 dark:text-slate-300 mb-4 leading-relaxed">
               {t('core.accountSettings.deleteConfirmMessage', { username: user?.username })}
             </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
+              {t('core.accountSettings.deleteRetentionNotice')}
+            </p>
 
             {deleteErr && (
               <div className="mb-4 p-2.5 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 text-xs border border-red-200 dark:border-red-900 flex items-center gap-1.5">
