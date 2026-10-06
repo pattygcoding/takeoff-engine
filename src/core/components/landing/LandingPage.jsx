@@ -40,11 +40,10 @@ function LogoMark({ inverse = false }) {
   );
 }
 
-function SectionHeader({ number, label, title, description, onBand = false }) {
+function SectionHeader({ label, title, description, onBand = false }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-3 lg:gap-8 mb-12">
-      <div className="flex gap-3.5 items-baseline text-[13px] font-semibold lg:pt-2.5">
-        <span className={`font-mono font-medium ${onBand ? 'text-white' : 'text-[var(--lp-muted)]'}`}>{number}</span>
+      <div className="text-[13px] font-semibold lg:pt-2.5">
         <span>{label}</span>
       </div>
       <div>
@@ -137,7 +136,6 @@ export default function LandingPage() {
   const sampleTotal = sampleRows.reduce((sum, row) => sum + row[3], 0);
 
   const steps = [1, 2, 3, 4].map((n) => ({
-    n: String(n).padStart(2, '0'),
     title: t(`core.landing.steps.s${n}Title`),
     desc: t(`core.landing.steps.s${n}Desc`),
   }));
@@ -421,11 +419,10 @@ export default function LandingPage() {
           <ol className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mt-[88px] border-t-2 border-[var(--lp-ink)]">
             {steps.map((step, idx) => (
               <li
-                key={step.n}
+                key={step.title}
                 className={`py-[22px] pb-[30px] lg:pr-6 border-[var(--lp-rule)] ${STEP_BORDERS[idx]}`}
               >
-                <div className="font-mono font-medium text-[13px] text-[var(--lp-muted)]">{step.n}</div>
-                <h2 className="text-lg font-bold mt-2.5 mb-1.5 tracking-[-0.01em]">{step.title}</h2>
+                <h2 className="text-lg font-bold mb-1.5 tracking-[-0.01em]">{step.title}</h2>
                 <p className="text-sm text-[var(--lp-muted)]">{step.desc}</p>
               </li>
             ))}
@@ -438,7 +435,6 @@ export default function LandingPage() {
         <div className="max-w-[1160px] mx-auto px-5 sm:px-7">
           <SectionHeader
             onBand
-            number="01"
             label={t('core.landing.calculator.tag')}
             title={t('core.landing.calculator.title')}
             description={t('core.landing.calculator.description')}
@@ -528,7 +524,6 @@ export default function LandingPage() {
       <section id="comparison" className="py-[72px] sm:py-[104px] scroll-mt-16">
         <div className="max-w-[1160px] mx-auto px-5 sm:px-7">
           <SectionHeader
-            number="02"
             label={t('core.landing.comparison.tag')}
             title={t('core.landing.comparison.title')}
             description={t('core.landing.comparison.subtitle')}
@@ -586,7 +581,6 @@ export default function LandingPage() {
       <section id="pricing" className="py-[72px] sm:py-[104px] border-t-2 border-[var(--lp-ink)] scroll-mt-16">
         <div className="max-w-[1160px] mx-auto px-5 sm:px-7">
           <SectionHeader
-            number="03"
             label={t('core.landing.pricing.tag')}
             title={t('core.landing.pricing.title')}
             description={t('core.landing.pricing.subtitle')}
