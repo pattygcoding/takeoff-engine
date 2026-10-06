@@ -104,8 +104,8 @@ function AppContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-100 dark:bg-slate-950 flex items-center justify-center">
-        <div role="status" className="text-slate-600 dark:text-slate-400 font-medium animate-pulse">{t('core.accessibility.loading')}</div>
+      <div className="min-h-screen bg-[var(--lp-paper)] flex items-center justify-center">
+        <div role="status" className="text-[var(--lp-muted)] font-medium animate-pulse">{t('core.accessibility.loading')}</div>
       </div>
     );
   }
@@ -116,7 +116,7 @@ function AppContent() {
     location.pathname.startsWith('/p/');
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
+    <div className="min-h-screen bg-[var(--lp-paper)] text-[var(--lp-ink)] transition-colors duration-200">
       <a
         href="#main-content"
         className="skip-link no-print"
@@ -131,15 +131,18 @@ function AppContent() {
         {t('core.accessibility.skipToContent')}
       </a>
       {!isPublicLandingOrProposal && (
-        <header className="no-print bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 py-3 sm:py-4 transition-colors duration-200">
+        <header className="no-print bg-[var(--lp-paper)] border-b-2 border-[var(--lp-ink)] py-3 sm:py-4 transition-colors duration-200">
           <div className="max-w-6xl mx-auto px-4 flex flex-wrap gap-3 items-center justify-between">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <Link
-                className="flex items-center gap-2 cursor-pointer"
+                className="flex items-center gap-2.5 cursor-pointer font-extrabold text-[17px] tracking-[-0.02em]"
                 to={isAuthenticated && user?.username ? `/${user.username}` : '/home'}
               >
-                <span className="text-xl font-bold text-blue-600 dark:text-blue-400">Takeoff Engine</span>
-                <span className="hidden sm:inline text-sm text-slate-600 dark:text-slate-400">Construction Estimating</span>
+                <span aria-hidden="true" className="relative w-[26px] h-[26px] shrink-0 bg-[var(--lp-ink)]">
+                  <span className="absolute right-0 bottom-0 w-[11px] h-[11px] bg-[var(--lp-accent)]" />
+                </span>
+                Takeoff Engine
+                <span className="hidden sm:inline text-sm font-medium text-[var(--lp-muted)]">Construction Estimating</span>
               </Link>
 
               <button
@@ -149,24 +152,24 @@ function AppContent() {
                   navigate('/home');
                 }}
                 aria-label="View public marketing site & free trench calculator"
-                className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-base text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+                className="inline-flex items-center justify-center w-9 h-9 border border-[var(--lp-ink)] hover:bg-[var(--lp-ink)] hover:text-[var(--lp-paper)] transition-colors cursor-pointer"
                 title="View public marketing site & free trench calculator"
               >
                 <Globe aria-hidden="true" className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="flex items-center gap-3">
-              <ThemeToggle />
-              <LanguageSelector variant="light" />
+            <div className="flex items-center gap-3 sm:gap-5">
+              <ThemeToggle variant="landing" />
+              <LanguageSelector variant="landing" />
 
               {isAuthenticated ? (
                 <UserMenu />
               ) : (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-4">
                   <button
                     onClick={() => navigate('/login')}
-                    className="px-3.5 py-1.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-300 transition"
+                    className="text-sm font-medium hover:text-[var(--lp-accent-text)] transition-colors cursor-pointer"
                   >
                     Log In
                   </button>
@@ -174,7 +177,7 @@ function AppContent() {
                     onClick={() => navigate('/register')}
                     disabled={accountCreationDisabled}
                     title={accountCreationDisabled ? t('core.catalogPricing.accountCreationDisabled') : undefined}
-                    className="px-3.5 py-1.5 text-sm font-medium bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-600 text-white rounded-lg shadow-sm transition"
+                    className="lp-btn lp-btn-sm"
                   >
                     Sign Up
                   </button>
@@ -189,7 +192,7 @@ function AppContent() {
       <Suspense
         fallback={
           <div className="min-h-[50vh] flex items-center justify-center">
-            <div role="status" className="text-slate-600 dark:text-slate-400 font-medium animate-pulse">{t('core.accessibility.loading')}</div>
+            <div role="status" className="text-[var(--lp-muted)] font-medium animate-pulse">{t('core.accessibility.loading')}</div>
           </div>
         }
       >

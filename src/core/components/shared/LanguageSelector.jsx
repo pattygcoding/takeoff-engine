@@ -20,9 +20,15 @@ export const LANGUAGES = [
   },
 ];
 
+// Width of the dropdown panel (matches the `w-36` class) used to decide whether
+// it should open leftwards (right-aligned) or rightwards (left-aligned).
+const DROPDOWN_WIDTH = 144;
+
 export default function LanguageSelector({ variant = 'light' }) {
   const { language, setLanguage, t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
+  // Flip the panel to open rightwards when a right-aligned panel would clip off the left edge.
+  const [alignLeft, setAlignLeft] = useState(false);
   const dropdownRef = useRef(null);
   const triggerRef = useRef(null);
   const listId = useId();
@@ -50,6 +56,26 @@ export default function LanguageSelector({ variant = 'light' }) {
     };
   }, []);
 
+  // Keep the panel inside the viewport if the trigger moves while it is open
+  // (e.g. a mobile orientation change or keyboard resize).
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    const reposition = () => {
+      if (!triggerRef.current) return;
+      setAlignLeft(triggerRef.current.getBoundingClientRect().right - DROPDOWN_WIDTH < 8);
+    };
+    reposition();
+    window.addEventListener('resize', reposition);
+    return () => window.removeEventListener('resize', reposition);
+  }, [isOpen]);
+
+  const handleToggle = () => {
+    if (!isOpen && triggerRef.current) {
+      setAlignLeft(triggerRef.current.getBoundingClientRect().right - DROPDOWN_WIDTH < 8);
+    }
+    setIsOpen((prev) => !prev);
+  };
+
   const isDark = variant === 'dark';
   const isLanding = variant === 'landing';
 
@@ -64,7 +90,7 @@ export default function LanguageSelector({ variant = 'light' }) {
       <button
         ref={triggerRef}
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleToggle}
         className={`inline-flex items-center gap-2 px-2.5 py-1.5 text-xs font-semibold border transition cursor-pointer select-none ${triggerClass}`}
         aria-expanded={isOpen}
         aria-controls={listId}
@@ -88,7 +114,9 @@ export default function LanguageSelector({ variant = 'light' }) {
       {isOpen && (
         <div
           id={listId}
-          className={`absolute right-0 mt-1.5 w-36 max-w-[min(12rem,calc(100vw-1.5rem))] border shadow-xl z-50 py-1 overflow-hidden animate-fade-in ${
+          className={`absolute mt-1.5 w-36 max-w-[min(12rem,calc(100vw-1.5rem))] border shadow-xl z-50 py-1 overflow-hidden animate-fade-in ${
+            alignLeft ? 'left-0' : 'right-0'
+          } ${
             isLanding
               ? 'bg-[var(--lp-card)] border-[var(--lp-line)] text-[var(--lp-ink)] divide-y divide-[var(--lp-rule)]'
               : isDark

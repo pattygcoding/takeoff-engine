@@ -536,8 +536,8 @@ export default function AdminPortal() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 py-8 px-4 sm:px-6 lg:px-8 font-sans">
-      <PricingStatus />
       <div className="max-w-7xl mx-auto space-y-8">
+        <PricingStatus />
         {/* Header */}
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-6">
           <div>

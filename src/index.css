@@ -2,6 +2,25 @@
 
 @variant dark (&:where(.dark, .dark *));
 
+/* Neutral scale remapped from the public landing-page palette so the whole
+   application matches it: warm "paper" neutrals in light mode and deep navy
+   neutrals in dark mode. Tailwind's `slate` utilities resolve to these values
+   (the blue accent already matches the landing page: blue-600 #2563eb,
+   blue-400 #60a5fa, blue-700 #1d4ed8). */
+@theme {
+  --color-slate-50: #fbfaf6;
+  --color-slate-100: #f2f0e9;
+  --color-slate-200: #e6e2d6;
+  --color-slate-300: #cfcabd;
+  --color-slate-400: #a3a29a;
+  --color-slate-500: #6c6a60;
+  --color-slate-600: #5c5a51;
+  --color-slate-700: #3b475c;
+  --color-slate-800: #2a3446;
+  --color-slate-900: #111827;
+  --color-slate-950: #0b0f19;
+}
+
 :root {
   --app-font: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   font-family: var(--app-font);
@@ -21,6 +40,8 @@ body {
   margin: 0;
   font-family: var(--app-font);
   letter-spacing: -0.01em;
+  background-color: var(--lp-paper);
+  color: var(--lp-ink);
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
@@ -39,12 +60,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .dark body {
-  background-color: #0b0f19;
-  color: #f8fafc;
+  background-color: var(--lp-paper);
+  color: var(--lp-ink);
 }
 
 :focus-visible {
-  outline: 3px solid #0f172a !important;
+  outline: 3px solid var(--lp-ink) !important;
   outline-offset: 3px;
   box-shadow: 0 0 0 3px #ffffff !important;
 }
@@ -91,8 +112,8 @@ body:has(dialog[open]) {
   }
 }
 
-/* Public landing page palette (light default, dark via html.dark) */
-.landing {
+/* Shared app + landing palette (light default, dark via html.dark). */
+:root {
   --lp-paper: #f2f0e9;
   --lp-card: #ffffff;
   --lp-card-alt: #fbfaf6;
@@ -111,7 +132,7 @@ body:has(dialog[open]) {
   --lp-inverse-rule: #38352f;
 }
 
-.dark .landing {
+.dark {
   --lp-paper: #0b0f19;
   --lp-card: #111827;
   --lp-card-alt: #0f1626;
@@ -130,7 +151,9 @@ body:has(dialog[open]) {
   --lp-inverse-rule: #1e293b;
 }
 
-.landing .lp-btn {
+/* Landing-style buttons (also reused by the app header so it matches the
+   public landing page). Colours come from the shared --lp-* palette. */
+.lp-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -146,30 +169,30 @@ body:has(dialog[open]) {
   transition: background-color 0.12s, color 0.12s, border-color 0.12s;
 }
 
-.landing .lp-btn:hover {
+.lp-btn:hover {
   background: var(--lp-accent);
   border-color: var(--lp-accent);
   color: #ffffff;
 }
 
-.landing .lp-btn-outline {
+.lp-btn-outline {
   background: transparent;
   color: var(--lp-ink);
 }
 
-.landing .lp-btn-outline:hover {
+.lp-btn-outline:hover {
   background: var(--lp-ink);
   border-color: var(--lp-ink);
   color: var(--lp-paper);
 }
 
-.landing .lp-btn-sm {
+.lp-btn-sm {
   padding: 10px 16px;
   font-size: 13px;
 }
 
-.landing .lp-btn:disabled,
-.landing .lp-btn:disabled:hover {
+.lp-btn:disabled,
+.lp-btn:disabled:hover {
   opacity: 0.5;
   cursor: not-allowed;
   background: var(--lp-ink);
@@ -177,8 +200,8 @@ body:has(dialog[open]) {
   color: var(--lp-paper);
 }
 
-.landing .lp-btn-outline:disabled,
-.landing .lp-btn-outline:disabled:hover {
+.lp-btn-outline:disabled,
+.lp-btn-outline:disabled:hover {
   background: transparent;
   color: var(--lp-ink);
 }

@@ -11,6 +11,20 @@ export default function ThemeToggle({ className = '', variant = 'header' }) {
     ? t('core.theme.switchToLight', 'Switch to light mode')
     : t('core.theme.switchToDark', 'Switch to dark mode');
 
+  if (variant === 'landing') {
+    return (
+      <button
+        type="button"
+        onClick={toggleTheme}
+        className={`w-9 h-9 inline-flex items-center justify-center border border-[var(--lp-ink)] hover:bg-[var(--lp-ink)] hover:text-[var(--lp-paper)] transition-colors cursor-pointer ${className}`}
+        title={title}
+        aria-label={title}
+      >
+        {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+      </button>
+    );
+  }
+
   if (variant === 'button') {
     return (
       <button
