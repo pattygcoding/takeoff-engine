@@ -1,4 +1,5 @@
 import React from 'react';
+import type { DocumentTemplateProps } from '@/types/models';
 import { formatCurrency } from '@/product/lib/calculations';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import {
@@ -15,7 +16,7 @@ const TH = 'py-2 px-2 text-[9px] font-bold uppercase tracking-wider text-slate-6
 /**
  * 14. Phase Milestone Draw Schedule Layout
  */
-export default function PhaseMilestoneDrawDocument({ estimate, branding, currentProject }) {
+export default function PhaseMilestoneDrawDocument({ estimate, branding, currentProject }: DocumentTemplateProps) {
   const { totals = {} } = estimate;
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENT;

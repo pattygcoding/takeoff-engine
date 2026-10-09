@@ -1,4 +1,6 @@
 import React from 'react';
+import type { ReactNode } from 'react';
+import type { DocumentTemplateProps } from '@/types/models';
 import { formatCurrency } from '@/product/lib/calculations';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import ScopeSummaryDisplay from '@/product/components/ScopeSummaryDisplay';
@@ -13,7 +15,7 @@ import {
 const KEY = 'product.templates.formalContract';
 const ACCENT = '#1e293b';
 
-function Clause({ title, children }) {
+function Clause({ title, children }: { title: ReactNode; children: ReactNode }) {
   return (
     <p className="break-inside-avoid">
       <strong className="text-slate-900">{title}</strong> {children}
@@ -24,7 +26,7 @@ function Clause({ title, children }) {
 /**
  * 13. Owner-Contractor Formal Agreement Layout
  */
-export default function FormalContractAgreementDocument({ estimate, branding, currentProject }) {
+export default function FormalContractAgreementDocument({ estimate, branding, currentProject }: DocumentTemplateProps) {
   const { totals = {}, bySystem = [], rates } = estimate;
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENT;

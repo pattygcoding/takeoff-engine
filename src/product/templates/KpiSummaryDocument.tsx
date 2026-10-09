@@ -1,4 +1,5 @@
 import React from 'react';
+import type { DocumentTemplateProps } from '@/types/models';
 import { formatCurrency, formatNumber } from '@/product/lib/calculations';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import {
@@ -13,18 +14,18 @@ import {
 const KEY = 'product.templates.kpiSummary';
 const ACCENT = '#0891b2';
 
-function pctOf(part, whole) {
+function pctOf(part: any, whole: any) {
   return whole > 0 ? (part / whole) * 100 : 0;
 }
 
-function formatPctText(value) {
+function formatPctText(value: any) {
   return `${formatNumber(value, 1)}%`;
 }
 
 /**
  * 6. Executive KPI & Margin Summary Document Layout
  */
-export default function KpiSummaryDocument({ estimate, branding, currentProject }) {
+export default function KpiSummaryDocument({ estimate, branding, currentProject }: DocumentTemplateProps) {
   const { totals = {}, bySystem = [] } = estimate;
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENT;

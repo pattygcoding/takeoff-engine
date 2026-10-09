@@ -1,4 +1,5 @@
 import React from 'react';
+import type { DocumentTemplateProps } from '@/types/models';
 import { formatCurrency } from '@/product/lib/calculations';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import ScopeSummaryDisplay from '@/product/components/ScopeSummaryDisplay';
@@ -16,7 +17,7 @@ const ACCENT = '#059669';
 /**
  * 3. Executive Proposal Document Layout
  */
-export default function ExecutiveProposalDocument({ estimate, branding, currentProject }) {
+export default function ExecutiveProposalDocument({ estimate, branding, currentProject }: DocumentTemplateProps) {
   const { totals = {}, bySystem = [], rates } = estimate;
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENT;

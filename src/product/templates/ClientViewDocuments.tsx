@@ -1,4 +1,7 @@
 import React from 'react';
+import type { ReactNode } from 'react';
+import type { DocumentTemplateProps } from '@/types/models';
+import type { DocumentColumn } from './DocumentHeaderSignoff';
 import { formatCurrency, formatNumber } from '@/product/lib/calculations';
 import { formatMarkupLine, formatMarkupBasisNote } from '@/product/lib/markupFormatting';
 import { useTranslation } from '@/core/components/context/I18nContext';
@@ -22,7 +25,7 @@ import {
 const KEY = 'product.clientViews';
 const PDF = 'product.clientViews.pdf';
 
-const ACCENTS = {
+const ACCENTS: Record<string, string> = {
   invoice: '#0f766e',
   proposal: '#2563eb',
   bid: '#1e3a8a',
@@ -30,7 +33,7 @@ const ACCENTS = {
   warranty: '#4338ca',
 };
 
-const STATUS_STYLES = {
+const STATUS_STYLES: Record<string, string> = {
   approved: 'bg-emerald-50 text-emerald-800 border-emerald-300',
   resolved: 'bg-emerald-50 text-emerald-800 border-emerald-300',
   rejected: 'bg-rose-50 text-rose-800 border-rose-300',
@@ -39,11 +42,11 @@ const STATUS_STYLES = {
   in_progress: 'bg-blue-50 text-blue-800 border-blue-300',
 };
 
-function DocShell({ children }) {
+function DocShell({ children }: { children: ReactNode }) {
   return <div className="text-slate-800 text-[11px] leading-relaxed tabular-nums bg-white">{children}</div>;
 }
 
-function StatusPill({ status }) {
+function StatusPill({ status }: { status: string }) {
   const { t } = useTranslation();
   return (
     <span className={`inline-block px-1.5 py-0.5 border rounded-sm text-[9px] font-bold uppercase tracking-wider whitespace-nowrap ${STATUS_STYLES[status] || 'border-slate-300 text-slate-600'}`}>
@@ -52,7 +55,7 @@ function StatusPill({ status }) {
   );
 }
 
-function formatDate(value) {
+function formatDate(value: any) {
   if (!value) return '—';
   // Stored as YYYY-MM-DD; parse as local date so it doesn't shift a day in negative UTC offsets.
   const [y, m, d] = String(value).split('-').map(Number);
@@ -60,7 +63,15 @@ function formatDate(value) {
   return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleDateString();
 }
 
-function PartiesBlock({ project, accent, aside }) {
+function PartiesBlock({
+  project,
+  accent,
+  aside,
+}: {
+  project?: any;
+  accent?: string;
+  aside: { title: ReactNode; rows: Array<[ReactNode, ReactNode]> };
+}) {
   const { t } = useTranslation();
   return (
     <section className="mt-6 grid grid-cols-2 gap-6 break-inside-avoid">
@@ -81,7 +92,7 @@ function PartiesBlock({ project, accent, aside }) {
         <table className="w-full">
           <tbody>
             {aside.rows.map(([label, value]) => (
-              <tr key={label} className="border-b border-slate-100 last:border-b-0">
+              <tr key={String(label)} className="border-b border-slate-100 last:border-b-0">
                 <td className="px-3 py-1 text-[9px] font-bold uppercase tracking-wider text-slate-500">{label}</td>
                 <td className="px-3 py-1 text-right font-semibold text-slate-900">{value}</td>
               </tr>
@@ -93,13 +104,21 @@ function PartiesBlock({ project, accent, aside }) {
   );
 }
 
-function SummaryTable({ rows, total, accent }) {
+function SummaryTable({
+  rows,
+  total,
+  accent,
+}: {
+  rows: Array<{ label: ReactNode; value: ReactNode; subtotal?: boolean }>;
+  total: { label: ReactNode; value: ReactNode };
+  accent?: string;
+}) {
   return (
     <section className="mt-6 flex justify-end break-inside-avoid">
       <table className="w-full max-w-[340px] border-collapse">
         <tbody>
           {rows.map((row) => (
-            <tr key={row.label} className={row.subtotal ? 'border-t border-slate-400 font-bold text-slate-900' : 'border-b border-slate-100'}>
+            <tr key={String(row.label)} className={row.subtotal ? 'border-t border-slate-400 font-bold text-slate-900' : 'border-b border-slate-100'}>
               <td className="py-1.5 pr-3">{row.label}</td>
               <td className="py-1.5 text-right whitespace-nowrap">{row.value}</td>
             </tr>
@@ -111,14 +130,27 @@ function SummaryTable({ rows, total, accent }) {
   );
 }
 
-function EmptyNotice({ children }) {
+function EmptyNotice({ children }: { children: ReactNode }) {
   return <p className="py-6 text-center text-slate-400 italic border border-dashed border-slate-300">{children}</p>;
 }
 
 /* ------------------------------------------------------------------ */
 /* 1. Invoice                                                          */
 /* ------------------------------------------------------------------ */
-export function InvoiceDocument({ estimate, branding, currentProject, changeOrders = [], warrantyItems = [], invoiceNumber, netDays }) {
+export function InvoiceDocument({
+  estimate,
+  branding,
+  currentProject,
+  changeOrders = [],
+  warrantyItems = [],
+  invoiceNumber,
+  netDays,
+}: DocumentTemplateProps & {
+  changeOrders?: any[];
+  warrantyItems?: any[];
+  invoiceNumber?: any;
+  netDays?: any;
+}) {
   const { t } = useTranslation();
   const { totals = {}, bySystem = [] } = estimate;
   const accent = branding?.brandColor || ACCENTS.invoice;
@@ -133,7 +165,7 @@ export function InvoiceDocument({ estimate, branding, currentProject, changeOrde
   const markupTotal = (totals.overheadAmount || 0) + (totals.contingencyAmount || 0) + (totals.profitAmount || 0);
   const amountDue = (totals.finalBidAmount || 0) + approvedTotal + warrantyTotal;
 
-  const columns = [
+  const columns: DocumentColumn[] = [
     { header: t('product.resultsStep.colDescription'), render: (it) => (it.sizeSpec ? `${it.description} — ${it.sizeSpec}` : it.description) },
     { header: t('product.resultsStep.colQty'), align: 'right', render: (it) => formatNumber(it.quantity, 0) },
     { header: t('product.resultsStep.colUnit'), muted: true, render: (it) => it.unit },
@@ -221,13 +253,15 @@ export function InvoiceDocument({ estimate, branding, currentProject, changeOrde
 
       <SummaryTable
         accent={accent}
-        rows={[
-          { label: t('product.resultsStep.subtotal'), value: formatCurrency(totals.totalDirectCost) },
-          { label: t(`${KEY}.overheadAndProfit`), value: formatCurrency(markupTotal) },
-          { label: t(`${KEY}.originalContract`), value: formatCurrency(totals.finalBidAmount), subtotal: true },
-          approvedCOs.length > 0 && { label: t(`${KEY}.approvedChanges`), value: formatCurrency(approvedTotal) },
-          warrantyTotal > 0 && { label: t(`${KEY}.billableWarranty`), value: formatCurrency(warrantyTotal) },
-        ].filter(Boolean)}
+        rows={
+          [
+            { label: t('product.resultsStep.subtotal'), value: formatCurrency(totals.totalDirectCost) },
+            { label: t(`${KEY}.overheadAndProfit`), value: formatCurrency(markupTotal) },
+            { label: t(`${KEY}.originalContract`), value: formatCurrency(totals.finalBidAmount), subtotal: true },
+            approvedCOs.length > 0 && { label: t(`${KEY}.approvedChanges`), value: formatCurrency(approvedTotal) },
+            warrantyTotal > 0 && { label: t(`${KEY}.billableWarranty`), value: formatCurrency(warrantyTotal) },
+          ].filter(Boolean) as Array<{ label: ReactNode; value: ReactNode; subtotal?: boolean }>
+        }
         total={{ label: t(`${KEY}.amountDue`), value: formatCurrency(amountDue) }}
       />
 
@@ -246,12 +280,12 @@ export function InvoiceDocument({ estimate, branding, currentProject, changeOrde
 /* ------------------------------------------------------------------ */
 /* 2. Proposal Package                                                 */
 /* ------------------------------------------------------------------ */
-export function ProposalPackageDocument({ estimate, branding, currentProject, rates }) {
+export function ProposalPackageDocument({ estimate, branding, currentProject, rates }: DocumentTemplateProps) {
   const { t } = useTranslation();
   const { totals = {}, bySystem = [] } = estimate;
   const accent = branding?.brandColor || ACCENTS.proposal;
 
-  const columns = [
+  const columns: DocumentColumn[] = [
     { header: t('product.resultsStep.colDescription'), render: (it) => it.description },
     { header: t('product.resultsStep.colSizeSpec'), muted: true, render: (it) => it.sizeSpec },
     { header: t('product.resultsStep.colQty'), align: 'right', render: (it) => formatNumber(it.quantity, 0) },
@@ -332,7 +366,7 @@ export function ProposalPackageDocument({ estimate, branding, currentProject, ra
 /* ------------------------------------------------------------------ */
 /* 3. General Bid                                                      */
 /* ------------------------------------------------------------------ */
-export function GeneralBidDocument({ estimate, branding, currentProject, rates }) {
+export function GeneralBidDocument({ estimate, branding, currentProject, rates }: DocumentTemplateProps) {
   const { t } = useTranslation();
   const { totals = {}, bySystem = [] } = estimate;
   const accent = branding?.brandColor || ACCENTS.bid;
@@ -422,13 +456,18 @@ export function GeneralBidDocument({ estimate, branding, currentProject, rates }
 /* ------------------------------------------------------------------ */
 /* 4. Change Orders                                                    */
 /* ------------------------------------------------------------------ */
-export function ChangeOrdersDocument({ estimate, branding, currentProject, changeOrders = [] }) {
+export function ChangeOrdersDocument({
+  estimate,
+  branding,
+  currentProject,
+  changeOrders = [],
+}: DocumentTemplateProps & { changeOrders?: any[] }) {
   const { t } = useTranslation();
   const { totals = {} } = estimate;
   const accent = branding?.brandColor || ACCENTS.changeOrders;
   const original = totals.finalBidAmount || 0;
   const approved = sumApprovedChangeOrders(changeOrders);
-  const sumBy = (status, field) =>
+  const sumBy = (status: any, field: any) =>
     changeOrders.filter((co) => co.status === status).reduce((s, co) => s + (Number(co[field]) || 0), 0);
   const pending = sumBy('pending', 'amount');
   const approvedDays = sumBy('approved', 'scheduleDays');
@@ -514,7 +553,15 @@ export function ChangeOrdersDocument({ estimate, branding, currentProject, chang
 /* ------------------------------------------------------------------ */
 /* 5. Warranty Work                                                    */
 /* ------------------------------------------------------------------ */
-export function WarrantyDocument({ branding, currentProject, warrantyItems = [] }) {
+export function WarrantyDocument({
+  branding,
+  currentProject,
+  warrantyItems = [],
+}: {
+  branding?: any;
+  currentProject?: any;
+  warrantyItems?: any[];
+}) {
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENTS.warranty;
   const counts = warrantyItems.reduce((acc, w) => ({ ...acc, [w.status]: (acc[w.status] || 0) + 1 }), {});

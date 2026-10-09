@@ -1,17 +1,51 @@
 import React from 'react';
+import type { ReactNode } from 'react';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import { formatCurrency, formatNumber } from '@/product/lib/calculations';
+import type { Branding, EstimateTotals, Project } from '@/types/models';
 
 export const DEFAULT_DOC_ACCENT = '#1e3a8a';
 
-function formatPct(value) {
+export interface DocumentFigure {
+  label: ReactNode;
+  value: ReactNode;
+  note?: ReactNode;
+}
+
+export interface DocumentColumn {
+  header: string;
+  align?: string;
+  render: (item: any) => ReactNode;
+  strong?: boolean;
+  muted?: boolean;
+  className?: string;
+}
+
+export interface SignatureParty {
+  title: string;
+  subtitle?: string;
+}
+
+function formatPct(value: number | string | null | undefined): string {
   return formatNumber(Number(value) || 0, 1).replace(/\.0$/, '');
 }
 
 /**
  * Professional letterhead: accent rule, company block, document title and project meta.
  */
-export function DocumentLetterhead({ branding, title, project, accent = DEFAULT_DOC_ACCENT, badge }) {
+export function DocumentLetterhead({
+  branding,
+  title,
+  project,
+  accent = DEFAULT_DOC_ACCENT,
+  badge,
+}: {
+  branding?: Branding | null;
+  title: ReactNode;
+  project?: Project | null;
+  accent?: string;
+  badge?: ReactNode;
+}) {
   const { t } = useTranslation();
   const today = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
 
@@ -20,7 +54,7 @@ export function DocumentLetterhead({ branding, title, project, accent = DEFAULT_
     project?.client_name && [t('product.templates.header.metaClient'), project.client_name],
     project?.location && [t('product.templates.header.metaSite'), project.location],
     [t('product.templates.header.metaDate'), today],
-  ].filter(Boolean);
+  ].filter(Boolean) as Array<[string, ReactNode]>;
 
   return (
     <>
@@ -71,7 +105,13 @@ export function DocumentLetterhead({ branding, title, project, accent = DEFAULT_
   );
 }
 
-export function DocumentSectionHeading({ accent = DEFAULT_DOC_ACCENT, children }) {
+export function DocumentSectionHeading({
+  accent = DEFAULT_DOC_ACCENT,
+  children,
+}: {
+  accent?: string;
+  children: ReactNode;
+}) {
   return (
     <h2
       className="mb-2 pb-1 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-700 border-b break-after-avoid"
@@ -85,7 +125,15 @@ export function DocumentSectionHeading({ accent = DEFAULT_DOC_ACCENT, children }
 /**
  * Bordered strip of headline figures; the last (highlight) cell is filled with the accent color.
  */
-export function DocumentKeyFigures({ figures, highlight, accent = DEFAULT_DOC_ACCENT }) {
+export function DocumentKeyFigures({
+  figures,
+  highlight,
+  accent = DEFAULT_DOC_ACCENT,
+}: {
+  figures: DocumentFigure[];
+  highlight?: DocumentFigure;
+  accent?: string;
+}) {
   const cols = figures.length + (highlight ? 1 : 0);
   return (
     <section
@@ -93,7 +141,7 @@ export function DocumentKeyFigures({ figures, highlight, accent = DEFAULT_DOC_AC
       style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
     >
       {figures.map((fig) => (
-        <div key={fig.label} className="px-4 py-3 border-r border-slate-300 bg-slate-50">
+        <div key={String(fig.label)} className="px-4 py-3 border-r border-slate-300 bg-slate-50">
           <p className="text-[9px] font-bold uppercase tracking-wider text-slate-500">{fig.label}</p>
           <p className="mt-0.5 text-base font-bold text-slate-900">{fig.value}</p>
           {fig.note && <p className="text-[10px] text-slate-500">{fig.note}</p>}
@@ -113,14 +161,26 @@ export function DocumentKeyFigures({ figures, highlight, accent = DEFAULT_DOC_AC
  * Line items grouped by system with a header row per system and an optional subtotal row.
  * columns: [{ header, align?: 'right', render(item), strong?: bool, muted?: bool, className?: string }]
  */
-export function DocumentSystemTable({ bySystem, columns, subtotal, headerAside, accent = DEFAULT_DOC_ACCENT }) {
+export function DocumentSystemTable({
+  bySystem,
+  columns,
+  subtotal,
+  headerAside,
+  accent = DEFAULT_DOC_ACCENT,
+}: {
+  bySystem?: any[];
+  columns: DocumentColumn[];
+  subtotal?: (sys: any) => ReactNode;
+  headerAside?: (sys: any) => ReactNode;
+  accent?: string;
+}) {
   const { t } = useTranslation();
 
   if (!bySystem?.length) {
     return <p className="py-6 text-center text-slate-400 italic">{t('product.templates.shared.noItems')}</p>;
   }
 
-  const cellClass = (col, ci) =>
+  const cellClass = (col: DocumentColumn, ci: number) =>
     `py-1.5 px-2 ${col.align === 'right' ? 'text-right' : ''} ${
       col.className ?? (col.strong ? 'font-semibold text-slate-900' : col.muted ? 'text-slate-500' : ci === 0 ? 'font-medium text-slate-900' : '')
     }`;
@@ -153,7 +213,7 @@ export function DocumentSystemTable({ bySystem, columns, subtotal, headerAside, 
               </div>
             </td>
           </tr>
-          {sys.items.map((it, idx) => (
+          {sys.items.map((it: any, idx: number) => (
             <tr key={idx} className="border-b border-slate-100 even:bg-slate-50/70 break-inside-avoid">
               {columns.map((col, ci) => (
                 <td key={col.header} className={cellClass(col, ci)}>
@@ -182,11 +242,11 @@ export function DocumentSystemTable({ bySystem, columns, subtotal, headerAside, 
 /**
  * Right-aligned internal cost roll-up from direct costs through markups to the final bid.
  */
-export function DocumentCostSummary({ totals, accent = DEFAULT_DOC_ACCENT }) {
+export function DocumentCostSummary({ totals, accent = DEFAULT_DOC_ACCENT }: { totals: EstimateTotals; accent?: string }) {
   const { t } = useTranslation();
-  const k = (key) => t(`product.templates.shared.${key}`);
+  const k = (key: string) => t(`product.templates.shared.${key}`);
 
-  const markupLabel = (labelKey, type, pct) =>
+  const markupLabel = (labelKey: string, type?: string, pct?: number | string | null) =>
     type === 'fixed' ? k(labelKey) : t('product.templates.shared.labelWithPct', { label: k(labelKey), pct: formatPct(pct) });
 
   const rows = [
@@ -196,14 +256,19 @@ export function DocumentCostSummary({ totals, accent = DEFAULT_DOC_ACCENT }) {
       note: t('product.templates.shared.hoursUnit', { hours: formatNumber(totals.totalLaborHours) }),
       value: totals.totalLaborCost,
     },
-    totals.totalEquipmentLineItemCost > 0 && { label: k('equipmentLineItems'), value: totals.totalEquipmentLineItemCost },
+    (totals.totalEquipmentLineItemCost ?? 0) > 0 && { label: k('equipmentLineItems'), value: totals.totalEquipmentLineItemCost },
     { label: k('equipmentMobilization'), value: totals.equipmentLumpSum },
-    totals.miscCost > 0 && { label: k('miscCost'), value: totals.miscCost },
+    (totals.miscCost ?? 0) > 0 && { label: k('miscCost'), value: totals.miscCost },
     { label: k('totalDirectCost'), value: totals.totalDirectCost, subtotal: true },
     { label: markupLabel('overhead', totals.overheadType, totals.overheadPct), value: totals.overheadAmount },
     { label: markupLabel('contingency', totals.contingencyType, totals.contingencyPct), value: totals.contingencyAmount },
     { label: markupLabel('profit', totals.profitType, totals.profitPct), value: totals.profitAmount },
-  ].filter(Boolean);
+  ].filter(Boolean) as Array<{
+    label: ReactNode;
+    value: number | string | null | undefined;
+    note?: ReactNode;
+    subtotal?: boolean;
+  }>;
 
   return (
     <section className="mt-8 flex justify-end break-inside-avoid">
@@ -213,7 +278,7 @@ export function DocumentCostSummary({ totals, accent = DEFAULT_DOC_ACCENT }) {
           <tbody>
             {rows.map((row) => (
               <tr
-                key={row.label}
+                key={String(row.label)}
                 className={row.subtotal ? 'border-t border-slate-400 font-bold text-slate-900' : 'border-b border-slate-100'}
               >
                 <td className="py-1.5 pr-3">
@@ -231,7 +296,17 @@ export function DocumentCostSummary({ totals, accent = DEFAULT_DOC_ACCENT }) {
   );
 }
 
-export function DocumentTotalRow({ label, value, accent = DEFAULT_DOC_ACCENT, colSpan = 1 }) {
+export function DocumentTotalRow({
+  label,
+  value,
+  accent = DEFAULT_DOC_ACCENT,
+  colSpan = 1,
+}: {
+  label: ReactNode;
+  value: ReactNode;
+  accent?: string;
+  colSpan?: number;
+}) {
   return (
     <tr className="text-white" style={{ backgroundColor: accent }}>
       <td colSpan={colSpan} className="py-2 px-2 text-[11px] font-bold uppercase tracking-wider">{label}</td>
@@ -243,7 +318,19 @@ export function DocumentTotalRow({ label, value, accent = DEFAULT_DOC_ACCENT, co
 /**
  * Signature lines. parties: [{ title, subtitle? }]; showPrintedName adds a name/title line for contract use.
  */
-export function DocumentSignatureBlock({ heading, intro, parties, showPrintedName = false, accent = DEFAULT_DOC_ACCENT }) {
+export function DocumentSignatureBlock({
+  heading,
+  intro,
+  parties,
+  showPrintedName = false,
+  accent = DEFAULT_DOC_ACCENT,
+}: {
+  heading: ReactNode;
+  intro?: ReactNode;
+  parties: SignatureParty[];
+  showPrintedName?: boolean;
+  accent?: string;
+}) {
   const { t } = useTranslation();
 
   return (
@@ -273,7 +360,15 @@ export function DocumentSignatureBlock({ heading, intro, parties, showPrintedNam
   );
 }
 
-export function DocumentFillLine({ label, value, labelWidth = 'w-24' }) {
+export function DocumentFillLine({
+  label,
+  value,
+  labelWidth = 'w-24',
+}: {
+  label: ReactNode;
+  value?: ReactNode;
+  labelWidth?: string;
+}) {
   return (
     <div className="flex items-end gap-2 py-1">
       <span className={`shrink-0 text-[9px] font-bold uppercase tracking-wider text-slate-500 ${labelWidth}`}>{label}</span>
@@ -282,7 +377,7 @@ export function DocumentFillLine({ label, value, labelWidth = 'w-24' }) {
   );
 }
 
-export function DocumentFooter({ confidential = false }) {
+export function DocumentFooter({ confidential = false }: { confidential?: boolean }) {
   const { t } = useTranslation();
   return (
     <footer className="mt-10 pt-3 border-t border-slate-200 flex justify-between text-[9px] uppercase tracking-wider text-slate-400">

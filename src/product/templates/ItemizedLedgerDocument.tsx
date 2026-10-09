@@ -1,4 +1,6 @@
 import React from 'react';
+import type { DocumentTemplateProps } from '@/types/models';
+import type { DocumentColumn } from './DocumentHeaderSignoff';
 import { formatCurrency, formatNumber } from '@/product/lib/calculations';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import {
@@ -17,14 +19,14 @@ const ACCENT = '#d97706';
 /**
  * 4. Itemized Job-Cost Ledger Document Layout
  */
-export default function ItemizedLedgerDocument({ estimate, branding, currentProject, rates }) {
+export default function ItemizedLedgerDocument({ estimate, branding, currentProject, rates }: DocumentTemplateProps) {
   const { totals = {}, bySystem = [] } = estimate;
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENT;
 
-  const equipmentCost = (it) => (rates?.excavatorHourlyRate || 0) * (it.laborHours * 0.4);
+  const equipmentCost = (it: any) => (rates?.excavatorHourlyRate || 0) * (it.laborHours * 0.4);
 
-  const columns = [
+  const columns: DocumentColumn[] = [
     { header: t(`${KEY}.colItem`), render: (it) => it.description },
     { header: t(`${KEY}.colSpec`), muted: true, render: (it) => it.sizeSpec },
     { header: t(`${KEY}.colQty`), align: 'right', render: (it) => formatNumber(it.quantity, 0) },

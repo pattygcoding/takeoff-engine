@@ -1,4 +1,6 @@
 import React from 'react';
+import type { DocumentTemplateProps } from '@/types/models';
+import type { DocumentColumn } from './DocumentHeaderSignoff';
 import { formatNumber } from '@/product/lib/calculations';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import {
@@ -17,12 +19,12 @@ const BLANK_CELL = 'h-7 border-x border-slate-200 bg-white min-w-[64px]';
 /**
  * 16. Field Superintendent QA Log Layout
  */
-export default function FieldDailyReportDocument({ estimate, branding, currentProject }) {
+export default function FieldDailyReportDocument({ estimate, branding, currentProject }: DocumentTemplateProps) {
   const { bySystem = [] } = estimate;
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENT;
 
-  const columns = [
+  const columns: DocumentColumn[] = [
     {
       header: t(`${KEY}.colItemDescription`),
       render: (it) => (

@@ -1,4 +1,5 @@
 import React from 'react';
+import type { DocumentTemplateProps } from '@/types/models';
 import { formatCurrency, formatNumber } from '@/product/lib/calculations';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import {
@@ -20,11 +21,11 @@ const TH = 'py-2 px-2 text-[9px] font-bold uppercase tracking-wider text-slate-6
 /**
  * 9. Crew & Equipment Production Schedule Layout
  */
-export default function CrewProductionScheduleDocument({ estimate, branding, currentProject }) {
+export default function CrewProductionScheduleDocument({ estimate, branding, currentProject }: DocumentTemplateProps) {
   const { totals = {}, bySystem = [] } = estimate;
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENT;
-  const hours = (n, d = 2) => t(`${KEY}.hrsUnit`, { count: formatNumber(n, d) });
+  const hours = (n: any, d = 2) => t(`${KEY}.hrsUnit`, { count: formatNumber(n, d) });
   const laborByRole = Array.isArray(totals.laborByRole) ? totals.laborByRole.filter((r) => r.laborHours > 0) : [];
 
   return (

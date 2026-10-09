@@ -1,4 +1,6 @@
 import React from 'react';
+import type { DocumentTemplateProps } from '@/types/models';
+import type { DocumentColumn } from './DocumentHeaderSignoff';
 import { formatCurrency, formatNumber } from '@/product/lib/calculations';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import ScopeSummaryDisplay from '@/product/components/ScopeSummaryDisplay';
@@ -17,12 +19,12 @@ const ACCENT = '#7e22ce';
 /**
  * 7. Commercial Scope & Spec Matrix Document Layout
  */
-export default function ScopeMatrixDocument({ estimate, branding, currentProject }) {
+export default function ScopeMatrixDocument({ estimate, branding, currentProject }: DocumentTemplateProps) {
   const { totals = {}, bySystem = [], rates } = estimate;
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENT;
 
-  const columns = [
+  const columns: DocumentColumn[] = [
     { header: t(`${KEY}.colScopeItem`), render: (it) => it.description },
     { header: t(`${KEY}.colSpec`), muted: true, render: (it) => it.sizeSpec },
     { header: t(`${KEY}.colQty`), align: 'right', className: 'font-semibold text-slate-900', render: (it) => formatNumber(it.quantity, 0) },

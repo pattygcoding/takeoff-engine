@@ -1,4 +1,6 @@
 import React from 'react';
+import type { DocumentTemplateProps } from '@/types/models';
+import type { DocumentColumn } from './DocumentHeaderSignoff';
 import { formatCurrency, formatNumber } from '@/product/lib/calculations';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import ScopeSummaryDisplay from '@/product/components/ScopeSummaryDisplay';
@@ -18,13 +20,13 @@ const ACCENT = '#3b82f6';
 /**
  * 1. Internal Cost Estimate Document Layout
  */
-export default function StandardEstimateDocument({ estimate, branding, currentProject }) {
+export default function StandardEstimateDocument({ estimate, branding, currentProject }: DocumentTemplateProps) {
   const { totals = {}, bySystem = [], rates } = estimate;
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENT;
   const markupTotal = (totals.overheadAmount || 0) + (totals.contingencyAmount || 0) + (totals.profitAmount || 0);
 
-  const columns = [
+  const columns: DocumentColumn[] = [
     { header: t(`${KEY}.colDescription`), render: (it) => it.description },
     { header: t(`${KEY}.colSpec`), muted: true, render: (it) => it.sizeSpec },
     { header: t(`${KEY}.colQty`), align: 'right', render: (it) => formatNumber(it.quantity, 0) },

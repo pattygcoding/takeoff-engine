@@ -1,4 +1,6 @@
 import React from 'react';
+import type { DocumentTemplateProps } from '@/types/models';
+import type { DocumentColumn } from './DocumentHeaderSignoff';
 import { formatCurrency, formatNumber } from '@/product/lib/calculations';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import {
@@ -19,7 +21,7 @@ const BEDDING_RATIO = 0.35;
 const STONE_TONS_PER_CY = 1.4;
 const HAUL_RATIO = 0.65;
 
-function earthwork(it) {
+function earthwork(it: any) {
   const unit = it.unit?.toLowerCase() || '';
   const lf = unit.includes('lf') || unit.includes('ft') ? it.quantity : it.quantity * NON_LINEAR_LF_PER_UNIT;
   const cy = (lf * TRENCH_WIDTH_FT * TRENCH_DEPTH_FT) / 27;
@@ -29,7 +31,7 @@ function earthwork(it) {
 /**
  * 11. Trench & Earthwork Engineering Log Layout
  */
-export default function TrenchEarthworkLogDocument({ estimate, branding, currentProject }) {
+export default function TrenchEarthworkLogDocument({ estimate, branding, currentProject }: DocumentTemplateProps) {
   const { bySystem = [] } = estimate;
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENT;
@@ -44,8 +46,8 @@ export default function TrenchEarthworkLogDocument({ estimate, branding, current
       haul: 0,
     });
 
-  const cy = (n) => t(`${KEY}.cyUnit`, { count: formatNumber(n, 1) });
-  const tn = (n) => t(`${KEY}.tnUnit`, { count: formatNumber(n, 1) });
+  const cy = (n: any) => t(`${KEY}.cyUnit`, { count: formatNumber(n, 1) });
+  const tn = (n: any) => t(`${KEY}.tnUnit`, { count: formatNumber(n, 1) });
 
   const assumptions = [
     [t(`${KEY}.trenchWidthAssumption`), t(`${KEY}.trenchWidthValue`)],
@@ -54,7 +56,7 @@ export default function TrenchEarthworkLogDocument({ estimate, branding, current
     [t(`${KEY}.trenchSafety`), t(`${KEY}.trenchSafetyValue`)],
   ];
 
-  const columns = [
+  const columns: DocumentColumn[] = [
     {
       header: t(`${KEY}.colTrenchLine`),
       render: (it) => (

@@ -1,4 +1,6 @@
 import React from 'react';
+import type { DocumentTemplateProps } from '@/types/models';
+import type { DocumentColumn } from './DocumentHeaderSignoff';
 import { formatCurrency, formatNumber } from '@/product/lib/calculations';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import {
@@ -17,7 +19,7 @@ const ACCENT = '#1d4ed8';
 /**
  * 8. Material Purchase & Supply Order Layout
  */
-export default function MaterialProcurementDocument({ estimate, branding, currentProject }) {
+export default function MaterialProcurementDocument({ estimate, branding, currentProject }: DocumentTemplateProps) {
   const { totals = {}, bySystem = [] } = estimate;
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENT;
@@ -29,7 +31,7 @@ export default function MaterialProcurementDocument({ estimate, branding, curren
     String(today.getDate()).padStart(2, '0'),
   ].join('') + (currentProject?.id ? `-${String(currentProject.id).slice(-4).toUpperCase()}` : '');
 
-  const columns = [
+  const columns: DocumentColumn[] = [
     { header: t(`${KEY}.colItemDescription`), render: (it) => it.description },
     { header: t(`${KEY}.colMaterialSpec`), muted: true, render: (it) => it.sizeSpec },
     { header: t(`${KEY}.colOrderQty`), align: 'right', className: 'font-semibold text-slate-900', render: (it) => formatNumber(it.quantity, 0) },
@@ -42,8 +44,8 @@ export default function MaterialProcurementDocument({ estimate, branding, curren
     { header: t(`${KEY}.colTotalMaterial`), align: 'right', strong: true, render: (it) => formatCurrency(it.materialCost) },
   ];
 
-  const systemMaterial = (sys) =>
-    sys.materialCost ?? sys.items.reduce((sum, it) => sum + (it.materialCost || 0), 0);
+  const systemMaterial = (sys: any) =>
+    sys.materialCost ?? sys.items.reduce((sum: number, it: any) => sum + (it.materialCost || 0), 0);
 
   return (
     <div className="text-slate-800 text-[11px] leading-relaxed tabular-nums">

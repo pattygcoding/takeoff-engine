@@ -1,4 +1,5 @@
 import React from 'react';
+import type { DocumentTemplateProps } from '@/types/models';
 import { Award } from 'lucide-react';
 import { formatCurrency } from '@/product/lib/calculations';
 import { useTranslation } from '@/core/components/context/I18nContext';
@@ -10,7 +11,7 @@ const ACCENT = '#d97706';
 /**
  * 17. Substantial Completion & Warranty Certificate Layout
  */
-export default function WarrantyCloseoutCertDocument({ estimate, branding, currentProject }) {
+export default function WarrantyCloseoutCertDocument({ estimate, branding, currentProject }: DocumentTemplateProps) {
   const { totals = {} } = estimate;
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENT;

@@ -112,6 +112,14 @@ export interface OrganizationMember {
   [key: string]: any;
 }
 
+/** Props shared by every exported document template. */
+export interface DocumentTemplateProps {
+  estimate: Estimate;
+  branding?: Branding | null;
+  currentProject?: Project | null;
+  rates?: Rates;
+}
+
 /** Column-mapping modal payload produced by the parser/normalizer. */
 export interface MappingModalData {
   headers?: string[];

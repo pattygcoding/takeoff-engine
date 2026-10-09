@@ -1,4 +1,6 @@
 import React from 'react';
+import type { DocumentTemplateProps } from '@/types/models';
+import type { DocumentColumn } from './DocumentHeaderSignoff';
 import { formatCurrency, formatNumber } from '@/product/lib/calculations';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import {
@@ -16,7 +18,7 @@ const ACCENT = '#1e293b';
 /**
  * 5. AIA Unit Price Bid Schedule Document Layout
  */
-export default function AiaBidScheduleDocument({ estimate, branding, currentProject }) {
+export default function AiaBidScheduleDocument({ estimate, branding, currentProject }: DocumentTemplateProps) {
   const { totals = {}, bySystem = [] } = estimate;
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENT;
@@ -28,9 +30,9 @@ export default function AiaBidScheduleDocument({ estimate, branding, currentProj
     items: sys.items.map((it) => ({ ...it, payItemNo: ++itemNo })),
   }));
 
-  const extended = (it) => it.factoredPrice ?? it.directCost;
+  const extended = (it: any) => it.factoredPrice ?? it.directCost;
 
-  const columns = [
+  const columns: DocumentColumn[] = [
     {
       header: t(`${KEY}.colItemNumber`),
       className: 'font-bold text-slate-500 w-12',
