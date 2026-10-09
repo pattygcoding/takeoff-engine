@@ -10,6 +10,14 @@ import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
+interface InviteData {
+  organizationName?: string;
+  inviterName?: string;
+  email?: string;
+  role?: string;
+  [key: string]: any;
+}
+
 export default function AcceptInvitePage() {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
@@ -21,8 +29,8 @@ export default function AcceptInvitePage() {
 
   const [loading, setLoading] = useState(true);
   const [verifying, setVerifying] = useState(true);
-  const [inviteData, setInviteData] = useState(null);
-  const [error, setError] = useState(null);
+  const [inviteData, setInviteData] = useState<InviteData | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [accepting, setAccepting] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -45,7 +53,7 @@ export default function AcceptInvitePage() {
         }
         setInviteData(data.invitation);
       } catch (err) {
-        setError(err.message || t('core.acceptInvite.invalidOrExpiredToken'));
+        setError((err as Error).message || t('core.acceptInvite.invalidOrExpiredToken'));
       } finally {
         setVerifying(false);
         setLoading(false);
@@ -57,6 +65,7 @@ export default function AcceptInvitePage() {
 
   // 2. Handle accepting invitation
   const handleAcceptInvite = guard('accept-invite', async () => {
+    if (!token) return;
     if (!isAuthenticated) {
       // Resume this invitation once the visitor has signed in (see the /login route in App.jsx)
       sessionStorage.setItem(PENDING_INVITE_KEY, token);
@@ -93,14 +102,14 @@ export default function AcceptInvitePage() {
       navigate(user?.username ? `/${user.username}/settings` : '/login');
     } catch (err) {
       sessionStorage.removeItem(PENDING_INVITE_KEY);
-      setError(err.message || t('core.acceptInvite.acceptFailedError'));
+      setError((err as Error).message || t('core.acceptInvite.acceptFailedError'));
     } finally {
       setAccepting(false);
     }
   });
 
   const handleCreateAccount = () => {
-    if (accountCreationDisabled) return;
+    if (accountCreationDisabled || !token) return;
     sessionStorage.setItem(PENDING_INVITE_KEY, token);
     navigate('/register');
   };

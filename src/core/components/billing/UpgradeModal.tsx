@@ -13,7 +13,7 @@ import {
   ENTERPRISE_PLAN_SEATS,
 } from '@/core/constants';
 
-export default function UpgradeModal({ isOpen, onClose }) {
+export default function UpgradeModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { user, logout, refreshProfile } = useAuth();
   const { showAlert, showConfirm } = useModal();
   const { t, prices, ready, formatPrice } = usePricingDisplay();
@@ -36,7 +36,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   const currentTier = user?.subscription_status === 'active' ? (user?.subscription_tier || 'free') : 'free';
-  const tierHierarchy = { free: 0, starter: 1, pro: 2, enterprise: 3 };
+  const tierHierarchy: Record<string, number> = { free: 0, starter: 1, pro: 2, enterprise: 3 };
   const currentTierRank = tierHierarchy[currentTier] || 0;
   const activeTierRank = tierHierarchy[activePlan] || 0;
   const isCurrentPlanSelected = user?.subscription_status === 'active' && currentTier === activePlan;
@@ -72,7 +72,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
     );
   }
 
-  const handleLaunchCheckout = guard('checkout', async (selectedPlan) => {
+  const handleLaunchCheckout = guard('checkout', async (selectedPlan: string) => {
     if (!ready) {
       await showAlert({
         title: t('core.upgradeModal.checkoutErrorTitle'),
@@ -166,7 +166,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
     } catch (err) {
       await showAlert({
         title: t('core.upgradeModal.checkoutErrorTitle'),
-        message: err.message || t('core.upgradeModal.checkoutErrorMessage'),
+        message: (err as Error).message || t('core.upgradeModal.checkoutErrorMessage'),
         variant: 'error',
       });
     } finally {
@@ -174,7 +174,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
     }
   });
 
-  const handleRedeemCode = guard('redeem-code', async (e) => {
+  const handleRedeemCode = guard('redeem-code', async (e: React.FormEvent) => {
     e.preventDefault();
     if (!promoCodeInput.trim()) return;
 
@@ -191,7 +191,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
         onClose();
       }, 1500);
     } catch (err) {
-      setPromoErr(err.message || 'Failed to redeem promo code');
+      setPromoErr((err as Error).message || 'Failed to redeem promo code');
     } finally {
       setPromoLoading(false);
     }
@@ -219,7 +219,7 @@ export default function UpgradeModal({ isOpen, onClose }) {
     user?.role === 'admin' ||
     user?.role === 'payment_exempt' ||
     user?.has_unlimited_bypass === true ||
-    (user?.subscription_status === 'active' && ['starter', 'pro', 'enterprise'].includes(user?.subscription_tier));
+    (user?.subscription_status === 'active' && ['starter', 'pro', 'enterprise'].includes(user?.subscription_tier ?? ''));
 
   const remainingCredits = typeof user?.trial_uses_remaining === 'number' ? user.trial_uses_remaining : 5;
   const isOutOfCredits = !isExempt && remainingCredits <= 0;

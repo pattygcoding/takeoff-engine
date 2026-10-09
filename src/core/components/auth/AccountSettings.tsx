@@ -11,6 +11,16 @@ import TeamWorkspaceManager from './TeamWorkspaceManager';
 import UpgradeModal from '@/core/components/billing/UpgradeModal';
 import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
 
+interface SubscriptionDetails {
+  exemptionReason?: string | null;
+  cancelsAtPeriodEnd?: boolean;
+  subscriptionRenewsAt?: string | null;
+  subscriptionStatus?: string;
+  scheduledTier?: string | null;
+  scheduledChangeEffectiveAt?: string | null;
+  [key: string]: any;
+}
+
 export default function AccountSettings() {
   const { user, setUser, logout, refreshProfile } = useAuth();
   const { showAlert } = useModal();
@@ -52,7 +62,7 @@ export default function AccountSettings() {
   const [deleteErr, setDeleteErr] = useState('');
 
   // Billing & Subscription state (US-021)
-  const [subDetails, setSubDetails] = useState(null);
+  const [subDetails, setSubDetails] = useState<SubscriptionDetails | null>(null);
   const [subLoading, setSubLoading] = useState(true);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -75,7 +85,7 @@ export default function AccountSettings() {
       const data = await billingApi.getSubscriptionDetails();
       setSubDetails(data);
     } catch (err) {
-      console.warn('Could not load subscription details:', err.message);
+      console.warn('Could not load subscription details:', (err as Error).message);
     } finally {
       setSubLoading(false);
     }
@@ -97,7 +107,7 @@ export default function AccountSettings() {
     } catch (err) {
       await showAlert({
         title: t('core.accountSettings.billingPortalErrorTitle'),
-        message: err.message || t('core.accountSettings.billingPortalErrorMessage'),
+        message: (err as Error).message || t('core.accountSettings.billingPortalErrorMessage'),
         variant: 'error',
       });
     } finally {
@@ -105,7 +115,7 @@ export default function AccountSettings() {
     }
   });
 
-  const handleCancelSubscription = guard('cancel-subscription', async (e) => {
+  const handleCancelSubscription = guard('cancel-subscription', async (e: React.FormEvent) => {
     e.preventDefault();
     setCancelLoading(true);
     setCancelErr('');
@@ -131,7 +141,7 @@ export default function AccountSettings() {
         variant: 'info',
       });
     } catch (err) {
-      setCancelErr(err.message || 'Failed to cancel subscription.');
+      setCancelErr((err as Error).message || 'Failed to cancel subscription.');
     } finally {
       setCancelLoading(false);
     }
@@ -155,7 +165,7 @@ export default function AccountSettings() {
     } catch (err) {
       await showAlert({
         title: t('core.accountSettings.restoreSubscriptionFailedTitle', 'Failed to Restore'),
-        message: err.message || 'Failed to restore subscription.',
+        message: (err as Error).message || 'Failed to restore subscription.',
         variant: 'danger',
       });
     } finally {
@@ -167,15 +177,15 @@ export default function AccountSettings() {
     user?.role === 'admin' ||
     user?.role === 'payment_exempt' ||
     user?.has_unlimited_bypass === true ||
-    (user?.subscription_status === 'active' && ['starter', 'pro', 'enterprise'].includes(user?.subscription_tier));
+    (user?.subscription_status === 'active' && ['starter', 'pro', 'enterprise'].includes(user?.subscription_tier ?? ''));
 
   const isProOrExempt =
     user?.role === 'admin' ||
     user?.role === 'payment_exempt' ||
     user?.has_unlimited_bypass === true ||
-    (user?.subscription_status === 'active' && ['pro', 'enterprise'].includes(user?.subscription_tier));
+    (user?.subscription_status === 'active' && ['pro', 'enterprise'].includes(user?.subscription_tier ?? ''));
 
-  const handleLogoFileChange = guard('upload-logo', async (e) => {
+  const handleLogoFileChange = guard('upload-logo', async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -188,10 +198,10 @@ export default function AccountSettings() {
     setLogoError('');
 
     try {
-      await new Promise((resolve, reject) => {
+      await new Promise<void>((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = async () => {
-          const base64Data = reader.result;
+          const base64Data = reader.result as string;
           try {
             const res = await authApi.uploadLogo(base64Data, file.name);
             setCompanyLogoUrl(res.logoUrl);
@@ -200,7 +210,7 @@ export default function AccountSettings() {
               localStorage.setItem('takeoff_user', JSON.stringify(res.user));
             }
           } catch (uploadErr) {
-            setLogoError(uploadErr.message || 'Logo upload failed.');
+            setLogoError((uploadErr as Error).message || 'Logo upload failed.');
           } finally {
             setLogoUploading(false);
             resolve();
@@ -210,12 +220,12 @@ export default function AccountSettings() {
         reader.readAsDataURL(file);
       });
     } catch (err) {
-      setLogoError(err.message || 'Failed to read image.');
+      setLogoError((err as Error).message || 'Failed to read image.');
       setLogoUploading(false);
     }
   });
 
-  const handleUpdateProfile = guard('update-profile', async (e) => {
+  const handleUpdateProfile = guard('update-profile', async (e: React.FormEvent) => {
     e.preventDefault();
     setProfileErr('');
     setProfileMsg('');
@@ -245,13 +255,13 @@ export default function AccountSettings() {
       }
       setTimeout(() => setProfileMsg(''), 4000);
     } catch (err) {
-      setProfileErr(err.message || 'Failed to update profile.');
+      setProfileErr((err as Error).message || 'Failed to update profile.');
     } finally {
       setProfileLoading(false);
     }
   });
 
-  const handleUpdatePassword = guard('update-password', async (e) => {
+  const handleUpdatePassword = guard('update-password', async (e: React.FormEvent) => {
     e.preventDefault();
     setPasswordErr('');
     setPasswordMsg('');
@@ -280,7 +290,7 @@ export default function AccountSettings() {
       setConfirmPassword('');
       setTimeout(() => setPasswordMsg(''), 4000);
     } catch (err) {
-      setPasswordErr(err.message || 'Failed to update password.');
+      setPasswordErr((err as Error).message || 'Failed to update password.');
     } finally {
       setPasswordLoading(false);
     }
@@ -300,7 +310,7 @@ export default function AccountSettings() {
       await logout();
       navigate('/login');
     } catch (err) {
-      setDeleteErr(err.message || 'Failed to delete account.');
+      setDeleteErr((err as Error).message || 'Failed to delete account.');
       setDeleteLoading(false);
     }
   });
@@ -342,7 +352,7 @@ export default function AccountSettings() {
             <div className="flex items-center gap-2">
               <span
                 className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
-                  ['pro', 'enterprise'].includes(user?.subscription_tier) || user?.role === 'payment_exempt' || user?.has_unlimited_bypass
+                  ['pro', 'enterprise'].includes(user?.subscription_tier ?? '') || user?.role === 'payment_exempt' || user?.has_unlimited_bypass
                     ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700'
                     : user?.subscription_tier === 'starter'
                     ? 'bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border border-blue-300 dark:border-blue-700'
@@ -419,7 +429,7 @@ export default function AccountSettings() {
                   {t('core.accountSettings.downgradeScheduledMessage', {
                     plan: subDetails.scheduledTier.toUpperCase(),
                     date: subDetails?.scheduledChangeEffectiveAt || subDetails?.subscriptionRenewsAt
-                      ? new Date(subDetails?.scheduledChangeEffectiveAt || subDetails?.subscriptionRenewsAt).toLocaleDateString('en-US', {
+                      ? new Date((subDetails?.scheduledChangeEffectiveAt || subDetails?.subscriptionRenewsAt)!).toLocaleDateString('en-US', {
                           month: 'long',
                           day: 'numeric',
                           year: 'numeric',
@@ -456,7 +466,7 @@ export default function AccountSettings() {
                       day: 'numeric',
                       year: 'numeric',
                     })}`
-                  : (['starter', 'pro', 'enterprise'].includes(user?.subscription_tier) && subDetails?.subscriptionStatus === 'active') || user?.has_unlimited_bypass
+                  : (['starter', 'pro', 'enterprise'].includes(user?.subscription_tier ?? '') && subDetails?.subscriptionStatus === 'active') || user?.has_unlimited_bypass
                   ? t('core.accountSettings.unlimitedProposalsAndExports')
                   : t('core.accountSettings.freeTrialExportsRemaining', { count: user?.trial_uses_remaining ?? 5 })}
               </p>

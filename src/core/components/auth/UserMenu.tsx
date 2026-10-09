@@ -28,7 +28,7 @@ export default function UserMenu() {
     user?.role === 'admin' ||
     user?.role === 'payment_exempt' ||
     user?.has_unlimited_bypass === true ||
-    (user?.subscription_status === 'active' && ['starter', 'pro', 'enterprise'].includes(user?.subscription_tier));
+    (user?.subscription_status === 'active' && ['starter', 'pro', 'enterprise'].includes(user?.subscription_tier ?? ''));
 
   const getPlanLabel = () => {
     if (user?.role === 'admin') return 'Super-Admin';
@@ -43,7 +43,7 @@ export default function UserMenu() {
 
   const credits = typeof user?.trial_uses_remaining === 'number' ? user.trial_uses_remaining : 5;
 
-  const handleUpdatePassword = guard('update-password', async (e) => {
+  const handleUpdatePassword = guard('update-password', async (e: React.FormEvent) => {
     e.preventDefault();
     if (!oldPassword) {
       setErr(t('core.accountSettings.currentPasswordRequired', 'Current password is required'));
@@ -59,7 +59,7 @@ export default function UserMenu() {
       setNewPassword('');
       setTimeout(() => setShowPasswordModal(false), 1500);
     } catch (error) {
-      setErr(error.message || 'Failed to update password');
+      setErr((error as Error).message || 'Failed to update password');
     } finally {
       setLoading(false);
     }
@@ -99,7 +99,7 @@ export default function UserMenu() {
           className="flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition text-sm text-slate-700 dark:text-slate-200 font-medium cursor-pointer"
         >
           <span className="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs">
-            {user.first_name ? user.first_name[0].toUpperCase() : user.username[0].toUpperCase()}
+            {(user.first_name || user.username || '?')[0].toUpperCase()}
           </span>
           <span className="max-w-[120px] truncate">{user.first_name || user.username}</span>
           <ChevronDown className="w-3 h-3 text-slate-400" />

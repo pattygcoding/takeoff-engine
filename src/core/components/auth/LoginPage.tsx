@@ -59,7 +59,11 @@ export default function LoginPage({ initialView = 'login' }) {
 
   const [forgotEmail, setForgotEmail] = useState('');
 
-  const [registeredUser, setRegisteredUser] = useState(null);
+  const [registeredUser, setRegisteredUser] = useState<{
+    username?: string;
+    email?: string;
+    [key: string]: any;
+  } | null>(null);
   const [checkoutLoadingPlan, setCheckoutLoadingPlan] = useState('');
 
   const [error, setError] = useState('');
@@ -76,7 +80,7 @@ export default function LoginPage({ initialView = 'login' }) {
     setShowRegisterPassword(false);
   };
 
-  const switchView = (newView) => {
+  const switchView = (newView: string) => {
     resetForm();
     setView(newView);
     if (newView === 'login') navigate('/login');
@@ -84,7 +88,7 @@ export default function LoginPage({ initialView = 'login' }) {
     else if (newView === 'forgot') navigate('/forgot-password');
   };
 
-  const handleLogin = guard('login', async (e) => {
+  const handleLogin = guard('login', async (e: React.FormEvent) => {
     e.preventDefault();
     if (loading) return;
     setError('');
@@ -92,13 +96,13 @@ export default function LoginPage({ initialView = 'login' }) {
     try {
       await login({ usernameOrEmail: loginIdentifier, password: loginPassword });
     } catch (err) {
-      setError(err.message || t('core.loginPage.errLoginFailed'));
+      setError((err as Error).message || t('core.loginPage.errLoginFailed'));
     } finally {
       setLoading(false);
     }
   });
 
-  const handleRegister = guard('register', async (e) => {
+  const handleRegister = guard('register', async (e: React.FormEvent) => {
     e.preventDefault();
     if (loading || accountCreationDisabled) return;
     setError('');
@@ -148,8 +152,8 @@ export default function LoginPage({ initialView = 'login' }) {
       setMessage(registration.message || t('core.loginPage.emailVerificationSent'));
     } catch (err) {
       // The server closed sign-up because pricing went down; resync so the form disables itself.
-      if (err.code === 'PRICING_UNAVAILABLE') retryPricing();
-      setError(err.message || t('core.loginPage.errRegisterFailed'));
+      if ((err as { code?: string }).code === 'PRICING_UNAVAILABLE') retryPricing();
+      setError((err as Error).message || t('core.loginPage.errRegisterFailed'));
     } finally {
       setLoading(false);
     }
@@ -160,7 +164,7 @@ export default function LoginPage({ initialView = 'login' }) {
     navigate(`/${targetUsername}`);
   };
 
-  const handleSelectPaidPlan = guard('checkout', async (planKey) => {
+  const handleSelectPaidPlan = guard('checkout', async (planKey: string) => {
     setError('');
     setCheckoutLoadingPlan(planKey);
 
@@ -202,13 +206,13 @@ export default function LoginPage({ initialView = 'login' }) {
         navigate(`/${targetUsername}`);
       }
     } catch (err) {
-      setError(err.message || t('core.upgradeModal.checkoutErrorMessage', 'Failed to launch checkout'));
+      setError((err as Error).message || t('core.upgradeModal.checkoutErrorMessage', 'Failed to launch checkout'));
     } finally {
       setCheckoutLoadingPlan('');
     }
   });
 
-  const handleForgotPassword = guard('forgot-password', async (e) => {
+  const handleForgotPassword = guard('forgot-password', async (e: React.FormEvent) => {
     e.preventDefault();
     if (loading) return;
     setError('');
@@ -218,7 +222,7 @@ export default function LoginPage({ initialView = 'login' }) {
       const res = await authApi.forgotPassword(forgotEmail);
       setMessage(res.message || t('core.loginPage.resetLinkSent'));
     } catch (err) {
-      setError(err.message || t('core.loginPage.errResetFailed'));
+      setError((err as Error).message || t('core.loginPage.errResetFailed'));
     } finally {
       setLoading(false);
     }

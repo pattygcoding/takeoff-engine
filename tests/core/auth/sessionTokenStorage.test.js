@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 
 test('browser authentication never persists the session token in localStorage', async () => {
   const [context, api] = await Promise.all([
-    readFile(new URL('../../../src/core/components/context/AuthContext.jsx', import.meta.url), 'utf8'),
+    readFile(new URL('../../../src/core/components/context/AuthContext.tsx', import.meta.url), 'utf8'),
     readFile(new URL('../../../src/core/lib/auth/auth.ts', import.meta.url), 'utf8'),
   ]);
 

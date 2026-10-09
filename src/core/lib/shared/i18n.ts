@@ -3,7 +3,7 @@ import enTranslations from '@/lang/en.json' with { type: 'json' };
 /** A locale dictionary: nested objects with translatable string leaves. */
 export type TranslationTree = { [key: string]: unknown };
 
-export type TranslationParams = Record<string, string | number>;
+export type TranslationParams = Record<string, string | number | undefined>;
 
 const resources: Record<string, TranslationTree> = {
   en: enTranslations as unknown as TranslationTree,

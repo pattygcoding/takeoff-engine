@@ -52,6 +52,66 @@ export interface ScopePreset {
   [key: string]: any;
 }
 
+/** A user row shown in the super-admin portal. */
+export interface AdminUser {
+  id: string;
+  username?: string;
+  email?: string;
+  role?: string;
+  status?: string;
+  is_disabled?: boolean;
+  is_test_user?: boolean;
+  subscription_tier?: string;
+  subscription_status?: string;
+  has_unlimited_bypass?: boolean;
+  trial_uses_remaining?: number;
+  created_at?: string;
+  [key: string]: any;
+}
+
+/** Super-admin metrics payload. */
+export interface AdminStats {
+  [key: string]: any;
+}
+
+/** A promo code row shown in the super-admin portal. */
+export interface PromoCode {
+  id?: string | number;
+  code?: string;
+  [key: string]: any;
+}
+
+/** An immutable admin audit log row. */
+export interface AuditLog {
+  id?: string | number;
+  [key: string]: any;
+}
+
+/** A team workspace / organization. */
+export interface Organization {
+  id: string;
+  name?: string;
+  owner_id?: string;
+  owner_email?: string;
+  active_member_count?: number;
+  max_seats?: number;
+  [key: string]: any;
+}
+
+/** A member of an organization workspace. */
+export interface OrganizationMember {
+  id: string;
+  user_id?: string;
+  role?: string;
+  status?: string;
+  user_email?: string;
+  invited_email?: string;
+  first_name?: string;
+  last_name?: string;
+  invite_token?: string;
+  [key: string]: any;
+}
+
 /** The authenticated user profile (shape returned by `GET /api/auth/me`). */
 export interface UserProfile {
   id?: string;

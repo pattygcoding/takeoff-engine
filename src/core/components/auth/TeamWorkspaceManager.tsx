@@ -6,16 +6,17 @@ import { useAuth } from '@/core/components/context/AuthContext';
 import { useModal } from '@/core/components/context/ModalContext';
 import { PricingStatus, usePricingDisplay } from '@/core/components/context/PricingContext';
 import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
+import type { Organization, OrganizationMember } from '@/types/models';
 
 export default function TeamWorkspaceManager() {
   const { user, refreshProfile } = useAuth();
   const { showAlert, showConfirm } = useModal();
   const { t, prices, ready } = usePricingDisplay();
   const { EXTRA_SEAT_MONTHLY_PRICE, PRO_MONTHLY_PRICE } = prices;
-  const [organizations, setOrganizations] = useState([]);
-  const [activeOrg, setActiveOrg] = useState(null);
-  const [members, setMembers] = useState([]);
-  const [myRole, setMyRole] = useState(null);
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [activeOrg, setActiveOrg] = useState<Organization | null>(null);
+  const [members, setMembers] = useState<OrganizationMember[]>([]);
+  const [myRole, setMyRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
@@ -33,8 +34,8 @@ export default function TeamWorkspaceManager() {
   const [seatModalOpen, setSeatModalOpen] = useState(false);
   const [targetAddSeats, setTargetAddSeats] = useState(0);
   const [updatingSeats, setUpdatingSeats] = useState(false);
-  const [busyMemberAction, setBusyMemberAction] = useState(null);
-  const [busyAction, setBusyAction] = useState(null);
+  const [busyMemberAction, setBusyMemberAction] = useState<string | null>(null);
+  const [busyAction, setBusyAction] = useState<string | null>(null);
 
   const guard = useSingleFlight();
   const tier = user?.subscription_tier || 'free';
@@ -43,7 +44,7 @@ export default function TeamWorkspaceManager() {
   const currentTotalSeats = user?.seat_limit || (baseSeats + currentAddSeats);
 
   const hasActiveTeamPlan = user?.subscription_status === 'active'
-    && ['pro', 'enterprise', 'team'].includes(user?.subscription_tier);
+    && ['pro', 'enterprise', 'team'].includes(user?.subscription_tier ?? '');
   const canCreateOrganization =
     user?.role === 'admin' ||
     user?.role === 'payment_exempt' ||
@@ -57,14 +58,14 @@ export default function TeamWorkspaceManager() {
   }, []);
 
   /** Reload the workspace list and show `preferredOrgId` (falls back to the first workspace). */
-  const loadOrganizations = async (preferredOrgId = null) => {
+  const loadOrganizations = async (preferredOrgId: string | null = null) => {
     try {
       setLoading(true);
       setError('');
       const list = await organizationsApi.list();
       setOrganizations(list);
       if (list.length > 0) {
-        const target = list.some((org) => org.id === preferredOrgId) ? preferredOrgId : list[0].id;
+        const target = list.some((org: Organization) => org.id === preferredOrgId) ? preferredOrgId : list[0].id;
         await selectOrganization(target);
       } else {
         setActiveOrg(null);
@@ -72,24 +73,24 @@ export default function TeamWorkspaceManager() {
         setMyRole(null);
       }
     } catch (err) {
-      setError(err.message || t('core.teamWorkspaceManager.failedLoadWorkspaces'));
+      setError((err as Error).message || t('core.teamWorkspaceManager.failedLoadWorkspaces'));
     } finally {
       setLoading(false);
     }
   };
 
-  const selectOrganization = async (orgId) => {
+  const selectOrganization = async (orgId: string) => {
     try {
       const data = await organizationsApi.get(orgId);
       setActiveOrg(data.organization);
       setMembers(data.members || []);
       setMyRole(data.myRole || null);
     } catch (err) {
-      setError(err.message || t('core.teamWorkspaceManager.failedFetchDetails'));
+      setError((err as Error).message || t('core.teamWorkspaceManager.failedFetchDetails'));
     }
   };
 
-  const handleCreateOrg = guard('create-org', async (e) => {
+  const handleCreateOrg = guard('create-org', async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newOrgName.trim()) return;
 
@@ -103,13 +104,13 @@ export default function TeamWorkspaceManager() {
       setSuccessMsg(t('core.teamWorkspaceManager.createdOrgSuccess', { name: newOrg.name }));
       await loadOrganizations(newOrg.id);
     } catch (err) {
-      setError(err.message || t('core.teamWorkspaceManager.failedCreateWorkspace'));
+      setError((err as Error).message || t('core.teamWorkspaceManager.failedCreateWorkspace'));
     } finally {
       setCreatingOrg(false);
     }
   });
 
-  const handleInviteMember = guard('invite-member', async (e) => {
+  const handleInviteMember = guard('invite-member', async (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeOrg || !inviteEmail.trim()) return;
 
@@ -126,13 +127,13 @@ export default function TeamWorkspaceManager() {
       setSuccessMsg(t('core.teamWorkspaceManager.inviteSentSuccess', { email: inviteEmail }));
       await selectOrganization(activeOrg.id);
     } catch (err) {
-      setError(err.message || t('core.teamWorkspaceManager.failedInviteMember'));
+      setError((err as Error).message || t('core.teamWorkspaceManager.failedInviteMember'));
     } finally {
       setInviting(false);
     }
   });
 
-  const handleResendInvite = guard((memberId) => `resend:${memberId}`, async (memberId, targetEmail) => {
+  const handleResendInvite = guard<[string, string], void>((memberId) => `resend:${memberId}`, async (memberId, targetEmail) => {
     if (!activeOrg) return;
     setBusyMemberAction(`resend:${memberId}`);
     try {
@@ -146,7 +147,7 @@ export default function TeamWorkspaceManager() {
     } catch (err) {
       await showAlert({
         title: t('core.teamWorkspaceManager.resendFailedTitle'),
-        message: err.message || t('core.teamWorkspaceManager.resendFailedMessage'),
+        message: (err as Error).message || t('core.teamWorkspaceManager.resendFailedMessage'),
         variant: 'error',
       });
     } finally {
@@ -154,7 +155,7 @@ export default function TeamWorkspaceManager() {
     }
   });
 
-  const handleRevokeInvite = guard((memberId) => `revoke:${memberId}`, async (memberId) => {
+  const handleRevokeInvite = guard((memberId: string) => `revoke:${memberId}`, async (memberId: string) => {
     if (!activeOrg) return;
     const confirmed = await showConfirm({
       title: t('core.teamWorkspaceManager.revokeInviteTitle'),
@@ -172,7 +173,7 @@ export default function TeamWorkspaceManager() {
     } catch (err) {
       await showAlert({
         title: t('core.teamWorkspaceManager.revokeErrorTitle'),
-        message: err.message || t('core.teamWorkspaceManager.revokeErrorMessage'),
+        message: (err as Error).message || t('core.teamWorkspaceManager.revokeErrorMessage'),
         variant: 'error',
       });
     } finally {
@@ -180,7 +181,7 @@ export default function TeamWorkspaceManager() {
     }
   });
 
-  const handleCopyInviteLink = async (rawToken) => {
+  const handleCopyInviteLink = async (rawToken: string) => {
     if (!rawToken) return;
     const link = `${window.location.origin}/accept-invite?token=${rawToken}`;
     try {
@@ -219,7 +220,7 @@ export default function TeamWorkspaceManager() {
     } catch (err) {
       await showAlert({
         title: t('core.teamWorkspaceManager.seatsUpdateErrorTitle'),
-        message: err.message || t('core.teamWorkspaceManager.seatsUpdateErrorMessage'),
+        message: (err as Error).message || t('core.teamWorkspaceManager.seatsUpdateErrorMessage'),
         variant: 'error',
       });
     } finally {
@@ -227,7 +228,7 @@ export default function TeamWorkspaceManager() {
     }
   });
 
-  const handleUpdateRole = guard((memberId) => `role:${memberId}`, async (memberId, role) => {
+  const handleUpdateRole = guard<[string, string], void>((memberId) => `role:${memberId}`, async (memberId, role) => {
     if (!activeOrg) return;
     setBusyMemberAction(`role:${memberId}`);
     try {
@@ -236,7 +237,7 @@ export default function TeamWorkspaceManager() {
     } catch (err) {
       await showAlert({
         title: t('core.teamWorkspaceManager.updateRoleErrorTitle'),
-        message: err.message || t('core.teamWorkspaceManager.updateRoleErrorMessage'),
+        message: (err as Error).message || t('core.teamWorkspaceManager.updateRoleErrorMessage'),
         variant: 'error',
       });
     } finally {
@@ -244,7 +245,7 @@ export default function TeamWorkspaceManager() {
     }
   });
 
-  const handleRemoveMember = guard((memberId) => `remove:${memberId}`, async (memberId) => {
+  const handleRemoveMember = guard((memberId: string) => `remove:${memberId}`, async (memberId: string) => {
     if (!activeOrg) return;
     const confirmed = await showConfirm({
       title: t('core.teamWorkspaceManager.removeMemberTitle'),
@@ -261,7 +262,7 @@ export default function TeamWorkspaceManager() {
     } catch (err) {
       await showAlert({
         title: t('core.teamWorkspaceManager.removeErrorTitle'),
-        message: err.message || t('core.teamWorkspaceManager.removeErrorMessage'),
+        message: (err as Error).message || t('core.teamWorkspaceManager.removeErrorMessage'),
         variant: 'error',
       });
     } finally {
@@ -272,13 +273,13 @@ export default function TeamWorkspaceManager() {
   const isOwnerOfActiveOrg = activeOrg?.owner_id === user?.id;
   const isManager = myRole === 'owner' || myRole === 'admin';
   // Mirrors the server rule: owners manage everyone; admins manage estimators and viewers only.
-  const canManageMember = (member) => {
+  const canManageMember = (member: OrganizationMember) => {
     if (member.role === 'owner') return false;
     if (myRole === 'owner') return true;
     return myRole === 'admin' && member.role !== 'admin';
   };
   const occupiedMembers = members.filter((m) => m.status === 'active' || m.status === 'pending');
-  const roleLabels = {
+  const roleLabels: Record<string, string> = {
     owner: t('core.teamWorkspaceManager.roleOwner'),
     admin: t('core.teamWorkspaceManager.roleAdmin'),
     estimator: t('core.teamWorkspaceManager.roleEstimator'),
@@ -311,7 +312,7 @@ export default function TeamWorkspaceManager() {
     } catch (err) {
       await showAlert({
         title: t('core.teamWorkspaceManager.leaveErrorTitle'),
-        message: err.message,
+        message: (err as Error).message,
         variant: 'error',
       });
     } finally {
@@ -350,7 +351,7 @@ export default function TeamWorkspaceManager() {
     } catch (err) {
       await showAlert({
         title: t('core.teamWorkspaceManager.deleteOrgErrorTitle'),
-        message: err.message || t('core.teamWorkspaceManager.deleteOrgErrorMessage'),
+        message: (err as Error).message || t('core.teamWorkspaceManager.deleteOrgErrorMessage'),
         variant: 'error',
       });
     } finally {
@@ -537,7 +538,7 @@ export default function TeamWorkspaceManager() {
                             ? 'bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300'
                             : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                         }`}>
-                          {roleLabels[m.role] || m.role}
+                          {roleLabels[m.role ?? ''] || m.role}
                         </span>
                       )}
                     </td>
@@ -557,7 +558,7 @@ export default function TeamWorkspaceManager() {
                           {m.status === 'pending' && m.invite_token && canManageMember(m) && (
                           <button
                             type="button"
-                            onClick={() => handleCopyInviteLink(m.invite_token)}
+                            onClick={() => handleCopyInviteLink(m.invite_token!)}
                             className="text-[11px] text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium underline cursor-pointer"
                             title={t('core.teamWorkspaceManager.copyMagicLinkTitle')}
                           >
@@ -573,7 +574,7 @@ export default function TeamWorkspaceManager() {
                             <>
                               <button
                                 type="button"
-                                onClick={() => handleResendInvite(m.id, m.user_email || m.invited_email)}
+                                onClick={() => handleResendInvite(m.id, m.user_email || m.invited_email || '')}
                                 disabled={busyMemberAction === `resend:${m.id}`}
                                 className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold text-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                               >
@@ -607,7 +608,7 @@ export default function TeamWorkspaceManager() {
           </div>
 
           {/* Invite Form */}
-          {isManager && occupiedMembers.length < activeOrg.max_seats && (
+          {isManager && occupiedMembers.length < (activeOrg.max_seats ?? 0) && (
             <form onSubmit={handleInviteMember} className="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-wrap gap-3 items-center">
               <div className="flex-1 min-w-[200px]">
                 <label htmlFor="team-invite-email" className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">

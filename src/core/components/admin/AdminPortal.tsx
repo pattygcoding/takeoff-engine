@@ -8,6 +8,23 @@ import { useNavigate } from 'react-router-dom';
 import { isValidPassword, isValidPhoneNumber, PASSWORD_MIN_LENGTH } from '@/core/lib/shared/validators';
 import { PricingStatus, usePricingDisplay } from '@/core/components/context/PricingContext';
 import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
+import type { AdminStats, AdminUser, AuditLog, PromoCode } from '@/types/models';
+
+interface AdminUserFormData {
+  username: string;
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  companyName: string;
+  role: string;
+  subscriptionTier: string;
+  hasUnlimitedBypass: boolean;
+  isTestUser: boolean;
+  trialUsesRemaining: number | string;
+  reason: string;
+}
 
 export default function AdminPortal() {
   const { prices, formatPrice } = usePricingDisplay();
@@ -16,10 +33,10 @@ export default function AdminPortal() {
   const { showAlert, showPrompt, showConfirm } = useModal();
   const navigate = useNavigate();
 
-  const [stats, setStats] = useState(null);
-  const [users, setUsers] = useState([]);
-  const [promoCodes, setPromoCodes] = useState([]);
-  const [auditLogs, setAuditLogs] = useState([]);
+  const [stats, setStats] = useState<AdminStats | null>(null);
+  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [promoCodes, setPromoCodes] = useState<PromoCode[]>([]);
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -30,7 +47,7 @@ export default function AdminPortal() {
   const [grantTier, setGrantTier] = useState('pro');
   const [grantUnlimited, setGrantUnlimited] = useState(true);
   const [grantCredits, setGrantCredits] = useState(10);
-  const [maxUses, setMaxUses] = useState(10);
+  const [maxUses, setMaxUses] = useState<number | string>(10);
   const [creatingPromo, setCreatingPromo] = useState(false);
   const [promoSuccessMsg, setPromoSuccessMsg] = useState('');
 
@@ -38,7 +55,7 @@ export default function AdminPortal() {
   const [showCreateUserModal, setShowCreateUserModal] = useState(false);
   const [creatingUser, setCreatingUser] = useState(false);
   const [createUserError, setCreateUserError] = useState('');
-  const [userFormData, setUserFormData] = useState({
+  const [userFormData, setUserFormData] = useState<AdminUserFormData>({
     username: '',
     email: '',
     password: '',
@@ -78,13 +95,13 @@ export default function AdminPortal() {
       setPromoCodes(promoData);
       setAuditLogs(auditData);
     } catch (err) {
-      setError(err.message || 'Failed to load admin portal data.');
+      setError((err as Error).message || 'Failed to load admin portal data.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleToggleBypass = guard((u) => `bypass:${u.id}`, async (u) => {
+  const handleToggleBypass = guard((u: AdminUser) => `bypass:${u.id}`, async (u: AdminUser) => {
     const isGranting = !u.has_unlimited_bypass;
     const reason = await showPrompt({
       title: isGranting ? 'Grant VIP Unlimited Bypass' : 'Revoke VIP Bypass',
@@ -108,13 +125,13 @@ export default function AdminPortal() {
     } catch (err) {
       await showAlert({
         title: 'Bypass Error',
-        message: err.message || 'Failed to toggle VIP bypass.',
+        message: (err as Error).message || 'Failed to toggle VIP bypass.',
         variant: 'error',
       });
     }
   });
 
-  const handleSetCredits = guard((targetUser) => `credits:${targetUser.id}`, async (targetUser) => {
+  const handleSetCredits = guard((targetUser: AdminUser) => `credits:${targetUser.id}`, async (targetUser: AdminUser) => {
     const input = await showPrompt({
       title: 'Set Takeoff Credits',
       message: `Enter the exact number of takeoff credits to set for ${targetUser.email} (current: ${targetUser.trial_uses_remaining ?? 0}):`,
@@ -155,17 +172,17 @@ export default function AdminPortal() {
     } catch (err) {
       await showAlert({
         title: 'Credits Error',
-        message: err.message || 'Failed to set credits.',
+        message: (err as Error).message || 'Failed to set credits.',
         variant: 'error',
       });
     }
   });
 
-  const handleToggleStatus = guard((targetUser) => `status:${targetUser.id}`, async (targetUser) => {
+  const handleToggleStatus = guard((targetUser: AdminUser) => `status:${targetUser.id}`, async (targetUser: AdminUser) => {
     const isCurrentlySuspended = targetUser.is_disabled || targetUser.status === 'suspended' || targetUser.status === 'disabled';
     const actionName = isCurrentlySuspended ? 'Activate' : 'Suspend';
 
-    if (!isCurrentlySuspended && targetUser.id === user.id) {
+    if (!isCurrentlySuspended && targetUser.id === user?.id) {
       await showAlert({
         title: 'Action Prohibited',
         message: 'You cannot suspend or disable your own administrator account.',
@@ -211,13 +228,13 @@ export default function AdminPortal() {
     } catch (err) {
       await showAlert({
         title: 'Status Update Error',
-        message: err.message || 'Failed to update user status.',
+        message: (err as Error).message || 'Failed to update user status.',
         variant: 'error',
       });
     }
   });
 
-  const handleUnlockAccount = guard((targetUser) => `unlock:${targetUser.id}`, async (targetUser) => {
+  const handleUnlockAccount = guard((targetUser: AdminUser) => `unlock:${targetUser.id}`, async (targetUser: AdminUser) => {
     const confirmed = await showConfirm({
       title: 'Unlock Account',
       message: `Unlock ${targetUser.email} and reset their failed password attempt counter immediately?`,
@@ -240,13 +257,13 @@ export default function AdminPortal() {
     } catch (err) {
       await showAlert({
         title: 'Unlock Failed',
-        message: err.message || 'Failed to unlock user account.',
+        message: (err as Error).message || 'Failed to unlock user account.',
         variant: 'error',
       });
     }
   });
 
-  const handleToggleTestUser = guard((targetUser) => `test-user:${targetUser.id}`, async (targetUser) => {
+  const handleToggleTestUser = guard((targetUser: AdminUser) => `test-user:${targetUser.id}`, async (targetUser: AdminUser) => {
     const isNowTest = !targetUser.is_test_user;
     const actionLabel = isNowTest ? 'Mark as Test User' : 'Unmark as Test User';
 
@@ -281,13 +298,13 @@ export default function AdminPortal() {
     } catch (err) {
       await showAlert({
         title: 'Update Error',
-        message: err.message || 'Failed to update test user status.',
+        message: (err as Error).message || 'Failed to update test user status.',
         variant: 'error',
       });
     }
   });
 
-  const handleResetPassword = guard((targetUser) => `reset-password:${targetUser.id}`, async (targetUser) => {
+  const handleResetPassword = guard((targetUser: AdminUser) => `reset-password:${targetUser.id}`, async (targetUser: AdminUser) => {
     const confirmed = await showConfirm({
       title: 'Send Password Reset Email',
       message: `Send an automated password reset recovery link to ${targetUser.email}?`,
@@ -318,14 +335,14 @@ export default function AdminPortal() {
     } catch (err) {
       await showAlert({
         title: 'Password Reset Error',
-        message: err.message || 'Failed to send password reset email.',
+        message: (err as Error).message || 'Failed to send password reset email.',
         variant: 'error',
       });
     }
   });
 
-  const handleRoleChange = guard((targetUser) => `role:${targetUser.id}`, async (targetUser, newRole) => {
-    if (targetUser.id === user.id && newRole !== 'admin') {
+  const handleRoleChange = guard<[AdminUser, string], void>((targetUser) => `role:${targetUser.id}`, async (targetUser, newRole) => {
+    if (targetUser.id === user?.id && newRole !== 'admin') {
       await showAlert({
         title: 'Action Prohibited',
         message: 'You cannot demote your own administrator account. Another admin must perform this action.',
@@ -366,13 +383,13 @@ export default function AdminPortal() {
     } catch (err) {
       await showAlert({
         title: 'Role Update Error',
-        message: err.message || 'Failed to change role.',
+        message: (err as Error).message || 'Failed to change role.',
         variant: 'error',
       });
     }
   });
 
-  const handleSubscriptionTierChange = guard((targetUser) => `tier:${targetUser.id}`, async (targetUser, newTier) => {
+  const handleSubscriptionTierChange = guard<[AdminUser, string], void>((targetUser) => `tier:${targetUser.id}`, async (targetUser, newTier) => {
     const reason = await showPrompt({
       title: `Update Subscription to ${newTier.toUpperCase()}`,
       message: `Enter an audit reason for updating ${targetUser.email}'s plan tier to "${newTier}":`,
@@ -395,13 +412,13 @@ export default function AdminPortal() {
     } catch (err) {
       await showAlert({
         title: 'Tier Update Error',
-        message: err.message || 'Failed to update subscription tier.',
+        message: (err as Error).message || 'Failed to update subscription tier.',
         variant: 'error',
       });
     }
   });
 
-  const handleCreatePromo = guard('create-promo', async (e) => {
+  const handleCreatePromo = guard('create-promo', async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCode.trim()) return;
 
@@ -426,7 +443,7 @@ export default function AdminPortal() {
     } catch (err) {
       await showAlert({
         title: 'Promo Creation Error',
-        message: err.message || 'Failed to create promo code.',
+        message: (err as Error).message || 'Failed to create promo code.',
         variant: 'error',
       });
     } finally {
@@ -434,7 +451,7 @@ export default function AdminPortal() {
     }
   });
 
-  const handleCreateUser = guard('create-user', async (e) => {
+  const handleCreateUser = guard('create-user', async (e: React.FormEvent) => {
     e.preventDefault();
     setCreateUserError('');
     setCreatingUser(true);
@@ -462,7 +479,7 @@ export default function AdminPortal() {
         subscriptionTier: userFormData.subscriptionTier,
         hasUnlimitedBypass: userFormData.hasUnlimitedBypass,
         isTestUser: userFormData.isTestUser,
-        trialUsesRemaining: parseInt(userFormData.trialUsesRemaining, 10) || 0,
+        trialUsesRemaining: Number(userFormData.trialUsesRemaining) || 0,
         reason: userFormData.reason || 'Admin created account from portal',
       });
 
@@ -490,9 +507,9 @@ export default function AdminPortal() {
       });
 
       // Refresh data
-      fetchData();
+      await loadAdminData();
     } catch (err) {
-      setCreateUserError(err.message || 'Failed to create user account');
+      setCreateUserError((err as Error).message || 'Failed to create user account');
     } finally {
       setCreatingUser(false);
     }
@@ -699,7 +716,7 @@ export default function AdminPortal() {
                   {filteredUsers.map((u) => {
                     const isSuspended = u.is_disabled || u.status === 'suspended' || u.status === 'disabled';
                     const isLocked = u.locked_until && new Date(u.locked_until).getTime() > Date.now();
-                    const isTest = u.is_test_user || ['free_user', 'standard_user', 'pro_user', 'enterprise_user'].includes(u.username);
+                    const isTest = u.is_test_user || ['free_user', 'standard_user', 'pro_user', 'enterprise_user'].includes(u.username ?? '');
                     return (
                       <tr key={u.id} className={`hover:bg-slate-800/30 ${isSuspended ? 'bg-red-950/20' : isLocked ? 'bg-amber-950/20' : ''}`}>
                         <td className="py-3 px-4 font-medium text-slate-200">
@@ -800,7 +817,7 @@ export default function AdminPortal() {
                           </button>
                         </td>
                         <td className="py-3 px-4 text-slate-400 text-[11px]">
-                          {new Date(u.created_at).toLocaleDateString()}
+                          {new Date(u.created_at ?? '').toLocaleDateString()}
                         </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-1.5 flex-wrap">

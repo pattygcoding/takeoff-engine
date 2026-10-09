@@ -40,7 +40,7 @@ export default function PlanOnboardingPage() {
     }
   };
 
-  const handleSelectPaidPlan = guard('checkout', async (planKey) => {
+  const handleSelectPaidPlan = guard('checkout', async (planKey: string) => {
     setError('');
     setCheckoutLoadingPlan(planKey);
 
@@ -84,7 +84,7 @@ export default function PlanOnboardingPage() {
         }
       }
     } catch (err) {
-      setError(err.message || 'Failed to initialize plan checkout');
+      setError((err as Error).message || 'Failed to initialize plan checkout');
     } finally {
       setCheckoutLoadingPlan('');
     }

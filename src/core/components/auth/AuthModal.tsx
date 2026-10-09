@@ -9,7 +9,15 @@ import { isValidPassword, isValidPhoneNumber, PASSWORD_MIN_LENGTH } from '@/core
 import { CURRENT_TERMS_VERSION } from '@/core/constants';
 import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
 
-export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
+export default function AuthModal({
+  isOpen,
+  onClose,
+  initialView = 'login',
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  initialView?: string;
+}) {
   const { login, register } = useAuth();
   const { t } = useTranslation();
   const accountCreationDisabled = useAccountCreationDisabled();
@@ -48,12 +56,12 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
     setNewPassword('');
   };
 
-  const switchView = (newView) => {
+  const switchView = (newView: string) => {
     resetForm();
     setView(newView);
   };
 
-  const handleLogin = guard('login', async (e) => {
+  const handleLogin = guard('login', async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -61,13 +69,13 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
       await login({ usernameOrEmail: loginIdentifier, password: loginPassword });
       onClose();
     } catch (err) {
-      setError(err.message || t('core.authModal.errLoginFailed'));
+      setError((err as Error).message || t('core.authModal.errLoginFailed'));
     } finally {
       setLoading(false);
     }
   });
 
-  const handleRegister = guard('register', async (e) => {
+  const handleRegister = guard('register', async (e: React.FormEvent) => {
     e.preventDefault();
     if (accountCreationDisabled) return;
     setError('');
@@ -108,13 +116,13 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
       });
       onClose();
     } catch (err) {
-      setError(err.message || t('core.authModal.errRegisterFailed'));
+      setError((err as Error).message || t('core.authModal.errRegisterFailed'));
     } finally {
       setLoading(false);
     }
   });
 
-  const handleForgotPassword = guard('forgot-password', async (e) => {
+  const handleForgotPassword = guard('forgot-password', async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setMessage('');
@@ -123,7 +131,7 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
       const res = await authApi.forgotPassword(forgotEmail);
       setMessage(res.message || t('core.authModal.resetLinkSent'));
     } catch (err) {
-      setError(err.message || t('core.authModal.errResetFailed'));
+      setError((err as Error).message || t('core.authModal.errResetFailed'));
     } finally {
       setLoading(false);
     }
