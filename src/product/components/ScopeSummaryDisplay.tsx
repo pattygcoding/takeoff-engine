@@ -1,9 +1,11 @@
 import { categorizeScope, DEFAULT_SCOPE_ITEMS, formatScopeAddonImpact } from '@/product/lib/scope';
 import { Scale, Check, X } from 'lucide-react';
 import { useTranslation } from '@/core/components/context/I18nContext';
+import type { ReactNode } from 'react';
+import type { ScopeItem } from '@/types/models';
 
 // Drops dark: variants so printable/exported PDF documents always render light, regardless of the app's theme.
-function lightSafe(classString, forceLight) {
+function lightSafe(classString: string, forceLight: boolean): string {
   if (!forceLight) return classString;
   return classString
     .split(' ')
@@ -13,7 +15,17 @@ function lightSafe(classString, forceLight) {
 
 // Read-only, print-friendly presentation of a project's scope inclusions/exclusions.
 // Shared between the internal results page, client-facing proposal preview, the public client portal, and PDF/document exports.
-export default function ScopeSummaryDisplay({ scopeItems, className = '', forceLight = false, baseAmount = 0 }) {
+export default function ScopeSummaryDisplay({
+  scopeItems,
+  className = '',
+  forceLight = false,
+  baseAmount = 0,
+}: {
+  scopeItems?: ScopeItem[];
+  className?: string;
+  forceLight?: boolean;
+  baseAmount?: number;
+}) {
   const { t } = useTranslation();
 
   // Projects that never opened the scope panel still carry the standard default trade boundaries.
@@ -66,7 +78,27 @@ export default function ScopeSummaryDisplay({ scopeItems, className = '', forceL
   );
 }
 
-function ScopeColumn({ heading, icon, items, colorClasses, headingClasses, bulletClasses, showImpactBadge = false, baseAmount = 0, forceLight = false }) {
+function ScopeColumn({
+  heading,
+  icon,
+  items,
+  colorClasses,
+  headingClasses,
+  bulletClasses,
+  showImpactBadge = false,
+  baseAmount = 0,
+  forceLight = false,
+}: {
+  heading: string;
+  icon: ReactNode;
+  items: ScopeItem[];
+  colorClasses: string;
+  headingClasses: string;
+  bulletClasses: string;
+  showImpactBadge?: boolean;
+  baseAmount?: number;
+  forceLight?: boolean;
+}) {
   if (!items || items.length === 0) return null;
   return (
     <div className={lightSafe(`rounded-2xl p-4 border ${colorClasses}`, forceLight)}>

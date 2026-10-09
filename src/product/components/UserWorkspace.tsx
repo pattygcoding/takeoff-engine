@@ -9,6 +9,7 @@ import { useAuth } from '@/core/components/context/AuthContext';
 import { DEFAULT_RATES } from '@/product/lib/calculations';
 import { useLocalStorageState } from '@/core/lib/shared/useLocalStorageState';
 import { projectsApi } from '@/product/lib/projects';
+import type { ImportContext, Project, Rates, TakeoffItem } from '@/types/models';
 
 const ProjectWorkspace = lazy(() => import('@/product/components/ProjectWorkspace'));
 const AccountSettings = lazy(() => import('@/core/components/auth/AccountSettings'));
@@ -18,28 +19,31 @@ export default function UserWorkspace() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const [items, setItems] = useLocalStorageState('takeoff-engine.items', []);
-  const [currentProject, setCurrentProject] = useLocalStorageState('takeoff-engine.currentProject', null);
-  const [rates, setRates] = useLocalStorageState('takeoff-engine.rates', DEFAULT_RATES);
-  const [importContext, setImportContext] = useState({ file: null, mappingData: null });
+  const [items, setItems] = useLocalStorageState<TakeoffItem[]>('takeoff-engine.items', []);
+  const [currentProject, setCurrentProject] = useLocalStorageState<Project | null>(
+    'takeoff-engine.currentProject',
+    null,
+  );
+  const [rates, setRates] = useLocalStorageState<Rates>('takeoff-engine.rates', DEFAULT_RATES);
+  const [importContext, setImportContext] = useState<ImportContext>({ file: null, mappingData: null });
 
   // Redirect if URL username doesn't match authenticated username
   if (user && username !== user.username) {
     return <Navigate to={`/${user.username}`} replace />;
   }
 
-  const userStepPaths = {
+  const userStepPaths: Record<number, string> = {
     1: `/${username}/upload`,
     2: currentProject?.id ? `/${username}/takeoff/${currentProject.id}/edit` : `/${username}/edit`,
     3: currentProject?.id ? `/${username}/takeoff/${currentProject.id}/results` : `/${username}/results`,
   };
 
-  const goToStep = (step) => navigate(userStepPaths[step]);
+  const goToStep = (step: number) => navigate(userStepPaths[step]);
 
-  const handleOpenProject = async (project, targetStep = 'edit') => {
+  const handleOpenProject = async (project: Project, targetStep: string = 'edit') => {
     try {
       // Fetch full project data with items_json and rates_json
-      const fullProject = await projectsApi.getById(project.id);
+      const fullProject = await projectsApi.getById(String(project.id));
       const activeProject = fullProject || project;
       setCurrentProject(activeProject);
 
@@ -87,7 +91,7 @@ export default function UserWorkspace() {
     navigate(`/${username}/upload`);
   };
 
-  const handleItemsParsed = (parsedItems, options = {}) => {
+  const handleItemsParsed = (parsedItems: TakeoffItem[], options: ImportContext = {}) => {
     setItems(parsedItems);
     setImportContext({
       file: options?.file || null,

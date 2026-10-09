@@ -8,6 +8,7 @@ import {
 } from '@/product/lib/scope';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import { Scale, Lightbulb, Check, X, Plus, Minus, ShowerHead } from 'lucide-react';
+import type { ScopeItem } from '@/types/models';
 
 export default function ClientCounterOfferModal({
   currentScope = DEFAULT_SCOPE_ITEMS,
@@ -17,14 +18,22 @@ export default function ClientCounterOfferModal({
   onSubmit,
   onClose,
   submitting = false,
+}: {
+  currentScope?: ScopeItem[];
+  clientName?: string;
+  signerEmail?: string;
+  baseAmount?: number;
+  onSubmit?: (payload: any) => void;
+  onClose: () => void;
+  submitting?: boolean;
 }) {
   const { t } = useTranslation();
-  const [scopeList, setScopeList] = useState(() => {
+  const [scopeList, setScopeList] = useState<ScopeItem[]>(() => {
     const initialList = Array.isArray(currentScope) && currentScope.length > 0
       ? currentScope
       : DEFAULT_SCOPE_ITEMS;
 
-    return JSON.parse(JSON.stringify(initialList)).map((item) => ({
+    return JSON.parse(JSON.stringify(initialList)).map((item: ScopeItem) => ({
       ...item,
       originalStatus: item.originalStatus ?? item.status ?? SCOPE_STATUS.INCLUDED,
       originalAmount: Number(item.originalAmount ?? item.amount ?? item.costImpact ?? 0) || 0,
@@ -38,7 +47,7 @@ export default function ClientCounterOfferModal({
   const [name, setName] = useState(clientName || '');
   const [email, setEmail] = useState(signerEmail || '');
 
-  const handleStatusChange = (id, nextStatus) => {
+  const handleStatusChange = (id: string | number | undefined, nextStatus: string) => {
     setScopeList((prev) =>
       prev.map((item) => {
         if (item.id !== id) return item;
@@ -60,7 +69,7 @@ export default function ClientCounterOfferModal({
     );
   };
 
-  const handleAmountChange = (id, rawValue) => {
+  const handleAmountChange = (id: string | number | undefined, rawValue: string) => {
     const parsed = rawValue === '' ? 0 : Number(rawValue);
     setScopeList((prev) => prev.map((item) => (
       item.id === id
@@ -74,7 +83,7 @@ export default function ClientCounterOfferModal({
     )));
   };
 
-  const handleAmountTypeChange = (id, costImpactType) => {
+  const handleAmountTypeChange = (id: string | number | undefined, costImpactType: string) => {
     setScopeList((prev) => prev.map((item) => (
       item.id === id
         ? { ...item, costImpactType, requestedChange: true }
@@ -82,7 +91,7 @@ export default function ClientCounterOfferModal({
     )));
   };
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const scopeChanges = scopeList.map((it) => ({
       id: it.id,
@@ -197,7 +206,7 @@ export default function ClientCounterOfferModal({
                           <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5">{item.description}</p>
                         </div>
                         <span className={`text-[10px] font-bold px-2 py-1 rounded-lg shrink-0 ${statusBadgeClasses}`}>
-                          {formatScopeStatusLabel(item.status)}
+                          {formatScopeStatusLabel(item.status ?? '')}
                         </span>
                       </div>
 

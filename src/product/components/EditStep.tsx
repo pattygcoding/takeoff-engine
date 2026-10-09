@@ -7,6 +7,8 @@ import TakeoffGrid from './TakeoffGrid';
 import RatesDrawer from './RatesDrawer';
 import ColumnMappingModal from './ColumnMappingModal';
 import ScopeInclusionsModal from './ScopeInclusionsModal';
+import type { TakeoffFileLike } from '@/product/lib/csv';
+import type { ImportContext, MappingModalData, Rates, TakeoffItem } from '@/types/models';
 
 export default function EditStep({
   items,
@@ -19,11 +21,22 @@ export default function EditStep({
   onDuplicate,
   importContext = { file: null, mappingData: null },
   onImportContextChange,
+}: {
+  items: TakeoffItem[];
+  onItemsChange: (items: TakeoffItem[]) => void;
+  rates: Rates;
+  onRatesChange: (rates: Rates) => void;
+  onCalculate: () => void;
+  readOnly?: boolean;
+  projectStatus?: string;
+  onDuplicate?: () => void;
+  importContext?: ImportContext;
+  onImportContextChange?: (context: ImportContext) => void;
 }) {
   const { t } = useTranslation();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [scopeExpanded, setScopeExpanded] = useState(false);
-  const [mappingModalData, setMappingModalData] = useState(null);
+  const [mappingModalData, setMappingModalData] = useState<MappingModalData | null>(null);
   const [successToast, setSuccessToast] = useState('');
   const [isReparsing, setIsReparsing] = useState(false);
 
@@ -58,7 +71,11 @@ export default function EditStep({
     }
   };
 
-  const handleParseForRemap = async (file, explicitSheetName = null, explicitTableId = null) => {
+  const handleParseForRemap = async (
+    file: TakeoffFileLike | null,
+    explicitSheetName: string | null = null,
+    explicitTableId: string | null = null,
+  ) => {
     if (!file) return;
     setIsReparsing(true);
     try {
@@ -80,19 +97,25 @@ export default function EditStep({
     }
   };
 
-  const handleSheetChange = (sheetName) => {
+  const handleSheetChange = (sheetName: string) => {
     if (importContext?.file) {
       handleParseForRemap(importContext.file, sheetName, null);
     }
   };
 
-  const handleTableChange = (tableId) => {
+  const handleTableChange = (tableId: string) => {
     if (importContext?.file) {
       handleParseForRemap(importContext.file, mappingModalData?.activeSheetName || null, tableId);
     }
   };
 
-  const handleMappingConfirm = ({ items: newItems, detectedLaborMode }) => {
+  const handleMappingConfirm = ({
+    items: newItems,
+    detectedLaborMode,
+  }: {
+    items?: TakeoffItem[];
+    detectedLaborMode?: string;
+  }) => {
     setMappingModalData(null);
     if (newItems && newItems.length > 0) {
       onItemsChange(newItems);

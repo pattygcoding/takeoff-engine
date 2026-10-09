@@ -4,22 +4,46 @@ import { downloadSampleCsv, downloadSampleExcel, parseTakeoffFile } from '@/prod
 import { useTranslation } from '@/core/components/context/I18nContext';
 import ColumnMappingModal from './ColumnMappingModal';
 import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
+import type { TakeoffFileLike } from '@/product/lib/csv';
+import type { ImportContext, TakeoffItem } from '@/types/models';
 
-export default function UploadStep({ onItemsParsed }) {
+interface MappingModalData {
+  headers?: string[];
+  rawRows?: Array<Record<string, any>>;
+  currentMapping?: Record<string, string | number>;
+  matchConfidences?: Record<string, number>;
+  overallConfidence?: number;
+  rawMatrix?: string[][];
+  sampleMatrix?: string[][];
+  headerRowIndex?: number;
+  sheetNames?: string[];
+  activeSheetName?: string;
+  activeTableId?: string | null;
+  subTables?: Array<{ id: string; label: string }>;
+  [key: string]: any;
+}
+
+export default function UploadStep({
+  onItemsParsed,
+}: {
+  onItemsParsed: (items: TakeoffItem[], options: ImportContext) => void;
+}) {
   const { t } = useTranslation();
   const [isDragging, setIsDragging] = useState(false);
-  const [errors, setErrors] = useState([]);
+  const [errors, setErrors] = useState<string[]>([]);
   const [fileName, setFileName] = useState('');
   const [isParsing, setIsParsing] = useState(false);
-  const [mappingModalData, setMappingModalData] = useState(null);
-  const [currentUploadedFile, setCurrentUploadedFile] = useState(null);
-  const [checksumSummary, setChecksumSummary] = useState(null);
-  const inputRef = useRef(null);
+  const [mappingModalData, setMappingModalData] = useState<MappingModalData | null>(null);
+  const [currentUploadedFile, setCurrentUploadedFile] = useState<TakeoffFileLike | null>(null);
+  const [checksumSummary, setChecksumSummary] = useState<Record<string, any> | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const guard = useSingleFlight();
-  const handleFile = guard('parse', async (file, explicitSheetName = null, explicitTableId = null) => {
+  const handleFile = guard(
+    'parse',
+    async (file: TakeoffFileLike | null, explicitSheetName: string | null = null, explicitTableId: string | null = null) => {
       if (!file) return;
-      setFileName(file.name);
+      setFileName(file.name || '');
       setCurrentUploadedFile(file);
       setIsParsing(true);
       setErrors([]);
@@ -48,26 +72,37 @@ export default function UploadStep({ onItemsParsed }) {
         }
       } catch (err) {
         console.error('Failed to parse takeoff file:', err);
-        const errMsg = err?.message || t('product.uploadStep.parseError');
+        const errMsg = (err as Error)?.message || t('product.uploadStep.parseError');
         setErrors([errMsg]);
       } finally {
         setIsParsing(false);
       }
-  });
+    },
+  );
 
-  const handleSheetChange = (sheetName) => {
+  const handleSheetChange = (sheetName: string) => {
     if (currentUploadedFile) {
       handleFile(currentUploadedFile, sheetName, null);
     }
   };
 
-  const handleTableChange = (tableId) => {
+  const handleTableChange = (tableId: string) => {
     if (currentUploadedFile) {
       handleFile(currentUploadedFile, mappingModalData?.activeSheetName || null, tableId);
     }
   };
 
-  const handleMappingConfirm = ({ items, errors: mappingErrors, checksum, detectedLaborMode }) => {
+  const handleMappingConfirm = ({
+    items,
+    errors: mappingErrors,
+    checksum,
+    detectedLaborMode,
+  }: {
+    items?: TakeoffItem[];
+    errors?: string[];
+    checksum?: Record<string, any>;
+    detectedLaborMode?: string;
+  }) => {
     setMappingModalData(null);
     setErrors(mappingErrors || []);
     if (checksum?.hasSubtotals) {
@@ -82,7 +117,7 @@ export default function UploadStep({ onItemsParsed }) {
     }
   };
 
-  const onDrop = (e) => {
+  const onDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
     const file = e.dataTransfer.files?.[0];
@@ -116,7 +151,7 @@ export default function UploadStep({ onItemsParsed }) {
           type="file"
           accept=".csv,text/csv,.xlsx,.xls,.xlsm,.xlsb,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
           className="hidden"
-          onChange={(e) => handleFile(e.target.files?.[0])}
+          onChange={(e) => handleFile(e.target.files?.[0] || null)}
         />
         <svg className="mx-auto h-12 w-12 text-slate-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path

@@ -8,6 +8,8 @@ import ExportHubPage from './ExportHubPage';
 import { projectsApi } from '@/product/lib/projects';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
+import type { Dispatch, SetStateAction } from 'react';
+import type { ImportContext, Project, Rates, TakeoffItem } from '@/types/models';
 
 export default function ProjectWorkspace({
   step = 2,
@@ -19,12 +21,22 @@ export default function ProjectWorkspace({
   setCurrentProject,
   importContext = { file: null, mappingData: null },
   setImportContext,
+}: {
+  step?: number;
+  items: TakeoffItem[];
+  setItems: Dispatch<SetStateAction<TakeoffItem[]>>;
+  rates: Rates;
+  setRates: Dispatch<SetStateAction<Rates>>;
+  currentProject: Project | null;
+  setCurrentProject: Dispatch<SetStateAction<Project | null>>;
+  importContext?: ImportContext;
+  setImportContext: Dispatch<SetStateAction<ImportContext>>;
 }) {
   const { username, projectId } = useParams();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [loadError, setLoadError] = useState(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const guard = useSingleFlight();
   // When projectId is in the URL, only fetch if current project is not loaded or does not match
@@ -73,9 +85,9 @@ export default function ProjectWorkspace({
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, [step]);
 
-  const isLocked = ['awarded', 'submitted', 'archived', 'declined'].includes(currentProject?.status);
+  const isLocked = ['awarded', 'submitted', 'archived', 'declined'].includes(currentProject?.status ?? '');
 
-  const goToStep = (targetStep) => {
+  const goToStep = (targetStep: number) => {
     // If project is locked (awarded, submitted, archived, or declined), step 1 (upload) and step 2 (edit) are locked and not navigable
     if (isLocked && (targetStep === 1 || targetStep === 2)) {
       return;
@@ -99,7 +111,7 @@ export default function ProjectWorkspace({
   const handleCalculate = () => {
     window.scrollTo({ top: 0, behavior: 'instant' });
     if (projectId || currentProject?.id) {
-      const activeId = projectId || currentProject.id;
+      const activeId = projectId || currentProject?.id;
       navigate(`/${username}/takeoff/${activeId}/results`);
     } else {
       navigate(`/${username}/results`);
@@ -110,14 +122,14 @@ export default function ProjectWorkspace({
     if (isLocked) return;
     window.scrollTo({ top: 0, behavior: 'instant' });
     if (projectId || currentProject?.id) {
-      const activeId = projectId || currentProject.id;
+      const activeId = projectId || currentProject?.id;
       navigate(`/${username}/takeoff/${activeId}/edit`);
     } else {
       navigate(`/${username}/edit`);
     }
   };
 
-  const handleProjectSaved = (savedProj) => {
+  const handleProjectSaved = (savedProj: Project) => {
     setCurrentProject(savedProj);
     // If a newly created project was saved, update URL to include the new takeoff ID seamlessly
     if (savedProj?.id && (!projectId || projectId !== savedProj.id)) {
@@ -136,13 +148,13 @@ export default function ProjectWorkspace({
     if (!currentProject?.id) return;
     try {
       setLoading(true);
-      const cloned = await projectsApi.clone(currentProject.id);
+      const cloned = await projectsApi.clone(String(currentProject.id));
       if (cloned?.id) {
         navigate(`/${username}/takeoff/${cloned.id}/edit`);
       }
     } catch (err) {
       console.error('Failed to duplicate project:', err);
-      setLoadError(err.message || t('product.projectWorkspace.errDuplicateFailed'));
+      setLoadError((err as Error).message || t('product.projectWorkspace.errDuplicateFailed'));
     } finally {
       setLoading(false);
     }

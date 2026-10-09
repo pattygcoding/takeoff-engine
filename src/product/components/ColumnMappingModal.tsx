@@ -27,16 +27,34 @@ export default function ColumnMappingModal({
   onTableChange,
   onConfirm,
   onCancel,
+}: {
+  headers?: string[];
+  rawRows?: Array<Record<string, any>>;
+  initialMapping?: Record<string, string | number>;
+  matchConfidences?: Record<string, number>;
+  overallConfidence?: number;
+  sampleMatrix?: string[][];
+  initialHeaderRowIndex?: number;
+  sheetNames?: string[];
+  activeSheetName?: string;
+  subTables?: Array<{ id: string; label: string }>;
+  activeTableId?: string | null;
+  onSheetChange?: (name: string) => void;
+  onTableChange?: (tableId: string) => void;
+  onConfirm: (data: any) => void;
+  onCancel: () => void;
 }) {
   const { t } = useTranslation();
   const { showConfirm } = useModal();
   const targetFields = useMemo(() => getTargetFields(t), [t]);
 
   const [headerRowIndex, setHeaderRowIndex] = useState(initialHeaderRowIndex);
-  const [currentHeaders, setCurrentHeaders] = useState(initialHeaders || []);
-  const [currentRawRows, setCurrentRawRows] = useState(initialRawRows || []);
-  const [mapping, setMapping] = useState({ ...initialMapping });
-  const [matchConfidences, setMatchConfidences] = useState({ ...initialMatchConfidences });
+  const [currentHeaders, setCurrentHeaders] = useState<string[]>(initialHeaders || []);
+  const [currentRawRows, setCurrentRawRows] = useState<Array<Record<string, any>>>(initialRawRows || []);
+  const [mapping, setMapping] = useState<Record<string, string | undefined>>(
+    { ...(initialMapping || {}) } as Record<string, string | undefined>,
+  );
+  const [matchConfidences, setMatchConfidences] = useState<Record<string, number>>({ ...initialMatchConfidences });
   const [overallConfidence, setOverallConfidence] = useState(initialOverallConfidence);
   const [validationError, setValidationError] = useState('');
   const [presetName, setPresetName] = useState('');
@@ -47,7 +65,7 @@ export default function ColumnMappingModal({
   const maxHeaderOptions = Math.min(sampleMatrix?.length || 1, 30);
   const headerRowOptions = Array.from({ length: maxHeaderOptions }, (_, i) => i);
 
-  const handleHeaderRowChange = async (newRowIndex) => {
+  const handleHeaderRowChange = async (newRowIndex: string | number) => {
     const rIdx = Number(newRowIndex);
     setHeaderRowIndex(rIdx);
 
@@ -69,20 +87,20 @@ export default function ColumnMappingModal({
     }
   };
 
-  const handleChange = (targetKey, selectedCol) => {
+  const handleChange = (targetKey: string, selectedCol: string) => {
     setMapping((prev) => ({
       ...prev,
       [targetKey]: selectedCol || undefined,
     }));
   };
 
-  const handleApplyPreset = (name) => {
+  const handleApplyPreset = (name: string) => {
     if (savedPresets[name]) {
       setMapping((prev) => ({ ...prev, ...savedPresets[name] }));
     }
   };
 
-  const handleDeletePreset = async (name, e) => {
+  const handleDeletePreset = async (name: string, e: React.MouseEvent) => {
     e.stopPropagation();
     const confirmed = await showConfirm({
       title: t('product.columnMappingModal.deletePresetTitle', 'Delete Preset'),
@@ -103,7 +121,7 @@ export default function ColumnMappingModal({
     setTimeout(() => setShowPresetSaved(false), 2500);
   };
 
-  const handleApply = async (e) => {
+  const handleApply = async (e: React.FormEvent) => {
     e.preventDefault();
     setValidationError('');
 

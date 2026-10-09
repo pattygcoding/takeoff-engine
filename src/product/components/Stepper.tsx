@@ -1,7 +1,15 @@
 import { useTranslation } from '@/core/components/context/I18nContext';
 import { Lock } from 'lucide-react';
 
-export default function Stepper({ step, onStepClick, isAwarded = false }) {
+export default function Stepper({
+  step,
+  onStepClick,
+  isAwarded = false,
+}: {
+  step: number;
+  onStepClick?: (step: number) => void;
+  isAwarded?: boolean;
+}) {
   const { t } = useTranslation();
   const steps = [
     { id: 1, label: t('product.stepper.step1Label') },

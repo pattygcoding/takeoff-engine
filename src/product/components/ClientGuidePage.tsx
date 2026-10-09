@@ -5,14 +5,14 @@ import { useTranslation } from '@/core/components/context/I18nContext';
 import SeoHead from '@/core/components/shared/SeoHead';
 import { downloadSampleCsv, downloadSampleExcel } from '@/product/lib/csv';
 
-function MarkdownRenderer({ content }) {
+function MarkdownRenderer({ content }: { content?: string }) {
   if (!content) return null;
 
   const lines = content.split('\n');
-  const elements = [];
+  const elements: React.ReactNode[] = [];
   let inTable = false;
-  let tableRows = [];
-  let currentList = null; // { type: 'ul' | 'ol', items: [] }
+  let tableRows: string[][] = [];
+  let currentList: { type: 'ul' | 'ol'; items: React.ReactNode[] } | null = null;
   let key = 0;
 
   const flushList = () => {
@@ -177,10 +177,10 @@ function MarkdownRenderer({ content }) {
   return <div className="space-y-1">{elements}</div>;
 }
 
-function renderInlineMarkdown(text) {
+function renderInlineMarkdown(text: string): React.ReactNode {
   if (!text) return '';
 
-  const parts = [];
+  const parts: { type: string; content: string }[] = [];
   const codeRegex = /`([^`]+)`/g;
   let lastIndex = 0;
   let match;
@@ -206,7 +206,7 @@ function renderInlineMarkdown(text) {
     }
 
     let str = part.content;
-    const formattedElements = [];
+    const formattedElements: React.ReactNode[] = [];
     const formattingRegex = /(\*\*([^*]+)\*\*|\*([^*]+)\*|\[([^\]]+)\]\(([^)]+)\))/g;
     let fLastIdx = 0;
     let fMatch;

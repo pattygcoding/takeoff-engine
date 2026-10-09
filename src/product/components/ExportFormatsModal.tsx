@@ -9,19 +9,37 @@ import { useTranslation } from '@/core/components/context/I18nContext';
  * First 3 items are standard/free (Standard Print, PDF Document, Word Document .docx).
  * The remaining 4 items are locked Pro/Enterprise templates.
  */
+interface ExportFormat {
+  id: string;
+  title: string;
+  formatType: string;
+  extension: string;
+  tag: string;
+  isLocked: boolean;
+  description: string;
+  previewType: string;
+  accentColor: string;
+}
+
 export default function ExportFormatsModal({
   isOpen,
   onClose,
   onSelectFormat,
   isPro,
   onUpgrade,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onSelectFormat: (formatId: string) => void;
+  isPro: boolean;
+  onUpgrade?: () => void;
 }) {
   const { t } = useTranslation();
   const [selectedFormatId, setSelectedFormatId] = useState('pdf');
 
   if (!isOpen) return null;
 
-  const formats = [
+  const formats: ExportFormat[] = [
     // --- ROW 1 (5 items) ---
     {
       id: 'print',
@@ -104,7 +122,7 @@ export default function ExportFormatsModal({
     },
   ];
 
-  const handleCardClick = (format) => {
+  const handleCardClick = (format: ExportFormat) => {
     setSelectedFormatId(format.id);
   };
 
@@ -223,7 +241,17 @@ export default function ExportFormatsModal({
 /**
  * Miniature Document Preview mimicking Microsoft Word template selector
  */
-function FormatCard({ format, isSelected, onClick, onUpgrade }) {
+function FormatCard({
+  format,
+  isSelected,
+  onClick,
+  onUpgrade,
+}: {
+  format: ExportFormat;
+  isSelected: boolean;
+  onClick: () => void;
+  onUpgrade?: () => void;
+}) {
   const { t } = useTranslation();
   const isLocked = format.isLocked;
 
@@ -289,7 +317,7 @@ function FormatCard({ format, isSelected, onClick, onUpgrade }) {
 /**
  * Miniature CSS representations simulating Word/PDF document sheets
  */
-function MiniDocumentPreview({ type, accent = 'indigo' }) {
+function MiniDocumentPreview({ type, accent = 'indigo' }: { type?: string; accent?: string }) {
   if (type === 'print') {
     return (
       <div className="w-full h-full bg-white rounded border border-slate-200 p-1.5 flex flex-col gap-1 shadow-2xs">

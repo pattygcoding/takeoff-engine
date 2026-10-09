@@ -8,7 +8,7 @@ import { WORKSPACE_PATHS, isWorkspacePath } from '../../../src/product/routes/wo
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const userWorkspaceSource = fs.readFileSync(
-  path.resolve(__dirname, '../../../src/product/components/UserWorkspace.jsx'),
+  path.resolve(__dirname, '../../../src/product/components/UserWorkspace.tsx'),
   'utf8',
 );
 

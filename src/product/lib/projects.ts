@@ -130,7 +130,7 @@ export const projectsApi = {
   /**
    * Clone/duplicate a project
    */
-  async clone(id: string, name: string) {
+  async clone(id: string, name?: string) {
     const res = await fetch(`${API_BASE_URL}/projects/${id}/clone`, {
       method: 'POST',
       headers: getAuthHeaders(),

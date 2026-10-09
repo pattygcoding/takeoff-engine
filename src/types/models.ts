@@ -112,6 +112,32 @@ export interface OrganizationMember {
   [key: string]: any;
 }
 
+/** Column-mapping modal payload produced by the parser/normalizer. */
+export interface MappingModalData {
+  headers?: string[];
+  rawRows?: Array<Record<string, string>>;
+  mapping?: Record<string, string | number>;
+  currentMapping?: Record<string, string | number>;
+  matchConfidences?: Record<string, number>;
+  overallConfidence?: number;
+  rawMatrix?: string[][];
+  sampleMatrix?: string[][];
+  headerRowIndex?: number;
+  sheetNames?: string[];
+  activeSheetName?: string;
+  activeTableId?: string | null;
+  subTables?: Array<{ id: string; label: string }>;
+  [key: string]: any;
+}
+
+/** Upload/import context threaded from the upload step into the editors. */
+export interface ImportContext {
+  file?: any;
+  mappingData?: any;
+  detectedLaborMode?: string;
+  [key: string]: any;
+}
+
 /** The authenticated user profile (shape returned by `GET /api/auth/me`). */
 export interface UserProfile {
   id?: string;

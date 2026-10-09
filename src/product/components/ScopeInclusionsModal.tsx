@@ -8,6 +8,8 @@ import {
   deleteScopePreset,
 } from '@/product/lib/scope';
 import { useTranslation } from '@/core/components/context/I18nContext';
+import type { TranslateFunction } from '@/core/components/context/I18nContext';
+import type { ScopeItem, ScopePreset } from '@/types/models';
 
 export default function ScopeInclusionsModal({
   scopeItems = DEFAULT_SCOPE_ITEMS,
@@ -18,13 +20,21 @@ export default function ScopeInclusionsModal({
   variant = 'modal',
   expanded = false,
   onToggleExpanded,
+}: {
+  scopeItems?: ScopeItem[];
+  onSave?: (items: ScopeItem[]) => void;
+  onClose?: () => void;
+  readOnly?: boolean;
+  variant?: string;
+  expanded?: boolean;
+  onToggleExpanded?: () => void;
 }) {
   const { t } = useTranslation();
   const isPanel = variant === 'panel';
-  const [items, setItems] = useState(() => {
+  const [items, setItems] = useState<ScopeItem[]>(() => {
     return Array.isArray(scopeItems) && scopeItems.length > 0
-      ? JSON.parse(JSON.stringify(scopeItems))
-      : JSON.parse(JSON.stringify(DEFAULT_SCOPE_ITEMS));
+      ? (JSON.parse(JSON.stringify(scopeItems)) as ScopeItem[])
+      : (JSON.parse(JSON.stringify(DEFAULT_SCOPE_ITEMS)) as ScopeItem[]);
   });
 
   const [activeCategory, setActiveCategory] = useState('all'); // 'all' | 'fixtures' | 'site' | 'admin'
@@ -33,7 +43,7 @@ export default function ScopeInclusionsModal({
   const [newCategory, setNewCategory] = useState('fixtures');
 
   // Preset management state
-  const [presets, setPresets] = useState([]);
+  const [presets, setPresets] = useState<ScopePreset[]>([]);
   const [selectedPresetId, setSelectedPresetId] = useState('');
   const [showSavePresetInput, setShowSavePresetInput] = useState(false);
   const [presetNameInput, setPresetNameInput] = useState('');
@@ -55,39 +65,39 @@ export default function ScopeInclusionsModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scopeItems]);
 
-  const applyItemChanges = (updater) => {
+  const applyItemChanges = (updater: (currentItems: ScopeItem[]) => ScopeItem[]) => {
     const nextItems = updater(items);
     setItems(nextItems);
     onSave?.(nextItems);
   };
 
-  const handleStatusChange = (id, newStatus) => {
+  const handleStatusChange = (id: string | number | undefined, newStatus: string) => {
     if (readOnly) return;
     applyItemChanges((currentItems) =>
       currentItems.map((it) => (it.id === id ? { ...it, status: newStatus } : it))
     );
   };
 
-  const handleRemoveItem = (id) => {
+  const handleRemoveItem = (id: string | number | undefined) => {
     if (readOnly) return;
     applyItemChanges((currentItems) => currentItems.filter((it) => it.id !== id));
   };
 
   // Add-on pricing stays negotiable even when the rest of the project is locked/submitted.
-  const handleCostImpactChange = (id, rawValue) => {
+  const handleCostImpactChange = (id: string | number | undefined, rawValue: string) => {
     const parsed = rawValue === '' ? 0 : Number(rawValue);
     applyItemChanges((currentItems) =>
       currentItems.map((it) => (it.id === id ? { ...it, costImpact: Number.isFinite(parsed) ? parsed : 0 } : it))
     );
   };
 
-  const handleCostImpactTypeChange = (id, costImpactType) => {
+  const handleCostImpactTypeChange = (id: string | number | undefined, costImpactType: string) => {
     applyItemChanges((currentItems) =>
       currentItems.map((it) => (it.id === id ? { ...it, costImpactType } : it))
     );
   };
 
-  const handleAddItem = (e) => {
+  const handleAddItem = (e: React.FormEvent) => {
     e.preventDefault();
     if (readOnly || !newTitle.trim()) return;
 
@@ -107,7 +117,7 @@ export default function ScopeInclusionsModal({
     setNewDesc('');
   };
 
-  const handleSavePreset = (e) => {
+  const handleSavePreset = (e: React.FormEvent) => {
     e.preventDefault();
     if (!presetNameInput.trim()) return;
     const created = saveScopePreset(presetNameInput.trim(), items);
@@ -122,7 +132,7 @@ export default function ScopeInclusionsModal({
     }
   };
 
-  const handleApplyPreset = (presetId) => {
+  const handleApplyPreset = (presetId: string) => {
     setSelectedPresetId(presetId);
     if (!presetId) return;
     const found = presets.find((p) => p.id === presetId);
@@ -133,7 +143,7 @@ export default function ScopeInclusionsModal({
     }
   };
 
-  const handleDeletePreset = (presetId, e) => {
+  const handleDeletePreset = (presetId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     const updated = deleteScopePreset(presetId);
     setPresets(updated);
@@ -629,7 +639,7 @@ export default function ScopeInclusionsModal({
   );
 }
 
-function SavedConfirmModal({ t, onDismiss }) {
+function SavedConfirmModal({ t, onDismiss }: { t: TranslateFunction; onDismiss: () => void }) {
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs animate-fade-in">
       <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-sm w-full p-6 border border-slate-200 dark:border-slate-800 text-center">
