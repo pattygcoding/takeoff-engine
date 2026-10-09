@@ -38,9 +38,9 @@ Total: **116 tests** (2 skipped — the mobile-only navigation test on the two d
 
 | File | Kind |
 | --- | --- |
-| `tests/accessibility/public-pages.spec.js` | Playwright specs for public routes and landing interactions |
-| `tests/accessibility/dialogs.spec.js` | Playwright specs for the shared native `<dialog>` wrapper |
-| `tests/accessibility/imageAltText.test.js` | `node:test` static analysis (no browser); also picked up under this folder |
+| `tests/accessibility/public-pages.spec.ts` | Playwright specs for public routes and landing interactions |
+| `tests/accessibility/dialogs.spec.ts` | Playwright specs for the shared native `<dialog>` wrapper |
+| `tests/accessibility/imageAltText.test.ts` | `node:test` static analysis (no browser); also picked up under this folder |
 | `tests/accessibility/fixtures/dialog.html` + `dialog.jsx` | Local dialog fixture (no backend/real billing) |
 
 ---
