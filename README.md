@@ -1,6 +1,7 @@
 # Takeoff Engine
 
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-7-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-20-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![Express.js](https://img.shields.io/badge/Express.js-Backend_API-000000?logo=express&logoColor=white)](https://expressjs.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
@@ -44,7 +45,7 @@ A fast, responsive web application and SaaS platform for contractors, estimators
 ## 🛠️ Architecture
 
 ```
-takeoff-engine/          # Frontend (React 19, Vite, Tailwind CSS, React Router 7)
+takeoff-engine/          # Frontend (React 19, TypeScript, Vite, Tailwind CSS, React Router 7)
 takeoff-engine-backend/  # Backend (Express.js, Supabase Auth/PostgreSQL, Swagger UI)
 buisness-goals/saas/     # SaaS monetization blueprint & roadmap
 ```

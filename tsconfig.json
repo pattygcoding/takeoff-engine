@@ -16,10 +16,9 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
 
-    // Bridge settings for the incremental migration. Both are flipped off in the
-    // final phase, once every src/test/config file is TypeScript.
-    "allowJs": true,
-    "checkJs": false,
+    // All of `src` and the config files are TypeScript. The test suites still ship
+    // as .js and are intentionally left out of the type-check program for now.
+    "allowJs": false,
 
     "paths": {
       "@/*": ["./src/*"]
