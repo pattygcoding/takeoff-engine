@@ -8,13 +8,13 @@ const ClientProposalView = lazy(() => import('@/product/components/ClientProposa
 const ClientGuidePage = lazy(() => import('@/product/components/ClientGuidePage'));
 
 // /:username/* also catches typos; only known workspace pages get the login redirect or the workspace.
-function UserWorkspaceRoute({ isAuthenticated }) {
+function UserWorkspaceRoute({ isAuthenticated }: { isAuthenticated: boolean }) {
   const { '*': subPath } = useParams();
   if (!isWorkspacePath(subPath)) return <NotFoundPage />;
   return isAuthenticated ? <UserWorkspace /> : <Navigate to="/login" replace />;
 }
 
-export function renderProductRoutes(isAuthenticated) {
+export function renderProductRoutes(isAuthenticated: boolean): React.ReactElement[] {
   return [
     <Route key="proposal-view" path="/p/:publicToken" element={<ClientProposalView />} />,
     <Route key="public-guide" path="/guide" element={<ClientGuidePage />} />,

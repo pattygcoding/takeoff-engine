@@ -66,7 +66,7 @@ test('logout removes the bearer fallback so later requests cannot reuse it', (t)
 
 test('frontend login, redirect exchange, logout, and deletion preserve the token lifecycle contract', async () => {
   const authApiSource = await readFile(path.join(frontendRoot, 'src/core/lib/auth/auth.ts'), 'utf8');
-  const mainSource = await readFile(path.join(frontendRoot, 'src/main.jsx'), 'utf8');
+  const mainSource = await readFile(path.join(frontendRoot, 'src/main.tsx'), 'utf8');
 
   assert.match(authApiSource, /setAccessToken\(data\.accessToken\);/);
   assert.match(authApiSource, /setAccessToken\(data\.accessToken \|\| accessToken\);/);

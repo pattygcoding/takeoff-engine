@@ -10,7 +10,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 const nativeFetch = window.fetch.bind(window);
 
 window.fetch = (input, init = {}) => {
-  const url = typeof input === 'string' ? input : input.url;
+  const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
   if (!url.startsWith(API_BASE_URL)) return nativeFetch(input, init);
 
   const headers = addAuthorizationHeader(init.headers);
@@ -21,7 +21,7 @@ window.fetch = (input, init = {}) => {
   return nativeFetch(input, { ...init, headers, credentials: 'include' });
 };
 
-createRoot(document.getElementById('root')).render(
+createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <HelmetProvider>
       <BrowserRouter>

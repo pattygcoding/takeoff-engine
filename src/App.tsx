@@ -25,7 +25,7 @@ import { renderProductRoutes } from '@/product/routes/ProductRoutes';
 import { PENDING_INVITE_KEY } from '@/core/lib/auth/organizations';
 
 /** Where a freshly signed-in user lands: a pending team invitation wins over their workspace. */
-function postLoginPath(username) {
+function postLoginPath(username: string) {
   const pendingInvite = sessionStorage.getItem(PENDING_INVITE_KEY);
   return pendingInvite ? `/accept-invite?token=${encodeURIComponent(pendingInvite)}` : `/${username}`;
 }
@@ -59,7 +59,7 @@ function AppContent() {
     window.scrollTo({ top: 0, behavior: 'instant' });
     const content = document.getElementById('main-content');
     if (!content) return undefined;
-    const focusTarget = (target) => {
+    const focusTarget = (target: HTMLElement) => {
       target.setAttribute('tabindex', '-1');
       target.focus({ preventScroll: true });
     };
@@ -90,7 +90,7 @@ function AppContent() {
     user?.role === 'admin' ||
     user?.role === 'payment_exempt' ||
     user?.has_unlimited_bypass === true ||
-    (user?.subscription_status === 'active' && ['starter', 'pro', 'enterprise'].includes(user?.subscription_tier));
+    (user?.subscription_status === 'active' && ['starter', 'pro', 'enterprise'].includes(user?.subscription_tier ?? ''));
 
   // Automatically prompt free users with 0 credits to upgrade when they log in / view the app
   useEffect(() => {
