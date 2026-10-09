@@ -1,14 +1,24 @@
 import React, { createContext, useContext, useState, useMemo, useCallback, useEffect } from 'react';
+import type { ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getTranslation, i18n, isLanguageLoaded, loadLanguage, SUPPORTED_LANGUAGES } from '@/core/lib/shared/i18n';
+import type { TranslationParams } from '@/core/lib/shared/i18n';
 
-const I18nContext = createContext({
-  t: (key, params) => key,
+export type TranslateFunction = (key: string, params?: TranslationParams) => string;
+
+interface I18nContextValue {
+  t: TranslateFunction;
+  language: string;
+  setLanguage: (lang: string) => void;
+}
+
+const I18nContext = createContext<I18nContextValue>({
+  t: (key) => key,
   language: 'en',
   setLanguage: () => {},
 });
 
-function getInitialLanguage() {
+function getInitialLanguage(): string {
   if (typeof window !== 'undefined') {
     const params = new URLSearchParams(window.location.search);
     const langParam = params.get('lang')?.toLowerCase();
@@ -23,11 +33,11 @@ function getInitialLanguage() {
   return 'en';
 }
 
-export function I18nProvider({ children, defaultLanguage = 'en' }) {
+export function I18nProvider({ children, defaultLanguage = 'en' }: { children: ReactNode; defaultLanguage?: string }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const [language, setLanguageState] = useState(getInitialLanguage);
-  const [loadedLanguage, setLoadedLanguage] = useState(() => (isLanguageLoaded(language) ? language : 'en'));
+  const [language, setLanguageState] = useState<string>(getInitialLanguage);
+  const [loadedLanguage, setLoadedLanguage] = useState<string>(() => (isLanguageLoaded(language) ? language : 'en'));
 
   useEffect(() => {
     document.documentElement.lang = language;
@@ -73,7 +83,7 @@ export function I18nProvider({ children, defaultLanguage = 'en' }) {
   }, [location.pathname, location.search, location.hash, language, navigate]);
 
   const changeLanguage = useCallback(
-    (lang) => {
+    (lang: string) => {
       if (!SUPPORTED_LANGUAGES.includes(lang)) return;
       i18n.setLanguage(lang);
       setLanguageState(lang);
@@ -90,7 +100,7 @@ export function I18nProvider({ children, defaultLanguage = 'en' }) {
     [location.pathname, location.search, location.hash, navigate]
   );
 
-  const t = useCallback(
+  const t = useCallback<TranslateFunction>(
     (key, params) => {
       return getTranslation(key, params, loadedLanguage);
     },
@@ -109,7 +119,7 @@ export function I18nProvider({ children, defaultLanguage = 'en' }) {
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
 
-export function useTranslation() {
+export function useTranslation(): I18nContextValue {
   const context = useContext(I18nContext);
   if (!context) {
     // Fallback if rendered outside provider

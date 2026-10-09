@@ -1,16 +1,60 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
+import type { ReactNode } from 'react';
 import { AlertTriangle, X, Check, PenLine, Info } from 'lucide-react';
 import AccessibleDialog from '@/core/components/shared/AccessibleDialog';
 import { useTranslation } from '@/core/components/context/I18nContext';
 
-const ModalContext = createContext(null);
+interface AlertOptions {
+  title?: string;
+  message?: string;
+  confirmText?: string;
+  variant?: string;
+}
 
-export function ModalProvider({ children }) {
-  const [modalState, setModalState] = useState(null); // { type, title, message, confirmText, cancelText, confirmVariant, defaultValue, placeholder, resolve }
+interface ConfirmOptions {
+  title?: string;
+  message?: string;
+  confirmText?: string;
+  cancelText?: string;
+  confirmVariant?: string;
+}
+
+interface PromptOptions {
+  title?: string;
+  message?: string;
+  defaultValue?: string;
+  placeholder?: string;
+  confirmText?: string;
+  cancelText?: string;
+}
+
+interface ModalState {
+  type: 'alert' | 'confirm' | 'prompt';
+  title?: string;
+  message?: string;
+  confirmText?: string;
+  cancelText?: string;
+  confirmVariant?: string;
+  variant?: string;
+  defaultValue?: string;
+  placeholder?: string;
+  resolve: (value: any) => void;
+}
+
+interface ModalContextValue {
+  showAlert: (options?: AlertOptions) => Promise<any>;
+  showConfirm: (options?: ConfirmOptions) => Promise<boolean>;
+  showPrompt: (options?: PromptOptions) => Promise<string | null>;
+}
+
+const ModalContext = createContext<ModalContextValue | null>(null);
+
+export function ModalProvider({ children }: { children: ReactNode }) {
+  const [modalState, setModalState] = useState<ModalState | null>(null);
   const [inputValue, setInputValue] = useState('');
   const { t } = useTranslation();
 
-  const closeModal = useCallback((result) => {
+  const closeModal = useCallback((result: any) => {
     if (modalState?.resolve) {
       modalState.resolve(result);
     }
@@ -19,7 +63,7 @@ export function ModalProvider({ children }) {
   }, [modalState]);
 
   // Alert dialog
-  const showAlert = useCallback(({ title = t('core.accessibility.notice'), message = '', confirmText = t('core.accessibility.ok'), variant = 'info' } = {}) => {
+  const showAlert = useCallback(({ title = t('core.accessibility.notice'), message = '', confirmText = t('core.accessibility.ok'), variant = 'info' }: AlertOptions = {}) => {
     return new Promise((resolve) => {
       setModalState({
         type: 'alert',
@@ -39,8 +83,8 @@ export function ModalProvider({ children }) {
     confirmText = t('core.accessibility.confirm'),
     cancelText = t('core.accessibility.cancel'),
     confirmVariant = 'danger', // 'danger' | 'primary'
-  } = {}) => {
-    return new Promise((resolve) => {
+  }: ConfirmOptions = {}) => {
+    return new Promise<boolean>((resolve) => {
       setModalState({
         type: 'confirm',
         title,
@@ -61,8 +105,8 @@ export function ModalProvider({ children }) {
     placeholder = '',
     confirmText = t('core.accessibility.submit'),
     cancelText = t('core.accessibility.cancel'),
-  } = {}) => {
-    return new Promise((resolve) => {
+  }: PromptOptions = {}) => {
+    return new Promise<string | null>((resolve) => {
       setInputValue(defaultValue);
       setModalState({
         type: 'prompt',
@@ -190,7 +234,7 @@ export function ModalProvider({ children }) {
   );
 }
 
-export function useModal() {
+export function useModal(): ModalContextValue {
   const context = useContext(ModalContext);
   if (!context) {
     throw new Error('useModal must be used within a ModalProvider');

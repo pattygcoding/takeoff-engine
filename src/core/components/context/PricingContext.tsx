@@ -1,19 +1,36 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
 import { billingApi } from '@/core/lib/billing/billing';
 import { translateCatalogPrice, validateCatalogPricing } from '@/core/lib/billing/catalogPricing';
 import { useTranslation } from '@/core/components/context/I18nContext';
 
-const PricingContext = createContext(null);
+interface PricingCatalog {
+  currencyCode: string;
+  prices: Record<string, number>;
+  expiresAt: string;
+}
 
-export function PricingProvider({ children }) {
-  const [state, setState] = useState({ catalog: null, loading: true, error: false });
+interface PricingState {
+  catalog: PricingCatalog | null;
+  loading: boolean;
+  error: boolean;
+}
+
+interface PricingContextValue extends PricingState {
+  retry: () => void;
+}
+
+const PricingContext = createContext<PricingContextValue | null>(null);
+
+export function PricingProvider({ children }: { children: ReactNode }) {
+  const [state, setState] = useState<PricingState>({ catalog: null, loading: true, error: false });
   const [revision, setRevision] = useState(0);
-  const pending = useRef(null);
+  const pending = useRef<Promise<PricingCatalog> | null>(null);
   const retry = useCallback(() => setRevision((value) => value + 1), []);
 
   useEffect(() => {
     let active = true;
-    let refreshTimer;
+    let refreshTimer: ReturnType<typeof setTimeout> | undefined;
     setState({ catalog: null, loading: true, error: false });
     if (!pending.current) {
       const request = billingApi.getPricing().then(validateCatalogPricing);
@@ -23,7 +40,7 @@ export function PricingProvider({ children }) {
         () => { if (pending.current === request) pending.current = null; },
       );
     }
-    pending.current.then(
+    pending.current!.then(
       (catalog) => {
         if (!active) return;
         setState({ catalog, loading: false, error: false });
@@ -44,7 +61,7 @@ export function PricingProvider({ children }) {
   return <PricingContext.Provider value={{ ...state, retry }}>{children}</PricingContext.Provider>;
 }
 
-export function usePricing() {
+export function usePricing(): PricingContextValue {
   const context = useContext(PricingContext);
   if (!context) throw new Error('PricingProvider is required.');
   return context;
@@ -53,7 +70,7 @@ export function usePricing() {
 export function usePricingDisplay() {
   const { catalog, loading, error } = usePricing();
   const { t, language } = useTranslation();
-  const formatPrice = (amount) => {
+  const formatPrice = (amount?: number): string => {
     if (!catalog || typeof amount !== 'number' || !Number.isFinite(amount)) {
       return t(loading ? 'core.catalogPricing.loading' : 'core.catalogPricing.unavailableShort');
     }
@@ -65,7 +82,7 @@ export function usePricingDisplay() {
     prices: catalog?.prices || {},
     ready: Boolean(catalog) && !error && !loading,
     formatPrice,
-    t: (key, params) => translateCatalogPrice(t, key, params, formatPrice),
+    t: (key: string, params?: Record<string, unknown>) => translateCatalogPrice(t, key, params, formatPrice),
   };
 }
 
@@ -83,7 +100,7 @@ export function PricingStatus() {
       </div>
     );
   }
-  return <p className="p-3 text-xs">{t('core.catalogPricing.catalogNotice', { currency: catalog.currencyCode })}</p>;
+  return <p className="p-3 text-xs">{t('core.catalogPricing.catalogNotice', { currency: catalog?.currencyCode ?? '' })}</p>;
 }
 
 /** Sign-up stays closed while the catalog is unavailable; the backend enforces the same rule. */
@@ -92,7 +109,7 @@ export function useAccountCreationDisabled() {
   return Boolean(error) && !loading;
 }
 
-export function AccountCreationDisabledNotice({ className = '' }) {
+export function AccountCreationDisabledNotice({ className = '' }: { className?: string }) {
   const { retry } = usePricing();
   const disabled = useAccountCreationDisabled();
   const { t } = useTranslation();

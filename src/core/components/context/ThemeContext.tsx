@@ -1,11 +1,22 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
 
-const ThemeContext = createContext();
+type Theme = 'dark' | 'light';
+
+interface ThemeContextValue {
+  theme: Theme;
+  isDark: boolean;
+  toggleTheme: () => void;
+  setDarkMode: () => void;
+  setLightMode: () => void;
+}
+
+const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 const THEME_STORAGE_KEY = 'takeoff_engine_theme';
 
-export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState(() => {
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  const [theme, setTheme] = useState<Theme>(() => {
     try {
       const saved = localStorage.getItem(THEME_STORAGE_KEY);
       if (saved === 'dark' || saved === 'light') {
@@ -49,7 +60,7 @@ export function ThemeProvider({ children }) {
   );
 }
 
-export function useTheme() {
+export function useTheme(): ThemeContextValue {
   const context = useContext(ThemeContext);
   if (!context) {
     return {

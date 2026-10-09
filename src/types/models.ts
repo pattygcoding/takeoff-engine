@@ -52,6 +52,27 @@ export interface ScopePreset {
   [key: string]: any;
 }
 
+/** The authenticated user profile (shape returned by `GET /api/auth/me`). */
+export interface UserProfile {
+  id?: string;
+  username?: string;
+  email?: string;
+  first_name?: string;
+  last_name?: string;
+  phone_number?: string;
+  role?: string;
+  subscription_tier?: string;
+  subscription_status?: string;
+  has_unlimited_bypass?: boolean;
+  bypass_reason?: string | null;
+  trial_uses_remaining?: number;
+  seat_limit?: number;
+  additional_seats?: number;
+  organization_id?: string | null;
+  created_at?: string;
+  [key: string]: any;
+}
+
 /** A saved project / estimate. */
 export interface Project {
   id?: string | number;

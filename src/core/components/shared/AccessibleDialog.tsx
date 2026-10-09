@@ -1,11 +1,19 @@
 import { useEffect, useRef } from 'react';
+import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 
-export default function AccessibleDialog({ children, onClose, className = '', ...props }) {
-  const dialogRef = useRef(null);
+interface AccessibleDialogProps extends ComponentPropsWithoutRef<'dialog'> {
+  children: ReactNode;
+  onClose: () => void;
+  className?: string;
+}
+
+export default function AccessibleDialog({ children, onClose, className = '', ...props }: AccessibleDialogProps) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
     const dialog = dialogRef.current;
-    const previousFocus = document.activeElement;
+    if (!dialog) return undefined;
+    const previousFocus = document.activeElement as HTMLElement | null;
     dialog.showModal();
     return () => {
       dialog.close();
