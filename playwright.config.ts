@@ -3,8 +3,8 @@ import { defineConfig } from '@playwright/test';
 const BASE_URL = 'http://127.0.0.1:4175';
 
 // The app reads its theme from localStorage (not prefers-color-scheme), so seed it per project.
-const withAppTheme = (theme) => ({
-  colorScheme: theme,
+const withAppTheme = (theme: string) => ({
+  colorScheme: theme as 'light' | 'dark',
   storageState: {
     cookies: [],
     origins: [{ origin: BASE_URL, localStorage: [{ name: 'takeoff_engine_theme', value: theme }] }],

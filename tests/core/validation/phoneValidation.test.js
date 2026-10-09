@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { isValidPhoneNumber, normalizePhoneDigits } from '#core/lib/shared/validators.js';
+import { isValidPhoneNumber, normalizePhoneDigits } from '#core/lib/shared/validators.ts';
 
 describe('Phone number validation (frontend): only accepts valid 10-digit numbers', () => {
   it('treats blank as valid since phone is an optional field', () => {

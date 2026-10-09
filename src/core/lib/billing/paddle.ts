@@ -1,8 +1,11 @@
 import { initializePaddle } from '@paddle/paddle-js';
 import { getTranslation } from '@/core/lib/shared/i18n';
 
-let paddleInstance = null;
-let activeEventCallback = null;
+type PaddleClient = NonNullable<Awaited<ReturnType<typeof initializePaddle>>>;
+type PaddleEventHandler = (event: any) => void;
+
+let paddleInstance: PaddleClient | null | undefined = null;
+let activeEventCallback: PaddleEventHandler | null = null;
 
 /**
  * Get or initialize Paddle.js singleton
@@ -36,10 +39,31 @@ export async function getPaddleInstance() {
   }
 }
 
+export interface PaddleCheckoutItem {
+  priceId: string;
+  quantity: number;
+}
+
+export interface OpenPaddleCheckoutOptions {
+  priceId?: string;
+  items?: PaddleCheckoutItem[];
+  customerEmail?: string;
+  customData?: Record<string, unknown>;
+  onSuccess?: (event: any) => void;
+  onClose?: () => void;
+}
+
 /**
  * Open Paddle hosted overlay checkout
  */
-export async function openPaddleCheckout({ priceId, items, customerEmail, customData, onSuccess, onClose }) {
+export async function openPaddleCheckout({
+  priceId,
+  items,
+  customerEmail,
+  customData,
+  onSuccess,
+  onClose,
+}: OpenPaddleCheckoutOptions): Promise<boolean> {
   const paddle = await getPaddleInstance();
 
   const checkoutItems = items && items.length > 0
@@ -52,7 +76,7 @@ export async function openPaddleCheckout({ priceId, items, customerEmail, custom
   }
 
   // Convert customData values to strings for Paddle custom_data key-value constraints
-  const sanitizedCustomData = {};
+  const sanitizedCustomData: Record<string, string> = {};
   if (customData && typeof customData === 'object') {
     for (const [key, val] of Object.entries(customData)) {
       if (val !== undefined && val !== null) {
@@ -61,7 +85,12 @@ export async function openPaddleCheckout({ priceId, items, customerEmail, custom
     }
   }
 
-  const checkoutPayload = {
+  const checkoutPayload: {
+    items: PaddleCheckoutItem[];
+    settings: { displayMode: 'overlay'; theme: 'light'; successUrl: string };
+    customer?: { email: string };
+    customData?: Record<string, string>;
+  } = {
     items: checkoutItems,
     settings: {
       displayMode: 'overlay',
@@ -78,7 +107,7 @@ export async function openPaddleCheckout({ priceId, items, customerEmail, custom
     checkoutPayload.customData = sanitizedCustomData;
   }
 
-  const handleCheckoutEvent = (event) => {
+  const handleCheckoutEvent = (event: any) => {
     console.log('[Paddle Checkout Event]', event?.name, event);
     const eventName = event?.name || event?.type || event?.event;
     
@@ -98,10 +127,9 @@ export async function openPaddleCheckout({ priceId, items, customerEmail, custom
 
   activeEventCallback = handleCheckoutEvent;
 
-  paddle.Checkout.open({
-    ...checkoutPayload,
-    eventCallback: handleCheckoutEvent,
-  });
+  // Paddle's runtime `Checkout.open` accepts `eventCallback` (documented), though the bundled types omit it.
+  const openOptions = { ...checkoutPayload, eventCallback: handleCheckoutEvent };
+  paddle.Checkout.open(openOptions as Parameters<typeof paddle.Checkout.open>[0]);
 
   return true;
 }

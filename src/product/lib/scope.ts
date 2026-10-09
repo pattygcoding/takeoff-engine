@@ -5,6 +5,15 @@
  */
 
 import defaultScopeItemsJson from '@/product/data/inclusions/defaultScopeItems.json';
+import type { ScopeItem, ScopePreset } from '@/types/models';
+
+/** A scope item that has changed from its original state (see `getScopeChangeDiff`). */
+export interface ScopeChange extends ScopeItem {
+  originalStatus: string;
+  originalAmount: number;
+  status: string;
+  amount: number;
+}
 
 export const SCOPE_STATUS = {
   INCLUDED: 'included',
@@ -15,7 +24,7 @@ export const SCOPE_STATUS = {
 
 export const SCOPE_PRESETS_STORAGE_KEY = 'takeoff_engine_scope_presets';
 
-export function getNextScopeStatus(currentStatus) {
+export function getNextScopeStatus(currentStatus: string): string {
   const order = [
     SCOPE_STATUS.INCLUDED,
     SCOPE_STATUS.EXCLUDED,
@@ -26,7 +35,7 @@ export function getNextScopeStatus(currentStatus) {
   return order[(index + 1) % order.length];
 }
 
-export function formatScopeStatusLabel(status) {
+export function formatScopeStatusLabel(status: string): string {
   switch (status) {
     case SCOPE_STATUS.INCLUDED:
       return 'Included';
@@ -41,11 +50,11 @@ export function formatScopeStatusLabel(status) {
   }
 }
 
-export function getScopeChangeDiff(items = []) {
+export function getScopeChangeDiff(items: ScopeItem[] = []): ScopeChange[] {
   const safeItems = Array.isArray(items) ? items : [];
 
   return safeItems
-    .map((item) => {
+    .map((item): ScopeChange | null => {
       const originalStatus = item?.originalStatus ?? item?.status ?? SCOPE_STATUS.INCLUDED;
       const requestedStatus = item?.status ?? originalStatus;
       const originalAmount = Number(item?.originalAmount ?? item?.costImpact ?? item?.amount ?? 0) || 0;
@@ -65,7 +74,7 @@ export function getScopeChangeDiff(items = []) {
         amount: requestedAmount,
       };
     })
-    .filter(Boolean);
+    .filter((change): change is ScopeChange => change !== null);
 }
 
 /**
@@ -76,14 +85,14 @@ export const DEFAULT_SCOPE_ITEMS = defaultScopeItemsJson;
 /**
  * Returns a cloned initial scope list
  */
-export function getInitialScopeItems() {
-  return JSON.parse(JSON.stringify(DEFAULT_SCOPE_ITEMS));
+export function getInitialScopeItems(): ScopeItem[] {
+  return JSON.parse(JSON.stringify(DEFAULT_SCOPE_ITEMS)) as ScopeItem[];
 }
 
 /**
  * Categorizes a scope array into included, excluded, optional add-ons, and not applicable
  */
-export function categorizeScope(items = []) {
+export function categorizeScope(items: ScopeItem[] = []) {
   const safeItems = Array.isArray(items) ? items : [];
   return {
     included: safeItems.filter((it) => it.status === SCOPE_STATUS.INCLUDED),
@@ -96,7 +105,7 @@ export function categorizeScope(items = []) {
 /**
  * Returns summary count and status highlights
  */
-export function summarizeScope(items = []) {
+export function summarizeScope(items: ScopeItem[] = []) {
   const { included, excluded, optionalAddons, notApplicable } = categorizeScope(items);
   return {
     totalCount: items.length,
@@ -111,12 +120,12 @@ export function summarizeScope(items = []) {
 /**
  * Loads user saved scope presets from localStorage
  */
-export function getSavedScopePresets() {
+export function getSavedScopePresets(): ScopePreset[] {
   try {
     const raw = localStorage.getItem(SCOPE_PRESETS_STORAGE_KEY);
     if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as ScopePreset[]) : [];
   } catch (e) {
     console.error('Failed to load scope presets:', e);
     return [];
@@ -126,7 +135,7 @@ export function getSavedScopePresets() {
 /**
  * Saves a new scope preset to localStorage
  */
-export function saveScopePreset(presetName, scopeItems) {
+export function saveScopePreset(presetName: string, scopeItems: ScopeItem[]): ScopePreset | null {
   if (!presetName || !presetName.trim()) return null;
   const currentPresets = getSavedScopePresets();
   const newPreset = {
@@ -148,7 +157,7 @@ export function saveScopePreset(presetName, scopeItems) {
 /**
  * Deletes a saved scope preset by ID
  */
-export function deleteScopePreset(presetId) {
+export function deleteScopePreset(presetId: string): ScopePreset[] {
   const currentPresets = getSavedScopePresets();
   const filtered = currentPresets.filter((p) => p.id !== presetId);
   try {
@@ -163,7 +172,7 @@ export function deleteScopePreset(presetId) {
  * Formats an optional add-on's price impact as a short dollar label.
  * Percentage-based impacts are only shown when a dollar equivalent can be calculated.
  */
-export function formatScopeAddonImpact(item, baseAmount = 0) {
+export function formatScopeAddonImpact(item: ScopeItem, baseAmount: number = 0): string | null {
   const raw = Number(item?.costImpact) || 0;
   if (!raw) return null;
   if (item?.costImpactType === 'percent') {

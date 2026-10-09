@@ -36,7 +36,7 @@ export const adminApi = {
   /**
    * Create a new user account directly from Super-Admin portal
    */
-  async createUser(payload) {
+  async createUser(payload: Record<string, any>) {
     const res = await fetch(`${API_BASE_URL}/admin/users/create`, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -50,7 +50,10 @@ export const adminApi = {
   /**
    * Grant / revoke unlimited VIP bypass
    */
-  async grantBypass(userId, { hasUnlimitedBypass, bypassReason, role, tier }) {
+  async grantBypass(
+    userId: string,
+    { hasUnlimitedBypass, bypassReason, role, tier }: { hasUnlimitedBypass?: boolean; bypassReason?: string; role?: string; tier?: string },
+  ) {
     const res = await fetch(`${API_BASE_URL}/admin/users/${userId}/grant-bypass`, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -64,7 +67,7 @@ export const adminApi = {
   /**
    * Set exact takeoff credits (or adjust credits) on a user account
    */
-  async setCredits(userId, exactCredits = 5, reason = '') {
+  async setCredits(userId: string, exactCredits: number = 5, reason = '') {
     const res = await fetch(`${API_BASE_URL}/admin/users/${userId}/add-credits`, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -78,7 +81,7 @@ export const adminApi = {
   /**
    * Add bonus or adjust credits on a user account (legacy helper)
    */
-  async addCredits(userId, credits = 5, reason = '') {
+  async addCredits(userId: string, credits = 5, reason = '') {
     const res = await fetch(`${API_BASE_URL}/admin/users/${userId}/add-credits`, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -92,7 +95,10 @@ export const adminApi = {
   /**
    * Update user status (active vs suspended/disabled)
    */
-  async updateStatus(userId, { status, is_disabled, reason }) {
+  async updateStatus(
+    userId: string,
+    { status, is_disabled, reason }: { status?: string; is_disabled?: boolean; reason?: string },
+  ) {
     const res = await fetch(`${API_BASE_URL}/admin/users/${userId}/status`, {
       method: 'PATCH',
       headers: getAuthHeaders(),
@@ -106,7 +112,7 @@ export const adminApi = {
   /**
    * Unlock a temporarily locked account (US-034)
    */
-  async unlockAccount(userId, { reason } = {}) {
+  async unlockAccount(userId: string, { reason }: { reason?: string } = {}) {
     const res = await fetch(`${API_BASE_URL}/admin/users/${userId}/unlock`, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -120,7 +126,7 @@ export const adminApi = {
   /**
    * Update user role with reason
    */
-  async updateRole(userId, { role, reason }) {
+  async updateRole(userId: string, { role, reason }: { role: string; reason?: string }) {
     const res = await fetch(`${API_BASE_URL}/admin/users/${userId}/role`, {
       method: 'PATCH',
       headers: getAuthHeaders(),
@@ -134,7 +140,10 @@ export const adminApi = {
   /**
    * Update user subscription tier directly (free, starter, pro, enterprise)
    */
-  async updateSubscriptionTier(userId, { subscription_tier, reason }) {
+  async updateSubscriptionTier(
+    userId: string,
+    { subscription_tier, reason }: { subscription_tier: string; reason?: string },
+  ) {
     const res = await fetch(`${API_BASE_URL}/admin/users/${userId}/subscription-tier`, {
       method: 'PATCH',
       headers: getAuthHeaders(),
@@ -148,7 +157,7 @@ export const adminApi = {
   /**
    * Trigger password reset email
    */
-  async resetPassword(userId, { reason } = {}) {
+  async resetPassword(userId: string, { reason }: { reason?: string } = {}) {
     const res = await fetch(`${API_BASE_URL}/admin/users/${userId}/reset-password`, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -162,7 +171,7 @@ export const adminApi = {
   /**
    * Update user details (role, tier, credits, disabled)
    */
-  async updateUser(userId, updates) {
+  async updateUser(userId: string, updates: Record<string, any>) {
     const res = await fetch(`${API_BASE_URL}/admin/users/${userId}/update`, {
       method: 'PUT',
       headers: getAuthHeaders(),
@@ -189,7 +198,7 @@ export const adminApi = {
   /**
    * Create a new promo code
    */
-  async createPromoCode(promoData) {
+  async createPromoCode(promoData: Record<string, any>) {
     const res = await fetch(`${API_BASE_URL}/admin/promo-codes`, {
       method: 'POST',
       headers: getAuthHeaders(),

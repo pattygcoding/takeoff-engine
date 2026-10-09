@@ -1,7 +1,20 @@
 /**
  * Takeoffs & Ingestion API Client
  */
+import { ApiError } from '@/types/api';
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+interface ParseTakeoffPayloadParams {
+  fileContent?: string | null;
+  fileBase64?: string | null;
+  fileName?: string | null;
+  sheetName?: string | null;
+  tableId?: string | null;
+  customMapping?: Record<string, any> | null;
+  customPreset?: Record<string, any> | null;
+  defaultLaborRate?: number | null;
+}
 
 const getAuthHeaders = () => {
   return {
@@ -22,7 +35,7 @@ export const takeoffsApi = {
     customMapping,
     customPreset,
     defaultLaborRate,
-  }) {
+  }: ParseTakeoffPayloadParams) {
     const res = await fetch(`${API_BASE_URL}/takeoffs/parse`, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -49,7 +62,15 @@ export const takeoffsApi = {
   /**
    * Normalize raw spreadsheet rows with user-confirmed mapping on backend
    */
-  async normalizeMapping({ rawRows, mapping, defaultLaborRate }) {
+  async normalizeMapping({
+    rawRows,
+    mapping,
+    defaultLaborRate,
+  }: {
+    rawRows: unknown[];
+    mapping: Record<string, any>;
+    defaultLaborRate?: number | null;
+  }) {
     const res = await fetch(`${API_BASE_URL}/takeoffs/normalize-mapping`, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -71,7 +92,7 @@ export const takeoffsApi = {
   /**
    * Re-extract headers and rows at a specific row index from sample matrix on backend
    */
-  async sniffHeaders({ matrix, headerRowIndex }) {
+  async sniffHeaders({ matrix, headerRowIndex }: { matrix: unknown[]; headerRowIndex: number }) {
     const res = await fetch(`${API_BASE_URL}/takeoffs/sniff-headers`, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -92,7 +113,7 @@ export const takeoffsApi = {
   /**
    * Record takeoff export and authorize format tier
    */
-  async recordExport(formatId) {
+  async recordExport(formatId: string | null) {
     const res = await fetch(`${API_BASE_URL}/takeoffs/record-export`, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -101,11 +122,11 @@ export const takeoffsApi = {
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      const error = new Error(err.error || 'Failed to record export');
-      error.code = err.code;
-      error.requiredTier = err.requiredTier;
-      error.status = res.status;
-      throw error;
+      throw new ApiError(err.error || 'Failed to record export', {
+        code: err.code,
+        requiredTier: err.requiredTier,
+        status: res.status,
+      });
     }
 
     return res.json();

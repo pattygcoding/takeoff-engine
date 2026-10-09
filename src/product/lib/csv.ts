@@ -3,8 +3,9 @@
  * Thin adapter calling server-side /api/takeoffs parser endpoints.
  */
 import Papa from 'papaparse';
-import { getTranslation } from '@/core/lib/shared/i18n.js';
-import { takeoffsApi } from '@/product/lib/takeoffs.js';
+import { getTranslation } from '@/core/lib/shared/i18n';
+import { takeoffsApi } from '@/product/lib/takeoffs';
+import type { TakeoffItem } from '@/types/models';
 import {
   CSV_COLUMNS,
   TARGET_FIELDS,
@@ -12,7 +13,18 @@ import {
   PRESETS_STORAGE_KEY,
   MAX_FILE_SIZE_BYTES,
   MAX_FILE_SIZE_LABEL,
-} from '@/product/constants/csv.constants.js';
+} from '@/product/constants/csv.constants';
+
+/** Translate function shape accepted by the CSV helpers (defaults to `getTranslation`). */
+type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
+
+/** A File (browser) or plain descriptor accepted by the upload/parse helpers. */
+export interface TakeoffFileLike {
+  name?: string;
+  size?: number;
+  arrayBuffer?: () => Promise<ArrayBuffer>;
+  text?: () => Promise<string>;
+}
 
 export {
   CSV_COLUMNS,
@@ -29,7 +41,7 @@ export function nextId() {
   return `item-${Date.now()}-${idCounter}`;
 }
 
-export function getTargetFields(customT = null) {
+export function getTargetFields(customT: TranslateFn | null = null) {
   const t = customT || getTranslation;
   return [
     { key: 'system', label: t('product.csvParser.targetFields.systemLabel'), required: true, description: t('product.csvParser.targetFields.systemDesc') },
@@ -38,13 +50,13 @@ export function getTargetFields(customT = null) {
     { key: 'quantity', label: t('product.csvParser.targetFields.quantityLabel'), required: true, description: t('product.csvParser.targetFields.quantityDesc') },
     { key: 'unit', label: t('product.csvParser.targetFields.unitLabel'), required: true, description: t('product.csvParser.targetFields.unitDesc') },
     { key: 'avg_depth_ft', label: t('product.csvParser.targetFields.avgDepthFtLabel'), required: false, description: t('product.csvParser.targetFields.avgDepthFtDesc') },
-    { key: 'material_cost_per_unit', label: t('product.csvParser.targetFields.materialCostPerUnitLabel', 'Material $/Unit'), required: false, description: t('product.csvParser.targetFields.materialCostPerUnitDesc', 'Unit material price or cost per unit') },
-    { key: 'labor_hours_per_unit', label: t('product.csvParser.targetFields.laborHoursPerUnitLabel', 'Labor Hrs/Unit'), required: false, description: t('product.csvParser.targetFields.laborHoursPerUnitDesc', 'Crew productivity hours per unit') },
-    { key: 'labor_unit_cost', label: t('product.csvParser.targetFields.laborUnitCostLabel', 'Labor $/Unit'), required: false, description: t('product.csvParser.targetFields.laborUnitCostDesc', 'Labor dollar rate per unit') },
+    { key: 'material_cost_per_unit', label: t('product.csvParser.targetFields.materialCostPerUnitLabel'), required: false, description: t('product.csvParser.targetFields.materialCostPerUnitDesc') },
+    { key: 'labor_hours_per_unit', label: t('product.csvParser.targetFields.laborHoursPerUnitLabel'), required: false, description: t('product.csvParser.targetFields.laborHoursPerUnitDesc') },
+    { key: 'labor_unit_cost', label: t('product.csvParser.targetFields.laborUnitCostLabel'), required: false, description: t('product.csvParser.targetFields.laborUnitCostDesc') },
   ];
 }
 
-export function isExcelFile(file) {
+export function isExcelFile(file: TakeoffFileLike | null | undefined): boolean {
   const name = (file?.name || '').toLowerCase();
   return EXCEL_EXTENSIONS.some((ext) => name.endsWith(ext));
 }
@@ -52,16 +64,16 @@ export function isExcelFile(file) {
 /**
  * Saved Vendor / Subcontractor Presets Management (LocalStorage)
  */
-export function getSavedVendorPresets() {
+export function getSavedVendorPresets(): Record<string, Record<string, any>> {
   try {
     const saved = localStorage.getItem(PRESETS_STORAGE_KEY);
-    return saved ? JSON.parse(saved) : {};
+    return saved ? (JSON.parse(saved) as Record<string, Record<string, any>>) : {};
   } catch {
     return {};
   }
 }
 
-export function saveVendorPreset(presetName, mapping) {
+export function saveVendorPreset(presetName: string, mapping: Record<string, any>) {
   if (!presetName || !mapping) return;
   try {
     const current = getSavedVendorPresets();
@@ -72,7 +84,7 @@ export function saveVendorPreset(presetName, mapping) {
   }
 }
 
-export function deleteVendorPreset(presetName) {
+export function deleteVendorPreset(presetName: string) {
   if (!presetName) return;
   try {
     const current = getSavedVendorPresets();
@@ -87,17 +99,22 @@ export function deleteVendorPreset(presetName) {
  * High-level Parser Entrypoint:
  * Reads CSV / Excel bytes and dispatches directly to server-side parser engine.
  */
-export async function parseTakeoffFile(file, sheetName = null, tableId = null, customPreset = null) {
-  if (file?.size && file.size > MAX_FILE_SIZE_BYTES) {
-    throw new Error(getTranslation('product.uploadStep.fileTooLarge', `File size exceeds the ${MAX_FILE_SIZE_LABEL} limit. Please upload a smaller file.`));
+export async function parseTakeoffFile(
+  file: TakeoffFileLike | string | null,
+  sheetName: string | null = null,
+  tableId: string | null = null,
+  customPreset: Record<string, any> | null = null,
+) {
+  if (typeof file !== 'string' && file?.size && file.size > MAX_FILE_SIZE_BYTES) {
+    throw new Error(getTranslation('product.uploadStep.fileTooLarge'));
   }
 
-  let fileContent = null;
-  let fileBase64 = null;
-  const isExcel = isExcelFile(file);
+  let fileContent: string | null = null;
+  let fileBase64: string | null = null;
+  const isExcel = isExcelFile(typeof file === 'string' ? null : file);
 
   if (isExcel) {
-    if (file && typeof file.arrayBuffer === 'function') {
+    if (file && typeof file !== 'string' && typeof file.arrayBuffer === 'function') {
       const buffer = await file.arrayBuffer();
       const bytes = new Uint8Array(buffer);
       let binary = '';
@@ -108,7 +125,7 @@ export async function parseTakeoffFile(file, sheetName = null, tableId = null, c
       fileBase64 = btoa(binary);
     }
   } else {
-    if (file && typeof file.text === 'function') {
+    if (file && typeof file !== 'string' && typeof file.text === 'function') {
       fileContent = await file.text();
     } else if (typeof file === 'string') {
       fileContent = file;
@@ -117,8 +134,8 @@ export async function parseTakeoffFile(file, sheetName = null, tableId = null, c
 
   // Check saved vendor presets matching filename
   const savedPresets = getSavedVendorPresets();
-  let appliedPreset = customPreset || null;
-  if (!appliedPreset && file?.name) {
+  let appliedPreset: Record<string, any> | null = customPreset || null;
+  if (!appliedPreset && typeof file !== 'string' && file?.name) {
     const fname = file.name.toLowerCase();
     for (const [name, presetMap] of Object.entries(savedPresets)) {
       if (fname.includes(name.toLowerCase())) {
@@ -131,7 +148,7 @@ export async function parseTakeoffFile(file, sheetName = null, tableId = null, c
   return takeoffsApi.parseTakeoffPayload({
     fileContent,
     fileBase64,
-    fileName: file?.name || (isExcel ? 'takeoff.xlsx' : 'takeoff.csv'),
+    fileName: (typeof file === 'string' ? null : file?.name) || (isExcel ? 'takeoff.xlsx' : 'takeoff.csv'),
     sheetName,
     tableId,
     customPreset: appliedPreset,
@@ -141,7 +158,11 @@ export async function parseTakeoffFile(file, sheetName = null, tableId = null, c
 /**
  * Server-side row normalization with user mapping
  */
-export async function normalizeRowsWithMapping(rawRows = [], mapping = {}, defaultLaborRate = null) {
+export async function normalizeRowsWithMapping(
+  rawRows: unknown[] = [],
+  mapping: Record<string, any> = {},
+  defaultLaborRate: number | null = null,
+) {
   return takeoffsApi.normalizeMapping({
     rawRows,
     mapping,
@@ -152,14 +173,14 @@ export async function normalizeRowsWithMapping(rawRows = [], mapping = {}, defau
 /**
  * Server-side header extraction from matrix
  */
-export async function extractHeadersAndRowsAtHeaderRow(matrix = [], headerRowIndex = 0) {
+export async function extractHeadersAndRowsAtHeaderRow(matrix: unknown[] = [], headerRowIndex: number = 0) {
   return takeoffsApi.sniffHeaders({
     matrix,
     headerRowIndex,
   });
 }
 
-export function getSampleCsvRows(customT = null) {
+export function getSampleCsvRows(customT: TranslateFn | null = null) {
   const t = customT || getTranslation;
   return [
     { system: t('product.csvParser.sampleRows.sanitary'), item_description: t('product.csvParser.sampleRows.pipe'), size_spec: '6" PVC SDR-35', quantity: 275, unit: 'LF', avg_depth_ft: 4, material_cost_per_unit: 18.50, labor_hours_per_unit: 0.15, associated_scope: 'Sanitary', equipment_ownership: 'rented', equipment_operator_included: 'No', equipment_damage_waiver_pct: 10, equipment_minimum_rental_days: 7, equipment_standby_days: 0, equipment_standby_rate_pct: 50, equipment_production_rate_qty_day: 150, equipment_contingency_days: 1 },
@@ -175,17 +196,23 @@ export function getSampleCsvRows(customT = null) {
   ];
 }
 
-export function buildSampleCsv(customT = null) {
+export function buildSampleCsv(customT: TranslateFn | null = null) {
   const rows = getSampleCsvRows(customT);
   return Papa.unparse(rows, { columns: CSV_COLUMNS });
 }
 
-export function downloadSampleCsv(filename = 'takeoff_sample_template.csv', customT = null) {
+export function downloadSampleCsv(
+  filename: string = 'takeoff_sample_template.csv',
+  customT: TranslateFn | null = null,
+) {
   const csv = buildSampleCsv(customT);
   triggerDownload(csv, filename, 'text/csv');
 }
 
-export async function downloadSampleExcel(filename = 'takeoff_sample_template.xlsx', customT = null) {
+export async function downloadSampleExcel(
+  filename: string = 'takeoff_sample_template.xlsx',
+  customT: TranslateFn | null = null,
+) {
   const t = customT || getTranslation;
   const XLSX = await import('xlsx');
   const rows = getSampleCsvRows(customT);
@@ -195,7 +222,7 @@ export async function downloadSampleExcel(filename = 'takeoff_sample_template.xl
   XLSX.writeFile(workbook, filename);
 }
 
-export function triggerDownload(content, filename, mimeType = 'text/plain') {
+export function triggerDownload(content: BlobPart, filename: string, mimeType: string = 'text/plain') {
   const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -207,7 +234,7 @@ export function triggerDownload(content, filename, mimeType = 'text/plain') {
   URL.revokeObjectURL(url);
 }
 
-export function createBlankItem(customT = null) {
+export function createBlankItem(customT: TranslateFn | null = null) {
   const t = customT || getTranslation;
   return {
     id: nextId(),
@@ -225,14 +252,14 @@ export function createBlankItem(customT = null) {
 /**
  * Builds ColumnMappingModal data directly from existing takeoff items in state.
  */
-export function buildMappingModalDataFromItems(items = [], customT = null) {
+export function buildMappingModalDataFromItems(items: TakeoffItem[] = [], customT: TranslateFn | null = null) {
   const t = customT || getTranslation;
   const targetFields = getTargetFields(t);
   const headers = targetFields.map((f) => f.label);
 
-  const keyToHeader = {};
-  const currentMapping = {};
-  const matchConfidences = {};
+  const keyToHeader: Record<string, string> = {};
+  const currentMapping: Record<string, string> = {};
+  const matchConfidences: Record<string, number> = {};
 
   targetFields.forEach((f) => {
     keyToHeader[f.key] = f.label;
@@ -241,7 +268,7 @@ export function buildMappingModalDataFromItems(items = [], customT = null) {
   });
 
   const rawRows = (items || []).map((it) => {
-    const row = {};
+    const row: Record<string, string> = {};
     row[keyToHeader['system']] = it.system || '';
     row[keyToHeader['item_description']] = it.description || '';
     row[keyToHeader['size_spec']] = it.sizeSpec || '';

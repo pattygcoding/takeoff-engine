@@ -72,7 +72,7 @@ export const billingApi = {
   /**
    * Move an existing paid subscription to another plan (upgrade now, downgrade at renewal)
    */
-  async changePlan(plan) {
+  async changePlan(plan: string) {
     const res = await fetch(`${API_BASE_URL}/billing/change-plan`, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -104,7 +104,7 @@ export const billingApi = {
   /**
    * Dynamically adjust additional seats on active Pro / Enterprise subscription (US-037)
    */
-  async updateSeats(additionalSeats, orgId) {
+  async updateSeats(additionalSeats: number, orgId: string | undefined) {
     const res = await fetch(`${API_BASE_URL}/billing/update-seats`, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -120,7 +120,7 @@ export const billingApi = {
   /**
    * Redeem a promo code (VIP bypass or credit grant)
    */
-  async redeemPromoCode(code) {
+  async redeemPromoCode(code: string) {
     const res = await fetch(`${API_BASE_URL}/billing/redeem-code`, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -151,7 +151,7 @@ export const billingApi = {
   /**
    * Cancel subscription at end of billing period (US-021)
    */
-  async cancelSubscription(reason) {
+  async cancelSubscription(reason: string) {
     const res = await fetch(`${API_BASE_URL}/billing/cancel-subscription`, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -183,7 +183,7 @@ export const billingApi = {
   /**
    * Preview seat conversions and constraints when downgrading subscription tier (US-035)
    */
-  async previewDowngrade(targetPlan) {
+  async previewDowngrade(targetPlan: string) {
     const res = await fetch(`${API_BASE_URL}/billing/downgrade-preview`, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -216,7 +216,7 @@ export const adminApi = {
   /**
    * Grant or revoke VIP unlimited bypass for a user
    */
-  async grantBypass(userId, { hasUnlimitedBypass = true, bypassReason = 'Admin Granted VIP Access', role = 'payment_exempt', tier = 'pro' }) {
+  async grantBypass(userId: string, { hasUnlimitedBypass = true, bypassReason = 'Admin Granted VIP Access', role = 'payment_exempt', tier = 'pro' }) {
     const res = await fetch(`${API_BASE_URL}/admin/users/${userId}/grant-bypass`, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -247,7 +247,7 @@ export const adminApi = {
   /**
    * Create a new promo code
    */
-  async createPromoCode(promoData) {
+  async createPromoCode(promoData: Record<string, any>) {
     const res = await fetch(`${API_BASE_URL}/admin/promo-codes`, {
       method: 'POST',
       headers: getAuthHeaders(),

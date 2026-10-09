@@ -1,4 +1,6 @@
-function formatCurrency(value) {
+type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
+
+function formatCurrency(value: number | string | null | undefined): string {
   return (Number(value) || 0).toLocaleString('en-US', {
     style: 'currency',
     currency: 'USD',
@@ -6,7 +8,13 @@ function formatCurrency(value) {
   });
 }
 
-export function formatMarkupLine(label, amount, pct, t = null, isFixed = false) {
+export function formatMarkupLine(
+  label: string,
+  amount: number | string | null | undefined,
+  pct: number | string | null | undefined,
+  t: TranslateFn | null = null,
+  isFixed = false,
+): string {
   const normalizedPct = Number(pct ?? 0) || 0;
   const normalizedAmount = Number(amount) || 0;
 
@@ -21,7 +29,7 @@ export function formatMarkupLine(label, amount, pct, t = null, isFixed = false) 
   return `${label}: ${formatCurrency(normalizedAmount)} (${basisText})`;
 }
 
-export function formatMarkupBasisNote(t = null) {
+export function formatMarkupBasisNote(t: TranslateFn | null = null): string {
   return t
     ? t('product.markup.markupBasisNote')
     : 'All markup percentages are calculated against the initial direct cost, not compounded on the final total.';

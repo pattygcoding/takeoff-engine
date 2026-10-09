@@ -1,5 +1,6 @@
 import { getTranslation } from '@/core/lib/shared/i18n';
 import { addAuthorizationHeader } from '@/core/lib/auth/sessionToken';
+import { ApiError } from '@/types/api';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -31,7 +32,7 @@ export const organizationsApi = {
   /**
    * Create a new organization workspace
    */
-  async create({ name }) {
+  async create({ name }: { name: string }) {
     const res = await fetch(`${API_BASE_URL}/organizations`, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -39,9 +40,9 @@ export const organizationsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      const err = new Error(data.error || getTranslation('core.apiErrors.createOrganizationFailed'));
-      err.code = data.code;
-      throw err;
+      throw new ApiError(data.error || getTranslation('core.apiErrors.createOrganizationFailed'), {
+        code: data.code,
+      });
     }
     return data.organization;
   },
@@ -49,7 +50,7 @@ export const organizationsApi = {
   /**
    * Get organization details and members
    */
-  async get(orgId) {
+  async get(orgId: string) {
     const res = await fetch(`${API_BASE_URL}/organizations/${orgId}`, {
       method: 'GET',
       headers: getAuthHeaders(),
@@ -64,7 +65,7 @@ export const organizationsApi = {
   /**
    * Add / invite a member to the organization
    */
-  async inviteMember(orgId, { email, role = 'estimator' }) {
+  async inviteMember(orgId: string, { email, role = 'estimator' }: { email: string; role?: string }) {
     const res = await fetch(`${API_BASE_URL}/organizations/${orgId}/members`, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -72,9 +73,9 @@ export const organizationsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      const err = new Error(data.error || getTranslation('core.apiErrors.inviteMemberFailed'));
-      err.code = data.code;
-      throw err;
+      throw new ApiError(data.error || getTranslation('core.apiErrors.inviteMemberFailed'), {
+        code: data.code,
+      });
     }
     return data;
   },
@@ -82,7 +83,7 @@ export const organizationsApi = {
   /**
    * Resend invitation email & token
    */
-  async resendInvite(orgId, memberId) {
+  async resendInvite(orgId: string, memberId: string) {
     const res = await fetch(`${API_BASE_URL}/organizations/${orgId}/members/${memberId}/resend`, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -97,7 +98,7 @@ export const organizationsApi = {
   /**
    * Revoke invitation
    */
-  async revokeInvite(orgId, memberId) {
+  async revokeInvite(orgId: string, memberId: string) {
     const res = await fetch(`${API_BASE_URL}/organizations/${orgId}/members/${memberId}/revoke`, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -112,7 +113,7 @@ export const organizationsApi = {
   /**
    * Update a member's role
    */
-  async updateMemberRole(orgId, memberId, role) {
+  async updateMemberRole(orgId: string, memberId: string, role: string) {
     const res = await fetch(`${API_BASE_URL}/organizations/${orgId}/members/${memberId}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
@@ -128,7 +129,7 @@ export const organizationsApi = {
   /**
    * Remove a member from the organization
    */
-  async removeMember(orgId, memberId) {
+  async removeMember(orgId: string, memberId: string) {
     const res = await fetch(`${API_BASE_URL}/organizations/${orgId}/members/${memberId}`, {
       method: 'DELETE',
       headers: getAuthHeaders(),
@@ -143,7 +144,7 @@ export const organizationsApi = {
   /**
    * Leave an organization (non-owner members)
    */
-  async leave(orgId) {
+  async leave(orgId: string) {
     const res = await fetch(`${API_BASE_URL}/organizations/${orgId}/leave`, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -158,16 +159,16 @@ export const organizationsApi = {
   /**
    * Delete an organization
    */
-  async delete(orgId) {
+  async delete(orgId: string) {
     const res = await fetch(`${API_BASE_URL}/organizations/${orgId}`, {
       method: 'DELETE',
       headers: getAuthHeaders(),
     });
     const data = await res.json();
     if (!res.ok) {
-      const err = new Error(data.error || getTranslation('core.apiErrors.deleteOrganizationFailed'));
-      err.code = data.code;
-      throw err;
+      throw new ApiError(data.error || getTranslation('core.apiErrors.deleteOrganizationFailed'), {
+        code: data.code,
+      });
     }
     return data;
   },

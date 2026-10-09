@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { HelmetProvider } from 'react-helmet-async'
 import '@/index.css'
-import App from '@/App.jsx'
+import App from '@/App'
 import { addAuthorizationHeader } from '@/core/lib/auth/sessionToken'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';

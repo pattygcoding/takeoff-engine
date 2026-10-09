@@ -8,10 +8,18 @@ const BREAK_SELECTOR = 'tr, header, footer, section, [data-pdf-block]';
  * Page breaks snap to the bottom of rows/sections so table rows and signature blocks are never cut in half.
  * pageLabel(page, total) optionally stamps a footer on each page.
  */
-export async function exportNodeToPdf(node, filename, { pageLabel } = {}) {
+interface PdfExportOptions {
+  pageLabel?: (page: number, total: number) => string;
+}
+
+export async function exportNodeToPdf(
+  node: HTMLElement,
+  filename: string,
+  { pageLabel }: PdfExportOptions = {},
+): Promise<void> {
   const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([import('jspdf'), import('html2canvas-pro')]);
 
-  let breakPoints = [];
+  let breakPoints: number[] = [];
   let renderedHeightPx = 0;
 
   const canvas = await html2canvas(node, {
@@ -35,7 +43,7 @@ export async function exportNodeToPdf(node, filename, { pageLabel } = {}) {
         boxShadow: 'none',
       });
       clonedNode.querySelectorAll('.overflow-x-auto').forEach((el) => {
-        el.style.overflow = 'visible';
+        (el as HTMLElement).style.overflow = 'visible';
       });
 
       const top = clonedNode.getBoundingClientRect().top;
@@ -58,7 +66,7 @@ export async function exportNodeToPdf(node, filename, { pageLabel } = {}) {
   const domToCanvas = renderedHeightPx > 0 ? canvas.height / renderedHeightPx : 1;
   const canvasBreaks = breakPoints.map((y) => Math.round(y * domToCanvas));
 
-  const slices = [];
+  const slices: Array<[number, number]> = [];
   let start = 0;
   while (start < canvas.height) {
     const limit = start + pageHeightPx;
@@ -78,6 +86,7 @@ export async function exportNodeToPdf(node, filename, { pageLabel } = {}) {
     pageCanvas.width = canvas.width;
     pageCanvas.height = sliceHeight;
     const ctx = pageCanvas.getContext('2d');
+    if (!ctx) return;
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
     ctx.drawImage(canvas, 0, sliceStart, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
@@ -95,7 +104,7 @@ export async function exportNodeToPdf(node, filename, { pageLabel } = {}) {
   pdf.save(filename);
 }
 
-export function pdfFileName(projectName, suffix) {
+export function pdfFileName(projectName: string | null | undefined, suffix: string): string {
   const base = (projectName || 'takeoff_estimate').replace(/[^\w-]+/g, '_').replace(/_+/g, '_');
   return `${base}_${suffix}.pdf`;
 }

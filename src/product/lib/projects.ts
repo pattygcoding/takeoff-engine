@@ -1,4 +1,6 @@
 import { getTranslation } from '@/core/lib/shared/i18n';
+import { ApiError } from '@/types/api';
+import type { Rates, TakeoffItem } from '@/types/models';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -29,7 +31,7 @@ export const projectsApi = {
       return data.projects || [];
     } catch (err) {
       // If it's a 404-like error message, fallback to empty list
-      if (err.message && err.message.includes('404')) {
+      if (err instanceof Error && err.message.includes('404')) {
         return [];
       }
       throw err;
@@ -39,7 +41,7 @@ export const projectsApi = {
   /**
    * Get project by ID with full estimate details
    */
-  async getById(id) {
+  async getById(id: string) {
     const res = await fetch(`${API_BASE_URL}/projects/${id}`, {
       method: 'GET',
       headers: getAuthHeaders(),
@@ -54,7 +56,23 @@ export const projectsApi = {
   /**
    * Create a new project
    */
-  async create({ name, clientName, location, status = 'draft', items = [], rates = {}, summary = {} }) {
+  async create({
+    name,
+    clientName,
+    location,
+    status = 'draft',
+    items = [],
+    rates = {},
+    summary = {},
+  }: {
+    name: string;
+    clientName?: string;
+    location?: string;
+    status?: string;
+    items?: TakeoffItem[];
+    rates?: Rates;
+    summary?: Record<string, any>;
+  }) {
     const res = await fetch(`${API_BASE_URL}/projects`, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -70,10 +88,10 @@ export const projectsApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      const err = new Error(data.error || getTranslation('core.apiErrors.createProjectFailed'));
-      err.code = data.code;
-      err.trial_uses_remaining = data.trial_uses_remaining;
-      throw err;
+      throw new ApiError(data.error || getTranslation('core.apiErrors.createProjectFailed'), {
+        code: data.code,
+        trial_uses_remaining: data.trial_uses_remaining,
+      });
     }
     return data.project;
   },
@@ -81,7 +99,7 @@ export const projectsApi = {
   /**
    * Update project metadata and/or estimate line items & rates
    */
-  async update(id, updates) {
+  async update(id: string, updates: Record<string, any>) {
     const res = await fetch(`${API_BASE_URL}/projects/${id}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
@@ -97,7 +115,7 @@ export const projectsApi = {
   /**
    * Delete a project
    */
-  async delete(id) {
+  async delete(id: string) {
     const res = await fetch(`${API_BASE_URL}/projects/${id}`, {
       method: 'DELETE',
       headers: getAuthHeaders(),
@@ -112,7 +130,7 @@ export const projectsApi = {
   /**
    * Clone/duplicate a project
    */
-  async clone(id, name) {
+  async clone(id: string, name: string) {
     const res = await fetch(`${API_BASE_URL}/projects/${id}/clone`, {
       method: 'POST',
       headers: getAuthHeaders(),

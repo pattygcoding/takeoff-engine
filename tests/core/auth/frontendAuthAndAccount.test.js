@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { isValidPassword } from '#core/lib/shared/validators.js';
+import { isValidPassword } from '#core/lib/shared/validators.ts';
 
 describe('Frontend Authentication & Account Lifecycle Tests', () => {
   const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

@@ -1,4 +1,13 @@
 import { getTranslation } from '@/core/lib/shared/i18n';
+import { ApiError } from '@/types/api';
+import type { Rates } from '@/types/models';
+
+interface RateTemplatePayload {
+  name?: string;
+  description?: string;
+  isDefault?: boolean;
+  ratesJson?: Rates;
+}
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -27,7 +36,7 @@ export const ratesApi = {
   /**
    * Create a new rate template
    */
-  async create({ name, description, isDefault, ratesJson }) {
+  async create({ name, description, isDefault, ratesJson }: RateTemplatePayload) {
     const res = await fetch(`${API_BASE_URL}/rates`, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -35,9 +44,9 @@ export const ratesApi = {
     });
     const data = await res.json();
     if (!res.ok) {
-      const err = new Error(data.error || getTranslation('core.apiErrors.saveRateTemplateFailed'));
-      err.code = data.code;
-      throw err;
+      throw new ApiError(data.error || getTranslation('core.apiErrors.saveRateTemplateFailed'), {
+        code: data.code,
+      });
     }
     return data.template;
   },
@@ -45,7 +54,7 @@ export const ratesApi = {
   /**
    * Update existing rate template
    */
-  async update(id, { name, description, isDefault, ratesJson }) {
+  async update(id: string, { name, description, isDefault, ratesJson }: RateTemplatePayload) {
     const res = await fetch(`${API_BASE_URL}/rates/${id}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
@@ -61,7 +70,7 @@ export const ratesApi = {
   /**
    * Delete rate template
    */
-  async delete(id) {
+  async delete(id: string) {
     const res = await fetch(`${API_BASE_URL}/rates/${id}`, {
       method: 'DELETE',
       headers: getAuthHeaders(),

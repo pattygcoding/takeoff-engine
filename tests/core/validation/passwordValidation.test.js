@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { isValidPassword, PASSWORD_MIN_LENGTH } from '#core/lib/shared/validators.js';
+import { isValidPassword, PASSWORD_MIN_LENGTH } from '#core/lib/shared/validators.ts';
 
 test('Frontend password validation enforces the account password policy', async (t) => {
   await t.test('accepts a password meeting every requirement', () => {

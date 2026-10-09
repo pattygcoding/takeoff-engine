@@ -4,7 +4,10 @@ export const PRICE_FIELDS = [
   'EXTRA_SEAT_MONTHLY_PRICE', 'EXTRA_SEAT_YEARLY_PRICE',
 ];
 
-export function validateCatalogPricing(data) {
+type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
+type FormatPriceFn = (value?: number) => string;
+
+export function validateCatalogPricing<T extends Record<string, any>>(data: T): T {
   if (!data || typeof data.currencyCode !== 'string' || !/^[A-Z]{3}$/.test(data.currencyCode) ||
       !data.prices || PRICE_FIELDS.some((key) =>
         typeof data.prices[key] !== 'number' || !Number.isFinite(data.prices[key]) || data.prices[key] < 0) ||
@@ -14,10 +17,15 @@ export function validateCatalogPricing(data) {
   return data;
 }
 
-export function translateCatalogPrice(t, key, params, formatPrice) {
-  if (!params || typeof params !== 'object') return t(key, params);
-  const tokens = [];
-  const interpolation = { ...params };
+export function translateCatalogPrice(
+  t: TranslateFn,
+  key: string,
+  params: Record<string, unknown> | undefined,
+  formatPrice: FormatPriceFn,
+): string {
+  if (!params || typeof params !== 'object') return t(key, params as unknown as Record<string, string | number>);
+  const tokens: { marker: string; text: string }[] = [];
+  const interpolation: Record<string, string | number> = { ...params } as Record<string, string | number>;
   for (const name of ['price', 'yearly', 'monthlyRate', 'annualRate']) {
     if (!(name in params)) continue;
     const match = String(params[name]).match(/^(\d+(?:\.\d+)?)(.*)$/);

@@ -13,18 +13,23 @@ import {
   BorderStyle,
   ImageRun,
 } from 'docx';
+import type { IImageOptions } from 'docx';
 import { formatCurrency, formatNumber } from './calculations';
 import { formatMarkupBasisNote, formatMarkupLine } from './markupFormatting';
 import { getTranslation } from '@/core/lib/shared/i18n';
+import type { Branding, Estimate, Project, Rates } from '@/types/models';
+
+/** Translate function shape accepted by the exporter (defaults to `getTranslation`). */
+type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
 
 const THIN_BORDER = { style: BorderStyle.SINGLE, size: 2, color: 'CBD5E1' };
 const CELL_BORDERS = { top: THIN_BORDER, bottom: THIN_BORDER, left: THIN_BORDER, right: THIN_BORDER };
 
-function hexColorWithoutHash(hex = '#0284c7') {
+function hexColorWithoutHash(hex: string = '#0284c7'): string {
   return (hex || '#0284c7').replace(/^#/, '').toUpperCase();
 }
 
-function headerCell(text, alignRight = false, fillColor = 'F1F5F9', textColor = '475569') {
+function headerCell(text: string, alignRight = false, fillColor = 'F1F5F9', textColor = '475569') {
   return new TableCell({
     borders: CELL_BORDERS,
     shading: { fill: fillColor },
@@ -37,7 +42,7 @@ function headerCell(text, alignRight = false, fillColor = 'F1F5F9', textColor = 
   });
 }
 
-function bodyCell(text, alignRight = false, bold = false) {
+function bodyCell(text: string | number | null | undefined, alignRight = false, bold = false) {
   return new TableCell({
     borders: CELL_BORDERS,
     children: [
@@ -49,7 +54,7 @@ function bodyCell(text, alignRight = false, bold = false) {
   });
 }
 
-function summaryRow(label, value, highlight = false, highlightColor = 'EEF2FF') {
+function summaryRow(label: string, value: string, highlight = false, highlightColor = 'EEF2FF') {
   return new TableRow({
     children: [
       new TableCell({
@@ -81,16 +86,24 @@ function summaryRow(label, value, highlight = false, highlightColor = 'EEF2FF') 
  * @param {object} [currentProject] - current project metadata
  * @param {object} [rates] - active rate calculations/percentages
  */
-export async function exportEstimateToWord(estimate, proposalMode, branding = {}, customT = null, formatId = 'standard_estimate', currentProject = null, rates = {}) {
+export async function exportEstimateToWord(
+  estimate: Estimate,
+  proposalMode: boolean,
+  branding: Branding = {},
+  customT: TranslateFn | null = null,
+  formatId: string = 'standard_estimate',
+  currentProject: Project | null = null,
+  rates: Rates = {},
+) {
   const t = customT || getTranslation;
   const { totals, bySystem } = estimate;
   const brandColorHex = hexColorWithoutHash(branding?.brandColor || '#0284c7');
   const hasBranding = Boolean(branding?.companyName || branding?.companyLogoUrl);
 
-  const children = [];
+  const children: (Paragraph | Table)[] = [];
 
   // 1. Company Branding & Project Header Block
-  const headerChildren = [];
+  const headerChildren: Paragraph[] = [];
 
   if (hasBranding && branding.companyLogoUrl) {
     try {
@@ -107,13 +120,14 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
                 width: 140,
                 height: 48,
               },
-            }),
+              // The original JS omitted the required `type`; cast keeps export output byte-identical.
+            } as unknown as IImageOptions),
           ],
           spacing: { after: 100 },
         })
       );
     } catch (err) {
-      console.warn('Could not load company logo for Word export:', err.message);
+      console.warn('Could not load company logo for Word export:', err instanceof Error ? err.message : err);
     }
   }
 
@@ -131,7 +145,7 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
     })
   );
 
-  const subDetails = [];
+  const subDetails: string[] = [];
   if (branding?.companyAddress) subDetails.push(branding.companyAddress);
   if (branding?.companyPhone) subDetails.push(t('product.templates.header.phonePrefix', { phone: branding.companyPhone }));
   if (branding?.licenseNumber) subDetails.push(t('product.wordExport.license', { license: branding.licenseNumber }));
@@ -152,7 +166,7 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
   }
 
   // Project Info Subheader
-  const projDetails = [];
+  const projDetails: string[] = [];
   projDetails.push(currentProject?.name || t('product.templates.header.defaultProjectName'));
   if (currentProject?.client_name) projDetails.push(t('product.templates.header.clientPrefix', { client: currentProject.client_name }));
   if (currentProject?.location) projDetails.push(t('product.templates.header.sitePrefix', { site: currentProject.location }));
@@ -209,7 +223,7 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
 
     const items = bySystem.flatMap((s) => s.items);
     const itemRows = items.map((it) => {
-      const unitMat = it.quantity > 0 ? it.materialCost / it.quantity : 0;
+      const unitMat = it.quantity! > 0 ? it.materialCost! / it.quantity! : 0;
       return new TableRow({
         children: [
           bodyCell(it.description),
@@ -281,7 +295,7 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
 
     const items = bySystem.flatMap((s) => s.items);
     const itemRows = items.map((it, idx) => {
-      const unitBid = it.quantity > 0 ? it.directCost / it.quantity : 0;
+      const unitBid = it.quantity! > 0 ? it.directCost! / it.quantity! : 0;
       return new TableRow({
         children: [
           bodyCell(String(idx + 1).padStart(3, '0')),
@@ -480,7 +494,7 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
       summaryRow(t('product.wordExport.totalMaterialCost'), formatCurrency(totals.totalMaterialCost)),
       summaryRow(t('product.wordExport.totalLaborCost'), `${formatCurrency(totals.totalLaborCost)} (${formatNumber(totals.totalLaborHours)} hrs)`),
       summaryRow(t('product.wordExport.equipmentMobilization'), formatCurrency(totals.equipmentLumpSum)),
-      ...(totals.miscCost > 0 ? [summaryRow(t('product.wordExport.miscellaneousCosts'), formatCurrency(totals.miscCost))] : []),
+      ...(totals.miscCost! > 0 ? [summaryRow(t('product.wordExport.miscellaneousCosts'), formatCurrency(totals.miscCost))] : []),
       summaryRow(t('product.wordExport.totalDirectCost'), formatCurrency(totals.totalDirectCost)),
       summaryRow(overheadLabel, formatCurrency(totals.overheadAmount)),
       summaryRow(contingencyLabel, formatCurrency(totals.contingencyAmount)),
@@ -495,7 +509,7 @@ export async function exportEstimateToWord(estimate, proposalMode, branding = {}
       }),
       new Paragraph({
         spacing: { before: 200, after: 300 },
-        children: [new TextRun({ text: formatMarkupBasisNote(t), italic: true, size: 18, color: '475569' })],
+        children: [new TextRun({ text: formatMarkupBasisNote(t), italics: true, size: 18, color: '475569' })],
       })
     );
 

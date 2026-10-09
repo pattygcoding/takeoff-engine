@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "es2023",
+    "lib": ["es2023", "dom", "dom.iterable"],
+    "jsx": "react-jsx",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "types": ["vite/client", "node"],
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "erasableSyntaxOnly": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+
+    // Bridge settings for the incremental migration. Both are flipped off in the
+    // final phase, once every src/test/config file is TypeScript.
+    "allowJs": true,
+    "checkJs": false,
+
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+
+    // Full TypeScript strict mode (matches takeoff-engine-backend/tsconfig.json).
+    "strict": true
+  },
+  "include": ["src/**/*", "tests/**/*", "*.config.ts"]
+}

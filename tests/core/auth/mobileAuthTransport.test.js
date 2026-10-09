@@ -9,7 +9,7 @@ import {
   clearAccessToken,
   getAccessToken,
   setAccessToken,
-} from '#core/lib/auth/sessionToken.js';
+} from '#core/lib/auth/sessionToken.ts';
 
 const testDirectory = path.dirname(fileURLToPath(import.meta.url));
 const frontendRoot = path.resolve(testDirectory, '../../..');
@@ -65,7 +65,7 @@ test('logout removes the bearer fallback so later requests cannot reuse it', (t)
 });
 
 test('frontend login, redirect exchange, logout, and deletion preserve the token lifecycle contract', async () => {
-  const authApiSource = await readFile(path.join(frontendRoot, 'src/core/lib/auth/auth.js'), 'utf8');
+  const authApiSource = await readFile(path.join(frontendRoot, 'src/core/lib/auth/auth.ts'), 'utf8');
   const mainSource = await readFile(path.join(frontendRoot, 'src/main.jsx'), 'utf8');
 
   assert.match(authApiSource, /setAccessToken\(data\.accessToken\);/);

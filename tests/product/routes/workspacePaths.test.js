@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { WORKSPACE_PATHS, isWorkspacePath } from '../../../src/product/routes/workspacePaths.js';
+import { WORKSPACE_PATHS, isWorkspacePath } from '../../../src/product/routes/workspacePaths.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const userWorkspaceSource = fs.readFileSync(
