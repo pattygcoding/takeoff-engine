@@ -55,6 +55,7 @@ export default function LoginPage({ initialView = 'login' }) {
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPhone, setRegisterPhone] = useState('');
   const [registerAcceptedTerms, setRegisterAcceptedTerms] = useState(false);
+  const [registerConfirmedAge, setRegisterConfirmedAge] = useState(false);
 
   const [forgotEmail, setForgotEmail] = useState('');
 
@@ -123,6 +124,11 @@ export default function LoginPage({ initialView = 'login' }) {
       return;
     }
 
+    if (!registerConfirmedAge) {
+      setError(t('core.loginPage.errMustConfirmAge'));
+      return;
+    }
+
     setLoading(true);
     try {
       const registration = await register({
@@ -133,6 +139,7 @@ export default function LoginPage({ initialView = 'login' }) {
         email: registerEmail,
         phoneNumber: registerPhone,
         acceptedTerms: registerAcceptedTerms,
+        confirmedAge: registerConfirmedAge,
         termsVersion: CURRENT_TERMS_VERSION,
       });
 
@@ -720,6 +727,19 @@ export default function LoginPage({ initialView = 'login' }) {
                   </button>
                 </div>
               </div>
+
+              <label className="flex items-start gap-2.5 pt-1 cursor-pointer">
+                <input
+                  type="checkbox"
+                  required
+                  checked={registerConfirmedAge}
+                  onChange={(e) => setRegisterConfirmedAge(e.target.checked)}
+                  className="mt-1 h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                />
+                <span className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                  {t('core.loginPage.ageConfirmation')}
+                </span>
+              </label>
 
               <label className="flex items-start gap-2.5 pt-1 cursor-pointer">
                 <input

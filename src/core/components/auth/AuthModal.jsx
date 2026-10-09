@@ -26,6 +26,7 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPhone, setRegisterPhone] = useState('');
   const [registerAcceptedTerms, setRegisterAcceptedTerms] = useState(false);
+  const [registerConfirmedAge, setRegisterConfirmedAge] = useState(false);
   const [honeypot, setHoneypot] = useState('');
 
   const [forgotEmail, setForgotEmail] = useState('');
@@ -86,6 +87,11 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
       return;
     }
 
+    if (!registerConfirmedAge) {
+      setError(t('core.authModal.errMustConfirmAge'));
+      return;
+    }
+
     setLoading(true);
     try {
       await register({
@@ -96,6 +102,7 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
         email: registerEmail,
         phoneNumber: registerPhone,
         acceptedTerms: registerAcceptedTerms,
+        confirmedAge: registerConfirmedAge,
         termsVersion: CURRENT_TERMS_VERSION,
         _gotcha: honeypot,
       });
@@ -321,6 +328,19 @@ export default function AuthModal({ isOpen, onClose, initialView = 'login' }) {
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
+
+              <label className="flex items-start gap-2.5 pt-1 cursor-pointer">
+                <input
+                  type="checkbox"
+                  required
+                  checked={registerConfirmedAge}
+                  onChange={(e) => setRegisterConfirmedAge(e.target.checked)}
+                  className="mt-1 h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                />
+                <span className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                  {t('core.authModal.ageConfirmation')}
+                </span>
+              </label>
 
               <label className="flex items-start gap-2.5 pt-1 cursor-pointer">
                 <input

@@ -17,7 +17,7 @@ export const authApi = {
     sessionStorage.setItem('takeoff_csrf', data.csrfToken);
   },
 
-  async register({ username, password, firstName, lastName, email, phoneNumber, acceptedTerms, termsVersion, _gotcha, website_url }) {
+  async register({ username, password, firstName, lastName, email, phoneNumber, acceptedTerms, confirmedAge, termsVersion, _gotcha, website_url }) {
     const res = await fetch(`${API_BASE_URL}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -29,6 +29,7 @@ export const authApi = {
         email,
         phoneNumber,
         acceptedTerms,
+        confirmedAge,
         termsVersion,
         _gotcha,
         website_url,
