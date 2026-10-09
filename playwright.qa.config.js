@@ -41,7 +41,7 @@ export default defineConfig({
     },
     {
       name: 'backend',
-      command: 'node src/server.js',
+      command: 'node src/server.ts',
       cwd: path.resolve(rootDir, '../takeoff-engine-backend'),
       url: `${settings.backendInternalUrl}/api/health`,
       reuseExistingServer: false,

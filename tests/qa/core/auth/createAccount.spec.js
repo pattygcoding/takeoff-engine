@@ -16,6 +16,9 @@ test('user can create a new account', async ({ page, db, customer, settings }) =
     subscription_tier: 'free',
   });
   expect(profile.terms_accepted_version).toBeTruthy();
+  // The 18+ age attestation is captured alongside the terms acceptance at registration.
+  expect(profile.age_confirmed).toBe(true);
+  expect(profile.age_confirmed_at).toBeTruthy();
   expect(profile.paddle_subscription_id).toBeNull();
 
   // The authenticated session belongs to the new account.

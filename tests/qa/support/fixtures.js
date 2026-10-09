@@ -101,7 +101,9 @@ export async function registerThroughUi(page, customer) {
   await form.locator('#register-email').fill(customer.email);
   await form.locator('#register-phone').fill(customer.phone);
   await form.locator('#register-password').fill(customer.password);
-  await form.getByRole('checkbox').check();
+  // Two required consents: the 18+ age attestation and the Terms/Privacy acceptance.
+  await form.locator('#register-age-confirmation').check();
+  await form.locator('#register-accept-terms').check();
 
   const registration = page.waitForResponse((res) => res.url().endsWith('/auth/register') && res.request().method() === 'POST');
   await form.getByRole('button', { name: label('core.loginPage.createAccount'), exact: true }).click();

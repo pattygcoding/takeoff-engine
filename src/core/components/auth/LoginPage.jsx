@@ -728,8 +728,9 @@ export default function LoginPage({ initialView = 'login' }) {
                 </div>
               </div>
 
-              <label className="flex items-start gap-2.5 pt-1 cursor-pointer">
+              <label htmlFor="register-age-confirmation" className="flex items-start gap-2.5 pt-1 cursor-pointer">
                 <input
+                  id="register-age-confirmation"
                   type="checkbox"
                   required
                   checked={registerConfirmedAge}
@@ -741,8 +742,9 @@ export default function LoginPage({ initialView = 'login' }) {
                 </span>
               </label>
 
-              <label className="flex items-start gap-2.5 pt-1 cursor-pointer">
+              <label htmlFor="register-accept-terms" className="flex items-start gap-2.5 pt-1 cursor-pointer">
                 <input
+                  id="register-accept-terms"
                   type="checkbox"
                   required
                   checked={registerAcceptedTerms}

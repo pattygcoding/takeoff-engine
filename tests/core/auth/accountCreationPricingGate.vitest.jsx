@@ -143,7 +143,8 @@ describe('create-account page while pricing is unavailable', () => {
     fireEvent.change(container.querySelector('#register-username'), { target: { value: 'danestimator' } });
     fireEvent.change(container.querySelector('#register-email'), { target: { value: 'dan@example.com' } });
     fireEvent.change(container.querySelector('#register-password'), { target: { value: 'T7!qV9#nK2@xR4$m' } });
-    fireEvent.click(container.querySelector('input[type="checkbox"]'));
+    fireEvent.click(container.querySelector('#register-age-confirmation'));
+    fireEvent.click(container.querySelector('#register-accept-terms'));
     fireEvent.submit(container.querySelector('form'));
 
     await waitFor(() => expect(authMocks.register).toHaveBeenCalledTimes(1));
