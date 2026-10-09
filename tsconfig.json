@@ -16,8 +16,7 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
 
-    // All of `src` and the config files are TypeScript. The test suites still ship
-    // as .js and are intentionally left out of the type-check program for now.
+    // The frontend is all-TypeScript (src, tests, and configs), so the JS bridge is off.
     "allowJs": false,
 
     "paths": {

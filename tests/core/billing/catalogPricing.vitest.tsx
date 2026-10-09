@@ -5,10 +5,10 @@ import { billingApi } from '@/core/lib/billing/billing';
 import { PRICE_FIELDS, translateCatalogPrice, validateCatalogPricing } from '@/core/lib/billing/catalogPricing';
 import { getTranslation } from '@/core/lib/shared/i18n';
 import { PricingProvider, PricingStatus, usePricingDisplay } from '@/core/components/context/PricingContext';
-import { createCatalogFixture, formatMoney } from '../../helpers/paddleCatalogFixture.js';
+import { createCatalogFixture, formatMoney } from '../../helpers/paddleCatalogFixture.ts';
 
 vi.mock('@/core/components/context/I18nContext', () => ({
-  useTranslation: () => ({ t: (key, params) => getTranslation(key, params, 'en'), language: 'en' }),
+  useTranslation: () => ({ t: (key: string, params: any) => getTranslation(key, params, 'en'), language: 'en' }),
 }));
 
 // Prices come from a mocked Paddle catalog generated per run; expectations are derived from it.
@@ -62,7 +62,7 @@ describe('catalog response validation', () => {
     expect(() => validateCatalogPricing(data)).toThrow();
   });
 
-  it.each([NaN, Infinity, -1, String(prices.STARTER_MONTHLY_PRICE), null, undefined])('rejects invalid amount %s', (amount) => {
+  it.each([NaN, Infinity, -1, String(prices.STARTER_MONTHLY_PRICE), null, undefined])('rejects invalid amount %s', (amount: any) => {
     const data = catalog();
     data.prices.STARTER_MONTHLY_PRICE = amount;
     expect(() => validateCatalogPricing(data)).toThrow();
@@ -75,7 +75,7 @@ describe('catalog response validation', () => {
 });
 
 describe('currency interpolation without modifying locale files', () => {
-  const formatPrice = (value) => formatMoney(value);
+  const formatPrice = (value: any) => formatMoney(value);
   const price = prices.STARTER_MONTHLY_PRICE;
   const yearly = prices.STARTER_YEARLY_PRICE;
 
@@ -86,7 +86,8 @@ describe('currency interpolation without modifying locale files', () => {
     ['+{{price}} €/mo', () => `+${formatMoney(price)}/mo`],
     ['or ${{yearly}}/yr', () => `or ${formatMoney(yearly)}/yr`],
   ])('uses catalog currency in %s', (template, expected) => {
-    const t = (_, params) => template.replace(/\{\{(\w+)\}\}/g, (_, name) => params[name]);
+    const t = (_key: string, params: Record<string, any> = {}) =>
+      template.replace(/\{\{(\w+)\}\}/g, (_match, name: string) => params[name]);
     expect(translateCatalogPrice(t, 'key', { price, yearly }, formatPrice)).toBe(expected());
   });
 
@@ -102,17 +103,17 @@ describe('currency interpolation without modifying locale files', () => {
 
 describe('shared frontend pricing state', () => {
   it('shows loading, disables paid actions, and preserves free access', async () => {
-    let resolve;
+    let resolve!: (value?: any) => void;
     vi.spyOn(billingApi, 'getPricing').mockImplementation(() => new Promise((done) => { resolve = done; }));
     render(<StrictMode><PricingProvider><PricingHarness /></PricingProvider></StrictMode>);
     expect(screen.getByRole('status').textContent).toContain('Loading pricing');
-    expect(screen.getByRole('button', { name: 'Paid checkout' }).disabled).toBe(true);
-    expect(screen.getByRole('button', { name: 'Free access' }).disabled).toBe(false);
+    expect((screen.getByRole('button', { name: 'Paid checkout' }) as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByRole('button', { name: 'Free access' }) as HTMLButtonElement).disabled).toBe(false);
     expect(screen.getByText('Unrelated workspace')).toBeTruthy();
     expect(billingApi.getPricing).toHaveBeenCalledTimes(1);
     await act(async () => resolve(catalog()));
     expect(screen.getByTestId('translated').textContent).toBe(formatMoney(prices.STARTER_MONTHLY_PRICE));
-    expect(screen.getByRole('button', { name: 'Paid checkout' }).disabled).toBe(false);
+    expect((screen.getByRole('button', { name: 'Paid checkout' }) as HTMLButtonElement).disabled).toBe(false);
     expect(screen.getByTestId('seat-total').textContent)
       .toBe(formatMoney(prices.PRO_MONTHLY_PRICE + 2 * prices.EXTRA_SEAT_MONTHLY_PRICE));
   });
@@ -124,9 +125,9 @@ describe('shared frontend pricing state', () => {
     render(<PricingProvider><PricingHarness /></PricingProvider>);
     expect((await screen.findByRole('alert')).textContent).toContain('Pricing is temporarily unavailable');
     expect(screen.getByTestId('translated').textContent).toBe('Pricing unavailable');
-    expect(screen.getByRole('button', { name: 'Paid checkout' }).disabled).toBe(true);
+    expect((screen.getByRole('button', { name: 'Paid checkout' }) as HTMLButtonElement).disabled).toBe(true);
     fireEvent.click(screen.getByRole('button', { name: 'Retry pricing' }));
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Paid checkout' }).disabled).toBe(false));
+    await waitFor(() => expect((screen.getByRole('button', { name: 'Paid checkout' }) as HTMLButtonElement).disabled).toBe(false));
     expect(billingApi.getPricing).toHaveBeenCalledTimes(2);
   });
 
@@ -134,7 +135,7 @@ describe('shared frontend pricing state', () => {
     vi.spyOn(billingApi, 'getPricing').mockResolvedValue({ prices: {} });
     render(<PricingProvider><PricingHarness /></PricingProvider>);
     await screen.findByRole('alert');
-    expect(screen.getByRole('button', { name: 'Paid checkout' }).disabled).toBe(true);
+    expect((screen.getByRole('button', { name: 'Paid checkout' }) as HTMLButtonElement).disabled).toBe(true);
   });
 
   it('refreshes at expiry and drops expired prices when refresh fails', async () => {
@@ -143,11 +144,11 @@ describe('shared frontend pricing state', () => {
       .mockResolvedValueOnce(catalog())
       .mockRejectedValueOnce(new Error('refresh failed'));
     await act(async () => render(<PricingProvider><PricingHarness /></PricingProvider>));
-    expect(screen.getByRole('button', { name: 'Paid checkout' }).disabled).toBe(false);
+    expect((screen.getByRole('button', { name: 'Paid checkout' }) as HTMLButtonElement).disabled).toBe(false);
     await act(async () => { await vi.advanceTimersByTimeAsync(300_000); });
     expect(screen.getByRole('alert')).toBeTruthy();
     expect(screen.getByTestId('translated').textContent).toBe('Pricing unavailable');
-    expect(screen.getByRole('button', { name: 'Paid checkout' }).disabled).toBe(true);
+    expect((screen.getByRole('button', { name: 'Paid checkout' }) as HTMLButtonElement).disabled).toBe(true);
   });
 });
 

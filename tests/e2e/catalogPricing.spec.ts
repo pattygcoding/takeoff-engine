@@ -1,13 +1,14 @@
 import { expect, test } from '@playwright/test';
-import { createCatalogFixture, formatMoney } from '../helpers/paddleCatalogFixture.js';
+import type { Page, Route } from '@playwright/test';
+import { createCatalogFixture, formatMoney } from '../helpers/paddleCatalogFixture.ts';
 
 // Prices come from a mocked Paddle catalog generated per run; expectations are derived from it.
 const { prices } = createCatalogFixture().catalog;
 
-async function mockApi(page, { failInitially = false, user = null } = {}) {
+async function mockApi(page: Page, { failInitially = false, user = null }: { failInitially?: boolean; user?: any } = {}) {
   let fail = failInitially;
   let lookups = 0;
-  await page.route('**/api/**', async (route) => {
+  await page.route('**/api/**', async (route: Route) => {
     const path = new URL(route.request().url()).pathname;
     if (path.endsWith('/billing/pricing')) {
       lookups += 1;
@@ -27,13 +28,13 @@ async function mockApi(page, { failInitially = false, user = null } = {}) {
   return { recover: () => { fail = false; }, lookups: () => lookups };
 }
 
-async function closeNotice(page) {
+async function closeNotice(page: Page) {
   await page.locator('dialog button').last().click();
 }
 
 test('landing uses Paddle catalog amounts and currency with one shared request', async ({ page }) => {
   const api = await mockApi(page);
-  const errors = [];
+  const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('/home?lang=en');
   await closeNotice(page);
@@ -49,7 +50,7 @@ test('landing uses Paddle catalog amounts and currency with one shared request',
 
 test('catalog outage blocks paid choices and account creation but leaves free tools and login usable; retry recovers', async ({ page }) => {
   const api = await mockApi(page, { failInitially: true });
-  const errors = [];
+  const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('/home?lang=en');
   await closeNotice(page);
@@ -87,7 +88,7 @@ test('onboarding disables purchases during errors and uses full annual amounts a
     failInitially: true,
     user: { id: 'test-user', username: 'tester', role: 'user', subscription_tier: 'free', trial_uses_remaining: 5 },
   });
-  const errors = [];
+  const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('/onboarding?lang=en');
   await expect(page.getByRole('button', { name: 'Choose Starter' })).toBeDisabled();
@@ -115,8 +116,8 @@ for (const width of [390, 768, 1100, 1280]) {
       const amount = amounts.nth(index);
       const container = amount.locator('..');
       const cadence = container.locator('[data-price-cadence]');
-      const amountBox = await amount.boundingBox();
-      const cadenceBox = await cadence.boundingBox();
+      const amountBox = (await amount.boundingBox())!;
+      const cadenceBox = (await cadence.boundingBox())!;
       expect(Math.abs((amountBox.y + amountBox.height) - (cadenceBox.y + cadenceBox.height))).toBeLessThan(12);
       expect(cadenceBox.x).toBeGreaterThanOrEqual(amountBox.x + amountBox.width);
       const fits = await container.evaluate((element) => element.scrollWidth <= element.clientWidth + 1);

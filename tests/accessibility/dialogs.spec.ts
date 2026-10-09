@@ -21,7 +21,7 @@ test('prompt has a name, contains focus, submits, and restores focus', async ({ 
   await expect(page.getByRole('button', { name: 'Submit', exact: true })).toBeFocused();
   for (let index = 0; index < 6; index += 1) {
     await page.keyboard.press('Tab');
-    expect(await page.evaluate(() => document.activeElement === document.body || Boolean(document.activeElement.closest('dialog')))).toBe(true);
+    expect(await page.evaluate(() => document.activeElement === document.body || Boolean(document.activeElement?.closest('dialog')))).toBe(true);
   }
   await input.fill('Accessible project');
   await page.keyboard.press('Enter');

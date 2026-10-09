@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const sourceExtensions = new Set(['.html', '.htm', '.js', '.jsx', '.ts', '.tsx']);
 
-function getSourceFiles(directory) {
+function getSourceFiles(directory: string): string[] {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const entryPath = path.join(directory, entry.name);
 
@@ -19,14 +19,20 @@ function getSourceFiles(directory) {
   });
 }
 
-function getImageTags(source) {
-  const tags = [];
+interface ImageTag {
+  markup: string;
+  index: number;
+}
+
+function getImageTags(source: string): ImageTag[] {
+  const tags: ImageTag[] = [];
 
   for (const match of source.matchAll(/<img\b/g)) {
+    const start = match.index ?? 0;
     let braceDepth = 0;
-    let quote = null;
+    let quote: string | null = null;
 
-    for (let index = match.index + match[0].length; index < source.length; index += 1) {
+    for (let index = start + match[0].length; index < source.length; index += 1) {
       const character = source[index];
 
       if (quote) {
@@ -45,7 +51,7 @@ function getImageTags(source) {
       } else if (character === '}') {
         braceDepth = Math.max(0, braceDepth - 1);
       } else if (character === '>' && braceDepth === 0) {
-        tags.push({ markup: source.slice(match.index, index + 1), index: match.index });
+        tags.push({ markup: source.slice(start, index + 1), index: start });
         break;
       }
     }
@@ -54,11 +60,11 @@ function getImageTags(source) {
   return tags;
 }
 
-function findImagesWithoutAlt(source) {
+function findImagesWithoutAlt(source: string): ImageTag[] {
   return getImageTags(source).filter(({ markup }) => !/\balt\s*=/.test(markup));
 }
 
-function lineNumber(source, index) {
+function lineNumber(source: string, index: number) {
   return source.slice(0, index).split('\n').length;
 }
 
@@ -72,7 +78,7 @@ describe('Image alternative text', () => {
 
   it('requires every frontend image to declare alt text or an empty decorative alt', () => {
     const sourceDirectories = [path.join(projectRoot, 'src'), path.join(projectRoot, 'public')];
-    const missingAlt = [];
+    const missingAlt: string[] = [];
 
     for (const directory of sourceDirectories) {
       for (const filePath of getSourceFiles(directory)) {

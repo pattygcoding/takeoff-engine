@@ -1,3 +1,5 @@
+import type { Page } from '@playwright/test';
+import type { QaSettings } from '../../support/qaEnvironment.ts';
 import {
   baseSeatsFor,
   buyPlan,
@@ -7,10 +9,10 @@ import {
   label,
   PLAN_CTA_KEYS,
   test,
-} from '../../support/fixtures.js';
-import { QA_INTERVALS, QA_PLANS } from '../../support/qaEnvironment.js';
+} from '../../support/fixtures.ts';
+import { QA_INTERVALS, QA_PLANS } from '../../support/qaEnvironment.ts';
 
-const CYCLES = {
+const CYCLES: Record<string, { paddleInterval: string; title: string; minDays: number; maxDays: number }> = {
   monthly: { paddleInterval: 'month', title: '', minDays: 27, maxDays: 32 },
   annually: { paddleInterval: 'year', title: 'yearly ', minDays: 363, maxDays: 367 },
 };
@@ -27,7 +29,7 @@ for (const interval of QA_INTERVALS) {
 
         // Paddle sandbox charged the test card for exactly this plan and billing cycle.
         expect(subscription.status).toBe('active');
-        expect(subscription.items.map((item) => item.price.id)).toContain(settings.paddle.priceIds[interval][plan]);
+        expect(subscription.items.map((item: any) => item.price.id)).toContain(settings.paddle.priceIds[interval][plan]);
         expect(subscription.billing_cycle).toEqual({ interval: cycle.paddleInterval, frequency: 1 });
 
         // The account is entitled to the plan, linked to the Paddle subscription that pays for it.

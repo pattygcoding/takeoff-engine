@@ -1,16 +1,45 @@
 import crypto from 'node:crypto';
-import { QA_TAG } from './qaEnvironment.js';
+import type { Page } from '@playwright/test';
+import { QA_TAG } from './qaEnvironment.ts';
+
+/** Sandbox test card details used to pay in the Paddle overlay. */
+export interface PaddleTestCard {
+  number: string;
+  cvv: string;
+  postcode: string;
+  country: string;
+  threeDSecure?: boolean;
+}
+
+/** A Paddle Billing entity as returned by the sandbox API (only the fields QA reads). */
+export type PaddleEntity = Record<string, any>;
+
+/** The Paddle sandbox client the QA harness uses. */
+export interface PaddleSandboxApi {
+  findCustomersByEmail: (email: string) => Promise<PaddleEntity[]>;
+  findQaCustomers: () => Promise<PaddleEntity[]>;
+  listLiveSubscriptions: (customerIds: string[]) => Promise<PaddleEntity[]>;
+  waitForSubscription: (options: { email: string; priceId?: string; timeoutMs?: number }) => Promise<PaddleEntity>;
+  cancelSubscriptionNow: (subscriptionId: string) => Promise<PaddleEntity>;
+  clearScheduledChange: (subscriptionId: string) => Promise<PaddleEntity>;
+  endSubscription: (subscription: PaddleEntity) => Promise<void>;
+  archiveCustomer: (customerId: string) => Promise<PaddleEntity>;
+  getSubscription: (subscriptionId: string) => Promise<PaddleEntity>;
+  updateItems: (subscriptionId: string, items: Array<{ priceId: string; quantity: number }>) => Promise<PaddleEntity>;
+  listTransactions: (subscriptionId: string, origin?: string) => Promise<PaddleEntity[]>;
+  purgeQaCustomers: (extraCustomerIds?: string[]) => Promise<{ customers: number; subscriptions: number }>;
+}
 
 const LIVE_SUBSCRIPTION_STATUSES = 'active,trialing,past_due,paused';
 const CHECKOUT_FRAME = 'iframe[name="paddle_frame"]';
 const REQUEST_TIMEOUT_MS = 30_000;
 
 /** fetch that fails with a descriptive error instead of hanging until the test timeout. */
-async function fetchWithTimeout(url, init, description) {
+async function fetchWithTimeout(url: string, init: RequestInit, description: string): Promise<Response> {
   try {
     return await fetch(url, { ...init, signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
   } catch (error) {
-    if (error.name === 'TimeoutError') throw new Error(`${description} got no response within ${REQUEST_TIMEOUT_MS / 1000}s.`);
+    if ((error as Error).name === 'TimeoutError') throw new Error(`${description} got no response within ${REQUEST_TIMEOUT_MS / 1000}s.`);
     throw error;
   }
 }
@@ -19,7 +48,10 @@ async function fetchWithTimeout(url, init, description) {
  * Pays in the Paddle overlay checkout using sandbox test card details. Handles both checkout
  * steps: customer/location (skipped by Paddle when already known) and card payment.
  */
-export async function payWithPaddleOverlay(page, { email, cardholderName, card }) {
+export async function payWithPaddleOverlay(
+  page: Page,
+  { email, cardholderName, card }: { email: string; cardholderName: string; card: PaddleTestCard },
+): Promise<void> {
   const checkout = page.frameLocator(CHECKOUT_FRAME);
   const emailInput = checkout.getByTestId('authenticationEmailInput');
   const cardNumber = checkout.getByTestId('cardNumberInput');
@@ -58,7 +90,7 @@ export async function payWithPaddleOverlay(page, { email, cardholderName, card }
  * Sandbox cards that require 3D Secure show Stripe's test challenge page inside the checkout;
  * the customer approves it with "Complete".
  */
-async function completeThreeDSecureChallenge(page, timeoutMs = 60_000) {
+async function completeThreeDSecureChallenge(page: Page, timeoutMs = 60_000): Promise<void> {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     for (const frame of page.frames()) {
@@ -77,8 +109,11 @@ async function completeThreeDSecureChallenge(page, timeoutMs = 60_000) {
  * Paddle Billing sandbox API client used to verify real subscriptions exist and to cancel and
  * archive everything QA created, keeping the sandbox account tidy between runs.
  */
-export function createPaddleSandboxApi({ apiKey = process.env.PADDLE_API_KEY, baseUrl = 'https://sandbox-api.paddle.com' } = {}) {
-  async function request(method, path, body) {
+export function createPaddleSandboxApi({
+  apiKey = process.env.PADDLE_API_KEY,
+  baseUrl = 'https://sandbox-api.paddle.com',
+}: { apiKey?: string; baseUrl?: string } = {}): PaddleSandboxApi {
+  async function request(method: string, path: string, body?: unknown): Promise<PaddleEntity> {
     const res = await fetchWithTimeout(`${baseUrl}${path}`, {
       method,
       headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
@@ -91,9 +126,9 @@ export function createPaddleSandboxApi({ apiKey = process.env.PADDLE_API_KEY, ba
     return payload;
   }
 
-  async function listAll(path) {
-    const items = [];
-    let next = `${path}${path.includes('?') ? '&' : '?'}per_page=200`;
+  async function listAll(path: string): Promise<PaddleEntity[]> {
+    const items: PaddleEntity[] = [];
+    let next: string | null = `${path}${path.includes('?') ? '&' : '?'}per_page=200`;
     while (next) {
       const page = await request('GET', next.replace(baseUrl, ''));
       items.push(...(page.data || []));
@@ -102,7 +137,7 @@ export function createPaddleSandboxApi({ apiKey = process.env.PADDLE_API_KEY, ba
     return items;
   }
 
-  const api = {
+  const api: PaddleSandboxApi = {
     findCustomersByEmail: (email) => listAll(`/customers?email=${encodeURIComponent(email)}`),
 
     async findQaCustomers() {
@@ -110,17 +145,17 @@ export function createPaddleSandboxApi({ apiKey = process.env.PADDLE_API_KEY, ba
       return customers.filter((customer) => customer.email?.toLowerCase().includes(`${QA_TAG}-`));
     },
 
-    async listLiveSubscriptions(customerIds) {
+    async listLiveSubscriptions(customerIds: string[]) {
       if (!customerIds.length) return [];
       return listAll(`/subscriptions?customer_id=${customerIds.join(',')}&status=${LIVE_SUBSCRIPTION_STATUSES}`);
     },
 
-    async waitForSubscription({ email, priceId, timeoutMs = 90_000 }) {
+    async waitForSubscription({ email, priceId, timeoutMs = 90_000 }: { email: string; priceId?: string; timeoutMs?: number }) {
       const deadline = Date.now() + timeoutMs;
       while (Date.now() < deadline) {
         const customers = await api.findCustomersByEmail(email);
         const subscriptions = await api.listLiveSubscriptions(customers.map((customer) => customer.id));
-        const match = subscriptions.find((subscription) => subscription.items?.some((item) => item.price?.id === priceId));
+        const match = subscriptions.find((subscription) => subscription.items?.some((item: any) => item.price?.id === priceId));
         if (match) return match;
         await new Promise((resolve) => setTimeout(resolve, 3_000));
       }
@@ -131,7 +166,7 @@ export function createPaddleSandboxApi({ apiKey = process.env.PADDLE_API_KEY, ba
     clearScheduledChange: (subscriptionId) => request('PATCH', `/subscriptions/${subscriptionId}`, { scheduled_change: null }),
 
     /** Ends a subscription now, even one that already has a scheduled (end-of-period) cancellation. */
-    async endSubscription(subscription) {
+    async endSubscription(subscription: PaddleEntity) {
       try {
         await api.cancelSubscriptionNow(subscription.id);
       } catch (error) {
@@ -143,7 +178,7 @@ export function createPaddleSandboxApi({ apiKey = process.env.PADDLE_API_KEY, ba
     archiveCustomer: (customerId) => request('PATCH', `/customers/${customerId}`, { status: 'archived' }),
     getSubscription: async (subscriptionId) => (await request('GET', `/subscriptions/${subscriptionId}`)).data,
     /** Change line items directly, as the customer would in Paddle's billing portal. */
-    updateItems: async (subscriptionId, items) => (await request('PATCH', `/subscriptions/${subscriptionId}`, {
+    updateItems: async (subscriptionId: string, items: Array<{ priceId: string; quantity: number }>) => (await request('PATCH', `/subscriptions/${subscriptionId}`, {
       items: items.map(({ priceId, quantity }) => ({ price_id: priceId, quantity })),
       proration_billing_mode: 'prorated_immediately',
     })).data,
@@ -153,7 +188,7 @@ export function createPaddleSandboxApi({ apiKey = process.env.PADDLE_API_KEY, ba
      * Cancels every live QA subscription and archives every QA customer (found by tag, plus any
      * extra customer IDs recorded in the database). Paddle never deletes customers.
      */
-    async purgeQaCustomers(extraCustomerIds = []) {
+    async purgeQaCustomers(extraCustomerIds: string[] = []) {
       const tagged = (await api.findQaCustomers()).map((customer) => customer.id);
       const customerIds = [...new Set([...tagged, ...extraCustomerIds.filter(Boolean)])];
       const subscriptions = await api.listLiveSubscriptions(customerIds);
@@ -174,7 +209,17 @@ export function createPaddleSandboxApi({ apiKey = process.env.PADDLE_API_KEY, ba
  * webhook tunnel: it delivers the real subscription entity from Paddle to the app's webhook
  * endpoint, signed exactly like Paddle signs notifications (ts + HMAC-SHA256 of "ts:body").
  */
-export async function deliverPaddleWebhook({ backendUrl, secret, eventType, data }) {
+export async function deliverPaddleWebhook({
+  backendUrl,
+  secret,
+  eventType,
+  data,
+}: {
+  backendUrl: string;
+  secret: string;
+  eventType: string;
+  data: unknown;
+}): Promise<any> {
   const body = JSON.stringify({
     event_id: `evt_${QA_TAG}_${crypto.randomBytes(8).toString('hex')}`,
     event_type: eventType,

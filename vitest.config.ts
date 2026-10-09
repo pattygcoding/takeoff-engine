@@ -7,7 +7,7 @@ export default defineConfig({
   resolve: { alias: { '@': path.resolve(import.meta.dirname, './src') } },
   test: {
     environment: 'jsdom',
-    include: ['tests/**/*.vitest.{js,jsx}'],
+    include: ['tests/**/*.vitest.{ts,tsx}'],
     clearMocks: true,
   },
 });

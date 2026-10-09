@@ -1,11 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, renderHook, screen } from '@testing-library/react';
 import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
 
 function deferred() {
-  let resolve;
-  const promise = new Promise((r) => { resolve = r; });
+  let resolve!: (value?: any) => void;
+  const promise = new Promise<any>((r) => { resolve = r; });
   return { promise, resolve };
 }
 
@@ -39,9 +40,9 @@ describe('useSingleFlight', () => {
 
   it('tracks per-argument keys independently', async () => {
     const pending = deferred();
-    const handler = vi.fn(() => pending.promise);
+    const handler = vi.fn((_id: string) => pending.promise);
     const { result } = renderHook(() => useSingleFlight());
-    const run = result.current((id) => `remove:${id}`, handler);
+    const run = result.current<string[], any>((id: string) => `remove:${id}`, handler);
 
     run('a');
     run('a');
@@ -57,7 +58,7 @@ describe('useSingleFlight', () => {
     function Form() {
       const guard = useSingleFlight();
       const [loading, setLoading] = useState(false);
-      const onSubmit = guard('submit', async (event) => {
+      const onSubmit = guard<[FormEvent], void>('submit', async (event) => {
         event.preventDefault();
         setLoading(true);
         await api();
@@ -71,7 +72,7 @@ describe('useSingleFlight', () => {
     }
 
     render(<Form />);
-    const form = screen.getByRole('button', { name: 'Send' }).closest('form');
+    const form = screen.getByRole('button', { name: 'Send' }).closest('form')!;
     const first = new Event('submit', { bubbles: true, cancelable: true });
     const second = new Event('submit', { bubbles: true, cancelable: true });
     act(() => {

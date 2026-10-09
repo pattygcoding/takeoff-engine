@@ -7,6 +7,47 @@ export const QA_TAG = 'qae2e';
 export const QA_PLANS = ['starter', 'pro', 'enterprise'];
 export const QA_INTERVALS = ['monthly', 'annually'];
 
+/** A uniquely tagged QA identity created by `createQaIdentity`. */
+export interface QaIdentity {
+  tag: string;
+  username: string;
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  clientIp: string;
+}
+
+/** Paddle catalog price ids, keyed by billing interval and then plan. */
+export type QaPaddlePriceIds = Record<string, Record<string, string | undefined>>;
+
+/** Non-secret, derived settings shared by the Playwright config, global setup, and specs. */
+export interface QaSettings {
+  frontendPort: number;
+  backendPort: number;
+  frontendUrl: string;
+  backendUrl: string;
+  backendInternalUrl: string;
+  apiUrl: string;
+  supabaseGatewayPort: number;
+  supabaseGatewayUrl: string;
+  emailTemplate: string;
+  snapshotSchemas: string[];
+  paddle: {
+    apiBaseUrl: string;
+    priceIds: QaPaddlePriceIds;
+    seatPriceIds: Record<string, string | undefined>;
+    webhookSecret: string;
+  };
+  card: {
+    number: string;
+    cvv: string;
+    postcode: string;
+    country: string;
+  };
+}
+
 const DEFAULTS = {
   frontendPort: 4177,
   backendPort: 5055,
@@ -25,13 +66,14 @@ const REQUIRED = [
   'VITE_PADDLE_CLIENT_TOKEN',
 ];
 
-const csv = (value = '') => value.split(',').map((item) => item.trim()).filter(Boolean);
-const lower = (value) => String(value || '').trim().toLowerCase();
+const csv = (value: string = ''): string[] => value.split(',').map((item) => item.trim()).filter(Boolean);
+const lower = (value: unknown): string => String(value || '').trim().toLowerCase();
 
-export const webhookSecretOf = (env = process.env) => env.PADDLE_WEBHOOK_SECRET || env.PADDLE_WEBHOOK_SECRET_KEY || '';
+export const webhookSecretOf = (env: NodeJS.ProcessEnv = process.env): string =>
+  env.PADDLE_WEBHOOK_SECRET || env.PADDLE_WEBHOOK_SECRET_KEY || '';
 
 /** Paddle catalog price IDs for each plan, by billing interval (same keys the backend reads). */
-export function planPriceIds(env = process.env) {
+export function planPriceIds(env: NodeJS.ProcessEnv = process.env): QaPaddlePriceIds {
   return {
     monthly: {
       starter: env.PADDLE_PRICE_ID_STARTER_MONTHLY || env.PADDLE_PRICE_ID_STARTER,
@@ -51,7 +93,7 @@ export function planPriceIds(env = process.env) {
  * integrity is verified by the global setup/teardown), but money must never move: Paddle has
  * to be the sandbox on both the backend and the browser, and nothing may look like production.
  */
-export function findSafetyViolations(env = process.env) {
+export function findSafetyViolations(env: NodeJS.ProcessEnv = process.env): string[] {
   const problems = REQUIRED.filter((key) => !env[key]).map((key) => `${key} is not set.`);
   if (!webhookSecretOf(env)) problems.push('PADDLE_WEBHOOK_SECRET_KEY (or PADDLE_WEBHOOK_SECRET) is not set.');
   for (const [interval, prices] of Object.entries(planPriceIds(env))) {
@@ -71,7 +113,7 @@ export function findSafetyViolations(env = process.env) {
   return problems;
 }
 
-export function assertSafeQaEnvironment(env = process.env) {
+export function assertSafeQaEnvironment(env: NodeJS.ProcessEnv = process.env): void {
   const problems = findSafetyViolations(env);
   if (problems.length) {
     throw new Error(
@@ -85,7 +127,7 @@ export function assertSafeQaEnvironment(env = process.env) {
 /**
  * Non-secret, derived settings shared by the Playwright config, global setup, and specs.
  */
-export function loadQaSettings(env = process.env) {
+export function loadQaSettings(env: NodeJS.ProcessEnv = process.env): QaSettings {
   const frontendPort = Number(env.QA_FRONTEND_PORT || DEFAULTS.frontendPort);
   const backendPort = Number(env.QA_BACKEND_PORT || DEFAULTS.backendPort);
   const supabaseGatewayPort = Number(env.QA_SUPABASE_GATEWAY_PORT || backendPort + 1);
@@ -126,7 +168,10 @@ export function loadQaSettings(env = process.env) {
  * A unique, recognizably tagged customer. The password is random per run so it can never be
  * in a breach corpus (registration rejects breached passwords).
  */
-export function createQaIdentity(label, { emailTemplate = DEFAULTS.emailTemplate } = {}) {
+export function createQaIdentity(
+  label: string,
+  { emailTemplate = DEFAULTS.emailTemplate }: { emailTemplate?: string } = {},
+): QaIdentity {
   const suffix = `${Date.now().toString(36)}${crypto.randomBytes(3).toString('hex')}`;
   const tag = `${QA_TAG}-${label}-${suffix}`.toLowerCase();
   return {
@@ -139,6 +184,6 @@ export function createQaIdentity(label, { emailTemplate = DEFAULTS.emailTemplate
     phone: '5555550123',
     // Each simulated customer gets its own documentation-range IPv6 address, so the backend's
     // per-IP auth rate limiter sees separate clients instead of one machine signing up repeatedly.
-    clientIp: `2001:db8::${crypto.randomBytes(8).toString('hex').match(/.{4}/g).join(':')}`,
+    clientIp: `2001:db8::${(crypto.randomBytes(8).toString('hex').match(/.{4}/g) ?? []).join(':')}`,
   };
 }

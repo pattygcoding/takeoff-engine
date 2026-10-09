@@ -1,5 +1,5 @@
 import http from 'node:http';
-import { QA_TAG } from './qaEnvironment.js';
+import { QA_TAG } from './qaEnvironment.ts';
 
 /**
  * QA-only gateway between the locally started backend and Supabase. Started by
@@ -21,25 +21,30 @@ if (!target || !serviceRoleKey || !port) {
 }
 
 const HOP_BY_HOP = new Set(['host', 'connection', 'content-length', 'transfer-encoding', 'accept-encoding', 'keep-alive']);
-const verificationTokens = new Map();
-const isQaEmail = (email) => typeof email === 'string' && email.toLowerCase().includes(`${QA_TAG}-`);
+const verificationTokens = new Map<string, string | undefined>();
+const isQaEmail = (email: unknown): boolean =>
+  typeof email === 'string' && email.toLowerCase().includes(`${QA_TAG}-`);
 
-const readBody = (req) => new Promise((resolve, reject) => {
-  const chunks = [];
+const readBody = (req: http.IncomingMessage): Promise<Buffer> => new Promise((resolve, reject) => {
+  const chunks: Buffer[] = [];
   req.on('data', (chunk) => chunks.push(chunk));
   req.on('end', () => resolve(Buffer.concat(chunks)));
   req.on('error', reject);
 });
 
-function sendJson(res, status, payload) {
+function sendJson(res: http.ServerResponse, status: number, payload: unknown): void {
   res.writeHead(status, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify(payload));
 }
 
-async function signUpWithoutEmail(url, body, res) {
+async function signUpWithoutEmail(
+  url: URL,
+  body: { email: string; password: string; data?: unknown },
+  res: http.ServerResponse,
+): Promise<void> {
   const response = await fetch(`${target}/auth/v1/admin/generate_link`, {
     method: 'POST',
-    headers: { apikey: serviceRoleKey, Authorization: `Bearer ${serviceRoleKey}`, 'Content-Type': 'application/json' },
+    headers: { apikey: serviceRoleKey ?? '', Authorization: `Bearer ${serviceRoleKey ?? ''}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       type: 'signup',
       email: body.email,
@@ -58,12 +63,19 @@ async function signUpWithoutEmail(url, body, res) {
   return sendJson(res, 200, user.user ?? user);
 }
 
-async function forward(req, res, url, body) {
-  const headers = Object.fromEntries(Object.entries(req.headers).filter(([name]) => !HOP_BY_HOP.has(name)));
+async function forward(
+  req: http.IncomingMessage,
+  res: http.ServerResponse,
+  url: URL,
+  body: Buffer,
+): Promise<void> {
+  const headers = Object.fromEntries(
+    Object.entries(req.headers).filter(([name]) => !HOP_BY_HOP.has(name)),
+  ) as Record<string, string>;
   const send = () => fetch(`${target}${url.pathname}${url.search}`, {
     method: req.method,
     headers,
-    body: ['GET', 'HEAD'].includes(req.method) ? undefined : body,
+    body: ['GET', 'HEAD'].includes(req.method ?? '') ? undefined : (body as any),
   });
 
   let response = await send();
@@ -77,7 +89,7 @@ async function forward(req, res, url, body) {
     }
   }
 
-  const responseHeaders = {};
+  const responseHeaders: Record<string, string> = {};
   response.headers.forEach((value, name) => {
     if (!HOP_BY_HOP.has(name) && name !== 'content-encoding') responseHeaders[name] = value;
   });
@@ -87,7 +99,7 @@ async function forward(req, res, url, body) {
 
 const RATE_LIMIT_WAIT_MS = 120_000;
 
-function isQaSignIn(req, url, body) {
+function isQaSignIn(req: http.IncomingMessage, url: URL, body: Buffer): boolean {
   if (req.method !== 'POST' || url.pathname !== '/auth/v1/token') return false;
   try {
     return isQaEmail(JSON.parse(body.toString('utf8') || '{}').email);
@@ -98,7 +110,7 @@ function isQaSignIn(req, url, body) {
 
 const server = http.createServer(async (req, res) => {
   try {
-    const url = new URL(req.url, 'http://gateway');
+    const url = new URL(req.url ?? '/', 'http://gateway');
     if (url.pathname === '/__qa/health') return sendJson(res, 200, { ok: true });
     if (url.pathname === '/__qa/verification-token') {
       const email = String(url.searchParams.get('email') || '').toLowerCase();

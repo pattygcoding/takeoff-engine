@@ -1,3 +1,6 @@
+import type { Page } from '@playwright/test';
+import type { QaSettings, QaIdentity } from '../../support/qaEnvironment.ts';
+import type { Db } from '../../support/database.ts';
 import {
   baseSeatsFor,
   buyPlan,
@@ -14,16 +17,16 @@ import {
   planChangeCharges,
   purchasePlanThroughUi,
   test,
-} from '../../support/fixtures.js';
-import { findProfile } from '../../support/database.js';
-import { cancelThroughSettings, changePlanThroughSettings } from '../../support/accountSettings.js';
+} from '../../support/fixtures.ts';
+import { findProfile } from '../../support/database.ts';
+import { cancelThroughSettings, changePlanThroughSettings } from '../../support/accountSettings.ts';
 
 const COLLECTED = new Set(['paid', 'completed']);
-const collectedCharges = async (settings, subscriptionId) => (await planChangeCharges(settings, subscriptionId)).filter((txn) => COLLECTED.has(txn.status));
-const billedPriceIds = (subscription) => subscription.items.filter((entry) => entry.status !== 'inactive').map((entry) => entry.price.id);
+const collectedCharges = async (settings: QaSettings, subscriptionId: string) => (await planChangeCharges(settings, subscriptionId)).filter((txn: any) => COLLECTED.has(txn.status));
+const billedPriceIds = (subscription: any) => subscription.items.filter((entry: any) => entry.status !== 'inactive').map((entry: any) => entry.price.id);
 
 /** The core plan picker marks the entitled plan as current ("free" = none) and offers the rest. */
-async function expectPickerShows(page, plan) {
+async function expectPickerShows(page: Page, plan: string) {
   await page.goto('/onboarding?lang=en');
   const currentPlan = page.getByRole('button', { name: label('core.upgradeModal.currentPlanBadge') });
   if (plan === 'free') {
@@ -41,10 +44,10 @@ test.describe('upgrades', () => {
 
   test('user can upgrade from free to starter to pro to enterprise', async ({ page, db, customer, settings }) => {
     const authUser = await createVerifiedAccount(page, db, customer, settings);
-    let subscription;
+    let subscription: any;
 
     await test.step('starts on free', async () => {
-      expect((await findProfile(db, authUser.id)).subscription_tier).toBe('free');
+      expect((await findProfile(db, authUser.id))!.subscription_tier).toBe('free');
       await expectPickerShows(page, 'free');
     });
 

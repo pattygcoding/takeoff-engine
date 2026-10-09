@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { createCatalogFixture } from '../helpers/paddleCatalogFixture.js';
+import { createCatalogFixture } from '../helpers/paddleCatalogFixture';
 
 const routes = ['/home', '/login', '/register', '/forgot-password', '/terms', '/privacy', '/refund', '/acceptable-use', '/disclaimer', '/guide', '/accessibility', '/someone/not-a-real-page'];
 
@@ -39,7 +40,7 @@ test('skip link is first and moves keyboard focus into content', async ({ page }
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: 'Skip to main content' })).toBeFocused();
   await page.keyboard.press('Enter');
-  expect(await page.evaluate(() => document.getElementById('main-content').contains(document.activeElement))).toBe(true);
+  expect(await page.evaluate(() => Boolean(document.getElementById('main-content')?.contains(document.activeElement)))).toBe(true);
 });
 
 test('account inputs have visible associated labels and autofill purposes', async ({ page }) => {
@@ -107,7 +108,7 @@ test('unknown pages show a not-found page while workspace links still ask visito
 
 const LANDING_AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'];
 
-async function dismissLandingNotice(page) {
+async function dismissLandingNotice(page: Page) {
   await page.goto('/home?lang=en');
   await expect(page.getByRole('dialog')).toBeVisible();
   await page.keyboard.press('Escape');

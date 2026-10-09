@@ -1,4 +1,7 @@
-import { apiAs, buyPlan, expect, label, purchasePlanThroughUi, test } from '../../support/fixtures.js';
+import type { Page } from '@playwright/test';
+import type { QaPersona } from '../../support/fixtures.ts';
+import type { QaSettings } from '../../support/qaEnvironment.ts';
+import { apiAs, buyPlan, expect, label, purchasePlanThroughUi, test } from '../../support/fixtures.ts';
 import {
   createWorkspace,
   expectSeatsUsed,
@@ -7,11 +10,11 @@ import {
   memberRow,
   membersHeading,
   openTeam,
-} from '../../support/teamWorkspace.js';
+} from '../../support/teamWorkspace.ts';
 
-const tw = (key) => label(`core.teamWorkspaceManager.${key}`);
-const requiresTeamPlan = (page) => page.getByText(tw('requiresEnterprise').split('{{')[0]);
-const newWorkspaceName = (page) => page.getByRole('textbox', { name: tw('newOrgNameLabel') });
+const tw = (key: string): string => label(`core.teamWorkspaceManager.${key}`);
+const requiresTeamPlan = (page: Page) => page.getByText(tw('requiresEnterprise').split('{{')[0]);
+const newWorkspaceName = (page: Page) => page.getByRole('textbox', { name: tw('newOrgNameLabel') });
 
 test.describe('workspaces', () => {
   test.use({ customerLabel: 'orgowner' });
@@ -73,7 +76,7 @@ test.describe('workspaces', () => {
     await purchasePlanThroughUi(starter.page, { plan: 'starter', customer: starter.customer, settings });
     const free = await persona('free');
 
-    for (const [tier, member] of [['Starter', starter], ['Free', free]]) {
+    for (const [tier, member] of [['Starter', starter], ['Free', free]] as Array<[string, QaPersona]>) {
       await test.step(`${tier}: no workspace creation and no seat purchases`, async () => {
         await openTeam(member.page, member.customer, settings);
         await expect(requiresTeamPlan(member.page)).toBeVisible();

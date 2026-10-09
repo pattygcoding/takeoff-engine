@@ -1,3 +1,7 @@
+import type { Page } from '@playwright/test';
+import type { QaPersona } from '../../support/fixtures.ts';
+import type { QaSettings, QaIdentity } from '../../support/qaEnvironment.ts';
+import type { Db } from '../../support/database.ts';
 import {
   apiAs,
   buyPlan,
@@ -7,8 +11,8 @@ import {
   submitLoginForm,
   test,
   verifyEmail,
-} from '../../support/fixtures.js';
-import { createQaIdentity } from '../../support/qaEnvironment.js';
+} from '../../support/fixtures.ts';
+import { createQaIdentity } from '../../support/qaEnvironment.ts';
 import {
   acceptInviteViaUi,
   copyInviteLinkViaUi,
@@ -21,15 +25,15 @@ import {
   openTeam,
   resendViaUi,
   revokeViaUi,
-} from '../../support/teamWorkspace.js';
+} from '../../support/teamWorkspace.ts';
 
-const ai = (key) => label(`core.acceptInvite.${key}`);
-const invalidInvite = (page) => page.getByRole('heading', { name: ai('invitationInvalidOrExpired') });
-const syntheticEmail = (settings, tag) => createQaIdentity(tag, { emailTemplate: settings.emailTemplate }).email;
-const yourRole = (page) => page.getByText(`${label('core.teamWorkspaceManager.yourRole')}:`);
+const ai = (key: string): string => label(`core.acceptInvite.${key}`);
+const invalidInvite = (page: Page) => page.getByRole('heading', { name: ai('invitationInvalidOrExpired') });
+const syntheticEmail = (settings: QaSettings, tag: string): string => createQaIdentity(tag, { emailTemplate: settings.emailTemplate }).email;
+const yourRole = (page: Page) => page.getByText(`${label('core.teamWorkspaceManager.yourRole')}:`);
 
 /** Enterprise owner with one workspace, signed in on `page`. */
-async function ownerWithWorkspace({ page, db, customer, settings }) {
+async function ownerWithWorkspace({ page, db, customer, settings }: { page: Page; db: Db; customer: QaIdentity; settings: QaSettings }) {
   await buyPlan(page, db, { plan: 'enterprise', customer, settings });
   await openTeam(page, customer, settings);
   const created = await createWorkspace(page, settings, `QA Invites ${customer.tag}`);

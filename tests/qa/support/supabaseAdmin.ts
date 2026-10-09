@@ -1,15 +1,24 @@
 /**
  * Minimal Supabase Auth Admin API client (service role) for QA setup and cleanup.
  */
-export function createSupabaseAdmin({ url = process.env.SUPABASE_URL, serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY } = {}) {
-  const baseUrl = url.replace(/\/+$/, '');
+/** The subset of the Supabase Auth Admin API the QA harness uses. */
+export interface SupabaseAdmin {
+  confirmEmail: (userId: string) => Promise<any>;
+  deleteUser: (userId: string) => Promise<any>;
+}
 
-  async function request(method, path, body) {
+export function createSupabaseAdmin({
+  url = process.env.SUPABASE_URL,
+  serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY,
+}: { url?: string; serviceRoleKey?: string } = {}): SupabaseAdmin {
+  const baseUrl = (url ?? '').replace(/\/+$/, '');
+
+  async function request(method: string, path: string, body?: unknown) {
     const res = await fetch(`${baseUrl}/auth/v1/admin${path}`, {
       method,
       headers: {
-        apikey: serviceRoleKey,
-        Authorization: `Bearer ${serviceRoleKey}`,
+        apikey: serviceRoleKey ?? '',
+        Authorization: `Bearer ${serviceRoleKey ?? ''}`,
         'Content-Type': 'application/json',
       },
       body: body ? JSON.stringify(body) : undefined,

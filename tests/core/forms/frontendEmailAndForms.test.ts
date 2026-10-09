@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 describe('Frontend Email Dispatch, Notification & Form Triggers', () => {
   describe('Proposal Sharing & Client Email Dispatch States', () => {
     it('disables send email button when required client email or proposal link is empty', () => {
-      const isSendEmailButtonEnabled = ({ clientEmail, isSubmitting, hasValidToken }) => {
+      const isSendEmailButtonEnabled = ({ clientEmail, isSubmitting, hasValidToken }: { clientEmail: string; isSubmitting: boolean; hasValidToken: boolean }) => {
         const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (isSubmitting) return false;
         if (!hasValidToken) return false;
@@ -37,7 +37,7 @@ describe('Frontend Email Dispatch, Notification & Form Triggers', () => {
     });
 
     it('generates correct shareable client proposal URL with public token', () => {
-      const generateClientPortalUrl = (publicToken, clientBaseUrl = 'https://app.takeoffengine.com') => {
+      const generateClientPortalUrl = (publicToken: string, clientBaseUrl = 'https://app.takeoffengine.com') => {
         if (!publicToken) throw new Error('Token is required');
         return `${clientBaseUrl}/proposal/${publicToken}`;
       };
@@ -49,7 +49,7 @@ describe('Frontend Email Dispatch, Notification & Form Triggers', () => {
 
   describe('Organization Magic Link Invitation Dispatch', () => {
     it('formats invitation email payload with secure magic link accept route', () => {
-      const buildInvitePayload = ({ organizationName, inviterName, inviteeEmail, rawToken, clientBaseUrl }) => {
+      const buildInvitePayload = ({ organizationName, inviterName, inviteeEmail, rawToken, clientBaseUrl }: { organizationName: string; inviterName: string; inviteeEmail: string; rawToken: string; clientBaseUrl: string }) => {
         const acceptUrl = `${clientBaseUrl}/accept-invite?token=${rawToken}`;
         return {
           to: inviteeEmail.trim().toLowerCase(),
@@ -75,7 +75,7 @@ describe('Frontend Email Dispatch, Notification & Form Triggers', () => {
 
   describe('Password Reset Link Submission State Management', () => {
     it('manages loading, success, and error notification state transitions gracefully', () => {
-      const simulatePasswordResetSubmission = (email, mockApiSuccess) => {
+      const simulatePasswordResetSubmission = (email: string, mockApiSuccess: boolean) => {
         let state = { loading: true, message: '', error: '' };
 
         if (!email || !email.includes('@')) {
@@ -114,7 +114,7 @@ describe('Frontend Email Dispatch, Notification & Form Triggers', () => {
       ];
 
       const selectedIds = new Set(['1', '3']);
-      const targetRoleId = 'foreman';
+      const targetRoleId: string = 'foreman';
 
       const updated = items.map((it) => {
         if (selectedIds.has(it.id)) {
@@ -157,7 +157,7 @@ describe('Frontend Email Dispatch, Notification & Form Triggers', () => {
     });
 
     it('validates rate drawer custom labor role rate conversions', () => {
-      const updateRoleRates = (role, field, val, workdayHours = 8) => {
+      const updateRoleRates = (role: any, field: string, val: any, workdayHours = 8) => {
         if (field === 'hourlyRate') {
           const hourly = val === '' ? '' : Number(val);
           const daily = hourly === '' ? '' : Math.round(hourly * workdayHours * 100) / 100;
@@ -190,6 +190,11 @@ describe('Frontend Email Dispatch, Notification & Form Triggers', () => {
         durationQty,
         durationUnit,
         includeDelivery,
+      }: {
+        catalogItem: any;
+        durationQty: number;
+        durationUnit: string;
+        includeDelivery: boolean;
       }) => {
         const dailyRate = catalogItem.dailyRate || 0;
         const weeklyRate = catalogItem.weeklyRate || (dailyRate * 4);

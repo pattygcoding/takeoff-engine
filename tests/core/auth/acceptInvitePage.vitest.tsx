@@ -5,7 +5,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { billingApi } from '@/core/lib/billing/billing';
 import { PricingProvider } from '@/core/components/context/PricingContext';
 import { PENDING_INVITE_KEY } from '@/core/lib/auth/organizations';
-import { createCatalogFixture } from '../../helpers/paddleCatalogFixture.js';
+import { createCatalogFixture } from '../../helpers/paddleCatalogFixture.ts';
 
 vi.mock('@/core/components/context/AuthContext', () => ({
   useAuth: () => ({ user: null, isAuthenticated: false, refreshProfile: vi.fn() }),
@@ -14,7 +14,10 @@ vi.mock('@/core/components/context/ModalContext', () => ({
   useModal: () => ({ showAlert: vi.fn() }),
 }));
 vi.mock('@/core/components/context/I18nContext', () => ({
-  useTranslation: () => ({ t: (key, params = {}) => `${key} ${params.orgName || ''}`.trim(), language: 'en' }),
+  useTranslation: () => ({
+    t: (key: string, params: Record<string, any> = {}) => `${key} ${params.orgName || ''}`.trim(),
+    language: 'en',
+  }),
 }));
 
 import AcceptInvitePage from '@/core/components/auth/AcceptInvitePage';
@@ -73,9 +76,9 @@ describe('AcceptInvitePage component harness', () => {
     await waitFor(() => expect(screen.queryByText('Acme Construction')).not.toBeNull());
     expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining(`token=${token}`));
     expect(document.body.textContent).not.toContain(token);
-    expect(screen.getByRole('button', { name: 'core.acceptInvite.signInToAccept' }).disabled).toBe(false);
+    expect((screen.getByRole('button', { name: 'core.acceptInvite.signInToAccept' }) as HTMLButtonElement).disabled).toBe(false);
     await waitFor(() => expect(
-      screen.getByRole('button', { name: 'core.acceptInvite.createAccountToAccept' }).disabled,
+      (screen.getByRole('button', { name: 'core.acceptInvite.createAccountToAccept' }) as HTMLButtonElement).disabled,
     ).toBe(false));
     expect(screen.queryByText('core.catalogPricing.accountCreationDisabled')).toBeNull();
   });
@@ -87,10 +90,10 @@ describe('AcceptInvitePage component harness', () => {
     renderPage();
     await waitFor(() => expect(screen.queryByText('Acme Construction')).not.toBeNull());
 
-    const createAccount = screen.getByRole('button', { name: 'core.acceptInvite.createAccountToAccept' });
+    const createAccount = screen.getByRole('button', { name: 'core.acceptInvite.createAccountToAccept' }) as HTMLButtonElement;
     await waitFor(() => expect(createAccount.disabled).toBe(true));
     expect(screen.getByRole('alert').textContent).toContain('core.catalogPricing.accountCreationDisabled');
-    expect(screen.getByRole('button', { name: 'core.acceptInvite.signInToAccept' }).disabled).toBe(false);
+    expect((screen.getByRole('button', { name: 'core.acceptInvite.signInToAccept' }) as HTMLButtonElement).disabled).toBe(false);
 
     fireEvent.click(createAccount);
     expect(screen.queryByText('Register page')).toBeNull();
@@ -106,12 +109,12 @@ describe('AcceptInvitePage component harness', () => {
     renderPage();
     await waitFor(() => expect(screen.queryByText('Acme Construction')).not.toBeNull());
     await waitFor(() => expect(
-      screen.getByRole('button', { name: 'core.acceptInvite.createAccountToAccept' }).disabled,
+      (screen.getByRole('button', { name: 'core.acceptInvite.createAccountToAccept' }) as HTMLButtonElement).disabled,
     ).toBe(true));
 
     fireEvent.click(screen.getByRole('button', { name: 'core.catalogPricing.retry' }));
     await waitFor(() => expect(
-      screen.getByRole('button', { name: 'core.acceptInvite.createAccountToAccept' }).disabled,
+      (screen.getByRole('button', { name: 'core.acceptInvite.createAccountToAccept' }) as HTMLButtonElement).disabled,
     ).toBe(false));
 
     fireEvent.click(screen.getByRole('button', { name: 'core.acceptInvite.createAccountToAccept' }));

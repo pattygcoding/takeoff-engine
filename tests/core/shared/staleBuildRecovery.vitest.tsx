@@ -5,21 +5,24 @@ import { cleanup, render, screen } from '@testing-library/react';
 const reloadSpy = vi.hoisted(() => vi.fn());
 
 vi.mock('@/core/lib/shared/staleBuild', async (importOriginal) => {
-  const actual = await importOriginal();
+  const actual = await importOriginal<Record<string, any>>();
   return { ...actual, reloadForStaleBuild: reloadSpy };
 });
 
 import ErrorBoundary from '@/core/components/shared/ErrorBoundary';
 import { isStaleBuildError } from '@/core/lib/shared/staleBuild';
 
-const { reloadForStaleBuild } = await vi.importActual('@/core/lib/shared/staleBuild');
+const { reloadForStaleBuild } = await vi.importActual<Record<string, any>>('@/core/lib/shared/staleBuild');
 
 function memoryStorage() {
-  const values = new Map();
-  return { getItem: (key) => values.get(key) ?? null, setItem: (key, value) => values.set(key, String(value)) };
+  const values = new Map<string, string>();
+  return {
+    getItem: (key: string) => values.get(key) ?? null,
+    setItem: (key: string, value: string) => values.set(key, String(value)),
+  };
 }
 
-function Throws({ error }) {
+function Throws({ error }: { error: unknown }): React.ReactElement {
   throw error;
 }
 

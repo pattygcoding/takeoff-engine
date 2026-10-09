@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from '@playwright/test';
-import { assertSafeQaEnvironment, loadQaSettings, QA_TAG } from './tests/qa/support/qaEnvironment.js';
+import { assertSafeQaEnvironment, loadQaSettings, QA_TAG } from './tests/qa/support/qaEnvironment';
 
 // Full-stack QA: real backend, real database, real Paddle sandbox checkout. Refuse to even start
 // servers unless the environment is safe (Paddle sandbox only, nothing production-like).
@@ -12,9 +12,9 @@ const rootDir = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   testDir: './tests/qa',
-  testMatch: '**/*.spec.js',
+  testMatch: '**/*.spec.ts',
   outputDir: './test-results/qa',
-  globalSetup: './tests/qa/globalSetup.js',
+  globalSetup: './tests/qa/globalSetup.ts',
   timeout: 180_000,
   expect: { timeout: 20_000 },
   workers: 4,
@@ -33,7 +33,7 @@ export default defineConfig({
     {
       // QA-only Supabase gateway: QA signups skip confirmation emails (and their rate limit).
       name: 'supabase-gateway',
-      command: 'node tests/qa/support/supabaseGateway.js',
+      command: 'node tests/qa/support/supabaseGateway.ts',
       url: `${settings.supabaseGatewayUrl}/__qa/health`,
       reuseExistingServer: false,
       timeout: 30_000,

@@ -1,4 +1,4 @@
-import { createVerifiedAccount, expect, expectProfile, getJson, label, PLAN_CTA_KEYS, test } from '../../support/fixtures.js';
+import { createVerifiedAccount, expect, expectProfile, getJson, label, PLAN_CTA_KEYS, test } from '../../support/fixtures.ts';
 
 test.use({ customerLabel: 'signup' });
 

@@ -13,8 +13,8 @@ const SCAN_DIRS = [path.join(projectRoot, 'src', 'core'), path.join(projectRoot,
 const CODE_FILE_EXTENSIONS = new Set(['.js', '.jsx', '.ts', '.tsx', '.mjs', '.cjs']);
 const IMPORT_SPECIFIER_PATTERN = /\b(?:from|import|require)\s*\(?\s*['"]([^'"]+)['"]/g;
 
-function listFilesRecursively(dir) {
-  const results = [];
+function listFilesRecursively(dir: string): string[] {
+  const results: string[] = [];
   if (!fs.existsSync(dir)) return results;
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const fullPath = path.join(dir, entry.name);
@@ -27,19 +27,19 @@ function listFilesRecursively(dir) {
   return results;
 }
 
-function isProductImportSpecifier(specifier) {
+function isProductImportSpecifier(specifier: string) {
   return specifier.startsWith('#product/') || specifier === '#product' || /(^|[\\/])product([\\/]|$)/.test(specifier);
 }
 
-function findProductImportViolations(filePath) {
+function findProductImportViolations(filePath: string) {
   const content = fs.readFileSync(filePath, 'utf8');
-  const violations = [];
-  let match;
+  const violations: string[] = [];
+  let match: RegExpExecArray | null;
   IMPORT_SPECIFIER_PATTERN.lastIndex = 0;
   while ((match = IMPORT_SPECIFIER_PATTERN.exec(content)) !== null) {
     const specifier = match[1];
     if (isProductImportSpecifier(specifier)) {
-      const lineNumber = content.slice(0, match.index).split('\n').length;
+      const lineNumber = content.slice(0, match.index ?? 0).split('\n').length;
       violations.push(`${path.relative(projectRoot, filePath)}:${lineNumber} imports '${specifier}'`);
     }
   }

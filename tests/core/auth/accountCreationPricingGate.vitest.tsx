@@ -9,12 +9,12 @@ import {
   PricingProvider,
   useAccountCreationDisabled,
 } from '@/core/components/context/PricingContext';
-import { createCatalogFixture } from '../../helpers/paddleCatalogFixture.js';
+import { createCatalogFixture } from '../../helpers/paddleCatalogFixture.ts';
 
 const authMocks = vi.hoisted(() => ({ register: vi.fn() }));
 
 vi.mock('@/core/components/context/I18nContext', () => ({
-  useTranslation: () => ({ t: (key, params) => getTranslation(key, params, 'en'), language: 'en' }),
+  useTranslation: () => ({ t: (key: string, params: any) => getTranslation(key, params, 'en'), language: 'en' }),
 }));
 vi.mock('@/core/components/context/AuthContext', () => ({
   useAuth: () => ({
@@ -49,7 +49,7 @@ function catalog() {
 const pricingDown = () => vi.spyOn(billingApi, 'getPricing').mockRejectedValue(new Error('Pricing is temporarily unavailable.'));
 const pricingUp = () => vi.spyOn(billingApi, 'getPricing').mockResolvedValue(catalog());
 
-function renderWithPricing(ui, path = '/') {
+function renderWithPricing(ui: React.ReactNode, path = '/') {
   return render(
     <PricingProvider>
       <MemoryRouter initialEntries={[path]}>{ui}</MemoryRouter>
@@ -79,7 +79,7 @@ afterEach(() => {
 
 describe('account creation gate state', () => {
   it('stays open while pricing loads, closes when pricing is unavailable, and reopens after retry', async () => {
-    let resolveFirst;
+    let resolveFirst!: (reason?: any) => void;
     vi.spyOn(billingApi, 'getPricing')
       .mockImplementationOnce(() => new Promise((_, reject) => { resolveFirst = reject; }))
       .mockResolvedValueOnce(catalog());
@@ -101,28 +101,28 @@ describe('create-account page while pricing is unavailable', () => {
   it('disables the create-account button, says why, and never submits the registration', async () => {
     pricingDown();
     const { container } = renderWithPricing(<LoginPage initialView="register" />, '/register');
-    const submit = container.querySelector('form button[type="submit"]');
+    const submit = container.querySelector<HTMLButtonElement>('form button[type="submit"]')!;
     await waitFor(() => expect(submit.disabled).toBe(true));
     expect(screen.getAllByRole('alert').map((node) => node.textContent).join(' ')).toContain(DISABLED_MESSAGE);
 
-    fireEvent.submit(container.querySelector('form'));
+    fireEvent.submit(container.querySelector('form')!);
     expect(authMocks.register).not.toHaveBeenCalled();
   });
 
   it('disables the "Create Account" link on the sign-in view but keeps sign-in usable', async () => {
     pricingDown();
     const { container } = renderWithPricing(<LoginPage initialView="login" />, '/login');
-    const createAccount = screen.getByRole('button', { name: 'Create Account' });
+    const createAccount = screen.getByRole('button', { name: 'Create Account' }) as HTMLButtonElement;
     await waitFor(() => expect(createAccount.disabled).toBe(true));
-    expect(container.querySelector('#login-identifier').disabled).toBe(false);
-    expect(container.querySelector('form button[type="submit"]').disabled).toBe(false);
+    expect(container.querySelector<HTMLInputElement>('#login-identifier')!.disabled).toBe(false);
+    expect(container.querySelector<HTMLButtonElement>('form button[type="submit"]')!.disabled).toBe(false);
   });
 
   it('enables the create-account button when pricing is available', async () => {
     pricingUp();
     const { container } = renderWithPricing(<LoginPage initialView="register" />, '/register');
     await waitFor(() => expect(billingApi.getPricing).toHaveBeenCalled());
-    await waitFor(() => expect(container.querySelector('form button[type="submit"]').disabled).toBe(false));
+    await waitFor(() => expect(container.querySelector<HTMLButtonElement>('form button[type="submit"]')!.disabled).toBe(false));
     expect(screen.queryByText(new RegExp(DISABLED_MESSAGE))).toBeNull();
   });
 
@@ -131,26 +131,26 @@ describe('create-account page while pricing is unavailable', () => {
       .mockResolvedValueOnce(catalog())
       .mockRejectedValue(new Error('Pricing is temporarily unavailable.'));
     const serverError = new Error(`${DISABLED_MESSAGE}. Please try again later.`);
-    serverError.code = 'PRICING_UNAVAILABLE';
+    (serverError as Error & { code?: string }).code = 'PRICING_UNAVAILABLE';
     authMocks.register.mockRejectedValue(serverError);
 
     const { container } = renderWithPricing(<LoginPage initialView="register" />, '/register');
-    const submit = container.querySelector('form button[type="submit"]');
+    const submit = container.querySelector<HTMLButtonElement>('form button[type="submit"]')!;
     await waitFor(() => expect(submit.disabled).toBe(false));
 
-    fireEvent.change(container.querySelector('#register-first-name'), { target: { value: 'Dan' } });
-    fireEvent.change(container.querySelector('#register-last-name'), { target: { value: 'Estimator' } });
-    fireEvent.change(container.querySelector('#register-username'), { target: { value: 'danestimator' } });
-    fireEvent.change(container.querySelector('#register-email'), { target: { value: 'dan@example.com' } });
-    fireEvent.change(container.querySelector('#register-password'), { target: { value: 'T7!qV9#nK2@xR4$m' } });
-    fireEvent.click(container.querySelector('#register-age-confirmation'));
-    fireEvent.click(container.querySelector('#register-accept-terms'));
-    fireEvent.submit(container.querySelector('form'));
+    fireEvent.change(container.querySelector<HTMLInputElement>('#register-first-name')!, { target: { value: 'Dan' } });
+    fireEvent.change(container.querySelector<HTMLInputElement>('#register-last-name')!, { target: { value: 'Estimator' } });
+    fireEvent.change(container.querySelector<HTMLInputElement>('#register-username')!, { target: { value: 'danestimator' } });
+    fireEvent.change(container.querySelector<HTMLInputElement>('#register-email')!, { target: { value: 'dan@example.com' } });
+    fireEvent.change(container.querySelector<HTMLInputElement>('#register-password')!, { target: { value: 'T7!qV9#nK2@xR4$m' } });
+    fireEvent.click(container.querySelector<HTMLInputElement>('#register-age-confirmation')!);
+    fireEvent.click(container.querySelector<HTMLInputElement>('#register-accept-terms')!);
+    fireEvent.submit(container.querySelector('form')!);
 
     await waitFor(() => expect(authMocks.register).toHaveBeenCalledTimes(1));
     await waitFor(() => expect(billingApi.getPricing).toHaveBeenCalledTimes(2));
     await waitFor(() => expect(submit.disabled).toBe(true));
-    expect(container.querySelector('#auth-error').textContent).toContain(DISABLED_MESSAGE);
+    expect(container.querySelector('#auth-error')!.textContent).toContain(DISABLED_MESSAGE);
   });
 });
 
@@ -165,8 +165,8 @@ describe('landing page sign-up entry points', () => {
     'Choose Enterprise',
   ];
 
-  function signUpButtons() {
-    return signUpButtonNames.flatMap((name) => screen.getAllByRole('button', { name, hidden: true }));
+  function signUpButtons(): HTMLButtonElement[] {
+    return signUpButtonNames.flatMap((name) => screen.getAllByRole<HTMLButtonElement>('button', { name, hidden: true }));
   }
 
   it('disables every button that leads to account creation and replaces the footer link', async () => {
@@ -181,16 +181,16 @@ describe('landing page sign-up entry points', () => {
     expect(container.querySelector('a[href="/register"]')).toBeNull();
     expect(screen.getByText('Create Account', { selector: 'span[aria-disabled="true"]' })).toBeTruthy();
 
-    for (const signIn of screen.getAllByRole('button', { name: 'Sign In', hidden: true })) {
+    for (const signIn of screen.getAllByRole<HTMLButtonElement>('button', { name: 'Sign In', hidden: true })) {
       expect(signIn.disabled).toBe(false);
     }
-    expect(container.querySelector('#calculator input').disabled).toBe(false);
+    expect(container.querySelector<HTMLInputElement>('#calculator input')!.disabled).toBe(false);
   });
 
   it('enables every sign-up entry point when pricing is available', async () => {
     pricingUp();
     const { container } = renderWithPricing(<LandingPage />, '/home');
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Choose Starter' }).disabled).toBe(false));
+    await waitFor(() => expect((screen.getByRole('button', { name: 'Choose Starter' }) as HTMLButtonElement).disabled).toBe(false));
 
     for (const button of signUpButtons()) expect(button.disabled).toBe(false);
     expect(container.querySelector('a[href="/register"]')).not.toBeNull();

@@ -5,11 +5,11 @@ import {
   snapshotDatabase,
   unreadableTables,
   withDatabase,
-} from './support/database.js';
-import { describePurge, purgeQaArtifacts } from './support/cleanup.js';
-import { assertSafeQaEnvironment, loadQaSettings } from './support/qaEnvironment.js';
+} from './support/database.ts';
+import { describePurge, purgeQaArtifacts } from './support/cleanup.ts';
+import { assertSafeQaEnvironment, loadQaSettings } from './support/qaEnvironment.ts';
 
-const log = (message) => console.log(`[qa] ${message}`);
+const log = (message: string): void => console.log(`[qa] ${message}`);
 
 /**
  * Guarantees the database is identical before and after the QA run:
@@ -20,7 +20,7 @@ const log = (message) => console.log(`[qa] ${message}`);
 export default async function globalSetup() {
   assertSafeQaEnvironment();
   const settings = loadQaSettings();
-  const databaseUrl = process.env.DATABASE_URL;
+  const databaseUrl = process.env.DATABASE_URL ?? '';
 
   const before = await withDatabase(databaseUrl, async (db) => {
     const leftovers = await purgeQaArtifacts(db, settings);
@@ -45,7 +45,7 @@ export default async function globalSetup() {
       const after = await snapshotDatabase(db, settings.snapshotSchemas);
       const diff = diffSnapshots(before, after);
 
-      const failures = [];
+      const failures: string[] = [];
       if (footprint.length) {
         failures.push(`QA data still present after cleanup:\n${footprint.map((hit) => `  - ${hit.table}: ${hit.rows} row(s)`).join('\n')}`);
       }

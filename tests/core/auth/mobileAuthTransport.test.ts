@@ -1,4 +1,5 @@
 import test from 'node:test';
+import type { TestContext } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -14,14 +15,14 @@ import {
 const testDirectory = path.dirname(fileURLToPath(import.meta.url));
 const frontendRoot = path.resolve(testDirectory, '../../..');
 
-function installSessionStorage(t) {
-  const values = new Map();
+function installSessionStorage(t: TestContext): Map<string, string> {
+  const values = new Map<string, string>();
   const original = globalThis.sessionStorage;
   globalThis.sessionStorage = {
-    getItem: (key) => values.get(key) ?? null,
-    setItem: (key, value) => values.set(key, String(value)),
-    removeItem: (key) => values.delete(key),
-  };
+    getItem: (key: string) => values.get(key) ?? null,
+    setItem: (key: string, value: string) => { values.set(key, String(value)); },
+    removeItem: (key: string) => { values.delete(key); },
+  } as unknown as Storage;
   t.after(() => { globalThis.sessionStorage = original; });
   return values;
 }

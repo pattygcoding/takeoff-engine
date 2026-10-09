@@ -1,5 +1,8 @@
-import { apiAs, buyPlan, expect, test } from '../../support/fixtures.js';
-import { createQaIdentity } from '../../support/qaEnvironment.js';
+import type { Page } from '@playwright/test';
+import type { QaSettings, QaIdentity } from '../../support/qaEnvironment.ts';
+import type { Db } from '../../support/database.ts';
+import { apiAs, buyPlan, expect, test } from '../../support/fixtures.ts';
+import { createQaIdentity } from '../../support/qaEnvironment.ts';
 import {
   createWorkspace,
   expectSeatsUsed,
@@ -9,9 +12,10 @@ import {
   openTeam,
   revokeViaUi,
   selectWorkspace,
-} from '../../support/teamWorkspace.js';
+} from '../../support/teamWorkspace.ts';
 
-const syntheticEmail = (settings, tag) => createQaIdentity(tag, { emailTemplate: settings.emailTemplate }).email;
+const syntheticEmail = (settings: QaSettings, tag: string): string =>
+  createQaIdentity(tag, { emailTemplate: settings.emailTemplate }).email;
 
 test.describe('seat limits', () => {
   test.use({ customerLabel: 'seatowner' });
@@ -54,7 +58,7 @@ test.describe('seat limits', () => {
     const orgB = (await createWorkspace(page, settings, nameB)).body.organization;
     await inviteAndJoin({ ownerPage: page, member, settings, role: 'viewer' });
 
-    const memberOrgs = (await apiAs(member.page, settings, 'GET', '/organizations')).body.organizations.map((org) => org.id).sort();
+    const memberOrgs = (await apiAs(member.page, settings, 'GET', '/organizations')).body.organizations.map((org: any) => org.id).sort();
     expect(memberOrgs).toEqual([orgA.id, orgB.id].sort());
 
     // Owner + the member (counted once across both workspaces) = 2 of Pro's 3 seats.
@@ -77,7 +81,7 @@ test.describe('seat limits', () => {
       role: 'viewer',
     })));
     expect(race.map((result) => result.status).sort()).toEqual([201, 400]);
-    expect(race.find((result) => result.status === 400).body.code).toBe('SEAT_LIMIT_EXCEEDED');
+    expect(race.find((result) => result.status === 400)!.body.code).toBe('SEAT_LIMIT_EXCEEDED');
 
     await openTeam(page, customer, settings);
     await expectSeatsUsed(page, 3, 3);

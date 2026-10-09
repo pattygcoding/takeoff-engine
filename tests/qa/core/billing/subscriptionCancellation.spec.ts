@@ -1,3 +1,6 @@
+import type { Page } from '@playwright/test';
+import type { QaSettings } from '../../support/qaEnvironment.ts';
+import type { Db } from '../../support/database.ts';
 import {
   buyPlan,
   expect,
@@ -9,12 +12,26 @@ import {
   paddleApi,
   test,
   acknowledgeNotice,
-} from '../../support/fixtures.js';
-import { CANCEL_FEEDBACK, CANCEL_REASON, cancelButton, cancelThroughSettings, restoreButton } from '../../support/accountSettings.js';
-import { QA_PLANS } from '../../support/qaEnvironment.js';
+} from '../../support/fixtures.ts';
+import { CANCEL_FEEDBACK, CANCEL_REASON, cancelButton, cancelThroughSettings, restoreButton } from '../../support/accountSettings.ts';
+import { QA_PLANS } from '../../support/qaEnvironment.ts';
 
 /** Cancellation keeps access until the period ends, in Paddle, the database, the API, and the UI. */
-async function expectScheduledCancellation({ page, db, settings, plan, authUser, subscription }) {
+async function expectScheduledCancellation({
+  page,
+  db,
+  settings,
+  plan,
+  authUser,
+  subscription,
+}: {
+  page: Page;
+  db: Db;
+  settings: QaSettings;
+  plan: string;
+  authUser: Record<string, any>;
+  subscription: any;
+}) {
   const paddleSubscription = await paddleApi(settings).getSubscription(subscription.id);
   expect(paddleSubscription.status, 'Paddle keeps billing access until the period ends').toBe('active');
   expect(paddleSubscription.scheduled_change?.action, 'Paddle must not renew the subscription').toBe('cancel');

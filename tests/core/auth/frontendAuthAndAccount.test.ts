@@ -50,8 +50,8 @@ describe('Frontend Authentication & Account Lifecycle Tests', () => {
 
   describe('Token & LocalStorage Session Management', () => {
     it('stores token and authenticated user profile upon successful login', () => {
-      const mockStorage = {};
-      const setSession = (token, user) => {
+      const mockStorage: Record<string, any> = {};
+      const setSession = (token: string, user: any) => {
         mockStorage['takeoff_token'] = token;
         mockStorage['takeoff_user'] = JSON.stringify(user);
       };
@@ -87,13 +87,13 @@ describe('Frontend Authentication & Account Lifecycle Tests', () => {
       };
 
       assert.strictEqual(backendResponse.accessToken, 'real_jwt_from_supabase');
-      assert.strictEqual(backendResponse.session, undefined, 'refresh credentials must not be exposed to the SPA');
+      assert.strictEqual((backendResponse as any).session, undefined, 'refresh credentials must not be exposed to the SPA');
     });
   });
 
   describe('Password Recovery Token Flow (Frontend Hash Fragment Parser)', () => {
     it('correctly extracts access token and recovery type from URL hash fragment', () => {
-      const parseHash = (hashString) => {
+      const parseHash = (hashString: string) => {
         const cleanHash = hashString.replace(/^#/, '');
         const params = new URLSearchParams(cleanHash);
         return {
@@ -116,7 +116,7 @@ describe('Frontend Authentication & Account Lifecycle Tests', () => {
     it('requires exact username match before enabling permanent delete confirmation button', () => {
       const currentUser = { username: 'patty_contractor' };
 
-      const isDeleteButtonEnabled = (typedText) => {
+      const isDeleteButtonEnabled = (typedText: string) => {
         return typedText === currentUser.username;
       };
 
@@ -127,7 +127,7 @@ describe('Frontend Authentication & Account Lifecycle Tests', () => {
     });
 
     it('blocks self-service deletion when user owns organizations with active team members', () => {
-      const checkSelfServiceDeleteBlocker = (user, userOrganizations) => {
+      const checkSelfServiceDeleteBlocker = (user: any, userOrganizations: any[]) => {
         for (const org of userOrganizations) {
           if (org.owner_id === user.id && org.active_member_count > 1) {
             return {
@@ -160,9 +160,9 @@ describe('Frontend Authentication & Account Lifecycle Tests', () => {
   describe('Post-Registration 4-Plan Onboarding Navigation (US-039)', () => {
     it('transitions to plan-select view immediately after registration', () => {
       let currentView = 'register';
-      let registeredUser = null;
+      let registeredUser: any = null;
 
-      const onRegisterSuccess = (userPayload) => {
+      const onRegisterSuccess = (userPayload: any) => {
         registeredUser = userPayload;
         currentView = 'plan-select';
       };
@@ -174,8 +174,8 @@ describe('Frontend Authentication & Account Lifecycle Tests', () => {
     });
 
     it('routes free trial selection directly to dashboard without checkout', () => {
-      let navigatedTo = null;
-      const handleSelectFreePlan = (user) => {
+      let navigatedTo: any = null;
+      const handleSelectFreePlan = (user: any) => {
         navigatedTo = `/${user.username}`;
       };
 
@@ -185,9 +185,9 @@ describe('Frontend Authentication & Account Lifecycle Tests', () => {
 
     it('assigns correct paid plan tier and routes to dashboard upon checkout completion', async () => {
       let activeUser = { username: 'contractor_bob', subscription_tier: 'free', subscription_status: 'trialing' };
-      let navigatedTo = null;
+      let navigatedTo: any = null;
 
-      const handlePaidPlanCheckoutSuccess = async (planKey) => {
+      const handlePaidPlanCheckoutSuccess = async (planKey: string) => {
         activeUser = {
           ...activeUser,
           subscription_tier: planKey,

@@ -1,23 +1,25 @@
 import { expect } from '@playwright/test';
-import { acknowledgeNotice, label } from './fixtures.js';
+import type { Page } from '@playwright/test';
+import { acknowledgeNotice, label } from './fixtures.ts';
+import type { QaSettings } from './qaEnvironment.ts';
 
 export const CANCEL_REASON = 'Too expensive';
 export const CANCEL_FEEDBACK = 'QA automation: cancellation flow';
 
-const TIER_LABEL_KEYS = {
+const TIER_LABEL_KEYS: Record<string, string> = {
   starter: 'core.upgradeModal.starterTier',
   pro: 'core.upgradeModal.proTier',
   enterprise: 'core.upgradeModal.enterpriseTier',
 };
 
-const escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-const templatePrefix = (key) => label(key).split('{{')[0];
+const escapeRegExp = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const templatePrefix = (key: string): string => label(key).split('{{')[0];
 
-export const cancelButton = (page) => page.getByRole('button', { name: label('core.accountSettings.cancelSubscription'), exact: true });
-export const restoreButton = (page) => page.getByRole('button', { name: label('core.accountSettings.restoreSubscription') });
+export const cancelButton = (page: Page) => page.getByRole('button', { name: label('core.accountSettings.cancelSubscription'), exact: true });
+export const restoreButton = (page: Page) => page.getByRole('button', { name: label('core.accountSettings.restoreSubscription') });
 
 /** Account settings -> Cancel Subscription -> reason form -> Confirm Cancellation. */
-export async function cancelThroughSettings(page, settings) {
+export async function cancelThroughSettings(page: Page, settings: QaSettings): Promise<void> {
   await expect(cancelButton(page), 'paid subscribers must be able to cancel from account settings').toBeVisible();
   await cancelButton(page).click();
 
@@ -38,7 +40,15 @@ export async function cancelThroughSettings(page, settings) {
  * Upgrade/Downgrade button (and the downgrade confirmation). Returns the change-plan response.
  * With `expectFailure`, the app's error notice is acknowledged and the modal is closed.
  */
-export async function changePlanThroughSettings(page, { plan, direction, settings, expectFailure = false }) {
+export async function changePlanThroughSettings(
+  page: Page,
+  { plan, direction, settings, expectFailure = false }: {
+    plan: string;
+    direction: string;
+    settings: QaSettings;
+    expectFailure?: boolean;
+  },
+): Promise<any> {
   const openModal = page.getByRole('button', { name: label('core.accountSettings.upgradeToPro'), exact: true })
     .or(page.getByRole('button', { name: label('core.accountSettings.changePlanOrRedeemCode'), exact: true }));
   await openModal.click();

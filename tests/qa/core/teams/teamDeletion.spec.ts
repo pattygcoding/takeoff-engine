@@ -1,6 +1,8 @@
-import { apiAs, buyPlan, expect, label, paddleApi, test } from '../../support/fixtures.js';
-import { findAuthUserByEmail, findProfile } from '../../support/database.js';
-import { createQaIdentity } from '../../support/qaEnvironment.js';
+import type { Page } from '@playwright/test';
+import type { QaSettings, QaIdentity } from '../../support/qaEnvironment.ts';
+import { apiAs, buyPlan, expect, label, paddleApi, test } from '../../support/fixtures.ts';
+import { findAuthUserByEmail, findProfile } from '../../support/database.ts';
+import { createQaIdentity } from '../../support/qaEnvironment.ts';
 import {
   createWorkspace,
   deleteAccountViaUi,
@@ -13,10 +15,10 @@ import {
   membersHeading,
   openTeam,
   revokeViaUi,
-} from '../../support/teamWorkspace.js';
+} from '../../support/teamWorkspace.ts';
 
-const tw = (key) => label(`core.teamWorkspaceManager.${key}`);
-const syntheticEmail = (settings, tag) => createQaIdentity(tag, { emailTemplate: settings.emailTemplate }).email;
+const tw = (key: string): string => label(`core.teamWorkspaceManager.${key}`);
+const syntheticEmail = (settings: QaSettings, tag: string): string => createQaIdentity(tag, { emailTemplate: settings.emailTemplate }).email;
 
 test.describe('deleting workspaces and accounts', () => {
   test.use({ customerLabel: 'deleter' });

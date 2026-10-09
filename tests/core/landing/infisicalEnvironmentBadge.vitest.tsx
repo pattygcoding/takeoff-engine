@@ -4,13 +4,13 @@ import { cleanup, render, screen } from '@testing-library/react';
 
 vi.mock('@/core/components/context/I18nContext', () => ({
   useTranslation: () => ({
-    t: (key) => ({
+    t: (key: string) => (({
       'core.footer.devInfisicalEnvironment': 'B',
       'core.footer.prodInfisicalEnvironment': 'A',
       'core.footer.devInfisicalEnvironmentDescription': 'Dev Infisical values are in use',
       'core.footer.prodInfisicalEnvironmentDescription': 'Prod Infisical values are in use',
       'core.footer.unknownInfisicalEnvironmentDescription': 'Infisical environment could not be identified',
-    }[key] ?? key),
+    } as Record<string, string>)[key] ?? key),
   }),
 }));
 

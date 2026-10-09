@@ -10,24 +10,43 @@ import {
   paddleApi,
   planChangeCharges,
   test,
-} from '../../support/fixtures.js';
-import { payWithPaddleOverlay } from '../../support/paddleSandbox.js';
-import { createQaIdentity } from '../../support/qaEnvironment.js';
-import { createWorkspace, expectSeatsUsed, openTeam, setExtraSeatsViaUi } from '../../support/teamWorkspace.js';
+} from '../../support/fixtures.ts';
+import type { Page } from '@playwright/test';
+import { payWithPaddleOverlay } from '../../support/paddleSandbox.ts';
+import { createQaIdentity } from '../../support/qaEnvironment.ts';
+import type { QaIdentity, QaSettings } from '../../support/qaEnvironment.ts';
+import type { Db } from '../../support/database.ts';
+import { createWorkspace, expectSeatsUsed, openTeam, setExtraSeatsViaUi } from '../../support/teamWorkspace.ts';
 
 const COLLECTED = new Set(['paid', 'completed']);
-const collectedCharges = async (settings, subscriptionId) => (await planChangeCharges(settings, subscriptionId)).filter((txn) => COLLECTED.has(txn.status)).length;
-const quantityOf = (subscription, priceId) => subscription.items.find((item) => item.price.id === priceId)?.quantity ?? 0;
-const syntheticEmail = (settings, tag) => createQaIdentity(tag, { emailTemplate: settings.emailTemplate }).email;
+const collectedCharges = async (settings: QaSettings, subscriptionId: string) => (await planChangeCharges(settings, subscriptionId)).filter((txn: any) => COLLECTED.has(txn.status)).length;
+const quantityOf = (subscription: any, priceId: string) => subscription.items.find((item: any) => item.price.id === priceId)?.quantity ?? 0;
+const syntheticEmail = (settings: QaSettings, tag: string): string => createQaIdentity(tag, { emailTemplate: settings.emailTemplate }).email;
 // Paddle sandbox card that succeeds on the first payment (after a 3D Secure challenge) and declines every later one.
 const DECLINES_AFTER_FIRST_PAYMENT = '4000 0027 6000 3184';
 
-async function orgMaxSeats(db, ownerId) {
+async function orgMaxSeats(db: Db, ownerId: string) {
   const { rows } = await db.query('SELECT max_seats FROM public.organizations WHERE owner_id = $1', [ownerId]);
-  return rows.map((row) => row.max_seats);
+  return rows.map((row: any) => row.max_seats);
 }
 
-async function ownerWithWorkspace({ page, db, customer, settings, plan = 'enterprise', interval = 'monthly', paySettings = settings }) {
+async function ownerWithWorkspace({
+  page,
+  db,
+  customer,
+  settings,
+  plan = 'enterprise',
+  interval = 'monthly',
+  paySettings = settings,
+}: {
+  page: Page;
+  db: Db;
+  customer: QaIdentity;
+  settings: QaSettings;
+  plan?: string;
+  interval?: string;
+  paySettings?: QaSettings;
+}) {
   const purchase = await buyPlan(page, db, { plan, interval, customer, settings: paySettings });
   await openTeam(page, customer, settings);
   const org = (await createWorkspace(page, settings, `QA Seat Billing ${customer.tag}`)).body.organization;
@@ -39,7 +58,7 @@ test.describe('paying for seats', () => {
 
   test('the owner buys extra seats, cannot cut below seats in use, then removes the extras', async ({ page, db, customer, settings }) => {
     const { authUser, subscription, org } = await ownerWithWorkspace({ page, db, customer, settings });
-    const seatPrice = settings.paddle.seatPriceIds.monthly;
+    const seatPrice = (settings.paddle.seatPriceIds.monthly ?? '');
     const paddle = paddleApi(settings);
 
     await test.step('adding 2 seats is charged now (prorated) and raises capacity to 10', async () => {
@@ -67,7 +86,7 @@ test.describe('paying for seats', () => {
 
     await test.step('after freeing a seat, the extra seat can be removed from billing', async () => {
       const { body } = await apiAs(page, settings, 'GET', `/organizations/${org.id}`);
-      const pending = body.members.find((m) => m.status === 'pending');
+      const pending = body.members.find((m: any) => m.status === 'pending');
       expect((await apiAs(page, settings, 'POST', `/organizations/${org.id}/members/${pending.id}/revoke`)).status).toBe(200);
       await openTeam(page, customer, settings);
       expect((await setExtraSeatsViaUi(page, settings, 1)).status).toBe(200);
@@ -82,8 +101,8 @@ test.describe('paying for seats', () => {
     const { authUser, subscription } = await ownerWithWorkspace({ page, db, customer, settings, interval: 'annually' });
     expect((await setExtraSeatsViaUi(page, settings, 1)).status).toBe(200);
     const paddleSubscription = await paddleApi(settings).getSubscription(subscription.id);
-    expect(quantityOf(paddleSubscription, settings.paddle.seatPriceIds.annually)).toBe(1);
-    expect(quantityOf(paddleSubscription, settings.paddle.seatPriceIds.monthly)).toBe(0);
+    expect(quantityOf(paddleSubscription, settings.paddle.seatPriceIds.annually ?? '')).toBe(1);
+    expect(quantityOf(paddleSubscription, (settings.paddle.seatPriceIds.monthly ?? ''))).toBe(0);
     await expect.poll(() => collectedCharges(settings, subscription.id), { timeout: 60_000 }).toBe(1);
     await expectProfile(db, authUser.id, (row) => row.seat_limit === 9, 'seat limit 9');
   });
@@ -104,7 +123,7 @@ test.describe('paying for seats', () => {
     await payWithPaddleOverlay(page, { email: customer.email, cardholderName: `${customer.firstName} ${customer.lastName}`, card: settings.card });
 
     const subscription = await paddleApi(settings).waitForSubscription({ email: customer.email, priceId: settings.paddle.priceIds.monthly.pro });
-    expect(quantityOf(subscription, settings.paddle.seatPriceIds.monthly)).toBe(2);
+    expect(quantityOf(subscription, (settings.paddle.seatPriceIds.monthly ?? ''))).toBe(2);
     await forwardSubscriptionWebhook(settings, subscription.id, 'subscription.created');
     expect(await expectProfile(db, authUser.id, (row) => row.paddle_subscription_id === subscription.id && row.seat_limit === 5, 'Pro with 5 seats'))
       .toMatchObject({ subscription_tier: 'pro', additional_seats: 2 });
@@ -116,7 +135,7 @@ test.describe('paying for seats', () => {
     const declined = await setExtraSeatsViaUi(page, settings, 1);
     expect(declined.status).toBe(402);
     expect(declined.body.code).toBe('SEAT_CHANGE_NOT_BILLED');
-    expect(quantityOf(await paddleApi(settings).getSubscription(subscription.id), settings.paddle.seatPriceIds.monthly)).toBe(0);
+    expect(quantityOf(await paddleApi(settings).getSubscription(subscription.id), (settings.paddle.seatPriceIds.monthly ?? ''))).toBe(0);
     expect(await expectProfile(db, authUser.id, () => true, 'profile')).toMatchObject({ seat_limit: 8, additional_seats: 0 });
     await openTeam(page, customer, settings);
     await expectSeatsUsed(page, 1, 8);
@@ -125,8 +144,8 @@ test.describe('paying for seats', () => {
   test("seats changed in Paddle's billing portal sync to the app", async ({ page, db, customer, settings }) => {
     const { authUser, subscription } = await ownerWithWorkspace({ page, db, customer, settings });
     await paddleApi(settings).updateItems(subscription.id, [
-      { priceId: settings.paddle.priceIds.monthly.enterprise, quantity: 1 },
-      { priceId: settings.paddle.seatPriceIds.monthly, quantity: 3 },
+      { priceId: settings.paddle.priceIds.monthly.enterprise ?? '', quantity: 1 },
+      { priceId: settings.paddle.seatPriceIds.monthly ?? '', quantity: 3 },
     ]);
     await forwardSubscriptionWebhook(settings, subscription.id, 'subscription.updated');
     await expectProfile(db, authUser.id, (row) => row.seat_limit === 11 && row.additional_seats === 3, 'seat limit 11');

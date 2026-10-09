@@ -19,6 +19,6 @@ function Fixture() {
   );
 }
 
-createRoot(document.getElementById('root')).render(
+createRoot(document.getElementById('root')!).render(
   <BrowserRouter><I18nProvider><ModalProvider><Fixture /></ModalProvider></I18nProvider></BrowserRouter>
 );

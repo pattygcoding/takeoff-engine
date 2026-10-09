@@ -1,5 +1,8 @@
-import { apiAs, buyPlan, expect, label, test } from '../../support/fixtures.js';
-import { createQaIdentity } from '../../support/qaEnvironment.js';
+import type { Page } from '@playwright/test';
+import { apiAs, buyPlan, expect, label, test } from '../../support/fixtures.ts';
+import type { QaPersona } from '../../support/fixtures.ts';
+import { createQaIdentity } from '../../support/qaEnvironment.ts';
+import type { QaSettings } from '../../support/qaEnvironment.ts';
 import {
   changeRoleViaUi,
   createWorkspace,
@@ -17,15 +20,15 @@ import {
   removeViaUi,
   revokeViaUi,
   roleSelect,
-} from '../../support/teamWorkspace.js';
+} from '../../support/teamWorkspace.ts';
 
-const tw = (key) => label(`core.teamWorkspaceManager.${key}`);
-const yourRole = (page) => page.getByText(`${tw('yourRole')}:`);
-const syntheticEmail = (settings, tag) => createQaIdentity(tag, { emailTemplate: settings.emailTemplate }).email;
+const tw = (key: string): string => label(`core.teamWorkspaceManager.${key}`);
+const yourRole = (page: Page) => page.getByText(`${tw('yourRole')}:`);
+const syntheticEmail = (settings: QaSettings, tag: string): string => createQaIdentity(tag, { emailTemplate: settings.emailTemplate }).email;
 
-async function memberIds(page, settings, orgId) {
+async function memberIds(page: Page, settings: QaSettings, orgId: string) {
   const { body } = await apiAs(page, settings, 'GET', `/organizations/${orgId}`);
-  return Object.fromEntries(body.members.map((m) => [m.user_email || m.invited_email, m]));
+  return Object.fromEntries(body.members.map((m: any) => [m.user_email || m.invited_email, m]));
 }
 
 test.describe('roles', () => {
@@ -39,7 +42,7 @@ test.describe('roles', () => {
     const admin = await persona('admin');
     const estimator = await persona('estimator');
     const viewer = await persona('viewer');
-    for (const [member, role] of [[admin, 'admin'], [estimator, 'estimator'], [viewer, 'viewer']]) {
+    for (const [member, role] of [[admin, 'admin'], [estimator, 'estimator'], [viewer, 'viewer']] as Array<[QaPersona, string]>) {
       await openTeam(page, customer, settings);
       await inviteAndJoin({ ownerPage: page, member, settings, role });
     }
@@ -49,7 +52,7 @@ test.describe('roles', () => {
     const ids = await memberIds(page, settings, org.id);
 
     await test.step('every member sees the workspace, their role, and the owner', async () => {
-      for (const [member, roleKey] of [[admin, 'roleAdmin'], [estimator, 'roleEstimator'], [viewer, 'roleViewer']]) {
+      for (const [member, roleKey] of [[admin, 'roleAdmin'], [estimator, 'roleEstimator'], [viewer, 'roleViewer']] as Array<[QaPersona, string]>) {
         await openTeam(member.page, member.customer, settings);
         await expect(membersHeading(member.page)).toBeVisible();
         await expect(yourRole(member.page)).toContainText(tw(roleKey));
@@ -59,7 +62,7 @@ test.describe('roles', () => {
       await expect(leaveButton(page)).toHaveCount(0);
     });
 
-    for (const [name, member] of [['estimator', estimator], ['viewer', viewer]]) {
+    for (const [name, member] of [['estimator', estimator], ['viewer', viewer]] as Array<[string, QaPersona]>) {
       await test.step(`the ${name} cannot manage the team (UI and API)`, async () => {
         const p = member.page;
         await expect(inviteForm(p)).toHaveCount(0);
@@ -75,8 +78,8 @@ test.describe('roles', () => {
         const pending = ids[pendingEmail];
         const view = await apiAs(p, settings, 'GET', `/organizations/${org.id}`);
         expect(view.status).toBe(200);
-        expect(view.body.members.find((m) => m.id === pending.id).invite_token, 'invite links are hidden from non-managers').toBeUndefined();
-        const attempts = [
+        expect(view.body.members.find((m: any) => m.id === pending.id).invite_token, 'invite links are hidden from non-managers').toBeUndefined();
+        const attempts: Array<[string, string, any?]> = [
           ['POST', `/organizations/${org.id}/members`, { email: syntheticEmail(settings, 'nope'), role: 'viewer' }],
           ['POST', `/organizations/${org.id}/members/${pending.id}/resend`],
           ['POST', `/organizations/${org.id}/members/${pending.id}/revoke`],
@@ -104,10 +107,10 @@ test.describe('roles', () => {
       const invited = syntheticEmail(settings, 'byadmin');
       expect((await inviteViaUi(p, settings, { email: invited, role: 'viewer' })).status).toBe(201);
       expect((await revokeViaUi(p, settings, invited)).status).toBe(200);
-      expect((await apiAs(p, settings, 'GET', `/organizations/${org.id}`)).body.members.find((m) => m.id === ids[pendingEmail].id).invite_token).toBeTruthy();
+      expect((await apiAs(p, settings, 'GET', `/organizations/${org.id}`)).body.members.find((m: any) => m.id === ids[pendingEmail].id).invite_token).toBeTruthy();
 
       const ownerRow = ids[customer.email];
-      const refusals = [
+      const refusals: Array<[string, string, any?]> = [
         ['POST', `/organizations/${org.id}/members`, { email: syntheticEmail(settings, 'newadmin'), role: 'admin' }],
         ['PUT', `/organizations/${org.id}/members/${ids[estimator.customer.email].id}`, { role: 'admin' }],
         ['PUT', `/organizations/${org.id}/members/${ownerRow.id}`, { role: 'viewer' }],
@@ -123,10 +126,10 @@ test.describe('roles', () => {
       await openTeam(page, customer, settings);
       expect((await changeRoleViaUi(page, settings, viewer.customer.email, 'admin')).status).toBe(200);
       const promoted = ids[viewer.customer.email];
-      for (const [method, path, body] of [
+      for (const [method, path, body] of ([
         ['PUT', `/organizations/${org.id}/members/${promoted.id}`, { role: 'viewer' }],
         ['DELETE', `/organizations/${org.id}/members/${promoted.id}`],
-      ]) {
+      ] as Array<[string, string, any?]>)) {
         expect((await apiAs(admin.page, settings, method, path, body)).status, `${method} ${path}`).toBe(403);
       }
       await openTeam(admin.page, admin.customer, settings);

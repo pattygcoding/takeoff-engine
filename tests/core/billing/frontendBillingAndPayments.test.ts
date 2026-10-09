@@ -1,12 +1,12 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { createCatalogFixture, randomMinorUnits, toMinor } from '../../helpers/paddleCatalogFixture.js';
+import { createCatalogFixture, randomMinorUnits, toMinor } from '../../helpers/paddleCatalogFixture.ts';
 
 describe('Frontend Billing, Subscriptions & Paddle Checkout Tests', () => {
   // Prices come from a mocked Paddle catalog generated per run; seat counts are plan entitlements.
   const { catalog, minorUnits } = createCatalogFixture();
   const { prices } = catalog;
-  const PLANS_CONFIG = {
+  const PLANS_CONFIG: Record<string, any> = {
     starter: { basePriceMonthly: prices.STARTER_MONTHLY_PRICE, basePriceAnnual: prices.STARTER_YEARLY_PRICE, baseSeats: 1, maxSeats: 1, additionalSeatPriceMonthly: 0 },
     pro: { basePriceMonthly: prices.PRO_MONTHLY_PRICE, basePriceAnnual: prices.PRO_YEARLY_PRICE, baseSeats: 3, maxSeats: 10, additionalSeatPriceMonthly: prices.EXTRA_SEAT_MONTHLY_PRICE, additionalSeatPriceAnnual: prices.EXTRA_SEAT_YEARLY_PRICE },
     enterprise: { basePriceMonthly: prices.ENTERPRISE_MONTHLY_PRICE, basePriceAnnual: prices.ENTERPRISE_YEARLY_PRICE, baseSeats: 8, maxSeats: 20, additionalSeatPriceMonthly: prices.EXTRA_SEAT_MONTHLY_PRICE, additionalSeatPriceAnnual: prices.EXTRA_SEAT_YEARLY_PRICE },
@@ -14,7 +14,7 @@ describe('Frontend Billing, Subscriptions & Paddle Checkout Tests', () => {
 
   describe('Pricing Calculations & Seat Additions (TeamWorkspaceManager & Upgrade Modal)', () => {
     it('calculates Pro plan monthly and annual pricing with additional seats correctly', () => {
-      const calculatePlanCost = (planKey, interval, additionalSeats = 0) => {
+      const calculatePlanCost = (planKey: string, interval: string, additionalSeats = 0) => {
         const plan = PLANS_CONFIG[planKey];
         if (!plan) throw new Error('Unknown plan');
 
@@ -43,7 +43,7 @@ describe('Frontend Billing, Subscriptions & Paddle Checkout Tests', () => {
     });
 
     it('enforces maximum seat bounds in seat increment controls', () => {
-      const adjustSeats = (currentAdditional, delta, planKey) => {
+      const adjustSeats = (currentAdditional: number, delta: number, planKey: string) => {
         const plan = PLANS_CONFIG[planKey];
         const maxAdditional = plan.maxSeats - plan.baseSeats;
         const next = currentAdditional + delta;
@@ -59,7 +59,7 @@ describe('Frontend Billing, Subscriptions & Paddle Checkout Tests', () => {
 
   describe('Paddle Checkout Payload Preparation', () => {
     it('constructs accurate Paddle checkout customer and customData payload', () => {
-      const buildPaddleCheckoutPayload = ({ user, plan, interval, additionalSeats }) => {
+      const buildPaddleCheckoutPayload = ({ user, plan, interval, additionalSeats }: { user: any; plan: string; interval: string; additionalSeats: number }) => {
         return {
           items: [
             {
@@ -106,7 +106,7 @@ describe('Frontend Billing, Subscriptions & Paddle Checkout Tests', () => {
 
   describe('Subscription Downgrade Modal Safeguards (US-035)', () => {
     it('blocks downgrade to Starter when organization member count exceeds single user', () => {
-      const checkDowngradePermission = (targetPlan, currentMembersCount) => {
+      const checkDowngradePermission = (targetPlan: string, currentMembersCount: number) => {
         if (targetPlan === 'starter' && currentMembersCount > 1) {
           return {
             allowed: false,
@@ -118,7 +118,7 @@ describe('Frontend Billing, Subscriptions & Paddle Checkout Tests', () => {
 
       const blocked = checkDowngradePermission('starter', 3);
       assert.strictEqual(blocked.allowed, false);
-      assert.ok(blocked.errorMessage.includes('single-seat'));
+      assert.ok((blocked.errorMessage ?? '').includes('single-seat'));
 
       const allowed = checkDowngradePermission('starter', 1);
       assert.strictEqual(allowed.allowed, true);
@@ -127,9 +127,9 @@ describe('Frontend Billing, Subscriptions & Paddle Checkout Tests', () => {
 
   describe('UpgradeModal Plan Selection and Current Tier Safeguards', () => {
     it('accurately identifies current tier, upgrade, and downgrade states', () => {
-      const tierHierarchy = { free: 0, starter: 1, pro: 2, enterprise: 3 };
+      const tierHierarchy: Record<string, number> = { free: 0, starter: 1, pro: 2, enterprise: 3 };
 
-      const evaluatePlanAction = (userTier, userSubStatus, targetTier) => {
+      const evaluatePlanAction = (userTier: string, userSubStatus: string, targetTier: string) => {
         const isPaid = userSubStatus === 'active';
         const currentTier = isPaid ? userTier : 'free';
         const currentRank = tierHierarchy[currentTier] || 0;

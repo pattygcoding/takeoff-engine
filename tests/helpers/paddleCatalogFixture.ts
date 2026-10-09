@@ -34,10 +34,10 @@ export function createCatalogFixture({ currencyCode = 'USD', expiresInMs = 300_0
   };
 }
 
-export function formatMoney(amount, currencyCode = 'USD', locale = 'en-US') {
+export function formatMoney(amount: number, currencyCode = 'USD', locale = 'en-US') {
   return new Intl.NumberFormat(locale, { style: 'currency', currency: currencyCode }).format(amount);
 }
 
-export function toMinor(amount) {
+export function toMinor(amount: number) {
   return Math.round(amount * 100);
 }

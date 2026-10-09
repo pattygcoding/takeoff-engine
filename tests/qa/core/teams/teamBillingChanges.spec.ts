@@ -1,3 +1,7 @@
+import type { Page } from '@playwright/test';
+import type { QaPersona } from '../../support/fixtures.ts';
+import type { QaSettings, QaIdentity } from '../../support/qaEnvironment.ts';
+import type { Db } from '../../support/database.ts';
 import {
   apiAs,
   buyPlan,
@@ -9,10 +13,10 @@ import {
   paddleApi,
   planChangeCharges,
   test,
-} from '../../support/fixtures.js';
-import { cancelThroughSettings, changePlanThroughSettings, restoreButton } from '../../support/accountSettings.js';
-import { acknowledgeNotice } from '../../support/fixtures.js';
-import { createQaIdentity } from '../../support/qaEnvironment.js';
+} from '../../support/fixtures.ts';
+import { cancelThroughSettings, changePlanThroughSettings, restoreButton } from '../../support/accountSettings.ts';
+import { acknowledgeNotice } from '../../support/fixtures.ts';
+import { createQaIdentity } from '../../support/qaEnvironment.ts';
 import {
   acceptInviteViaUi,
   createWorkspace,
@@ -24,19 +28,19 @@ import {
   revokeViaUi,
   inviteViaUi,
   setExtraSeatsViaUi,
-} from '../../support/teamWorkspace.js';
+} from '../../support/teamWorkspace.ts';
 
-const syntheticEmail = (settings, tag) => createQaIdentity(tag, { emailTemplate: settings.emailTemplate }).email;
-const quantityOf = (subscription, priceId) => subscription.items.find((item) => item.price.id === priceId)?.quantity ?? 0;
+const syntheticEmail = (settings: QaSettings, tag: string): string => createQaIdentity(tag, { emailTemplate: settings.emailTemplate }).email;
+const quantityOf = (subscription: any, priceId: string) => subscription.items.find((item: any) => item.price.id === priceId)?.quantity ?? 0;
 
-async function ownerWithWorkspace({ page, db, customer, settings, plan }) {
+async function ownerWithWorkspace({ page, db, customer, settings, plan }: { page: Page; db: Db; customer: QaIdentity; settings: QaSettings; plan: string }) {
   const purchase = await buyPlan(page, db, { plan, customer, settings });
   await openTeam(page, customer, settings);
   const org = (await createWorkspace(page, settings, `QA Team Billing ${customer.tag}`)).body.organization;
   return { ...purchase, org };
 }
 
-async function invitePending(page, settings, orgId, count) {
+async function invitePending(page: Page, settings: QaSettings, orgId: string, count: number) {
   for (let index = 1; index <= count; index += 1) {
     const result = await apiAs(page, settings, 'POST', `/organizations/${orgId}/members`, { email: syntheticEmail(settings, `team${index}`), role: 'viewer' });
     expect(result.status).toBe(201);
@@ -56,8 +60,8 @@ test.describe('plan and billing changes with a team', () => {
 
     // Paddle bills Pro + 2 extra seats from the renewal (3 included + 2 = 5 people); nothing is charged now.
     const paddleSubscription = await paddleApi(settings).getSubscription(subscription.id);
-    expect(quantityOf(paddleSubscription, settings.paddle.priceIds.monthly.pro)).toBe(1);
-    expect(quantityOf(paddleSubscription, settings.paddle.seatPriceIds.monthly)).toBe(2);
+    expect(quantityOf(paddleSubscription, settings.paddle.priceIds.monthly.pro ?? '')).toBe(1);
+    expect(quantityOf(paddleSubscription, settings.paddle.seatPriceIds.monthly ?? '')).toBe(2);
     expect((await planChangeCharges(settings, subscription.id)).length).toBe(chargesBefore);
     expect(await expectProfile(db, authUser.id, (row) => row.scheduled_tier === 'pro', 'downgrade scheduled'))
       .toMatchObject({ subscription_tier: 'enterprise', seat_limit: 8, scheduled_additional_seats: 2 });
@@ -94,8 +98,8 @@ test.describe('plan and billing changes with a team', () => {
     await openAccountSettings(page, customer, settings);
     expect((await changePlanThroughSettings(page, { plan: 'enterprise', direction: 'upgrade', settings })).changeType).toBe('upgrade');
     const paddleSubscription = await paddleApi(settings).getSubscription(subscription.id);
-    expect(quantityOf(paddleSubscription, settings.paddle.priceIds.monthly.enterprise)).toBe(1);
-    expect(quantityOf(paddleSubscription, settings.paddle.seatPriceIds.monthly), 'no paying twice for seats Enterprise includes').toBe(0);
+    expect(quantityOf(paddleSubscription, settings.paddle.priceIds.monthly.enterprise ?? '')).toBe(1);
+    expect(quantityOf(paddleSubscription, settings.paddle.seatPriceIds.monthly ?? ''), 'no paying twice for seats Enterprise includes').toBe(0);
     expect(await expectProfile(db, authUser.id, (row) => row.subscription_tier === 'enterprise', 'Enterprise'))
       .toMatchObject({ seat_limit: 8, additional_seats: 0 });
     await openTeam(page, customer, settings);

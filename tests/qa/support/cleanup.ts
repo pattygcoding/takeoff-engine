@@ -1,14 +1,25 @@
-import { deleteQaProfiles, findQaAuthUsers, purgeQaAuthAuditEntries } from './database.js';
-import { createPaddleSandboxApi } from './paddleSandbox.js';
-import { createSupabaseAdmin } from './supabaseAdmin.js';
-import { QA_TAG } from './qaEnvironment.js';
+import { deleteQaProfiles, findQaAuthUsers, purgeQaAuthAuditEntries } from './database.ts';
+import type { Db } from './database.ts';
+import { createPaddleSandboxApi } from './paddleSandbox.ts';
+import { createSupabaseAdmin } from './supabaseAdmin.ts';
+import { QA_TAG } from './qaEnvironment.ts';
+import type { QaSettings } from './qaEnvironment.ts';
+
+/** What `purgeQaArtifacts` reports back about a cleanup run. */
+export interface PurgeResult {
+  users: number;
+  auditRows: number;
+  paddleCustomers: number;
+  paddleSubscriptions: number;
+  markers: unknown[];
+}
 
 /**
  * Removes everything QA created: Paddle sandbox subscriptions/customers first (so nothing keeps
  * billing), then the QA auth users (public.users and its dependents cascade), then the auth
  * audit rows Supabase keeps without a foreign key. Returns the markers to scan for afterwards.
  */
-export async function purgeQaArtifacts(db, settings) {
+export async function purgeQaArtifacts(db: Db, settings: QaSettings): Promise<PurgeResult> {
   const users = await findQaAuthUsers(db);
   const paddleIds = users.flatMap((user) => [user.paddle_customer_id, user.paddle_subscription_id]).filter(Boolean);
 
@@ -31,5 +42,5 @@ export async function purgeQaArtifacts(db, settings) {
   };
 }
 
-export const describePurge = (result) => `${result.users} QA user(s), ${result.auditRows} auth audit row(s), `
+export const describePurge = (result: PurgeResult): string => `${result.users} QA user(s), ${result.auditRows} auth audit row(s), `
   + `${result.paddleSubscriptions} Paddle sandbox subscription(s) canceled, ${result.paddleCustomers} customer(s) archived`;
