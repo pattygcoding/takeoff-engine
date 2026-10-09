@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { ReactNode } from 'react';
 import { Lock, Pencil, Plus, Trash2 } from 'lucide-react';
 import { formatCurrency } from '@/product/lib/calculations';
 import { useTranslation } from '@/core/components/context/I18nContext';
@@ -12,24 +13,28 @@ const thClass = 'py-1 pr-3';
 const today = () => new Date().toISOString().slice(0, 10);
 const newId = () => (globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID() : `id_${Date.now()}`);
 
-export function sumApprovedChangeOrders(changeOrders = []) {
+export function sumApprovedChangeOrders(changeOrders: any[] = []) {
   return changeOrders.filter((co) => co.status === 'approved').reduce((sum, co) => sum + (Number(co.amount) || 0), 0);
 }
 
-export function billableWarrantyItems(warrantyItems = []) {
+export function billableWarrantyItems(warrantyItems: any[] = []) {
   return warrantyItems.filter((w) => !w.covered && Number(w.cost) > 0);
 }
 
-export function defaultInvoiceNumber(project) {
+export function defaultInvoiceNumber(project: any) {
   return `INV-${(project?.id || '').slice(0, 8).toUpperCase() || new Date().toISOString().slice(0, 10).replaceAll('-', '')}`;
 }
 
 // Spreads the marked-up bid across systems by direct-cost weight; the last row absorbs rounding drift.
-export function bidDivisionRows(bySystem, totals) {
+export function bidDivisionRows(bySystem: any[], totals: any) {
   const total = totals.finalBidAmount || 0;
   const direct = totals.totalDirectCost || 0;
   const factor = direct > 0 ? total / direct : 0;
-  const rows = bySystem.map((sys) => ({ system: sys.system, count: sys.items.length, amount: Math.round(sys.directCost * factor * 100) / 100 }));
+  const rows: Array<{ system: any; count: number; amount: number }> = bySystem.map((sys) => ({
+    system: sys.system,
+    count: sys.items.length,
+    amount: Math.round(sys.directCost * factor * 100) / 100,
+  }));
   if (rows.length > 0) {
     const drift = Math.round((total - rows.reduce((s, r) => s + r.amount, 0)) * 100) / 100;
     rows[rows.length - 1].amount += drift;
@@ -37,7 +42,15 @@ export function bidDivisionRows(bySystem, totals) {
   return rows;
 }
 
-export function ClientViewTabs({ value, onChange, lockedViews = [] }) {
+export function ClientViewTabs({
+  value,
+  onChange,
+  lockedViews = [],
+}: {
+  value: string;
+  onChange: (view: string) => void;
+  lockedViews?: string[];
+}) {
   const { t } = useTranslation();
   return (
     <div role="tablist" className="no-print flex flex-wrap gap-2 mb-6">
@@ -71,7 +84,7 @@ export function ClientViewTabs({ value, onChange, lockedViews = [] }) {
   );
 }
 
-function DocTitle({ title, children }) {
+function DocTitle({ title, children }: { title: ReactNode; children?: ReactNode }) {
   return (
     <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
       <h2 className="text-2xl font-black uppercase tracking-widest text-slate-900 dark:text-white">{title}</h2>
@@ -80,7 +93,7 @@ function DocTitle({ title, children }) {
   );
 }
 
-function ProjectInfo({ project }) {
+function ProjectInfo({ project }: { project: any }) {
   const { t } = useTranslation();
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 text-sm">
@@ -100,7 +113,7 @@ function ProjectInfo({ project }) {
   );
 }
 
-function SignatureBlock({ leftLabel, rightLabel }) {
+function SignatureBlock({ leftLabel, rightLabel }: { leftLabel: string; rightLabel: string }) {
   const { t } = useTranslation();
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mt-10 text-xs text-slate-600 dark:text-slate-400">
@@ -116,7 +129,7 @@ function SignatureBlock({ leftLabel, rightLabel }) {
   );
 }
 
-function TotalRow({ label, value, strong }) {
+function TotalRow({ label, value, strong }: { label: ReactNode; value: ReactNode; strong?: boolean }) {
   return (
     <div
       className={`flex justify-between gap-3 py-1 ${
@@ -131,7 +144,27 @@ function TotalRow({ label, value, strong }) {
   );
 }
 
-export function InvoiceView({ bySystem, totals, changeOrders, warrantyItems, project, invoiceNumber, setInvoiceNumber, netDays, setNetDays }) {
+export function InvoiceView({
+  bySystem,
+  totals,
+  changeOrders,
+  warrantyItems,
+  project,
+  invoiceNumber,
+  setInvoiceNumber,
+  netDays,
+  setNetDays,
+}: {
+  bySystem: any[];
+  totals: any;
+  changeOrders: any[];
+  warrantyItems: any[];
+  project: any;
+  invoiceNumber: string;
+  setInvoiceNumber: (value: any) => void;
+  netDays: number | string;
+  setNetDays: (value: any) => void;
+}) {
   const { t } = useTranslation();
   const invoiceDate = new Date();
   const dueDate = new Date(invoiceDate.getTime() + (Number(netDays) || 0) * 86400000);
@@ -175,7 +208,7 @@ export function InvoiceView({ bySystem, totals, changeOrders, warrantyItems, pro
         </thead>
         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
           {bySystem.flatMap((sys) =>
-            sys.items.map((item) => (
+            sys.items.map((item: any) => (
               <tr key={item.id}>
                 <td className="py-1.5 pr-3">{item.description}{item.sizeSpec ? ` — ${item.sizeSpec}` : ''}</td>
                 <td className="py-1.5 pr-3 text-right font-mono">{item.quantity}</td>
@@ -220,7 +253,17 @@ export function InvoiceView({ bySystem, totals, changeOrders, warrantyItems, pro
   );
 }
 
-export function GeneralBidView({ project, bySystem, totals, children }) {
+export function GeneralBidView({
+  project,
+  bySystem,
+  totals,
+  children,
+}: {
+  project: any;
+  bySystem: any[];
+  totals: any;
+  children?: ReactNode;
+}) {
   const { t } = useTranslation();
   const total = totals.finalBidAmount || 0;
   const rows = bidDivisionRows(bySystem, totals);
@@ -277,7 +320,7 @@ export function GeneralBidView({ project, bySystem, totals, children }) {
   );
 }
 
-export function ProposalPackageHeader({ project }) {
+export function ProposalPackageHeader({ project }: { project: any }) {
   const { t } = useTranslation();
   return (
     <>
@@ -313,7 +356,7 @@ export function ProposalPackageFooter() {
   );
 }
 
-function SaveNotice({ canEdit, saving }) {
+function SaveNotice({ canEdit, saving }: { canEdit: boolean; saving: boolean }) {
   const { t } = useTranslation();
   if (!canEdit) {
     return (
@@ -325,7 +368,7 @@ function SaveNotice({ canEdit, saving }) {
   return saving ? <p className="no-print mb-2 text-xs text-slate-500">{t('product.resultsStep.saving')}</p> : null;
 }
 
-function RowActions({ onEdit, onDelete, disabled }) {
+function RowActions({ onEdit, onDelete, disabled }: { onEdit: () => void; onDelete: () => void; disabled?: boolean }) {
   const { t } = useTranslation();
   return (
     <div className="no-print flex items-center justify-end gap-1">
@@ -339,7 +382,7 @@ function RowActions({ onEdit, onDelete, disabled }) {
   );
 }
 
-const statusBadge = {
+const statusBadge: Record<string, string> = {
   approved: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300',
   resolved: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300',
   rejected: 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300',
@@ -348,20 +391,20 @@ const statusBadge = {
   in_progress: 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300',
 };
 
-function StatusBadge({ status, label }) {
+function StatusBadge({ status, label }: { status: string; label: ReactNode }) {
   return <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${statusBadge[status] || ''}`}>{label}</span>;
 }
 
-function useRecordEditor(records, onSave, blank) {
-  const [draft, setDraft] = useState(blank);
-  const [editingId, setEditingId] = useState(null);
+function useRecordEditor(records: any[], onSave: (records: any[]) => any, blank: any) {
+  const [draft, setDraft] = useState<any>(blank);
+  const [editingId, setEditingId] = useState<string | number | null>(null);
 
   const reset = () => {
     setDraft(blank);
     setEditingId(null);
   };
 
-  const submit = async (e, build) => {
+  const submit = async (e: React.FormEvent, build: (draft: any) => any) => {
     e.preventDefault();
     const next = editingId
       ? records.map((r) => (r.id === editingId ? { ...r, ...build(draft) } : r))
@@ -369,19 +412,33 @@ function useRecordEditor(records, onSave, blank) {
     if (await onSave(next)) reset();
   };
 
-  const edit = (record) => {
+  const edit = (record: any) => {
     setEditingId(record.id);
     setDraft({ ...blank, ...record });
   };
 
-  const remove = (id) => onSave(records.filter((r) => r.id !== id));
+  const remove = (id: string | number | undefined) => onSave(records.filter((r) => r.id !== id));
 
   return { draft, setDraft, editingId, reset, submit, edit, remove };
 }
 
 const blankCO = { title: '', description: '', amount: '', scheduleDays: '', status: 'pending', date: '' };
 
-export function ChangeOrdersView({ project, totals, changeOrders, onSave, canEdit, saving }) {
+export function ChangeOrdersView({
+  project,
+  totals,
+  changeOrders,
+  onSave,
+  canEdit,
+  saving,
+}: {
+  project: any;
+  totals: any;
+  changeOrders: any[];
+  onSave: (records: any[]) => any;
+  canEdit: boolean;
+  saving: boolean;
+}) {
   const { t } = useTranslation();
   const editor = useRecordEditor(changeOrders, onSave, { ...blankCO, date: today() });
   const { draft, setDraft } = editor;
@@ -395,7 +452,7 @@ export function ChangeOrdersView({ project, totals, changeOrders, onSave, canEdi
     return `CO-${String(max + 1).padStart(3, '0')}`;
   };
 
-  const build = (d) => ({
+  const build = (d: any) => ({
     number: d.number || nextNumber(),
     title: d.title.trim(),
     description: d.description.trim(),
@@ -510,7 +567,19 @@ export function ChangeOrdersView({ project, totals, changeOrders, onSave, canEdi
 
 const blankWarranty = { location: '', issue: '', resolution: '', status: 'open', covered: true, cost: '', dateReported: '' };
 
-export function WarrantyView({ project, warrantyItems, onSave, canEdit, saving }) {
+export function WarrantyView({
+  project,
+  warrantyItems,
+  onSave,
+  canEdit,
+  saving,
+}: {
+  project: any;
+  warrantyItems: any[];
+  onSave: (records: any[]) => any;
+  canEdit: boolean;
+  saving: boolean;
+}) {
   const { t } = useTranslation();
   const editor = useRecordEditor(warrantyItems, onSave, { ...blankWarranty, dateReported: today() });
   const { draft, setDraft } = editor;
@@ -518,7 +587,7 @@ export function WarrantyView({ project, warrantyItems, onSave, canEdit, saving }
   const counts = warrantyItems.reduce((acc, w) => ({ ...acc, [w.status]: (acc[w.status] || 0) + 1 }), {});
   const billableTotal = billableWarrantyItems(warrantyItems).reduce((s, w) => s + Number(w.cost), 0);
 
-  const build = (d) => ({
+  const build = (d: any) => ({
     dateReported: d.dateReported,
     location: d.location.trim(),
     issue: d.issue.trim(),

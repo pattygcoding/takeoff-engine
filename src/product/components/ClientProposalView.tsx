@@ -16,7 +16,7 @@ export default function ClientProposalView() {
   const { publicToken } = useParams();
   const { showAlert } = useModal();
   const { t } = useTranslation();
-  const [data, setData] = useState(null);
+  const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -48,19 +48,19 @@ export default function ClientProposalView() {
     try {
       setLoading(true);
       setError('');
-      const res = await proposalsApi.getPublicProposal(publicToken);
+      const res = await proposalsApi.getPublicProposal(String(publicToken));
       setData(res);
       if (res.proposal?.client_status === 'accepted') {
         setSignSuccess(true);
       }
     } catch (err) {
-      setError(err.message || t('product.clientProposal.notFoundMessage'));
+      setError((err as Error).message || t('product.clientProposal.notFoundMessage'));
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSign = guard('sign', async (e) => {
+  const handleSign = guard('sign', async (e: React.FormEvent) => {
     e.preventDefault();
     if (!signerName.trim()) {
       setSignError(t('product.clientProposal.legalNameRequired'));
@@ -79,24 +79,24 @@ export default function ClientProposalView() {
     setSignError('');
 
     try {
-      await proposalsApi.signPublicProposal(publicToken, {
+      await proposalsApi.signPublicProposal(String(publicToken), {
         signerName: signerName.trim(),
         signerEmail: signerEmail.trim(),
       });
       setSignSuccess(true);
       await loadProposal();
     } catch (err) {
-      setSignError(err.message || t('product.clientProposal.signatureError'));
+      setSignError((err as Error).message || t('product.clientProposal.signatureError'));
     } finally {
       setSubmitting(false);
     }
   });
 
-  const handleDecline = guard('decline', async (e) => {
+  const handleDecline = guard('decline', async (e: React.FormEvent) => {
     e.preventDefault();
     setDeclining(true);
     try {
-      await proposalsApi.declinePublicProposal(publicToken, {
+      await proposalsApi.declinePublicProposal(String(publicToken), {
         reason: declineReason,
         signerEmail,
         signerName,
@@ -106,7 +106,7 @@ export default function ClientProposalView() {
     } catch (err) {
       await showAlert({
         title: t('product.clientProposal.declineModalTitle'),
-        message: err.message || t('product.clientProposal.declineError'),
+        message: (err as Error).message || t('product.clientProposal.declineError'),
         variant: 'error',
       });
     } finally {
@@ -117,7 +117,7 @@ export default function ClientProposalView() {
   const handleCounterOffer = guard('counter-offer', async ({ counterNotes, scopeChanges, clientName: cName, signerEmail: cEmail }) => {
     setSubmittingCounter(true);
     try {
-      await proposalsApi.submitPublicCounterOffer(publicToken, {
+      await proposalsApi.submitPublicCounterOffer(String(publicToken), {
         counterNotes,
         scopeChanges,
         clientName: cName || signerName,
@@ -133,7 +133,7 @@ export default function ClientProposalView() {
     } catch (err) {
       await showAlert({
         title: t('product.clientProposal.counterErrorTitle', 'Submission Error'),
-        message: err.message || t('product.clientProposal.counterError', 'Failed to submit counter-offer.'),
+        message: (err as Error).message || t('product.clientProposal.counterError', 'Failed to submit counter-offer.'),
         variant: 'error',
       });
     } finally {
@@ -149,7 +149,7 @@ export default function ClientProposalView() {
 
   // Compute estimate totals dynamically if snapshot.summary.finalBidAmount is missing or 0
   // (also the only source for scopeAddonsCost, which isn't persisted in the stored summary snapshot)
-  const [computedSummary, setComputedSummary] = useState(null);
+  const [computedSummary, setComputedSummary] = useState<Record<string, any> | null>(null);
 
   useEffect(() => {
     const items = snapshot?.items || [];
@@ -350,7 +350,7 @@ export default function ClientProposalView() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {snapshot.items.map((item, idx) => (
+                    {snapshot.items.map((item: any, idx: number) => (
                       <tr key={idx} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40">
                         <td className="py-2.5 pr-4 font-medium text-slate-800 dark:text-slate-200">{item.description}</td>
                         <td className="py-2.5 pr-4 text-slate-500 dark:text-slate-400 text-xs">
