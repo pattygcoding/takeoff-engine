@@ -30,6 +30,7 @@ import {
   FieldDailyReportDocument,
   WarrantyCloseoutCertDocument,
 } from '@/product/templates';
+import type { Estimate, Project, Rates, TakeoffItem } from '@/types/models';
 
 /**
  * 17 Distinct Estimating, Engineering & Proposal Layout Formats
@@ -55,7 +56,17 @@ import {
  * 16. Field Daily Superintendent Report (Jobsite Quantity Tracking Sheet) [NEW]
  * 17. Closeout & Warranty Certificate (Project Handover & Completion Sign-Off) [NEW]
  */
-export const EXPORT_FORMATS = [
+export interface ExportFormatItem {
+  id: string;
+  name: string;
+  category: string;
+  tag: string;
+  isProOnly: boolean;
+  badgeColor: string;
+  description: string;
+}
+
+export const EXPORT_FORMATS: ExportFormatItem[] = [
   // --- ROW 1 (5 Formats) ---
   {
     id: 'standard_estimate',
@@ -218,7 +229,7 @@ export const EXPORT_FORMATS = [
   },
 ];
 
-const DOCUMENT_COMPONENTS = {
+const DOCUMENT_COMPONENTS: Record<string, React.ComponentType<any>> = {
   standard_estimate: StandardEstimateDocument,
   client_proposal: ClientProposalDocument,
   executive_presentation: ExecutiveProposalDocument,
@@ -238,7 +249,15 @@ const DOCUMENT_COMPONENTS = {
   warranty_closeout_cert: WarrantyCloseoutCertDocument,
 };
 
-export default function ExportHubPage({ items, rates, currentProject }) {
+export default function ExportHubPage({
+  items,
+  rates,
+  currentProject,
+}: {
+  items: TakeoffItem[];
+  rates: Rates;
+  currentProject: Project | null;
+}) {
   const { t } = useTranslation();
   const { username, projectId } = useParams();
   const navigate = useNavigate();
@@ -246,16 +265,16 @@ export default function ExportHubPage({ items, rates, currentProject }) {
   const { showAlert } = useModal();
 
   const [selectedFormatId, setSelectedFormatId] = useState('standard_estimate');
-  const [exportingType, setExportingType] = useState(null); // 'pdf' | 'word' | null
+  const [exportingType, setExportingType] = useState<string | null>(null); // 'pdf' | 'word' | null
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const printAreaRef = useRef(null);
+  const printAreaRef = useRef<HTMLDivElement>(null);
 
   const guard = useSingleFlight();
   const isProOrExempt =
     user?.role === 'admin' ||
     user?.role === 'payment_exempt' ||
     user?.has_unlimited_bypass === true ||
-    (user?.subscription_status === 'active' && ['pro', 'enterprise'].includes(user?.subscription_tier));
+    (user?.subscription_status === 'active' && ['pro', 'enterprise'].includes(user?.subscription_tier ?? ''));
 
   // '#0284c7' is the DB column default, so treat it as "no brand color chosen" and let each format use its own accent.
   const chosenBrandColor = user?.brand_color && user.brand_color.toLowerCase() !== '#0284c7' ? user.brand_color : '';
@@ -275,7 +294,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
     [isProOrExempt, user, chosenBrandColor]
   );
 
-  const [estimate, setEstimate] = useState({ totals: {}, bySystem: [], items: [], rates });
+  const [estimate, setEstimate] = useState<Estimate>({ totals: {}, bySystem: [], items: [], rates });
 
   // Thumbnails only show the top of page 1, so trim line items to keep 17 live renders cheap.
   const thumbnailEstimate = useMemo(
@@ -320,7 +339,7 @@ export default function ExportHubPage({ items, rates, currentProject }) {
   );
 
   // Metering & export wrapper
-  const runExportAction = async (actionFn) => {
+  const runExportAction = async (actionFn: () => any) => {
     if (isCurrentFormatLocked) {
       setShowUpgradeModal(true);
       return;
@@ -336,7 +355,8 @@ export default function ExportHubPage({ items, rates, currentProject }) {
       if (refreshProfile) await refreshProfile();
       await actionFn();
     } catch (err) {
-      if (err.code === 'TRIAL_EXHAUSTED' || err.code === 'FORBIDDEN_TIER_FEATURE' || err.status === 403) {
+      const apiErr = err as { code?: string; status?: number };
+      if (apiErr.code === 'TRIAL_EXHAUSTED' || apiErr.code === 'FORBIDDEN_TIER_FEATURE' || apiErr.status === 403) {
         setShowUpgradeModal(true);
       } else {
         console.error('[Export Metering Error]', err);
@@ -679,11 +699,25 @@ export default function ExportHubPage({ items, rates, currentProject }) {
 /**
  * Format Card Component with Word-style document thumbnail
  */
-function FormatCard({ format, isSelected, isPro, onScrollToPreview, onClick, thumbnailProps }) {
+function FormatCard({
+  format,
+  isSelected,
+  isPro,
+  onScrollToPreview,
+  onClick,
+  thumbnailProps,
+}: {
+  format: ExportFormatItem;
+  isSelected: boolean;
+  isPro: boolean;
+  onScrollToPreview?: () => void;
+  onClick: () => void;
+  thumbnailProps: Record<string, any>;
+}) {
   const { t } = useTranslation();
   const isLocked = format.isProOnly && !isPro;
 
-  const handlePreviewClick = (e) => {
+  const handlePreviewClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     onClick();
     if (onScrollToPreview) {
@@ -711,7 +745,7 @@ function FormatCard({ format, isSelected, isPro, onScrollToPreview, onClick, thu
 
       {/* Live miniature of the actual document, like a Word template gallery */}
       <div className="relative w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden p-2.5 mb-2.5 transition group-hover:bg-slate-200/70 dark:group-hover:bg-slate-900/80">
-        <DocumentThumbnail formatId={format.id} {...thumbnailProps} />
+        <DocumentThumbnail formatId={format.id} {...(thumbnailProps as any)} />
 
         {isLocked && (
           <div className="absolute inset-0 bg-slate-900/65 backdrop-blur-[2px] rounded-xl flex flex-col items-center justify-center p-2 text-center text-white z-10 transition">
@@ -764,8 +798,20 @@ const PAGE_WIDTH_PX = 816; // 8.5in Letter at 96 DPI
 /**
  * Renders the real document template on a Letter-sized sheet, scaled to fit the card.
  */
-const DocumentThumbnail = memo(function DocumentThumbnail({ formatId, estimate, branding, currentProject, rates }) {
-  const frameRef = useRef(null);
+const DocumentThumbnail = memo(function DocumentThumbnail({
+  formatId,
+  estimate,
+  branding,
+  currentProject,
+  rates,
+}: {
+  formatId: string;
+  estimate: Estimate;
+  branding: any;
+  currentProject: Project | null;
+  rates: Rates;
+}) {
+  const frameRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0);
   const DocumentComponent = DOCUMENT_COMPONENTS[formatId];
 

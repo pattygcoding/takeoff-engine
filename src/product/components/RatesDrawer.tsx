@@ -14,12 +14,29 @@ import { calculationsApi } from '@/product/lib/calculations';
 import { DEFAULT_SCOPE_ITEMS, summarizeScope } from '@/product/lib/scope';
 import ScopeInclusionsModal from '@/product/components/ScopeInclusionsModal';
 import UpgradeModal from '@/core/components/billing/UpgradeModal';
+import type { ReactNode } from 'react';
+import type { CrewMember, LaborRole, RateTemplate, Rates } from '@/types/models';
 
-export default function RatesDrawer({ open, onClose, rates, onChange, readOnly = false }) {
+export default function RatesDrawer({
+  open,
+  onClose,
+  rates,
+  onChange,
+  readOnly = false,
+}: {
+  open: boolean;
+  onClose: () => void;
+  rates: Rates;
+  onChange: (rates: Rates) => void;
+  readOnly?: boolean;
+}) {
   const { user } = useAuth();
   const { showAlert, showConfirm } = useModal();
   const { t } = useTranslation();
-  const [libraries, setLibraries] = useState({ systemDefaults: [], userLibraries: [] });
+  const [libraries, setLibraries] = useState<{ systemDefaults: RateTemplate[]; userLibraries: RateTemplate[] }>({
+    systemDefaults: [],
+    userLibraries: [],
+  });
   const [selectedTemplateId, setSelectedTemplateId] = useState('');
   const [templateNameInput, setTemplateNameInput] = useState('');
   const [templateDescInput, setTemplateDescInput] = useState('');
@@ -46,13 +63,13 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
       const data = await ratesApi.list();
       setLibraries(data);
     } catch (err) {
-      console.warn('Could not load rate templates:', err.message);
+      console.warn('Could not load rate templates:', (err as Error).message);
     } finally {
       setLoadLoading(false);
     }
   };
 
-  const handleApplyTemplate = (templateId) => {
+  const handleApplyTemplate = (templateId: string) => {
     setSelectedTemplateId(templateId);
     if (!templateId) return;
 
@@ -68,7 +85,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
     }
   };
 
-  const handleSaveCurrentAsTemplate = guard('save-rate-template', async (e) => {
+  const handleSaveCurrentAsTemplate = guard('save-rate-template', async (e: React.FormEvent) => {
     e.preventDefault();
     if (!templateNameInput.trim()) return;
 
@@ -88,18 +105,18 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
       setTimeout(() => setSuccessMsg(''), 3500);
       await loadRates();
     } catch (err) {
-      if (err.code === 'RATE_LIMIT_EXCEEDED') {
+      if ((err as { code?: string }).code === 'RATE_LIMIT_EXCEEDED') {
         setShowSaveModal(false);
         setShowUpgradeModal(true);
       } else {
-        setErrorMsg(err.message || t('product.ratesDrawer.failedSaveTemplate'));
+        setErrorMsg((err as Error).message || t('product.ratesDrawer.failedSaveTemplate'));
       }
     } finally {
       setSaveLoading(false);
     }
   });
 
-  const handleDeleteTemplate = guard((templateId) => `delete-template:${templateId}`, async (templateId, e) => {
+  const handleDeleteTemplate = guard<[string, React.MouseEvent], void>((templateId) => `delete-template:${templateId}`, async (templateId, e) => {
     e.stopPropagation();
     const confirmed = await showConfirm({
       title: t('product.ratesDrawer.deleteTitle'),
@@ -116,18 +133,18 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
     } catch (err) {
       await showAlert({
         title: t('product.ratesDrawer.deleteErrorTitle'),
-        message: err.message || t('product.ratesDrawer.deleteErrorMessage'),
+        message: (err as Error).message || t('product.ratesDrawer.deleteErrorMessage'),
         variant: 'error',
       });
     }
   });
 
-  const update = (field) => (e) => {
+  const update = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     onChange({ ...rates, [field]: value === '' ? '' : Number(value) });
   };
 
-  const updateType = (field, type) => {
+  const updateType = (field: string, type: string) => {
     onChange({ ...rates, [field]: type });
   };
 
@@ -139,7 +156,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
   const currentHourlyRate = Number(rates.laborHourlyRate) || (laborBasis === 'daily' && Number(rates.laborDailyRate) > 0 ? Number(rates.laborDailyRate) / workdayHours : 65.0);
   const currentDailyRate = Number(rates.laborDailyRate) || (Number(rates.laborHourlyRate) > 0 ? Number(rates.laborHourlyRate) * workdayHours : 520.0);
 
-  const handleLaborBasisChange = (newBasis) => {
+  const handleLaborBasisChange = (newBasis: string) => {
     if (readOnly) return;
     const currentHourly = Number(rates.laborHourlyRate) || currentHourlyRate;
     const currentDaily = Number(rates.laborDailyRate) || currentDailyRate;
@@ -168,7 +185,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
     }
   };
 
-  const handleHourlyRateChange = (e) => {
+  const handleHourlyRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (readOnly) return;
     const val = e.target.value;
     if (val === '') {
@@ -184,7 +201,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
     });
   };
 
-  const handleDailyRateChange = (e) => {
+  const handleDailyRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (readOnly) return;
     const val = e.target.value;
     if (val === '') {
@@ -200,7 +217,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
     });
   };
 
-  const handleWorkdayHoursChange = (e) => {
+  const handleWorkdayHoursChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (readOnly) return;
     const val = e.target.value;
     if (val === '') {
@@ -229,16 +246,21 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
     }
   };
 
-  const laborRoles = Array.isArray(rates.laborRoles) && rates.laborRoles.length > 0
-    ? rates.laborRoles
-    : DEFAULT_LABOR_ROLES;
+  const laborRoles: LaborRole[] =
+    Array.isArray(rates.laborRoles) && rates.laborRoles.length > 0
+      ? rates.laborRoles
+      : DEFAULT_LABOR_ROLES;
 
   const [showCrewCalculator, setShowCrewCalculator] = useState(false);
-  const [crewComposition, setCrewComposition] = useState(() =>
+  const [crewComposition, setCrewComposition] = useState<CrewMember[]>(() =>
     laborRoles.map((r) => ({ roleId: r.id, title: r.title, hourlyRate: r.hourlyRate, count: r.id === 'journeyman' ? 2 : r.id === 'foreman' ? 1 : r.id === 'apprentice' ? 1 : 0 }))
   );
 
-  const [blendedResult, setBlendedResult] = useState({ blendedHourlyRate: 0, totalCrewMembers: 0, totalCrewCostPerHour: 0 });
+  const [blendedResult, setBlendedResult] = useState({
+    blendedHourlyRate: 0,
+    totalCrewMembers: 0,
+    totalCrewCostPerHour: 0,
+  });
 
   useEffect(() => {
     let active = true;
@@ -273,7 +295,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
     setTimeout(() => setSuccessMsg(''), 3500);
   };
 
-  const handleUpdateRole = (roleId, field, val) => {
+  const handleUpdateRole = (roleId: string, field: string, val: any) => {
     if (readOnly) return;
     const updated = laborRoles.map((r) => {
       if (r.id !== roleId) return r;
@@ -322,7 +344,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
     });
   };
 
-  const handleRemoveRole = (roleId) => {
+  const handleRemoveRole = (roleId: string) => {
     if (readOnly) return;
     if (laborRoles.length <= 1) return;
     const filtered = laborRoles.filter((r) => r.id !== roleId);
@@ -332,11 +354,12 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
     });
   };
 
-  const equipmentCatalog = Array.isArray(rates?.equipmentCatalog) && rates.equipmentCatalog.length > 0
-    ? rates.equipmentCatalog
-    : DEFAULT_EQUIPMENT_CATALOG;
+  const equipmentCatalog: Array<Record<string, any>> =
+    Array.isArray(rates?.equipmentCatalog) && rates.equipmentCatalog.length > 0
+      ? rates.equipmentCatalog
+      : DEFAULT_EQUIPMENT_CATALOG;
 
-  const handleUpdateEquipmentCatalogItem = (eqId, field, val) => {
+  const handleUpdateEquipmentCatalogItem = (eqId: string, field: string, val: any) => {
     if (readOnly) return;
     const updated = equipmentCatalog.map((eq) => {
       if (eq.id !== eqId) return eq;
@@ -372,7 +395,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
     });
   };
 
-  const handleRemoveEquipmentCatalogItem = (eqId) => {
+  const handleRemoveEquipmentCatalogItem = (eqId: string) => {
     if (readOnly) return;
     if (equipmentCatalog.length <= 1) return;
     const filtered = equipmentCatalog.filter((eq) => eq.id !== eqId);
@@ -382,7 +405,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
     });
   };
 
-  const miscItems = Array.isArray(rates?.miscItems) ? rates.miscItems : [];
+  const miscItems: Array<Record<string, any>> = Array.isArray(rates?.miscItems) ? rates.miscItems : [];
 
   const handleAddMiscItem = () => {
     const newItem = {
@@ -399,7 +422,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
     });
   };
 
-  const handleUpdateMiscItem = (id, field, val) => {
+  const handleUpdateMiscItem = (id: string, field: string, val: any) => {
     const updated = miscItems.map((item) => {
       if (item.id === id) {
         return {
@@ -417,7 +440,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
     });
   };
 
-  const handleRemoveMiscItem = (id) => {
+  const handleRemoveMiscItem = (id: string) => {
     const updated = miscItems.filter((item) => item.id !== id);
     const totalAmount = updated.reduce((sum, it) => sum + (Number(it.amount) || 0), 0);
     onChange({
@@ -602,7 +625,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleDeleteTemplate(lib.id, e);
+                            handleDeleteTemplate(String(lib.id), e);
                           }}
                           className="text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition ml-2 cursor-pointer"
                           title={t('product.ratesDrawer.deleteLibrary')}
@@ -749,13 +772,13 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                           type="text"
                           value={role.title}
                           disabled={readOnly}
-                          onChange={(e) => handleUpdateRole(role.id, 'title', e.target.value)}
+                          onChange={(e) => handleUpdateRole(role.id!, 'title', e.target.value)}
                           className="flex-1 min-w-0 font-semibold text-xs text-slate-900 dark:text-slate-100 bg-transparent border-b border-transparent focus:border-blue-500 focus:outline-none"
                         />
                         {!readOnly && laborRoles.length > 1 && (
                           <button
                             type="button"
-                            onClick={() => handleRemoveRole(role.id)}
+                            onClick={() => handleRemoveRole(role.id!)}
                             className="text-slate-400 hover:text-red-500 dark:hover:text-red-400 text-xs p-1 cursor-pointer"
                             title={t('product.ratesDrawer.removeRole', 'Remove Role')}
                           >
@@ -766,7 +789,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                       <div className={`grid ${workdayHoursMode === 'perRole' ? 'grid-cols-3' : 'grid-cols-2'} gap-2 text-xs`}>
                         {workdayHoursMode === 'perRole' && (
                           <div className="flex items-center bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1">
-                            <input type="number" min="0.1" step="any" value={role.workdayHours ?? ''} disabled={readOnly} onChange={(e) => handleUpdateRole(role.id, 'workdayHours', e.target.value)} className="w-full bg-transparent text-right outline-none text-slate-900 dark:text-slate-100" placeholder={String(workdayHours)} />
+                            <input type="number" min="0.1" step="any" value={role.workdayHours ?? ''} disabled={readOnly} onChange={(e) => handleUpdateRole(role.id!, 'workdayHours', e.target.value)} className="w-full bg-transparent text-right outline-none text-slate-900 dark:text-slate-100" placeholder={String(workdayHours)} />
                             <span className="text-[10px] text-slate-400 dark:text-slate-500 ml-1">{t('product.ratesDrawer.roleHoursPerDay')}</span>
                           </div>
                         )}
@@ -777,7 +800,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                             step="any"
                             value={role.hourlyRate}
                             disabled={readOnly}
-                            onChange={(e) => handleUpdateRole(role.id, 'hourlyRate', e.target.value)}
+                            onChange={(e) => handleUpdateRole(role.id!, 'hourlyRate', e.target.value)}
                             className="w-full bg-transparent text-right outline-none text-slate-900 dark:text-slate-100"
                             placeholder="0.00"
                           />
@@ -790,7 +813,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                             step="any"
                             value={role.dailyRate}
                             disabled={readOnly}
-                            onChange={(e) => handleUpdateRole(role.id, 'dailyRate', e.target.value)}
+                            onChange={(e) => handleUpdateRole(role.id!, 'dailyRate', e.target.value)}
                             className="w-full bg-transparent text-right outline-none text-slate-900 dark:text-slate-100"
                             placeholder="0.00"
                           />
@@ -1160,7 +1183,7 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
                 </p>
                 {laborRoles.map((role) => {
                   const compItem = crewComposition.find((c) => c.roleId === role.id) || { count: 0 };
-                  const countVal = compItem.count ?? 0;
+                  const countVal = Number(compItem.count ?? 0);
 
                   return (
                     <div
@@ -1266,7 +1289,21 @@ export default function RatesDrawer({ open, onClose, rates, onChange, readOnly =
   );
 }
 
-function Field({ label, value, onChange, prefix, suffix, disabled = false }) {
+function Field({
+  label,
+  value,
+  onChange,
+  prefix,
+  suffix,
+  disabled = false,
+}: {
+  label: ReactNode;
+  value: any;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  prefix?: ReactNode;
+  suffix?: ReactNode;
+  disabled?: boolean;
+}) {
   return (
     <label className="block mb-4">
       <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{label}</span>
@@ -1286,7 +1323,21 @@ function Field({ label, value, onChange, prefix, suffix, disabled = false }) {
   );
 }
 
-function DualModeField({ label, value, onChange, type = 'percent', onTypeChange, disabled = false }) {
+function DualModeField({
+  label,
+  value,
+  onChange,
+  type = 'percent',
+  onTypeChange,
+  disabled = false,
+}: {
+  label: ReactNode;
+  value: any;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  type?: string;
+  onTypeChange: (type: string) => void;
+  disabled?: boolean;
+}) {
   const isPercent = type === 'percent';
   return (
     <div className="mb-4">

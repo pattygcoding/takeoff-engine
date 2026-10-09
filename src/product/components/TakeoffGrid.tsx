@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import type { ChangeEvent, FormEvent, ReactNode } from 'react';
 import { Truck, AlertTriangle, X } from 'lucide-react';
 import { createBlankItem } from '@/product/lib/csv';
 import { useTranslation } from '@/core/components/context/I18nContext';
@@ -8,17 +9,31 @@ import {
   DEFAULT_WORKDAY_HOURS,
   DEFAULT_LABOR_ROLES,
 } from '@/product/constants/calculations.constants';
+import type { LaborRole, Rates, TakeoffItem } from '@/types/models';
 
 const DEFAULT_SYSTEMS = ['Sanitary', 'Storm', 'Domestic Water', 'Equipment & Mobilization'];
 const DEFAULT_UNITS = ['LF', 'EA', 'SF', 'CY', 'SY', 'TON', 'LS', 'HR'];
 
-export default function TakeoffGrid({ items, onChange, readOnly = false, rates = {}, onRatesChange }) {
+export default function TakeoffGrid({
+  items,
+  onChange,
+  readOnly = false,
+  rates = {},
+  onRatesChange,
+}: {
+  items: TakeoffItem[];
+  onChange: (items: TakeoffItem[]) => void;
+  readOnly?: boolean;
+  rates?: Rates;
+  onRatesChange?: (rates: Rates) => void;
+}) {
   const { t } = useTranslation();
   const laborInputMode = rates?.laborMode === 'cost' ? 'cost' : 'hours';
   const hourlyRate = Number(rates?.laborHourlyRate) || 65.0;
-  const laborRoles = Array.isArray(rates?.laborRoles) && rates.laborRoles.length > 0 ? rates.laborRoles : DEFAULT_LABOR_ROLES;
+  const laborRoles: LaborRole[] =
+    Array.isArray(rates?.laborRoles) && rates.laborRoles.length > 0 ? rates.laborRoles : DEFAULT_LABOR_ROLES;
 
-  const [selectedItemIds, setSelectedItemIds] = useState(new Set());
+  const [selectedItemIds, setSelectedItemIds] = useState<Set<string | number | undefined>>(new Set());
   const [bulkRoleId, setBulkRoleId] = useState('');
 
   const handleToggleSelectAll = () => {
@@ -29,7 +44,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
     }
   };
 
-  const handleToggleSelectItem = (id) => {
+  const handleToggleSelectItem = (id: string | number | undefined) => {
     const next = new Set(selectedItemIds);
     if (next.has(id)) {
       next.delete(id);
@@ -55,7 +70,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
     setBulkRoleId('');
   };
 
-  const handleSetLaborInputMode = (mode) => {
+  const handleSetLaborInputMode = (mode: string) => {
     if (onRatesChange) {
       onRatesChange({ ...rates, laborMode: mode });
     }
@@ -79,9 +94,10 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
   }, [items]);
 
   const [showAddEquipmentModal, setShowAddEquipmentModal] = useState(false);
-  const equipmentCatalog = Array.isArray(rates?.equipmentCatalog) && rates.equipmentCatalog.length > 0
-    ? rates.equipmentCatalog
-    : DEFAULT_EQUIPMENT_CATALOG;
+  const equipmentCatalog: Array<Record<string, any>> =
+    Array.isArray(rates?.equipmentCatalog) && rates.equipmentCatalog.length > 0
+      ? rates.equipmentCatalog
+      : DEFAULT_EQUIPMENT_CATALOG;
 
   const [selectedCatalogId, setSelectedCatalogId] = useState('mini-excavator');
   const [eqDurationQty, setEqDurationQty] = useState(1);
@@ -127,7 +143,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
     setShowAddEquipmentModal(true);
   };
 
-  const handleCatalogSelectChange = (e) => {
+  const handleCatalogSelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
     setSelectedCatalogId(val);
     if (val === 'custom') {
@@ -150,7 +166,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
     }
   };
 
-  const handleConfirmAddEquipment = async (e) => {
+  const handleConfirmAddEquipment = async (e: FormEvent) => {
     e.preventDefault();
     if (readOnly) return;
 
@@ -224,12 +240,12 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
     setShowAddEquipmentModal(false);
   };
 
-  const updateItem = (id, field, value) => {
+  const updateItem = (id: string | number | undefined, field: string, value: unknown) => {
     if (readOnly) return;
     onChange(items.map((it) => (it.id === id ? { ...it, [field]: value } : it)));
   };
 
-  const removeItem = (id) => {
+  const removeItem = (id: string | number | undefined) => {
     if (readOnly) return;
     onChange(items.filter((it) => it.id !== id));
   };
@@ -239,13 +255,13 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
     onChange([...items, createBlankItem()]);
   };
 
-  const numberField = (item, field) => (e) => {
+  const numberField = (item: TakeoffItem, field: string) => (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     if (readOnly) return;
     const v = e.target.value;
     updateItem(item.id, field, v === '' ? '' : Number(v));
   };
 
-  const laborCostField = (item) => (e) => {
+  const laborCostField = (item: TakeoffItem) => (e: ChangeEvent<HTMLInputElement>) => {
     if (readOnly) return;
     const v = e.target.value;
     if (v === '') {
@@ -257,7 +273,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
     onChange(items.map((it) => (it.id === item.id ? { ...it, laborHoursPerUnit: hrs, laborUnitCost: cost } : it)));
   };
 
-  const textField = (item, field) => (e) => {
+  const textField = (item: TakeoffItem, field: string) => (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     if (readOnly) return;
     updateItem(item.id, field, e.target.value);
   };
@@ -270,7 +286,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400"></span>
             <span className="text-xs font-bold text-blue-900 dark:text-blue-200">
-              {t('product.takeoffGrid.selectedItemsCount', { count: selectedItemIds.size }, `${selectedItemIds.size} items selected`)}
+              {t('product.takeoffGrid.selectedItemsCount', { count: selectedItemIds.size })}
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -366,7 +382,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-800 dark:text-slate-200">
             {items.map((item) => {
               const matchedRole = item.laborRoleId ? laborRoles.find((r) => r.id === item.laborRoleId) : null;
-              const itemHourlyRate = matchedRole ? matchedRole.hourlyRate : hourlyRate;
+              const itemHourlyRate = matchedRole ? (matchedRole.hourlyRate ?? hourlyRate) : hourlyRate;
               const itemRoleTitle = matchedRole ? matchedRole.title : 'Project Base Rate';
 
               return (
@@ -442,7 +458,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                       onChange={numberField(item, 'quantity')}
                       disabled={readOnly}
                       className={`w-20 bg-transparent outline-none text-right disabled:opacity-80 disabled:cursor-not-allowed dark:text-white ${
-                        item.quantity < 0 ? 'text-red-600 dark:text-red-400 font-bold' : ''
+                        Number(item.quantity) < 0 ? 'text-red-600 dark:text-red-400 font-bold' : ''
                       }`}
                     />
                   </Td>
@@ -521,7 +537,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                         value={
                           laborInputMode === 'hours'
                             ? (item.laborHoursPerUnit ?? '')
-                            : (item.laborUnitCost ?? (item.laborHoursPerUnit !== undefined && item.laborHoursPerUnit !== '' ? Math.round((item.laborHoursPerUnit * itemHourlyRate) * 100) / 100 : ''))
+                            : (item.laborUnitCost ?? (item.laborHoursPerUnit !== undefined && item.laborHoursPerUnit !== '' ? Math.round((Number(item.laborHoursPerUnit) * Number(itemHourlyRate)) * 100) / 100 : ''))
                         }
                         onChange={laborInputMode === 'hours' ? numberField(item, 'laborHoursPerUnit') : laborCostField(item)}
                         disabled={readOnly}
@@ -663,7 +679,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                     step="any"
                     required
                     value={eqDurationQty}
-                    onChange={(e) => setEqDurationQty(e.target.value)}
+                    onChange={(e) => setEqDurationQty(Number(e.target.value))}
                     className="w-full px-3 py-2 text-xs border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   />
                 </div>
@@ -729,7 +745,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                       type="number"
                       step="any"
                       value={eqCustomDailyRate}
-                      onChange={(e) => setEqCustomDailyRate(e.target.value)}
+                      onChange={(e) => setEqCustomDailyRate(Number(e.target.value))}
                       className="w-full bg-transparent outline-none text-xs text-right"
                     />
                   </div>
@@ -744,7 +760,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                       type="number"
                       step="any"
                       value={eqCustomWeeklyRate}
-                      onChange={(e) => setEqCustomWeeklyRate(e.target.value)}
+                      onChange={(e) => setEqCustomWeeklyRate(Number(e.target.value))}
                       className="w-full bg-transparent outline-none text-xs text-right"
                     />
                   </div>
@@ -759,7 +775,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                       type="number"
                       step="any"
                       value={eqCustomMonthlyRate}
-                      onChange={(e) => setEqCustomMonthlyRate(e.target.value)}
+                      onChange={(e) => setEqCustomMonthlyRate(Number(e.target.value))}
                       className="w-full bg-transparent outline-none text-xs text-right"
                     />
                   </div>
@@ -776,7 +792,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                     min="0"
                     step="any"
                     value={eqDamageWaiverPct}
-                    onChange={(e) => setEqDamageWaiverPct(e.target.value)}
+                    onChange={(e) => setEqDamageWaiverPct(Number(e.target.value))}
                     className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-right outline-none"
                   />
                 </div>
@@ -789,7 +805,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                     min="1"
                     step="1"
                     value={eqMinimumRentalDays}
-                    onChange={(e) => setEqMinimumRentalDays(e.target.value)}
+                    onChange={(e) => setEqMinimumRentalDays(Number(e.target.value))}
                     className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-right outline-none"
                   />
                 </div>
@@ -805,7 +821,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                     min="0"
                     step="1"
                     value={eqStandbyDays}
-                    onChange={(e) => setEqStandbyDays(e.target.value)}
+                    onChange={(e) => setEqStandbyDays(Number(e.target.value))}
                     className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-right outline-none"
                   />
                 </div>
@@ -818,7 +834,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                     min="0"
                     step="any"
                     value={eqStandbyRatePct}
-                    onChange={(e) => setEqStandbyRatePct(e.target.value)}
+                    onChange={(e) => setEqStandbyRatePct(Number(e.target.value))}
                     className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-right outline-none"
                   />
                 </div>
@@ -848,7 +864,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                       min="0"
                       step="1"
                       value={eqContingencyDays}
-                      onChange={(e) => setEqContingencyDays(e.target.value)}
+                      onChange={(e) => setEqContingencyDays(Number(e.target.value))}
                       className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-right outline-none"
                     />
                   </div>
@@ -872,7 +888,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
                     step="any"
                     disabled={!eqIncludeDelivery}
                     value={eqCustomDeliveryFee}
-                    onChange={(e) => setEqCustomDeliveryFee(e.target.value)}
+                    onChange={(e) => setEqCustomDeliveryFee(Number(e.target.value))}
                     className="w-16 px-1.5 py-0.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-right outline-none disabled:opacity-50"
                   />
                 </div>
@@ -928,7 +944,7 @@ export default function TakeoffGrid({ items, onChange, readOnly = false, rates =
   );
 }
 
-function Th({ children, align = 'left' }) {
+function Th({ children, align = 'left' }: { children?: ReactNode; align?: string }) {
   return (
     <th className={`px-3 py-2 font-semibold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide ${align === 'right' ? 'text-right' : 'text-left'}`}>
       {children}
@@ -936,6 +952,6 @@ function Th({ children, align = 'left' }) {
   );
 }
 
-function Td({ children, align = 'left' }) {
+function Td({ children, align = 'left' }: { children?: ReactNode; align?: string }) {
   return <td className={`px-3 py-2 ${align === 'right' ? 'text-right' : 'text-left'}`}>{children}</td>;
 }

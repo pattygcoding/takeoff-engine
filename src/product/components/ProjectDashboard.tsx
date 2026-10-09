@@ -5,8 +5,9 @@ import { useAuth } from '@/core/components/context/AuthContext';
 import { useModal } from '@/core/components/context/ModalContext';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
+import type { Project } from '@/types/models';
 
-const STATUS_CONFIG = {
+const STATUS_CONFIG: Record<string, { label: string; badgeClass: string }> = {
   draft: {
     label: 'Draft',
     badgeClass: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700',
@@ -29,25 +30,31 @@ const STATUS_CONFIG = {
   },
 };
 
-export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
+export default function ProjectDashboard({
+  onOpenProject,
+  onNewTakeoff,
+}: {
+  onOpenProject: (project: Project, targetStep?: string) => void;
+  onNewTakeoff: () => void;
+}) {
   const { user, isAdmin } = useAuth();
   const { showAlert, showConfirm } = useModal();
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [projects, setProjects] = useState([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [actionMenuOpenId, setActionMenuOpenId] = useState(null);
+  const [actionMenuOpenId, setActionMenuOpenId] = useState<string | number | null | undefined>(null);
 
   // Modals state
-  const [renameModalProject, setRenameModalProject] = useState(null);
+  const [renameModalProject, setRenameModalProject] = useState<Project | null>(null);
   const [renameInput, setRenameInput] = useState('');
-  const [statusModalProject, setStatusModalProject] = useState(null);
+  const [statusModalProject, setStatusModalProject] = useState<Project | null>(null);
   const [newStatusInput, setNewStatusInput] = useState('draft');
-  const [isDeletingId, setIsDeletingId] = useState(null);
-  const [isCloningId, setIsCloningId] = useState(null);
+  const [isDeletingId, setIsDeletingId] = useState<string | number | null | undefined>(null);
+  const [isCloningId, setIsCloningId] = useState<string | number | null | undefined>(null);
 
   const guard = useSingleFlight();
   const fetchProjects = async () => {
@@ -59,8 +66,9 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
     } catch (err) {
       console.warn('Could not retrieve remote projects:', err);
       // Only show error message for non-404 network errors, otherwise gracefully default to empty project list
-      if (err.message && !err.message.includes('404') && !err.message.includes('Not Found')) {
-        setError(err.message || t('product.projectDashboard.errLoadFailed'));
+      const errMsg = (err as Error).message;
+      if (errMsg && !errMsg.includes('404') && !errMsg.includes('Not Found')) {
+        setError(errMsg || t('product.projectDashboard.errLoadFailed'));
       } else {
         setProjects([]);
       }
@@ -76,7 +84,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
   // Filter projects
   const filteredProjects = projects.filter((project) => {
     const matchesSearch =
-      project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (project.name ?? '').toLowerCase().includes(searchQuery.toLowerCase()) ||
       (project.client_name && project.client_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (project.location && project.location.toLowerCase().includes(searchQuery.toLowerCase()));
 
@@ -84,20 +92,20 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
     return matchesSearch && matchesStatus;
   });
 
-  const handleOpen = (project, targetStep = 'edit') => {
+  const handleOpen = (project: Project, targetStep: string = 'edit') => {
     onOpenProject(project, targetStep);
   };
 
-  const handleClone = guard((project) => `clone:${project.id}`, async (project) => {
+  const handleClone = guard((project: Project) => `clone:${project.id}`, async (project: Project) => {
     try {
       setIsCloningId(project.id);
       setActionMenuOpenId(null);
-      const cloned = await projectsApi.clone(project.id);
+      const cloned = await projectsApi.clone(String(project.id));
       setProjects((prev) => [cloned, ...prev]);
     } catch (err) {
       await showAlert({
         title: t('product.projectDashboard.errDuplicateTitle'),
-        message: err.message || t('product.projectDashboard.errDuplicateMessage'),
+        message: (err as Error).message || t('product.projectDashboard.errDuplicateMessage'),
         variant: 'error',
       });
     } finally {
@@ -105,13 +113,13 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
     }
   });
 
-  const handleArchiveToggle = guard((project) => `archive:${project.id}`, async (project) => {
+  const handleArchiveToggle = guard((project: Project) => `archive:${project.id}`, async (project: Project) => {
     const rawStatus = (project.status || 'draft').toLowerCase().trim();
     const isArchived = rawStatus === 'archived';
     const nextStatus = isArchived ? 'draft' : 'archived';
     try {
       setActionMenuOpenId(null);
-      const updated = await projectsApi.update(project.id, {
+      const updated = await projectsApi.update(String(project.id), {
         status: nextStatus,
       });
       setProjects((prev) =>
@@ -130,14 +138,14 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
     } catch (err) {
       await showAlert({
         title: t('product.projectDashboard.errArchiveTitle'),
-        message: err.message || t('product.projectDashboard.errArchiveMessage'),
+        message: (err as Error).message || t('product.projectDashboard.errArchiveMessage'),
         variant: 'error',
       });
     }
   });
 
-  const handleDelete = guard((project) => `delete:${project.id}`, async (project, isAdminDelete = false) => {
-    const isSpecialAdminDelete = isAdminDelete || (isAdmin && !['draft', 'archived'].includes(project.status));
+  const handleDelete = guard<[Project, boolean?], void>((project) => `delete:${project.id}`, async (project, isAdminDelete = false) => {
+    const isSpecialAdminDelete = isAdminDelete || (isAdmin && !['draft', 'archived'].includes(project.status ?? ''));
 
     const confirmed = await showConfirm({
       title: isSpecialAdminDelete ? t('product.projectDashboard.adminDeleteConfirmTitle') : t('product.projectDashboard.deleteConfirmTitle'),
@@ -153,12 +161,12 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
     try {
       setIsDeletingId(project.id);
       setActionMenuOpenId(null);
-      await projectsApi.delete(project.id);
+      await projectsApi.delete(String(project.id));
       setProjects((prev) => prev.filter((p) => p.id !== project.id));
     } catch (err) {
       await showAlert({
         title: t('product.projectDashboard.errDeleteTitle'),
-        message: err.message || t('product.projectDashboard.errDeleteMessage'),
+        message: (err as Error).message || t('product.projectDashboard.errDeleteMessage'),
         variant: 'error',
       });
     } finally {
@@ -166,12 +174,12 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
     }
   });
 
-  const handleRenameSubmit = guard(() => `rename:${renameModalProject?.id || 'none'}`, async (e) => {
+  const handleRenameSubmit = guard<[React.FormEvent], void>(() => `rename:${renameModalProject?.id || 'none'}`, async (e) => {
     e.preventDefault();
     if (!renameInput.trim() || !renameModalProject) return;
 
     try {
-      const updated = await projectsApi.update(renameModalProject.id, {
+      const updated = await projectsApi.update(String(renameModalProject.id), {
         name: renameInput.trim(),
       });
       setProjects((prev) =>
@@ -182,18 +190,18 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
     } catch (err) {
       await showAlert({
         title: t('product.projectDashboard.errRenameTitle'),
-        message: err.message || t('product.projectDashboard.errRenameMessage'),
+        message: (err as Error).message || t('product.projectDashboard.errRenameMessage'),
         variant: 'error',
       });
     }
   });
 
-  const handleStatusSubmit = guard(() => `status:${statusModalProject?.id || 'none'}`, async (e) => {
+  const handleStatusSubmit = guard<[React.FormEvent], void>(() => `status:${statusModalProject?.id || 'none'}`, async (e) => {
     e.preventDefault();
     if (!statusModalProject) return;
 
     try {
-      const updated = await projectsApi.update(statusModalProject.id, {
+      const updated = await projectsApi.update(String(statusModalProject.id), {
         status: newStatusInput,
       });
       setProjects((prev) =>
@@ -203,18 +211,19 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
     } catch (err) {
       await showAlert({
         title: t('product.projectDashboard.errStatusUpdateTitle'),
-        message: err.message || t('product.projectDashboard.errStatusUpdateMessage'),
+        message: (err as Error).message || t('product.projectDashboard.errStatusUpdateMessage'),
         variant: 'error',
       });
     }
   });
 
-  const formatCurrency = (val) => {
-    if (!val || isNaN(val)) return '$0.00';
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
+  const formatCurrency = (val: number | string | null | undefined) => {
+    const num = Number(val);
+    if (!val || Number.isNaN(num)) return '$0.00';
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num);
   };
 
-  const formatDate = (isoStr) => {
+  const formatDate = (isoStr: string | null | undefined) => {
     if (!isoStr) return '';
     return new Date(isoStr).toLocaleDateString('en-US', {
       month: 'short',
@@ -418,7 +427,7 @@ export default function ProjectDashboard({ onOpenProject, onNewTakeoff }) {
                               onClick={() => {
                                 setActionMenuOpenId(null);
                                 setRenameModalProject(project);
-                                setRenameInput(project.name);
+                                setRenameInput(project.name ?? '');
                               }}
                               className="w-full text-left px-4 py-2 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2 font-medium cursor-pointer"
                             >
