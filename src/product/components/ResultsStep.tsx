@@ -28,12 +28,14 @@ import {
   WarrantyView,
 } from './ClientModeViews';
 import Papa from 'papaparse';
+import type { ReactNode } from 'react';
+import type { Estimate, Project, Rates, TakeoffItem } from '@/types/models';
 
 // Invoice and proposal PDFs are available on every plan; the rest require Pro/Enterprise.
 const FREE_PDF_VIEWS = ['invoice', 'proposal'];
 
 // Must match ids in the backend serverTemplateRegistry so record-export can enforce the tier.
-const CLIENT_PDF_FORMAT_IDS = {
+const CLIENT_PDF_FORMAT_IDS: Record<string, string> = {
   invoice: 'client_invoice',
   proposal: 'client_proposal_package',
   bid: 'client_general_bid',
@@ -41,7 +43,25 @@ const CLIENT_PDF_FORMAT_IDS = {
   warranty: 'client_warranty_log',
 };
 
-export default function ResultsStep({ items, rates, currentProject, onProjectSaved, onBack, readOnly = false, projectStatus = 'awarded', onDuplicate }) {
+export default function ResultsStep({
+  items,
+  rates,
+  currentProject,
+  onProjectSaved,
+  onBack,
+  readOnly = false,
+  projectStatus = 'awarded',
+  onDuplicate,
+}: {
+  items: TakeoffItem[];
+  rates: Rates;
+  currentProject: Project | null;
+  onProjectSaved?: (project: any) => void;
+  onBack?: () => void;
+  readOnly?: boolean;
+  projectStatus?: string;
+  onDuplicate?: () => void;
+}) {
   const { username, projectId } = useParams();
   const navigate = useNavigate();
   const { user, setUser, refreshProfile } = useAuth();
@@ -49,12 +69,12 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
   const { t } = useTranslation();
   const [proposalMode, setProposalMode] = useState(false);
   const [clientView, setClientView] = useState('proposal');
-  const [changeOrders, setChangeOrders] = useState(currentProject?.change_orders_json || []);
-  const [warrantyItems, setWarrantyItems] = useState(currentProject?.warranty_items_json || []);
+  const [changeOrders, setChangeOrders] = useState<any[]>(currentProject?.change_orders_json || []);
+  const [warrantyItems, setWarrantyItems] = useState<any[]>(currentProject?.warranty_items_json || []);
   const [isSavingRecords, setIsSavingRecords] = useState(false);
   const [invoiceNumber, setInvoiceNumber] = useState(() => defaultInvoiceNumber(currentProject));
   const [netDays, setNetDays] = useState(30);
-  const [pdfView, setPdfView] = useState(null);
+  const [pdfView, setPdfView] = useState<string | null>(null);
   const [isSavingProject, setIsSavingProject] = useState(false);
   const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
   const [showSaveModal, setShowSaveModal] = useState(false);
@@ -68,7 +88,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
   const [shareProposalModalOpen, setShareProposalModalOpen] = useState(false);
   const [publicShareUrl, setPublicShareUrl] = useState('');
   const [shareCopied, setShareCopied] = useState(false);
-  const [shareProposalData, setShareProposalData] = useState(null);
+  const [shareProposalData, setShareProposalData] = useState<any>(null);
   const [clientRecipientEmail, setClientRecipientEmail] = useState('');
   const [clientRecipientName, setClientRecipientName] = useState(currentProject?.client_name || '');
   const [isSendingEmail, setIsSendingEmail] = useState(false);
@@ -79,13 +99,13 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
     user?.role === 'admin' ||
     user?.role === 'payment_exempt' ||
     user?.has_unlimited_bypass === true ||
-    (user?.subscription_status === 'active' && ['starter', 'pro', 'enterprise'].includes(user?.subscription_tier));
+    (user?.subscription_status === 'active' && ['starter', 'pro', 'enterprise'].includes(user?.subscription_tier ?? ''));
 
   const isProOrExempt =
     user?.role === 'admin' ||
     user?.role === 'payment_exempt' ||
     user?.has_unlimited_bypass === true ||
-    (user?.subscription_status === 'active' && ['pro', 'enterprise'].includes(user?.subscription_tier));
+    (user?.subscription_status === 'active' && ['pro', 'enterprise'].includes(user?.subscription_tier ?? ''));
 
   const branding = isProOrExempt
     ? {
@@ -106,7 +126,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
   const lockedPdfViews = isProOrExempt ? [] : CLIENT_VIEWS.filter((view) => !FREE_PDF_VIEWS.includes(view));
   const isPdfLocked = lockedPdfViews.includes(clientView);
 
-  const [estimate, setEstimate] = useState({ totals: {}, bySystem: [], items: [] });
+  const [estimate, setEstimate] = useState<Estimate>({ totals: {}, bySystem: [], items: [] });
   const [isCalculating, setIsCalculating] = useState(false);
 
   useEffect(() => {
@@ -137,11 +157,11 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
     setWarrantyItems(currentProject?.warranty_items_json || []);
   }, [currentProject?.change_orders_json, currentProject?.warranty_items_json]);
 
-  const saveClientRecords = async (patch) => {
+  const saveClientRecords = async (patch: any) => {
     if (!currentProject?.id) return false;
     try {
       setIsSavingRecords(true);
-      const saved = await projectsApi.update(currentProject.id, patch);
+      const saved = await projectsApi.update(String(currentProject.id), patch);
       if (onProjectSaved) {
         onProjectSaved({ ...currentProject, ...saved, latestEstimate: saved?.latestEstimate || currentProject.latestEstimate });
       }
@@ -149,7 +169,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
     } catch (err) {
       await showAlert({
         title: t('product.resultsStep.saveFailed'),
-        message: err.message || t('product.clientViews.saveRecordsFailed'),
+        message: (err as Error).message || t('product.clientViews.saveRecordsFailed'),
         variant: 'error',
       });
       return false;
@@ -158,19 +178,19 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
     }
   };
 
-  const saveChangeOrders = guard('save-change-orders', async (next) => {
+  const saveChangeOrders = guard<[any[]], any>('save-change-orders', async (next) => {
     const ok = await saveClientRecords({ changeOrders: next });
     if (ok) setChangeOrders(next);
     return ok;
   });
 
-  const saveWarrantyItems = guard('save-warranty-items', async (next) => {
+  const saveWarrantyItems = guard<[any[]], any>('save-warranty-items', async (next) => {
     const ok = await saveClientRecords({ warrantyItems: next });
     if (ok) setWarrantyItems(next);
     return ok;
   });
 
-  const handleSaveToCloud = guard('save-project', async (e) => {
+  const handleSaveToCloud = guard<[any], void>('save-project', async (e) => {
     if (e) e.preventDefault();
     if (!projectNameInput.trim()) {
       setShowSaveModal(true);
@@ -197,7 +217,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
 
       if (currentProject?.id) {
         // Update existing project
-        savedProject = await projectsApi.update(currentProject.id, {
+        savedProject = await projectsApi.update(String(currentProject.id), {
           name: projectNameInput.trim(),
           clientName: clientNameInput.trim(),
           location: locationInput.trim(),
@@ -226,7 +246,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
       setTimeout(() => setSaveSuccessMsg(''), 4000);
       return savedProject;
     } catch (err) {
-      if (err.code === 'TRIAL_EXHAUSTED') {
+      if ((err as { code?: string }).code === 'TRIAL_EXHAUSTED') {
         setShowSaveModal(false);
         if (refreshProfile) refreshProfile();
         setShowUpgradeModal(true);
@@ -234,7 +254,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
       }
       await showAlert({
         title: t('product.resultsStep.saveFailed'),
-        message: err.message || t('product.resultsStep.savingProject'),
+        message: (err as Error).message || t('product.resultsStep.savingProject'),
         variant: 'error',
       });
       return null;
@@ -269,7 +289,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
       };
 
       const res = await proposalsApi.generateProposal({
-        projectId: currentProject?.id || null,
+        projectId: currentProject?.id ? String(currentProject.id) : undefined,
         projectName: currentProject?.name || projectNameInput.trim() || 'Utility Takeoff Proposal',
         clientName: currentProject?.client_name || clientNameInput.trim() || '',
         location: currentProject?.location || locationInput.trim() || '',
@@ -287,7 +307,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
     } catch (err) {
       await showAlert({
         title: t('product.resultsStep.proposalLinkError'),
-        message: err.message || t('product.resultsStep.proposalLinkErrorMessage'),
+        message: (err as Error).message || t('product.resultsStep.proposalLinkErrorMessage'),
         variant: 'error',
       });
     } finally {
@@ -295,7 +315,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
     }
   });
 
-  const handleSendProposalEmail = guard('send-proposal-email', async (e) => {
+  const handleSendProposalEmail = guard('send-proposal-email', async (e: React.FormEvent) => {
     e.preventDefault();
     if (!clientRecipientEmail || !clientRecipientEmail.trim()) {
       await showAlert({
@@ -328,7 +348,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
     } catch (err) {
       await showAlert({
         title: t('product.resultsStep.emailDeliveryError'),
-        message: err.message || t('product.resultsStep.emailDeliveryErrorMessage'),
+        message: (err as Error).message || t('product.resultsStep.emailDeliveryErrorMessage'),
         variant: 'error',
       });
     } finally {
@@ -339,7 +359,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
   /**
    * Records export and decrements credit count before completing file download
    */
-  const processExportWithCreditCheck = async (exportFn) => {
+  const processExportWithCreditCheck = async (exportFn: () => any) => {
     try {
       const recordResult = await authApi.recordExport();
       if (recordResult?.trial_uses_remaining !== undefined) {
@@ -350,7 +370,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
       if (refreshProfile) await refreshProfile();
       await exportFn();
     } catch (err) {
-      if (err.code === 'TRIAL_EXHAUSTED' || err.status === 403) {
+      if ((err as { code?: string; status?: number }).code === 'TRIAL_EXHAUSTED' || (err as { status?: number }).status === 403) {
         setShowUpgradeModal(true);
       } else {
         console.error('[Export Metering Error]', err);
@@ -372,7 +392,8 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
       }
       if (refreshProfile) await refreshProfile();
     } catch (err) {
-      if (err.code === 'TRIAL_EXHAUSTED' || err.code === 'FORBIDDEN_TIER_FEATURE' || err.status === 403) {
+      const apiErr = err as { code?: string; status?: number };
+      if (apiErr.code === 'TRIAL_EXHAUSTED' || apiErr.code === 'FORBIDDEN_TIER_FEATURE' || apiErr.status === 403) {
         setShowUpgradeModal(true);
         return;
       }
@@ -395,7 +416,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
               img.addEventListener('error', resolve);
             }))
         );
-        await exportNodeToPdf(node, pdfFileName(currentProject?.name, CLIENT_PDF_FORMAT_IDS[pdfView]), {
+        await exportNodeToPdf(node!, pdfFileName(currentProject?.name, CLIENT_PDF_FORMAT_IDS[pdfView]), {
           pageLabel: (page, total) => t('product.clientViews.pdf.pageLabel', { page, total }),
         });
       } catch (err) {
@@ -413,7 +434,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pdfView]);
 
-  const PdfDocument = pdfView ? CLIENT_VIEW_DOCUMENTS[pdfView] : null;
+  const PdfDocument = pdfView ? (CLIENT_VIEW_DOCUMENTS as Record<string, any>)[pdfView] : null;
 
   const exportCsv = guard('record-export', async () => {
     await processExportWithCreditCheck(async () => {
@@ -425,12 +446,12 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
           Quantity: item.quantity,
           Unit: item.unit,
           ...(proposalMode
-            ? { 'Line Total': item.directCost.toFixed(2) }
+            ? { 'Line Total': (item.directCost ?? 0).toFixed(2) }
             : {
-                'Material Cost': item.materialCost.toFixed(2),
-                'Labor Hours': item.laborHours.toFixed(2),
-                'Labor Cost': item.laborCost.toFixed(2),
-                'Direct Cost': item.directCost.toFixed(2),
+                'Material Cost': (item.materialCost ?? 0).toFixed(2),
+                'Labor Hours': (item.laborHours ?? 0).toFixed(2),
+                'Labor Cost': (item.laborCost ?? 0).toFixed(2),
+                'Direct Cost': (item.directCost ?? 0).toFixed(2),
               }),
         }))
       );
@@ -441,7 +462,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
 
   const navigateToExportHub = () => {
     if (projectId || currentProject?.id) {
-      const activeId = projectId || currentProject.id;
+      const activeId = projectId || currentProject?.id;
       navigate(`/${username}/takeoff/${activeId}/export`);
     } else {
       navigate(`/${username}/export`);
@@ -835,7 +856,7 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
                     readOnly
                     value={publicShareUrl}
                     className="w-full bg-white dark:bg-slate-800 px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-800 dark:text-slate-100 focus:outline-none"
-                    onClick={(e) => e.target.select()}
+                    onClick={(e) => (e.target as HTMLInputElement).select()}
                   />
                   <button
                     type="button"
@@ -993,13 +1014,13 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
             {totals.totalEquipmentLineItemCost > 0 ? (
               <SummaryCard
                 label={t('product.resultsStep.equipmentLineItems', 'Equipment & Machinery')}
-                value={formatCurrency(totals.totalEquipmentLineItemCost + totals.equipmentLumpSum)}
-                sub={totals.equipmentLumpSum > 0 ? `Incl. ${formatCurrency(totals.equipmentLumpSum)} mob` : undefined}
+                value={formatCurrency((totals.totalEquipmentLineItemCost ?? 0) + (totals.equipmentLumpSum ?? 0))}
+                sub={(totals.equipmentLumpSum ?? 0) > 0 ? `Incl. ${formatCurrency(totals.equipmentLumpSum)} mob` : undefined}
               />
             ) : (
               <SummaryCard label={t('product.resultsStep.equipmentMobilization')} value={formatCurrency(totals.equipmentLumpSum)} />
             )}
-            {totals.miscCost > 0 && (
+            {(totals.miscCost ?? 0) > 0 && (
               <SummaryCard label={t('product.resultsStep.miscellaneousCosts')} value={formatCurrency(totals.miscCost)} />
             )}
             {totals.scopeAddonsCost > 0 && (
@@ -1163,7 +1184,17 @@ export default function ResultsStep({ items, rates, currentProject, onProjectSav
   );
 }
 
-function SummaryCard({ label, value, sub, highlight }) {
+function SummaryCard({
+  label,
+  value,
+  sub,
+  highlight,
+}: {
+  label: ReactNode;
+  value: ReactNode;
+  sub?: ReactNode;
+  highlight?: boolean;
+}) {
   return (
     <div
       className={`rounded-2xl border p-4 transition-colors ${
