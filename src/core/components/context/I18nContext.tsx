@@ -2,9 +2,9 @@ import React, { createContext, useContext, useState, useMemo, useCallback, useEf
 import type { ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getTranslation, i18n, isLanguageLoaded, loadLanguage, SUPPORTED_LANGUAGES } from '@/core/lib/shared/i18n';
-import type { TranslationParams } from '@/core/lib/shared/i18n';
+import type { TranslationParamsInput } from '@/core/lib/shared/i18n';
 
-export type TranslateFunction = (key: string, params?: TranslationParams) => string;
+export type TranslateFunction = (key: string, params?: TranslationParamsInput) => string;
 
 interface I18nContextValue {
   t: TranslateFunction;

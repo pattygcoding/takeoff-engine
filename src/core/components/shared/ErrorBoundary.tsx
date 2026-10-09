@@ -1,19 +1,31 @@
 import React from 'react';
+import type { ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { getTranslation } from '@/core/lib/shared/i18n';
 import { isStaleBuildError, reloadForStaleBuild } from '@/core/lib/shared/staleBuild';
 
-export default class ErrorBoundary extends React.Component {
-  constructor(props) {
+interface ErrorBoundaryProps {
+  children: ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+  staleBuild: boolean;
+  reloading: boolean;
+}
+
+export default class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false, error: null, staleBuild: false, reloading: false };
   }
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
     return { hasError: true, error, staleBuild: isStaleBuildError(error) };
   }
 
-  componentDidCatch(error, errorInfo) {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     if (isStaleBuildError(error) && reloadForStaleBuild()) {
       this.setState({ reloading: true });
       return;
@@ -21,7 +33,7 @@ export default class ErrorBoundary extends React.Component {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
   }
 
-  render() {
+  render(): ReactNode {
     if (this.state.hasError) {
       const savedLang = typeof localStorage !== 'undefined' ? localStorage.getItem('takeoff_lang') || 'en' : 'en';
 

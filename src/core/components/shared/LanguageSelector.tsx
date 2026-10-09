@@ -1,7 +1,12 @@
 import React, { useState, useRef, useEffect, useId } from 'react';
 import { useTranslation } from '@/core/components/context/I18nContext';
 
-export const LANGUAGES = [
+interface Language {
+  code: string;
+  label: string;
+}
+
+export const LANGUAGES: Language[] = [
   {
     code: 'en',
     label: 'English'
@@ -24,25 +29,25 @@ export const LANGUAGES = [
 // it should open leftwards (right-aligned) or rightwards (left-aligned).
 const DROPDOWN_WIDTH = 144;
 
-export default function LanguageSelector({ variant = 'light' }) {
+export default function LanguageSelector({ variant = 'light' }: { variant?: string }) {
   const { language, setLanguage, t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   // Flip the panel to open rightwards when a right-aligned panel would clip off the left edge.
   const [alignLeft, setAlignLeft] = useState(false);
-  const dropdownRef = useRef(null);
-  const triggerRef = useRef(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const listId = useId();
 
   const currentLang = LANGUAGES.find((l) => l.code === language) || LANGUAGES[0];
 
   // Close dropdown on outside click, or on Escape (returning focus to the trigger)
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     }
-    function handleKeyDown(event) {
+    function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape' && dropdownRef.current?.contains(document.activeElement)) {
         setIsOpen(false);
         triggerRef.current?.focus();

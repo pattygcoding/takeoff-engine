@@ -1,6 +1,15 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
+interface SeoHeadProps {
+  title?: string;
+  description?: string;
+  canonicalUrl?: string;
+  ogType?: string;
+  ogImage?: string;
+  schemaData?: Record<string, unknown> | null;
+}
+
 export default function SeoHead({
   title = 'Takeoff Engine — Civil & Utility Estimating Platform',
   description = 'Convert CSV and Excel takeoffs from Bluebeam, PlanSwift, or Agtek into professional client-ready construction proposals and detailed estimates.',
@@ -8,7 +17,7 @@ export default function SeoHead({
   ogType = 'website',
   ogImage = 'https://takeoffengine.com/og-preview.svg',
   schemaData = null,
-}) {
+}: SeoHeadProps) {
   const defaultSchema = {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',

@@ -55,10 +55,18 @@ function resolvePath(root: TranslationTree, parts: string[]): string | undefined
   return typeof current === 'string' ? current : undefined;
 }
 
+/**
+ * Second argument accepted by `getTranslation`/`t`. Historically callers passed a
+ * literal fallback string here (which is ignored — the dictionary, then the key
+ * itself, is the fallback). Both shapes stay accepted for source compatibility.
+ */
+export type TranslationParamsInput = TranslationParams | string;
+
 /** Replaces `{{param}}` placeholders, leaving unknown placeholders untouched. */
-function interpolate(template: string, params: TranslationParams): string {
+function interpolate(template: string, params: TranslationParamsInput): string {
+  const values: TranslationParams = params && typeof params === 'object' ? params : {};
   return template.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, match: string) => {
-    const value = params[match];
+    const value = values[match];
     return value !== undefined ? String(value) : `{{${match}}}`;
   });
 }
@@ -69,7 +77,7 @@ function interpolate(template: string, params: TranslationParams): string {
  */
 export function getTranslation(
   key: string,
-  params: TranslationParams = {},
+  params: TranslationParamsInput = {},
   lang: string = currentLanguage,
 ): string {
   const dictionary = resources[lang] || resources.en;

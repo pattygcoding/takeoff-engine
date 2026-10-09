@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import type { ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { formatCurrency, formatNumber } from '@/core/lib/shared/formatting';
 import {
@@ -29,7 +30,7 @@ const STEP_BORDERS = [
   'border-t lg:border-t-0 sm:border-l sm:pl-6',
 ];
 
-function LogoMark({ inverse = false }) {
+function LogoMark({ inverse = false }: { inverse?: boolean }) {
   return (
     <span
       aria-hidden="true"
@@ -40,7 +41,17 @@ function LogoMark({ inverse = false }) {
   );
 }
 
-function SectionHeader({ label, title, description, onBand = false }) {
+function SectionHeader({
+  label,
+  title,
+  description,
+  onBand = false,
+}: {
+  label: ReactNode;
+  title: ReactNode;
+  description?: ReactNode;
+  onBand?: boolean;
+}) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-3 lg:gap-8 mb-12">
       <div className="text-[13px] font-semibold lg:pt-2.5">
@@ -57,7 +68,7 @@ function SectionHeader({ label, title, description, onBand = false }) {
 }
 
 // Comparison marker: filled = included, half = limited, empty = not available.
-function Marker({ type }) {
+function Marker({ type }: { type?: string }) {
   const fill =
     type === 'yes'
       ? 'bg-[var(--lp-ink)]'
@@ -67,7 +78,21 @@ function Marker({ type }) {
   return <i aria-hidden="true" className={`inline-block w-3 h-3 border-2 border-[var(--lp-ink)] shrink-0 ${fill}`} />;
 }
 
-function CalcField({ id, label, value, onChange, step, min = 0 }) {
+function CalcField({
+  id,
+  label,
+  value,
+  onChange,
+  step,
+  min = 0,
+}: {
+  id: string;
+  label: string;
+  value: number;
+  onChange: (value: number) => void;
+  step?: number | string;
+  min?: number;
+}) {
   return (
     <div>
       <label htmlFor={id} className="block text-[13px] font-semibold mb-1.5">
@@ -127,7 +152,7 @@ export default function LandingPage() {
   ];
 
   const sampleDate = new Date(2026, 0, 14).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
-  const sampleRows = [
+  const sampleRows: Array<[string, string, number, number]> = [
     [t('core.landing.sampleDoc.row1'), '277.8 CY', 18, 5000.4],
     [t('core.landing.sampleDoc.row2'), '500 LF', 14.5, 7250],
     [t('core.landing.sampleDoc.row3'), '62.0 CY', 38, 2356],

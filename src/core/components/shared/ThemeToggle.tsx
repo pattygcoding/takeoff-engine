@@ -3,7 +3,7 @@ import { Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/core/components/context/ThemeContext';
 import { useTranslation } from '@/core/components/context/I18nContext';
 
-export default function ThemeToggle({ className = '', variant = 'header' }) {
+export default function ThemeToggle({ className = '', variant = 'header' }: { className?: string; variant?: string }) {
   const { isDark, toggleTheme } = useTheme();
   const { t } = useTranslation();
 

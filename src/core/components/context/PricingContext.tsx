@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { billingApi } from '@/core/lib/billing/billing';
 import { translateCatalogPrice, validateCatalogPricing } from '@/core/lib/billing/catalogPricing';
 import { useTranslation } from '@/core/components/context/I18nContext';
+import type { TranslationParamsInput } from '@/core/lib/shared/i18n';
 
 interface PricingCatalog {
   currencyCode: string;
@@ -82,7 +83,8 @@ export function usePricingDisplay() {
     prices: catalog?.prices || {},
     ready: Boolean(catalog) && !error && !loading,
     formatPrice,
-    t: (key: string, params?: Record<string, unknown>) => translateCatalogPrice(t, key, params, formatPrice),
+    t: (key: string, params?: TranslationParamsInput) =>
+      translateCatalogPrice(t, key, typeof params === 'object' ? params : undefined, formatPrice),
   };
 }
 
