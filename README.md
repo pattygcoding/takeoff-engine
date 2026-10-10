@@ -119,6 +119,14 @@ When testing upgrades in non-production (`VITE_PADDLE_ENVIRONMENT=sandbox`), use
 3. In your **Paddle Sandbox Dashboard** $\rightarrow$ **Developer Tools** $\rightarrow$ **Notifications**, set the webhook destination to `https://<your-ngrok-subdomain>.ngrok-free.app/api/webhooks/paddle`.
 4. Alternatively, use the test endpoint `POST /api/billing/mock-webhook` with `{ "eventType": "subscription.created", "userId": "<UUID>" }` to test webhook event triggers without external network tunnels.
 
+### Sample Spreadsheet Parsing (`npm run test:parsing`)
+`npm run test:parsing` runs a self-contained Playwright suite that imports the backend ingestion engine
+directly and parses every file in `public/product/samples` — each CSV and every worksheet of the Excel
+workbook. It asserts that each sample's main/vendor table **and** its appended equipment table are all
+imported, and that the deliberately ambiguous "edge cases" sample opens the column-mapping modal with its
+two side-by-side tables. No browser, server, database, or secrets are needed. See
+[tests/parsing/sampleSpreadsheets.spec.ts](./tests/parsing/sampleSpreadsheets.spec.ts).
+
 ### Automated Full-Stack QA (signup + paid checkout)
 `npm run test:qa` runs Playwright QA tests for the core SaaS flows: creating an account, buying the Starter,
 Pro, and Enterprise subscriptions (monthly and yearly) with the Paddle sandbox test card, upgrading and

@@ -15,6 +15,7 @@
     "test:unit": "vitest run --config vitest.config.ts",
     "test:unit:watch": "vitest --config vitest.config.ts",
     "test:e2e": "playwright test --config playwright.e2e.config.ts",
+    "test:parsing": "playwright test --config playwright.parsing.config.ts",
     "test:qa": "infisical run --env=dev -- playwright test --config playwright.qa.config.ts",
     "test:qa:local": "playwright test --config playwright.qa.config.ts",
     "test:a11y": "playwright test",
@@ -28,6 +29,7 @@
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
+
   "dependencies": {
     "@paddle/paddle-js": "^1.6.4",
     "@tailwindcss/vite": "^4.3.3",

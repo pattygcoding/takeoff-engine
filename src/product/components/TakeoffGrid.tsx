@@ -1,12 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { ChangeEvent, FormEvent, ReactNode } from 'react';
 import { Truck, AlertTriangle, X } from 'lucide-react';
 import { createBlankItem } from '@/product/lib/csv';
 import { useTranslation } from '@/core/components/context/I18nContext';
-import { calculationsApi } from '@/product/lib/calculations';
+import { calculationsApi, formatCurrency } from '@/product/lib/calculations';
 import {
   DEFAULT_EQUIPMENT_CATALOG,
-  DEFAULT_WORKDAY_HOURS,
   DEFAULT_LABOR_ROLES,
 } from '@/product/constants/calculations.constants';
 import type { LaborRole, Rates, TakeoffItem } from '@/types/models';
@@ -119,6 +118,57 @@ export default function TakeoffGrid({
   const [eqProductionRate, setEqProductionRate] = useState('');
   const [eqContingencyDays, setEqContingencyDays] = useState(0);
 
+  // The equipment form is priced by the SAME backend engine step 3 uses, so the preview shown here
+  // can never disagree with the results page (damage waiver, standby, operator, and minimum rental
+  // days are all included — unlike the naive duration x rate + delivery + fuel shortcut).
+  const equipmentPreviewItem = useMemo(
+    () => ({
+      isEquipment: true,
+      equipmentDurationQty: Number(eqDurationQty) || 1,
+      equipmentDurationUnit: eqDurationUnit,
+      equipmentDailyRate: Number(eqCustomDailyRate) || 0,
+      equipmentWeeklyRate: Number(eqCustomWeeklyRate) || 0,
+      equipmentMonthlyRate: Number(eqCustomMonthlyRate) || 0,
+      equipmentDeliveryFee: Number(eqCustomDeliveryFee) || 0,
+      equipmentFuelSurchargePct: Number(eqCustomFuelPct) || 0,
+      equipmentDamageWaiverPct: Number(eqDamageWaiverPct) || 0,
+      equipmentMinimumRentalDays: Number(eqMinimumRentalDays) || 1,
+      equipmentStandbyDays: Number(eqStandbyDays) || 0,
+      equipmentStandbyRatePct: Number(eqStandbyRatePct) || 50,
+      equipmentOwnership: eqOwnership,
+      equipmentOperatorIncluded: eqOperatorIncluded,
+      equipmentOperatorRoleId: 'operator',
+      includeDelivery: eqIncludeDelivery,
+      associatedScope: eqAssociatedScope,
+    }),
+    [
+      eqDurationQty, eqDurationUnit, eqCustomDailyRate, eqCustomWeeklyRate, eqCustomMonthlyRate,
+      eqCustomDeliveryFee, eqCustomFuelPct, eqDamageWaiverPct, eqMinimumRentalDays, eqStandbyDays,
+      eqStandbyRatePct, eqOwnership, eqOperatorIncluded, eqIncludeDelivery, eqAssociatedScope,
+    ],
+  );
+  const [equipmentPreviewCost, setEquipmentPreviewCost] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!showAddEquipmentModal) {
+      setEquipmentPreviewCost(null);
+      return undefined;
+    }
+    let active = true;
+    setEquipmentPreviewCost(null);
+    calculationsApi
+      .computeItemCost(equipmentPreviewItem, rates)
+      .then((res: { directCost?: number } | null) => {
+        if (active) setEquipmentPreviewCost(Number(res?.directCost) || 0);
+      })
+      .catch(() => {
+        if (active) setEquipmentPreviewCost(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, [showAddEquipmentModal, equipmentPreviewItem, rates]);
+
   const handleOpenAddEquipmentModal = () => {
     const firstEq = equipmentCatalog[0] || {};
     setSelectedCatalogId(firstEq.id || 'custom');
@@ -170,38 +220,17 @@ export default function TakeoffGrid({
     e.preventDefault();
     if (readOnly) return;
 
-    const previewItem = {
-      isEquipment: true,
-      equipmentDurationQty: Number(eqDurationQty) || 1,
-      equipmentDurationUnit: eqDurationUnit,
-      equipmentDailyRate: Number(eqCustomDailyRate) || 0,
-      equipmentWeeklyRate: Number(eqCustomWeeklyRate) || 0,
-      equipmentMonthlyRate: Number(eqCustomMonthlyRate) || 0,
-      equipmentDeliveryFee: Number(eqCustomDeliveryFee) || 0,
-      equipmentFuelSurchargePct: Number(eqCustomFuelPct) || 0,
-      equipmentDamageWaiverPct: Number(eqDamageWaiverPct) || 0,
-      equipmentMinimumRentalDays: Number(eqMinimumRentalDays) || 1,
-      equipmentStandbyDays: Number(eqStandbyDays) || 0,
-      equipmentStandbyRatePct: Number(eqStandbyRatePct) || 50,
-      equipmentOwnership: eqOwnership,
-      equipmentOperatorIncluded: eqOperatorIncluded,
-      equipmentOperatorRoleId: 'operator',
-      includeDelivery: eqIncludeDelivery,
-      associatedScope: eqAssociatedScope,
-    };
-    
-    let totalEquipmentCost = 0;
-    try {
-      const res = await calculationsApi.computeItemCost(previewItem, rates);
-      totalEquipmentCost = res.directCost || 0;
-    } catch {
-      // Fallback
-      const base = eqDurationUnit === 'days' ? (Number(eqDurationQty) || 1) * (Number(eqCustomDailyRate) || 0)
-        : eqDurationUnit === 'months' ? (Number(eqDurationQty) || 1) * (Number(eqCustomMonthlyRate) || 0)
-        : (Number(eqDurationQty) || 1) * (Number(eqCustomWeeklyRate) || 0);
-      const delivery = eqIncludeDelivery ? (Number(eqCustomDeliveryFee) || 0) : 0;
-      const fuel = base * ((Number(eqCustomFuelPct) || 0) / 100);
-      totalEquipmentCost = base + delivery + fuel;
+    // Reuse the engine-derived preview; only fall back to a fresh engine call (never local math).
+    let totalEquipmentCost = equipmentPreviewCost;
+    if (totalEquipmentCost === null) {
+      try {
+        const res = await calculationsApi.computeItemCost(equipmentPreviewItem, rates);
+        totalEquipmentCost = Number(res?.directCost) || 0;
+      } catch {
+        // Engine unreachable. Step 3 recomputes the equipment cost from the rental fields, so an
+        // unset cache is safer than persisting a guess.
+        totalEquipmentCost = 0;
+      }
     }
 
     const newEquipmentItem = {
@@ -894,32 +923,24 @@ export default function TakeoffGrid({
                 </div>
               </div>
 
-              {/* Cost Calculation Preview Pill */}
-              {(() => {
-                const baseRentalCost = eqDurationUnit === 'days' ? (Number(eqDurationQty) || 1) * (Number(eqCustomDailyRate) || 0)
-                  : eqDurationUnit === 'months' ? (Number(eqDurationQty) || 1) * (Number(eqCustomMonthlyRate) || 0)
-                  : (Number(eqDurationQty) || 1) * (Number(eqCustomWeeklyRate) || 0);
-                const deliveryFee = eqIncludeDelivery ? (Number(eqCustomDeliveryFee) || 0) : 0;
-                const fuelSurchargeAmount = baseRentalCost * ((Number(eqCustomFuelPct) || 0) / 100);
-                const totalCost = baseRentalCost + deliveryFee + fuelSurchargeAmount;
-
-                return (
-                  <div className="p-3 bg-amber-50/80 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 rounded-xl flex items-center justify-between">
-                    <div>
-                      <span className="text-xs font-bold text-amber-900 dark:text-amber-200 block">
-                        {t('product.takeoffGrid.totalEquipmentCost', 'Calculated Equipment Total:')}
-                      </span>
-                      <span className="text-[11px] text-amber-700 dark:text-amber-400">
-                        {eqDurationQty} {eqDurationUnit} @ {baseRentalCost > 0 ? `$${baseRentalCost.toLocaleString()}` : '$0'}
-                        {deliveryFee > 0 ? ` + $${deliveryFee} del` : ''}
-                      </span>
-                    </div>
-                    <span className="text-lg font-extrabold text-amber-600 dark:text-amber-400">
-                      ${totalCost.toLocaleString()}
-                    </span>
-                  </div>
-                );
-              })()}
+              {/* Cost Calculation Preview Pill — the value comes from the pricing engine, so it
+                  always matches the results page (step 3). */}
+              <div className="p-3 bg-amber-50/80 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 rounded-xl flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-bold text-amber-900 dark:text-amber-200 block">
+                    {t('product.takeoffGrid.totalEquipmentCost', 'Calculated Equipment Total:')}
+                  </span>
+                  <span className="text-[11px] text-amber-700 dark:text-amber-400">
+                    {eqDurationQty} {eqDurationUnit}
+                    {eqIncludeDelivery && (Number(eqCustomDeliveryFee) || 0) > 0
+                      ? ` + ${formatCurrency(Number(eqCustomDeliveryFee) || 0)} delivery`
+                      : ''}
+                  </span>
+                </div>
+                <span className="text-lg font-extrabold text-amber-600 dark:text-amber-400">
+                  {equipmentPreviewCost === null ? '—' : formatCurrency(equipmentPreviewCost)}
+                </span>
+              </div>
 
               <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
                 <button
