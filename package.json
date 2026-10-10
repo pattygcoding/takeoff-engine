@@ -11,7 +11,7 @@
     "dev:local": "vite",
     "build": "infisical run --env=prod -- vite build",
     "build:local": "vite build",
-    "test": "node --test tests/**/*.test.ts",
+    "test": "node --test \"tests/**/*.test.ts\"",
     "test:unit": "vitest run --config vitest.config.ts",
     "test:unit:watch": "vitest --config vitest.config.ts",
     "test:e2e": "playwright test --config playwright.e2e.config.ts",

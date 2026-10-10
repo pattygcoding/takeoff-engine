@@ -15,11 +15,20 @@ export default defineConfig({
   testDir: './tests/accessibility',
   fullyParallel: true,
   workers: 2,
+  // One retry absorbs machine-level flake (e.g. Windows file scanners racing Playwright's artifact
+  // writer) without hiding a real regression: a test that genuinely fails still fails both attempts.
+  retries: 1,
   reporter: 'list',
   use: {
     baseURL: BASE_URL,
     browserName: 'chromium',
-    trace: 'retain-on-failure',
+    // Trace retried attempts only. 'retain-on-failure' records a trace for every test and then
+    // deletes the passing ones, which writes thousands of chunk files into test-results/; on
+    // Windows that writer races with file scanners/cleanup and surfaced as
+    // "browserContext.close: ENOENT ... recordingN.trace" on the two longest pages (/terms,
+    // /privacy), whose traces are the largest. Retried attempts still keep a trace, so any test
+    // that actually fails stays debuggable (npx playwright show-trace <trace.zip>).
+    trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     // Disables colour transitions so axe never samples a mid-animation colour after a theme switch.
     reducedMotion: 'reduce',
