@@ -21,6 +21,7 @@
     "test:a11y": "playwright test",
     "test:a11y:public": "playwright test tests/accessibility/public-pages.spec.ts",
     "typecheck": "tsc --noEmit",
+    "typecheck:parsing": "tsc --noEmit -p tsconfig.parsing.json",
     "translate": "python src/lang/lang.py",
     "translate:skip": "python src/lang/lang.py --skip",
     "translate:retry": "python src/lang/lang.py --retry",

@@ -1,0 +1,10 @@
+{
+  // Same as the default config, but *including* `tests/parsing`, which the default config excludes
+  // because its spec imports across repos ('../../../takeoff-engine-backend/src/...').
+  //
+  // This config therefore only resolves where both repos sit side by side — i.e. the local
+  // monorepo layout, or the `parsing-tests` job in the backend repo's CI, which checks out this
+  // repo as a sibling. Running it from a frontend-only checkout fails with TS2307, by design.
+  "extends": "./tsconfig.json",
+  "exclude": []
+}

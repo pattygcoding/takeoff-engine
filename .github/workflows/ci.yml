@@ -39,19 +39,15 @@ jobs:
       # vitest + jsdom suites: React components, contexts, and pricing state.
       - run: npm run test:unit
 
-  parsing-tests:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: npm
-      - run: npm ci
-      # Drives the real backend CsvParserService over the sample spreadsheets.
-      # playwright.parsing.config.ts declares no browser fixtures, so no browser download is needed.
-      - run: npm run test:parsing
+  # NOTE: `npm run test:parsing` is deliberately not wired up here.
+  # tests/parsing/sampleSpreadsheets.spec.ts imports the parser as
+  # '../../../takeoff-engine-backend/src/product/services/csvParser.service.ts', i.e. from a
+  # directory *above* this repo root, so it can never resolve from a frontend-only checkout
+  # (actions/checkout cannot place a repo outside $GITHUB_WORKSPACE, and the backend repo is
+  # private so reading it from here would need a PAT). tsconfig.json excludes tests/parsing for the
+  # same reason, which is what keeps `npm run typecheck` working above.
+  # The suite runs in the backend repo's CI instead (`parsing-tests` job), which checks this repo
+  # out as a sibling. Run it locally too — the local monorepo layout already satisfies the import.
 
   e2e-tests:
     runs-on: ubuntu-latest

@@ -26,5 +26,12 @@
     // Full TypeScript strict mode (matches takeoff-engine-backend/tsconfig.json).
     "strict": true
   },
-  "include": ["src/**/*", "tests/**/*", "*.config.ts"]
+  "include": ["src/**/*", "tests/**/*", "*.config.ts"],
+
+  // tests/parsing/sampleSpreadsheets.spec.ts imports the parser straight out of the sibling
+  // `takeoff-engine-backend` checkout ('../../../takeoff-engine-backend/src/...'), which only
+  // exists in the local monorepo layout. Excluding it keeps `tsc --noEmit` runnable from a
+  // frontend-only checkout (CI, or a fresh clone of just this repo). `tsconfig.parsing.json`
+  // re-includes it for the one CI job that checks out both repos, so the suite stays type-checked.
+  "exclude": ["tests/parsing"]
 }
