@@ -23,7 +23,12 @@ export default function ClientCounterOfferModal({
   clientName?: string;
   signerEmail?: string;
   baseAmount?: number;
-  onSubmit?: (payload: any) => void;
+  onSubmit?: (payload: {
+    counterNotes: string;
+    scopeChanges: ScopeItem[];
+    clientName: string;
+    signerEmail: string;
+  }) => void;
   onClose: () => void;
   submitting?: boolean;
 }) {

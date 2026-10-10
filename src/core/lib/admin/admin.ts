@@ -36,7 +36,7 @@ export const adminApi = {
   /**
    * Create a new user account directly from Super-Admin portal
    */
-  async createUser(payload: Record<string, any>) {
+  async createUser(payload: Record<string, unknown>) {
     const res = await fetch(`${API_BASE_URL}/admin/users/create`, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -171,7 +171,7 @@ export const adminApi = {
   /**
    * Update user details (role, tier, credits, disabled)
    */
-  async updateUser(userId: string, updates: Record<string, any>) {
+  async updateUser(userId: string, updates: Record<string, unknown>) {
     const res = await fetch(`${API_BASE_URL}/admin/users/${userId}/update`, {
       method: 'PUT',
       headers: getAuthHeaders(),
@@ -198,7 +198,7 @@ export const adminApi = {
   /**
    * Create a new promo code
    */
-  async createPromoCode(promoData: Record<string, any>) {
+  async createPromoCode(promoData: Record<string, unknown>) {
     const res = await fetch(`${API_BASE_URL}/admin/promo-codes`, {
       method: 'POST',
       headers: getAuthHeaders(),

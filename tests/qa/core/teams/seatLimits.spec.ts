@@ -58,7 +58,7 @@ test.describe('seat limits', () => {
     const orgB = (await createWorkspace(page, settings, nameB)).body.organization;
     await inviteAndJoin({ ownerPage: page, member, settings, role: 'viewer' });
 
-    const memberOrgs = (await apiAs(member.page, settings, 'GET', '/organizations')).body.organizations.map((org: any) => org.id).sort();
+    const memberOrgs = (await apiAs(member.page, settings, 'GET', '/organizations')).body.organizations.map((org) => org.id).sort();
     expect(memberOrgs).toEqual([orgA.id, orgB.id].sort());
 
     // Owner + the member (counted once across both workspaces) = 2 of Pro's 3 seats.

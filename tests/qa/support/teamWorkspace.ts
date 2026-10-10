@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import type { Page, Response } from '@playwright/test';
 import { acknowledgeNotice, label, openAccountSettings } from './fixtures.ts';
-import type { QaPersona } from './fixtures.ts';
+import type { ApiBody, ApiOrganization, QaPersona } from './fixtures.ts';
 import type { QaIdentity, QaSettings } from './qaEnvironment.ts';
 
 const tw = (key: string): string => label(`core.teamWorkspaceManager.${key}`);
@@ -15,7 +15,7 @@ function waitForApi(page: Page, settings: QaSettings, method: string, pathPatter
     && pathPattern.test(pathOf(res).slice(apiPath.length)));
 }
 
-async function asResult(responsePromise: Promise<Response>): Promise<{ status: number; body: any }> {
+async function asResult(responsePromise: Promise<Response>): Promise<{ status: number; body: ApiBody }> {
   const res = await responsePromise;
   return { status: res.status(), body: await res.json().catch(() => ({})) };
 }
@@ -29,7 +29,7 @@ export const deleteWorkspaceButton = (page: Page) => page.getByRole('button', { 
 export const roleSelect = (page: Page, email: string) => page.getByRole('combobox', { name: tw('memberRoleLabel').replace('{{email}}', email) });
 
 /** Account settings with the team section loaded. Returns the workspaces the API listed. */
-export async function openTeam(page: Page, customer: QaIdentity, settings: QaSettings): Promise<any[]> {
+export async function openTeam(page: Page, customer: QaIdentity, settings: QaSettings): Promise<ApiOrganization[]> {
   const listed = waitForApi(page, settings, 'GET', /^\/organizations$/);
   await openAccountSettings(page, customer, settings);
   const { organizations } = await (await listed).json();

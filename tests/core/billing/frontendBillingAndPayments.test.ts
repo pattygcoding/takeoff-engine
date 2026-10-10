@@ -6,7 +6,16 @@ describe('Frontend Billing, Subscriptions & Paddle Checkout Tests', () => {
   // Prices come from a mocked Paddle catalog generated per run; seat counts are plan entitlements.
   const { catalog, minorUnits } = createCatalogFixture();
   const { prices } = catalog;
-  const PLANS_CONFIG: Record<string, any> = {
+  interface PlanConfig {
+    basePriceMonthly: number;
+    basePriceAnnual: number;
+    baseSeats: number;
+    maxSeats: number;
+    additionalSeatPriceMonthly: number;
+    additionalSeatPriceAnnual?: number;
+  }
+
+  const PLANS_CONFIG: Record<string, PlanConfig> = {
     starter: { basePriceMonthly: prices.STARTER_MONTHLY_PRICE, basePriceAnnual: prices.STARTER_YEARLY_PRICE, baseSeats: 1, maxSeats: 1, additionalSeatPriceMonthly: 0 },
     pro: { basePriceMonthly: prices.PRO_MONTHLY_PRICE, basePriceAnnual: prices.PRO_YEARLY_PRICE, baseSeats: 3, maxSeats: 10, additionalSeatPriceMonthly: prices.EXTRA_SEAT_MONTHLY_PRICE, additionalSeatPriceAnnual: prices.EXTRA_SEAT_YEARLY_PRICE },
     enterprise: { basePriceMonthly: prices.ENTERPRISE_MONTHLY_PRICE, basePriceAnnual: prices.ENTERPRISE_YEARLY_PRICE, baseSeats: 8, maxSeats: 20, additionalSeatPriceMonthly: prices.EXTRA_SEAT_MONTHLY_PRICE, additionalSeatPriceAnnual: prices.EXTRA_SEAT_YEARLY_PRICE },
@@ -59,7 +68,7 @@ describe('Frontend Billing, Subscriptions & Paddle Checkout Tests', () => {
 
   describe('Paddle Checkout Payload Preparation', () => {
     it('constructs accurate Paddle checkout customer and customData payload', () => {
-      const buildPaddleCheckoutPayload = ({ user, plan, interval, additionalSeats }: { user: any; plan: string; interval: string; additionalSeats: number }) => {
+      const buildPaddleCheckoutPayload = ({ user, plan, interval, additionalSeats }: { user: { id: string; email: string }; plan: string; interval: string; additionalSeats: number }) => {
         return {
           items: [
             {

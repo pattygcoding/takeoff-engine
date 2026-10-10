@@ -29,7 +29,9 @@ export default function RiskContingencyMatrixDocument({ estimate, branding, curr
     sys,
     isHigh: idx === 0,
     reserve: isFixed
-      ? (totals.directCost > 0 ? ((sys.directCost ?? 0) / totals.directCost) * totals.contingencyCost : 0)
+      ? ((totals.directCost ?? 0) > 0
+          ? ((sys.directCost ?? 0) / (totals.directCost ?? 1)) * (totals.contingencyCost ?? 0)
+          : 0)
       : (sys.directCost ?? 0) * ((contingencyPct || 5) / 100),
   }));
   const highCount = rows.filter((r) => r.isHigh).length;

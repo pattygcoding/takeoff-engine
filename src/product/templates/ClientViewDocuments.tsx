@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ReactNode } from 'react';
-import type { DocumentTemplateProps } from '@/types/models';
+import type { Branding, ChangeOrder, DocumentTemplateProps, Project, WarrantyItem } from '@/types/models';
 import type { DocumentColumn } from './DocumentHeaderSignoff';
 import { formatCurrency, formatNumber } from '@/product/lib/calculations';
 import { formatMarkupLine, formatMarkupBasisNote } from '@/product/lib/markupFormatting';
@@ -55,11 +55,11 @@ function StatusPill({ status }: { status: string }) {
   );
 }
 
-function formatDate(value: any) {
+function formatDate(value: unknown) {
   if (!value) return '—';
   // Stored as YYYY-MM-DD; parse as local date so it doesn't shift a day in negative UTC offsets.
   const [y, m, d] = String(value).split('-').map(Number);
-  const date = y && m && d ? new Date(y, m - 1, d) : new Date(value);
+  const date = y && m && d ? new Date(y, m - 1, d) : new Date(String(value));
   return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleDateString();
 }
 
@@ -68,7 +68,7 @@ function PartiesBlock({
   accent,
   aside,
 }: {
-  project?: any;
+  project?: Project | null;
   accent?: string;
   aside: { title: ReactNode; rows: Array<[ReactNode, ReactNode]> };
 }) {
@@ -146,10 +146,10 @@ export function InvoiceDocument({
   invoiceNumber,
   netDays,
 }: DocumentTemplateProps & {
-  changeOrders?: any[];
-  warrantyItems?: any[];
-  invoiceNumber?: any;
-  netDays?: any;
+  changeOrders?: ChangeOrder[];
+  warrantyItems?: WarrantyItem[];
+  invoiceNumber?: string;
+  netDays?: number | string;
 }) {
   const { t } = useTranslation();
   const { totals = {}, bySystem = [] } = estimate;
@@ -169,7 +169,7 @@ export function InvoiceDocument({
     { header: t('product.resultsStep.colDescription'), render: (it) => (it.sizeSpec ? `${it.description} — ${it.sizeSpec}` : it.description) },
     { header: t('product.resultsStep.colQty'), align: 'right', render: (it) => formatNumber(it.quantity, 0) },
     { header: t('product.resultsStep.colUnit'), muted: true, render: (it) => it.unit },
-    { header: t(`${KEY}.unitPrice`), align: 'right', render: (it) => (Number(it.quantity) > 0 ? formatCurrency(it.directCost / it.quantity) : '—') },
+    { header: t(`${KEY}.unitPrice`), align: 'right', render: (it) => (Number(it.quantity) > 0 ? formatCurrency((it.directCost ?? 0) / (it.quantity ?? 1)) : '—') },
     { header: t(`${KEY}.amount`), align: 'right', strong: true, render: (it) => formatCurrency(it.directCost) },
   ];
 
@@ -328,7 +328,7 @@ export function ProposalPackageDocument({ estimate, branding, currentProject, ra
         total={{ label: t('product.resultsStep.totalBid'), value: formatCurrency(totals.finalBidAmount) }}
       />
       <p className="mt-2 text-right text-[10px] text-slate-500">{formatMarkupBasisNote(t)}</p>
-      {totals.scopeAddonsCost > 0 && (
+      {(totals.scopeAddonsCost ?? 0) > 0 && (
         <p className="mt-1 text-right text-[10px] text-blue-700">
           {t('product.resultsStep.scopeAddonsNote', { amount: formatCurrency(totals.scopeAddonsCost) })}
         </p>
@@ -461,13 +461,13 @@ export function ChangeOrdersDocument({
   branding,
   currentProject,
   changeOrders = [],
-}: DocumentTemplateProps & { changeOrders?: any[] }) {
+}: DocumentTemplateProps & { changeOrders?: ChangeOrder[] }) {
   const { t } = useTranslation();
   const { totals = {} } = estimate;
   const accent = branding?.brandColor || ACCENTS.changeOrders;
   const original = totals.finalBidAmount || 0;
   const approved = sumApprovedChangeOrders(changeOrders);
-  const sumBy = (status: any, field: any) =>
+  const sumBy = (status: string, field: string) =>
     changeOrders.filter((co) => co.status === status).reduce((s, co) => s + (Number(co[field]) || 0), 0);
   const pending = sumBy('pending', 'amount');
   const approvedDays = sumBy('approved', 'scheduleDays');
@@ -512,7 +512,7 @@ export function ChangeOrdersDocument({
                     {co.description && <p className="mt-0.5 text-slate-600 whitespace-pre-line">{co.description}</p>}
                   </td>
                   <td className="py-2 px-2 text-right">{co.scheduleDays || 0}</td>
-                  <td className="py-2 px-2"><StatusPill status={co.status} /></td>
+                  <td className="py-2 px-2"><StatusPill status={co.status ?? ''} /></td>
                   <td className={`py-2 px-2 text-right font-semibold ${co.status === 'rejected' ? 'text-slate-400 line-through' : 'text-slate-900'}`}>
                     {formatCurrency(co.amount)}
                   </td>
@@ -558,13 +558,16 @@ export function WarrantyDocument({
   currentProject,
   warrantyItems = [],
 }: {
-  branding?: any;
-  currentProject?: any;
-  warrantyItems?: any[];
+  branding?: Branding | null;
+  currentProject?: Project | null;
+  warrantyItems?: WarrantyItem[];
 }) {
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENTS.warranty;
-  const counts = warrantyItems.reduce((acc, w) => ({ ...acc, [w.status]: (acc[w.status] || 0) + 1 }), {});
+  const counts = warrantyItems.reduce<Record<string, number>>(
+    (acc, w) => ({ ...acc, [w.status ?? '']: (acc[w.status ?? ''] || 0) + 1 }),
+    {},
+  );
   const billableTotal = billableWarrantyItems(warrantyItems).reduce((s, w) => s + Number(w.cost), 0);
 
   return (
@@ -604,7 +607,7 @@ export function WarrantyDocument({
                   </td>
                   <td className="py-2 px-2 text-slate-600 whitespace-pre-line">{w.resolution || '—'}</td>
                   <td className="py-2 px-2 space-y-1">
-                    <StatusPill status={w.status} />
+                    <StatusPill status={w.status ?? ''} />
                     <p className="text-[9px] text-slate-500">{w.covered ? t(`${KEY}.covered`) : t(`${KEY}.billable`)}</p>
                   </td>
                   <td className="py-2 px-2 text-right font-semibold text-slate-900">{w.covered ? '—' : formatCurrency(w.cost)}</td>
@@ -637,7 +640,14 @@ export function WarrantyDocument({
   );
 }
 
-export const CLIENT_VIEW_DOCUMENTS = {
+type ClientViewDocumentProps = DocumentTemplateProps & {
+  changeOrders?: ChangeOrder[];
+  warrantyItems?: WarrantyItem[];
+  invoiceNumber?: string;
+  netDays?: number | string;
+};
+
+export const CLIENT_VIEW_DOCUMENTS: Record<string, React.ComponentType<ClientViewDocumentProps>> = {
   invoice: InvoiceDocument,
   proposal: ProposalPackageDocument,
   bid: GeneralBidDocument,

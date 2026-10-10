@@ -1,5 +1,5 @@
 import React from 'react';
-import type { DocumentTemplateProps } from '@/types/models';
+import type { DocumentTemplateProps, EstimateLineItem } from '@/types/models';
 import type { DocumentColumn } from './DocumentHeaderSignoff';
 import { formatCurrency, formatNumber } from '@/product/lib/calculations';
 import { useTranslation } from '@/core/components/context/I18nContext';
@@ -21,9 +21,10 @@ const BEDDING_RATIO = 0.35;
 const STONE_TONS_PER_CY = 1.4;
 const HAUL_RATIO = 0.65;
 
-function earthwork(it: any) {
+function earthwork(it: EstimateLineItem) {
   const unit = it.unit?.toLowerCase() || '';
-  const lf = unit.includes('lf') || unit.includes('ft') ? it.quantity : it.quantity * NON_LINEAR_LF_PER_UNIT;
+  const qty = it.quantity ?? 0;
+  const lf = unit.includes('lf') || unit.includes('ft') ? qty : qty * NON_LINEAR_LF_PER_UNIT;
   const cy = (lf * TRENCH_WIDTH_FT * TRENCH_DEPTH_FT) / 27;
   return { lf, cy, stone: cy * BEDDING_RATIO * STONE_TONS_PER_CY, haul: cy * HAUL_RATIO };
 }
@@ -46,8 +47,8 @@ export default function TrenchEarthworkLogDocument({ estimate, branding, current
       haul: 0,
     });
 
-  const cy = (n: any) => t(`${KEY}.cyUnit`, { count: formatNumber(n, 1) });
-  const tn = (n: any) => t(`${KEY}.tnUnit`, { count: formatNumber(n, 1) });
+  const cy = (n: number) => t(`${KEY}.cyUnit`, { count: formatNumber(n, 1) });
+  const tn = (n: number) => t(`${KEY}.tnUnit`, { count: formatNumber(n, 1) });
 
   const assumptions = [
     [t(`${KEY}.trenchWidthAssumption`), t(`${KEY}.trenchWidthValue`)],

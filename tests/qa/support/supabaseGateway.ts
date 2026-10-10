@@ -75,7 +75,7 @@ async function forward(
   const send = () => fetch(`${target}${url.pathname}${url.search}`, {
     method: req.method,
     headers,
-    body: ['GET', 'HEAD'].includes(req.method ?? '') ? undefined : (body as any),
+    body: ['GET', 'HEAD'].includes(req.method ?? '') ? undefined : (body as BodyInit),
   });
 
   let response = await send();

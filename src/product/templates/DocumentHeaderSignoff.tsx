@@ -2,7 +2,7 @@ import React from 'react';
 import type { ReactNode } from 'react';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import { formatCurrency, formatNumber } from '@/product/lib/calculations';
-import type { Branding, EstimateTotals, Project } from '@/types/models';
+import type { Branding, EstimateLineItem, EstimateSystem, EstimateTotals, Project } from '@/types/models';
 
 export const DEFAULT_DOC_ACCENT = '#1e3a8a';
 
@@ -15,7 +15,7 @@ export interface DocumentFigure {
 export interface DocumentColumn {
   header: string;
   align?: string;
-  render: (item: any) => ReactNode;
+  render: (item: EstimateLineItem) => ReactNode;
   strong?: boolean;
   muted?: boolean;
   className?: string;
@@ -168,10 +168,10 @@ export function DocumentSystemTable({
   headerAside,
   accent = DEFAULT_DOC_ACCENT,
 }: {
-  bySystem?: any[];
+  bySystem?: EstimateSystem[];
   columns: DocumentColumn[];
-  subtotal?: (sys: any) => ReactNode;
-  headerAside?: (sys: any) => ReactNode;
+  subtotal?: (sys: EstimateSystem) => ReactNode;
+  headerAside?: (sys: EstimateSystem) => ReactNode;
   accent?: string;
 }) {
   const { t } = useTranslation();
@@ -213,7 +213,7 @@ export function DocumentSystemTable({
               </div>
             </td>
           </tr>
-          {sys.items.map((it: any, idx: number) => (
+          {sys.items.map((it, idx) => (
             <tr key={idx} className="border-b border-slate-100 even:bg-slate-50/70 break-inside-avoid">
               {columns.map((col, ci) => (
                 <td key={col.header} className={cellClass(col, ci)}>

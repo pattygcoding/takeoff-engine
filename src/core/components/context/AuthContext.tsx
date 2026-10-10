@@ -4,14 +4,27 @@ import { authApi } from '@/core/lib/auth/auth';
 import type { RegisterPayload } from '@/types/api';
 import type { UserProfile } from '@/types/models';
 
+/** Result of a successful sign-in. */
+interface AuthSessionResult {
+  user: UserProfile;
+  [key: string]: unknown;
+}
+
+/** Result of a successful sign-up (may require email verification first). */
+interface AuthRegistrationResult {
+  user?: UserProfile;
+  message?: string;
+  [key: string]: unknown;
+}
+
 interface AuthContextValue {
   user: UserProfile | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
   isPaymentExempt: boolean;
   loading: boolean;
-  login: (credentials: { usernameOrEmail: string; password: string }) => Promise<any>;
-  register: (userData: RegisterPayload) => Promise<any>;
+  login: (credentials: { usernameOrEmail: string; password: string }) => Promise<AuthSessionResult>;
+  register: (userData: RegisterPayload) => Promise<AuthRegistrationResult>;
   logout: () => Promise<void>;
   setUser: React.Dispatch<React.SetStateAction<UserProfile | null>>;
   refreshProfile: () => Promise<UserProfile | undefined>;

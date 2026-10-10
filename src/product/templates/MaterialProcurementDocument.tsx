@@ -1,5 +1,5 @@
 import React from 'react';
-import type { DocumentTemplateProps } from '@/types/models';
+import type { DocumentTemplateProps, EstimateSystem } from '@/types/models';
 import type { DocumentColumn } from './DocumentHeaderSignoff';
 import { formatCurrency, formatNumber } from '@/product/lib/calculations';
 import { useTranslation } from '@/core/components/context/I18nContext';
@@ -39,13 +39,13 @@ export default function MaterialProcurementDocument({ estimate, branding, curren
     {
       header: t(`${KEY}.colEstUnitMat`),
       align: 'right',
-      render: (it) => formatCurrency(it.quantity > 0 ? it.materialCost / it.quantity : 0),
+      render: (it) => formatCurrency((it.quantity ?? 0) > 0 ? (it.materialCost ?? 0) / (it.quantity ?? 1) : 0),
     },
     { header: t(`${KEY}.colTotalMaterial`), align: 'right', strong: true, render: (it) => formatCurrency(it.materialCost) },
   ];
 
-  const systemMaterial = (sys: any) =>
-    sys.materialCost ?? sys.items.reduce((sum: number, it: any) => sum + (it.materialCost || 0), 0);
+  const systemMaterial = (sys: EstimateSystem) =>
+    sys.materialCost ?? sys.items.reduce((sum, it) => sum + (it.materialCost || 0), 0);
 
   return (
     <div className="text-slate-800 text-[11px] leading-relaxed tabular-nums">

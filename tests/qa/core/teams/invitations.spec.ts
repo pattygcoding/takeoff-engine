@@ -63,7 +63,7 @@ test.describe('invitations', () => {
 
     await test.step('the invitation shows the workspace, role, and inviter', async () => {
       await openInvite(invitee.page, invite.inviteUrl);
-      await expect(invitee.page.getByRole('heading', { name: ai('joinOrg').replace('{{orgName}}', workspace.name) })).toBeVisible();
+      await expect(invitee.page.getByRole('heading', { name: ai('joinOrg').replace('{{orgName}}', String(workspace.name)) })).toBeVisible();
       await expect(invitee.page.getByText(invitee.customer.email)).toBeVisible();
       await expect(invitee.page.getByText(ai('roleEstimator'), { exact: true })).toBeVisible();
       await expect(invitee.page.getByText(`${customer.firstName} ${customer.lastName}`)).toBeVisible();

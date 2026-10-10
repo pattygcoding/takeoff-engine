@@ -1,5 +1,5 @@
 import React from 'react';
-import type { DocumentTemplateProps } from '@/types/models';
+import type { DocumentTemplateProps, EstimateLineItem } from '@/types/models';
 import type { DocumentColumn } from './DocumentHeaderSignoff';
 import { formatCurrency, formatNumber } from '@/product/lib/calculations';
 import { useTranslation } from '@/core/components/context/I18nContext';
@@ -30,7 +30,7 @@ export default function AiaBidScheduleDocument({ estimate, branding, currentProj
     items: sys.items.map((it) => ({ ...it, payItemNo: ++itemNo })),
   }));
 
-  const extended = (it: any) => it.factoredPrice ?? it.directCost;
+  const extended = (it: EstimateLineItem) => it.factoredPrice ?? it.directCost ?? 0;
 
   const columns: DocumentColumn[] = [
     {
@@ -53,7 +53,7 @@ export default function AiaBidScheduleDocument({ estimate, branding, currentProj
     {
       header: t(`${KEY}.colUnitPrice`),
       align: 'right',
-      render: (it) => formatCurrency(it.quantity > 0 ? extended(it) / it.quantity : 0),
+      render: (it) => formatCurrency((it.quantity ?? 0) > 0 ? extended(it) / (it.quantity ?? 1) : 0),
     },
     { header: t(`${KEY}.colTotalItemBid`), align: 'right', strong: true, render: (it) => formatCurrency(extended(it)) },
   ];

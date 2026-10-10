@@ -7,11 +7,22 @@ export const PRICE_FIELDS = [
 type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
 type FormatPriceFn = (value?: number) => string;
 
-export function validateCatalogPricing<T extends Record<string, any>>(data: T): T {
-  if (!data || typeof data.currencyCode !== 'string' || !/^[A-Z]{3}$/.test(data.currencyCode) ||
-      !data.prices || PRICE_FIELDS.some((key) =>
-        typeof data.prices[key] !== 'number' || !Number.isFinite(data.prices[key]) || data.prices[key] < 0) ||
-      !Number.isFinite(Date.parse(data.expiresAt)) || Date.parse(data.expiresAt) <= Date.now()) {
+export function validateCatalogPricing<T extends Record<string, unknown>>(data: T): T {
+  const prices = data?.prices as Record<string, unknown> | undefined;
+  const pricesValid = !!prices && PRICE_FIELDS.every((key) => {
+    const value = prices[key];
+    return typeof value === 'number' && Number.isFinite(value) && value >= 0;
+  });
+  const expiresAt = data?.expiresAt;
+  if (
+    !data ||
+    typeof data.currencyCode !== 'string' ||
+    !/^[A-Z]{3}$/.test(data.currencyCode) ||
+    !pricesValid ||
+    typeof expiresAt !== 'string' ||
+    !Number.isFinite(Date.parse(expiresAt)) ||
+    Date.parse(expiresAt) <= Date.now()
+  ) {
     throw new Error('Invalid or expired billing catalog response.');
   }
   return data;

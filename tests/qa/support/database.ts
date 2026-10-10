@@ -4,6 +4,47 @@ import { QA_TAG } from './qaEnvironment.ts';
 /** A connected `pg` client as used by the QA harness. */
 export type Db = pg.Client;
 
+/** A row of `auth.users` as read by the QA harness. */
+export interface AuthUserRow {
+  id: string;
+  email: string | null;
+  email_confirmed_at: string | null;
+  [key: string]: unknown;
+}
+
+/** A row of `public.users` (profile) as read by the QA harness. */
+export interface ProfileRow {
+  id: string;
+  username?: string;
+  email?: string;
+  role?: string;
+  subscription_tier?: string;
+  subscription_status?: string;
+  has_unlimited_bypass?: boolean;
+  trial_uses_remaining?: number;
+  seat_limit?: number;
+  additional_seats?: number;
+  cancels_at_period_end?: boolean;
+  scheduled_tier?: string | null;
+  scheduled_change_effective_at?: string | null;
+  subscription_renews_at?: string | null;
+  paddle_customer_id?: string | null;
+  paddle_subscription_id?: string | null;
+  [key: string]: unknown;
+}
+
+/** A QA-relevant account row (`auth.users` full-joined with `public.users`). */
+export interface QaAuthUserRow {
+  id: string;
+  email: string | null;
+  email_confirmed_at: string | null;
+  has_auth_user: boolean;
+  has_profile: boolean;
+  paddle_customer_id: string;
+  paddle_subscription_id: string | null;
+  [key: string]: unknown;
+}
+
 /** One table's fingerprint inside a database snapshot. */
 export interface TableFingerprint {
   rows?: number;
@@ -146,7 +187,7 @@ export function unreadableTables(snapshot: Snapshot): string[] {
  * profile exists), so a real customer can never be mistaken for a QA account. Profiles whose
  * auth user is already gone are included: public.users is not guaranteed to cascade from auth.users.
  */
-export async function findQaAuthUsers(db: Db): Promise<Array<Record<string, any>>> {
+export async function findQaAuthUsers(db: Db): Promise<QaAuthUserRow[]> {
   const { rows } = await db.query(
     `SELECT coalesce(a.id, p.id)::text AS id,
             coalesce(a.email, p.email) AS email,
@@ -173,7 +214,7 @@ export async function deleteQaProfiles(db: Db, userIds: string[]): Promise<numbe
   return rowCount ?? 0;
 }
 
-export async function findAuthUserByEmail(db: Db, email: string): Promise<Record<string, any> | null> {
+export async function findAuthUserByEmail(db: Db, email: string): Promise<AuthUserRow | null> {
   const { rows: [user] } = await db.query(
     'SELECT id::text AS id, email, email_confirmed_at FROM auth.users WHERE lower(email) = lower($1)',
     [email],
@@ -181,7 +222,7 @@ export async function findAuthUserByEmail(db: Db, email: string): Promise<Record
   return user ?? null;
 }
 
-export async function findProfile(db: Db, userId: string): Promise<Record<string, any> | null> {
+export async function findProfile(db: Db, userId: string): Promise<ProfileRow | null> {
   const { rows: [profile] } = await db.query('SELECT * FROM public.users WHERE id = $1', [userId]);
   return profile ?? null;
 }

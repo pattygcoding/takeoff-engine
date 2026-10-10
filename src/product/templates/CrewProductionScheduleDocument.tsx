@@ -25,7 +25,7 @@ export default function CrewProductionScheduleDocument({ estimate, branding, cur
   const { totals = {}, bySystem = [] } = estimate;
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENT;
-  const hours = (n: any, d = 2) => t(`${KEY}.hrsUnit`, { count: formatNumber(n, d) });
+  const hours = (n: number | string | null | undefined, d = 2) => t(`${KEY}.hrsUnit`, { count: formatNumber(n, d) });
   const laborByRole = Array.isArray(totals.laborByRole) ? totals.laborByRole.filter((r) => r.laborHours > 0) : [];
 
   return (

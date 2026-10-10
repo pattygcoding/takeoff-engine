@@ -13,21 +13,22 @@ import {
 } from '../../support/fixtures.ts';
 import type { Page } from '@playwright/test';
 import { payWithPaddleOverlay } from '../../support/paddleSandbox.ts';
+import type { PaddleEntity } from '../../support/paddleSandbox.ts';
 import { createQaIdentity } from '../../support/qaEnvironment.ts';
 import type { QaIdentity, QaSettings } from '../../support/qaEnvironment.ts';
 import type { Db } from '../../support/database.ts';
 import { createWorkspace, expectSeatsUsed, openTeam, setExtraSeatsViaUi } from '../../support/teamWorkspace.ts';
 
 const COLLECTED = new Set(['paid', 'completed']);
-const collectedCharges = async (settings: QaSettings, subscriptionId: string) => (await planChangeCharges(settings, subscriptionId)).filter((txn: any) => COLLECTED.has(txn.status)).length;
-const quantityOf = (subscription: any, priceId: string) => subscription.items.find((item: any) => item.price.id === priceId)?.quantity ?? 0;
+const collectedCharges = async (settings: QaSettings, subscriptionId: string) => (await planChangeCharges(settings, subscriptionId)).filter((txn) => COLLECTED.has(txn.status ?? '')).length;
+const quantityOf = (subscription: PaddleEntity, priceId: string) => (subscription.items ?? []).find((item) => item.price.id === priceId)?.quantity ?? 0;
 const syntheticEmail = (settings: QaSettings, tag: string): string => createQaIdentity(tag, { emailTemplate: settings.emailTemplate }).email;
 // Paddle sandbox card that succeeds on the first payment (after a 3D Secure challenge) and declines every later one.
 const DECLINES_AFTER_FIRST_PAYMENT = '4000 0027 6000 3184';
 
 async function orgMaxSeats(db: Db, ownerId: string) {
   const { rows } = await db.query('SELECT max_seats FROM public.organizations WHERE owner_id = $1', [ownerId]);
-  return rows.map((row: any) => row.max_seats);
+  return rows.map((row) => row.max_seats);
 }
 
 async function ownerWithWorkspace({
@@ -86,7 +87,7 @@ test.describe('paying for seats', () => {
 
     await test.step('after freeing a seat, the extra seat can be removed from billing', async () => {
       const { body } = await apiAs(page, settings, 'GET', `/organizations/${org.id}`);
-      const pending = body.members.find((m: any) => m.status === 'pending');
+      const pending = body.members.find((m) => m.status === 'pending')!;
       expect((await apiAs(page, settings, 'POST', `/organizations/${org.id}/members/${pending.id}/revoke`)).status).toBe(200);
       await openTeam(page, customer, settings);
       expect((await setExtraSeatsViaUi(page, settings, 1)).status).toBe(200);

@@ -22,11 +22,53 @@ export interface TakeoffItem {
   costImpactType?: 'percent' | 'flat' | string;
   originalStatus?: string;
   originalAmount?: number | string;
-  [key: string]: any;
+  system?: string;
+  sizeSpec?: string;
+  avgDepthFt?: number | string;
+  materialCostPerUnit?: number | string;
+  laborHoursPerUnit?: number | string;
+  laborUnitCost?: number | string;
+  laborRoleId?: string | null;
+  isEquipment?: boolean;
+  equipmentCost?: number | string;
+  hasMissingScope?: boolean;
+  missingScopeReason?: string;
+  baseAmount?: number | string;
+  calculatedBaseAmount?: number | string;
+  originalCostImpactType?: string;
+  isStandard?: boolean;
+  [key: string]: unknown;
 }
 
 /** Rates / pricing configuration blob (labor roles, equipment, markups, etc.). */
-export type Rates = Record<string, any>;
+export interface Rates {
+  laborRoles?: LaborRole[];
+  crew?: CrewMember[];
+  scopeItems?: ScopeItem[];
+  equipmentCatalog?: EquipmentCatalogItem[];
+  miscItems?: MiscItem[];
+  contingencyPct?: number;
+  contingencyPercent?: number;
+  contingencyType?: string;
+  excavatorHourlyRate?: number;
+  equipmentLumpSum?: number | string;
+  equipmentType?: string;
+  laborDailyRate?: number | string;
+  laborHourlyRate?: number | string;
+  laborMode?: string;
+  laborRateBasis?: string;
+  miscCost?: number | string;
+  overheadPct?: number | string;
+  overheadType?: string;
+  profitPct?: number | string;
+  profitType?: string;
+  standardWorkdayHours?: number | string;
+  trenchWidthFt?: number | string;
+  workdayHours?: number | string;
+  workdayHoursMode?: string;
+  crewComposition?: Array<{ roleId?: string; count?: number | string }>;
+  [key: string]: unknown;
+}
 
 /** A scope inclusion / exclusion / add-on entry. */
 export interface ScopeItem {
@@ -40,7 +82,9 @@ export interface ScopeItem {
   costImpactType?: 'percent' | 'flat' | string;
   originalStatus?: string;
   originalAmount?: number | string;
-  [key: string]: any;
+  description?: string;
+  originalCostImpactType?: string;
+  [key: string]: unknown;
 }
 
 /** A user-saved scope preset (persisted to localStorage). */
@@ -49,7 +93,7 @@ export interface ScopePreset {
   name: string;
   createdAt: string;
   items: ScopeItem[];
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /** A user row shown in the super-admin portal. */
@@ -66,25 +110,51 @@ export interface AdminUser {
   has_unlimited_bypass?: boolean;
   trial_uses_remaining?: number;
   created_at?: string;
-  [key: string]: any;
+  first_name?: string;
+  last_name?: string;
+  company_name?: string;
+  locked_until?: string;
+  [key: string]: unknown;
 }
 
 /** Super-admin metrics payload. */
 export interface AdminStats {
-  [key: string]: any;
+  totalUsers?: number;
+  newSignupsWeek?: number;
+  estimatedMRR?: number;
+  activeSubscriptionsCount?: number;
+  totalProjects?: number;
+  totalEstimates?: number;
+  totalProposals?: number;
+  signedProposals?: number;
+  [key: string]: unknown;
 }
 
 /** A promo code row shown in the super-admin portal. */
 export interface PromoCode {
   id?: string | number;
   code?: string;
-  [key: string]: any;
+  grant_tier?: string;
+  grant_unlimited?: boolean;
+  grant_credits?: number;
+  max_uses?: number;
+  times_used?: number;
+  created_at?: string;
+  [key: string]: unknown;
 }
 
 /** An immutable admin audit log row. */
 export interface AuditLog {
   id?: string | number;
-  [key: string]: any;
+  action?: string;
+  admin_id?: string;
+  target_user_id?: string;
+  admin?: { email?: string; username?: string };
+  target_user?: { email?: string; username?: string };
+  details?: { reason?: string; [key: string]: unknown };
+  ip_address?: string;
+  created_at?: string;
+  [key: string]: unknown;
 }
 
 /** A team workspace / organization. */
@@ -95,7 +165,7 @@ export interface Organization {
   owner_email?: string;
   active_member_count?: number;
   max_seats?: number;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /** A member of an organization workspace. */
@@ -109,7 +179,7 @@ export interface OrganizationMember {
   first_name?: string;
   last_name?: string;
   invite_token?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /** Props shared by every exported document template. */
@@ -135,15 +205,23 @@ export interface MappingModalData {
   activeSheetName?: string;
   activeTableId?: string | null;
   subTables?: Array<{ id: string; label: string }>;
-  [key: string]: any;
+  [key: string]: unknown;
+}
+
+/** A File (browser) or plain descriptor accepted by the upload/parse helpers. */
+export interface TakeoffFileLike {
+  name?: string;
+  size?: number;
+  arrayBuffer?: () => Promise<ArrayBuffer>;
+  text?: () => Promise<string>;
 }
 
 /** Upload/import context threaded from the upload step into the editors. */
 export interface ImportContext {
-  file?: any;
-  mappingData?: any;
+  file?: TakeoffFileLike | null;
+  mappingData?: MappingModalData | null;
   detectedLaborMode?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /** The authenticated user profile (shape returned by `GET /api/auth/me`). */
@@ -164,7 +242,13 @@ export interface UserProfile {
   additional_seats?: number;
   organization_id?: string | null;
   created_at?: string;
-  [key: string]: any;
+  company_name?: string;
+  company_logo_url?: string;
+  company_address?: string;
+  license_number?: string;
+  brand_color?: string;
+  paddle_subscription_id?: string;
+  [key: string]: unknown;
 }
 
 /** A saved project / estimate. */
@@ -176,15 +260,20 @@ export interface Project {
   status?: string;
   items?: TakeoffItem[];
   rates?: Rates;
-  summary?: Record<string, any>;
-  [key: string]: any;
+  summary?: Record<string, unknown>;
+  latestEstimate?: EstimateRecord | null;
+  change_orders_json?: ChangeOrder[];
+  warranty_items_json?: WarrantyItem[];
+  created_at?: string;
+  updated_at?: string;
+  [key: string]: unknown;
 }
 
 /** A crew composition entry (role + headcount) used for blended-rate math. */
 export interface CrewMember {
   role?: string;
   count?: number | string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /** A labor role definition with its hourly rate. */
@@ -193,12 +282,17 @@ export interface LaborRole {
   name?: string;
   label?: string;
   hourlyRate?: number | string;
-  [key: string]: any;
+  title?: string;
+  dailyRate?: number | string;
+  workdayHours?: number | string;
+  [key: string]: unknown;
 }
 
 /** A single computed estimate line (result of the backend calculation engine). */
 export interface EstimateLineItem {
+  id?: string | number;
   system?: string;
+  isEquipment?: boolean;
   description?: string;
   sizeSpec?: string;
   quantity?: number;
@@ -207,7 +301,10 @@ export interface EstimateLineItem {
   laborHours?: number;
   laborCost?: number;
   directCost?: number;
-  [key: string]: any;
+  factoredPrice?: number;
+  factoredBid?: number;
+  payItemNo?: number;
+  [key: string]: unknown;
 }
 
 /** One system/trade group within an estimate. */
@@ -215,7 +312,9 @@ export interface EstimateSystem {
   system?: string;
   items: EstimateLineItem[];
   directCost?: number;
-  [key: string]: any;
+  factoredBid?: number;
+  materialCost?: number;
+  [key: string]: unknown;
 }
 
 /** Rolled-up estimate totals. */
@@ -236,14 +335,20 @@ export interface EstimateTotals {
   profitAmount?: number;
   profitPct?: number;
   finalBidAmount?: number;
-  [key: string]: any;
+  directCost?: number;
+  contingencyCost?: number;
+  scopeAddonsCost?: number;
+  totalEquipmentLineItemCost?: number;
+  laborByRole?: LaborByRoleEntry[];
+  [key: string]: unknown;
 }
 
 /** Full estimate payload passed to the exporters. */
 export interface Estimate {
   totals: EstimateTotals;
   bySystem: EstimateSystem[];
-  [key: string]: any;
+  rates?: Rates;
+  [key: string]: unknown;
 }
 
 /** Contractor branding/company details used in exported documents. */
@@ -254,7 +359,7 @@ export interface Branding {
   companyAddress?: string;
   companyPhone?: string;
   licenseNumber?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /** A saved rate template (rate library). */
@@ -264,5 +369,81 @@ export interface RateTemplate {
   description?: string;
   isDefault?: boolean;
   ratesJson?: Rates;
-  [key: string]: any;
+  [key: string]: unknown;
+}
+
+/** Rolled-up summary numbers stored on an estimate row (JSONB). */
+export interface EstimateSummary {
+  finalBidAmount?: number;
+  [key: string]: unknown;
+}
+
+/** A saved estimate row as returned to the client (with the JSON columns read back on load). */
+export interface EstimateRecord extends Estimate {
+  items_json?: TakeoffItem[];
+  rates_json?: Rates;
+  summary_json?: EstimateSummary;
+  [key: string]: unknown;
+}
+
+/** A client change-order record. */
+export interface ChangeOrder {
+  id?: string | number;
+  number?: string;
+  title?: string;
+  description?: string;
+  amount?: number | string;
+  scheduleDays?: number | string;
+  status?: string;
+  date?: string;
+  [key: string]: unknown;
+}
+
+/** A warranty / punch-list item. */
+export interface WarrantyItem {
+  id?: string | number;
+  dateReported?: string;
+  location?: string;
+  issue?: string;
+  resolution?: string;
+  covered?: boolean;
+  status?: string;
+  cost?: number | string;
+  [key: string]: unknown;
+}
+
+/** Aggregated labor hours/cost for one role within an estimate. */
+export interface LaborByRoleEntry {
+  roleId?: string;
+  roleTitle?: string;
+  laborHours: number;
+  laborCost?: number;
+  hourlyRate?: number;
+  [key: string]: unknown;
+}
+
+/** A row in the equipment rental catalog. */
+export interface EquipmentCatalogItem {
+  id: string;
+  title?: string;
+  dailyRate?: number | string;
+  weeklyRate?: number | string;
+  monthlyRate?: number | string;
+  deliveryFee?: number | string;
+  fuelSurchargePct?: number | string;
+  damageWaiverPct?: number | string;
+  minimumRentalDays?: number | string;
+  standbyRatePct?: number | string;
+  ownedDailyRate?: number | string;
+  defaultOperatorIncluded?: boolean;
+  equipmentOwnership?: string;
+  [key: string]: unknown;
+}
+
+/** A miscellaneous cost line item. */
+export interface MiscItem {
+  id: string;
+  title?: string;
+  amount?: number | string;
+  [key: string]: unknown;
 }

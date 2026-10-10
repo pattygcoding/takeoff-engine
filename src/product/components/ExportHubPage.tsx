@@ -30,7 +30,7 @@ import {
   FieldDailyReportDocument,
   WarrantyCloseoutCertDocument,
 } from '@/product/templates';
-import type { Estimate, Project, Rates, TakeoffItem } from '@/types/models';
+import type { Branding, DocumentTemplateProps, Estimate, Project, Rates, TakeoffItem } from '@/types/models';
 
 /**
  * 17 Distinct Estimating, Engineering & Proposal Layout Formats
@@ -229,7 +229,7 @@ export const EXPORT_FORMATS: ExportFormatItem[] = [
   },
 ];
 
-const DOCUMENT_COMPONENTS: Record<string, React.ComponentType<any>> = {
+const DOCUMENT_COMPONENTS: Record<string, React.ComponentType<DocumentTemplateProps>> = {
   standard_estimate: StandardEstimateDocument,
   client_proposal: ClientProposalDocument,
   executive_presentation: ExecutiveProposalDocument,
@@ -339,7 +339,7 @@ export default function ExportHubPage({
   );
 
   // Metering & export wrapper
-  const runExportAction = async (actionFn: () => any) => {
+  const runExportAction = async (actionFn: () => unknown) => {
     if (isCurrentFormatLocked) {
       setShowUpgradeModal(true);
       return;
@@ -712,7 +712,12 @@ function FormatCard({
   isPro: boolean;
   onScrollToPreview?: () => void;
   onClick: () => void;
-  thumbnailProps: Record<string, any>;
+  thumbnailProps: {
+    estimate: Estimate;
+    branding: Branding | null;
+    currentProject: Project | null;
+    rates: Rates;
+  };
 }) {
   const { t } = useTranslation();
   const isLocked = format.isProOnly && !isPro;
@@ -745,7 +750,7 @@ function FormatCard({
 
       {/* Live miniature of the actual document, like a Word template gallery */}
       <div className="relative w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden p-2.5 mb-2.5 transition group-hover:bg-slate-200/70 dark:group-hover:bg-slate-900/80">
-        <DocumentThumbnail formatId={format.id} {...(thumbnailProps as any)} />
+        <DocumentThumbnail formatId={format.id} {...thumbnailProps} />
 
         {isLocked && (
           <div className="absolute inset-0 bg-slate-900/65 backdrop-blur-[2px] rounded-xl flex flex-col items-center justify-center p-2 text-center text-white z-10 transition">
@@ -807,7 +812,7 @@ const DocumentThumbnail = memo(function DocumentThumbnail({
 }: {
   formatId: string;
   estimate: Estimate;
-  branding: any;
+  branding: Branding | null;
   currentProject: Project | null;
   rates: Rates;
 }) {

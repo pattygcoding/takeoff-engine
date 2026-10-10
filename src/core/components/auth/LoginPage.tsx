@@ -62,7 +62,7 @@ export default function LoginPage({ initialView = 'login' }) {
   const [registeredUser, setRegisteredUser] = useState<{
     username?: string;
     email?: string;
-    [key: string]: any;
+    [key: string]: unknown;
   } | null>(null);
   const [checkoutLoadingPlan, setCheckoutLoadingPlan] = useState('');
 

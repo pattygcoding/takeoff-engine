@@ -11,12 +11,54 @@ import ClientCounterOfferModal from './ClientCounterOfferModal';
 import { AlertTriangle, Check, X, Phone, Mail } from 'lucide-react';
 import ScopeSummaryDisplay from './ScopeSummaryDisplay';
 import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
+import type { EstimateTotals, Rates, ScopeItem, TakeoffItem } from '@/types/models';
+
+/** Snapshot of the proposal captured when its shareable link was generated. */
+interface ProposalSnapshot {
+  projectName?: string;
+  clientName?: string;
+  location?: string;
+  summary?: { finalBidAmount?: number; totalDirectCost?: number; [key: string]: unknown };
+  items?: TakeoffItem[];
+  scopeItems?: ScopeItem[];
+  rates?: Rates;
+  [key: string]: unknown;
+}
+
+interface ProposalContractor {
+  brand_color?: string;
+  company_name?: string;
+  company_logo_url?: string;
+  company_address?: string;
+  phone_number?: string;
+  email?: string;
+  license_number?: string;
+  first_name?: string;
+  last_name?: string;
+  [key: string]: unknown;
+}
+
+interface ProposalRecord {
+  client_status?: string;
+  decline_reason?: string;
+  proposal_data_json?: ProposalSnapshot;
+  signed_by_name?: string;
+  signed_at?: string;
+  created_at?: string;
+  [key: string]: unknown;
+}
+
+interface PublicProposalResponse {
+  proposal?: ProposalRecord;
+  contractor?: ProposalContractor;
+  [key: string]: unknown;
+}
 
 export default function ClientProposalView() {
   const { publicToken } = useParams();
   const { showAlert } = useModal();
   const { t } = useTranslation();
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<PublicProposalResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -141,15 +183,16 @@ export default function ClientProposalView() {
     }
   });
 
-  const { proposal = {}, contractor = {} } = data || {};
-  const snapshot = proposal?.proposal_data_json || {};
+  const proposal = data?.proposal;
+  const contractor = data?.contractor;
+  const snapshot: ProposalSnapshot = proposal?.proposal_data_json || {};
   const isAccepted = proposal?.client_status === 'accepted';
   const isDeclined = proposal?.client_status === 'declined';
   const brandColor = contractor?.brand_color || '#0284c7';
 
   // Compute estimate totals dynamically if snapshot.summary.finalBidAmount is missing or 0
   // (also the only source for scopeAddonsCost, which isn't persisted in the stored summary snapshot)
-  const [computedSummary, setComputedSummary] = useState<Record<string, any> | null>(null);
+  const [computedSummary, setComputedSummary] = useState<EstimateTotals | null>(null);
 
   useEffect(() => {
     const items = snapshot?.items || [];
@@ -171,10 +214,8 @@ export default function ClientProposalView() {
     };
   }, [snapshot]);
 
-  const finalBidAmount =
-    Number(snapshot?.summary?.finalBidAmount) > 0
-      ? Number(snapshot.summary.finalBidAmount)
-      : computedSummary?.finalBidAmount || 0;
+  const snapshotFinalBid = Number(snapshot.summary?.finalBidAmount);
+  const finalBidAmount = snapshotFinalBid > 0 ? snapshotFinalBid : computedSummary?.finalBidAmount || 0;
 
   const scopeAddonsCost = Number(computedSummary?.scopeAddonsCost) || 0;
 
@@ -350,7 +391,7 @@ export default function ClientProposalView() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {snapshot.items.map((item: any, idx: number) => (
+                    {snapshot.items.map((item, idx) => (
                       <tr key={idx} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40">
                         <td className="py-2.5 pr-4 font-medium text-slate-800 dark:text-slate-200">{item.description}</td>
                         <td className="py-2.5 pr-4 text-slate-500 dark:text-slate-400 text-xs">

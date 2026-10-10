@@ -5,14 +5,14 @@ import { cleanup, render, screen } from '@testing-library/react';
 const reloadSpy = vi.hoisted(() => vi.fn());
 
 vi.mock('@/core/lib/shared/staleBuild', async (importOriginal) => {
-  const actual = await importOriginal<Record<string, any>>();
+  const actual = await importOriginal<typeof import('@/core/lib/shared/staleBuild')>();
   return { ...actual, reloadForStaleBuild: reloadSpy };
 });
 
 import ErrorBoundary from '@/core/components/shared/ErrorBoundary';
 import { isStaleBuildError } from '@/core/lib/shared/staleBuild';
 
-const { reloadForStaleBuild } = await vi.importActual<Record<string, any>>('@/core/lib/shared/staleBuild');
+const { reloadForStaleBuild } = await vi.importActual<typeof import('@/core/lib/shared/staleBuild')>('@/core/lib/shared/staleBuild');
 
 function memoryStorage() {
   const values = new Map<string, string>();

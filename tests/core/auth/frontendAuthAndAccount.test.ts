@@ -50,8 +50,8 @@ describe('Frontend Authentication & Account Lifecycle Tests', () => {
 
   describe('Token & LocalStorage Session Management', () => {
     it('stores token and authenticated user profile upon successful login', () => {
-      const mockStorage: Record<string, any> = {};
-      const setSession = (token: string, user: any) => {
+      const mockStorage: Record<string, string> = {};
+      const setSession = (token: string, user: Record<string, unknown>) => {
         mockStorage['takeoff_token'] = token;
         mockStorage['takeoff_user'] = JSON.stringify(user);
       };
@@ -87,7 +87,7 @@ describe('Frontend Authentication & Account Lifecycle Tests', () => {
       };
 
       assert.strictEqual(backendResponse.accessToken, 'real_jwt_from_supabase');
-      assert.strictEqual((backendResponse as any).session, undefined, 'refresh credentials must not be exposed to the SPA');
+      assert.strictEqual((backendResponse as Record<string, unknown>).session, undefined, 'refresh credentials must not be exposed to the SPA');
     });
   });
 
@@ -127,7 +127,10 @@ describe('Frontend Authentication & Account Lifecycle Tests', () => {
     });
 
     it('blocks self-service deletion when user owns organizations with active team members', () => {
-      const checkSelfServiceDeleteBlocker = (user: any, userOrganizations: any[]) => {
+      const checkSelfServiceDeleteBlocker = (
+        user: { id: string },
+        userOrganizations: Array<{ id: string; name: string; owner_id: string; active_member_count: number }>,
+      ) => {
         for (const org of userOrganizations) {
           if (org.owner_id === user.id && org.active_member_count > 1) {
             return {
@@ -160,9 +163,9 @@ describe('Frontend Authentication & Account Lifecycle Tests', () => {
   describe('Post-Registration 4-Plan Onboarding Navigation (US-039)', () => {
     it('transitions to plan-select view immediately after registration', () => {
       let currentView = 'register';
-      let registeredUser: any = null;
+      let registeredUser: Record<string, unknown> = {};
 
-      const onRegisterSuccess = (userPayload: any) => {
+      const onRegisterSuccess = (userPayload: Record<string, unknown>) => {
         registeredUser = userPayload;
         currentView = 'plan-select';
       };
@@ -174,8 +177,8 @@ describe('Frontend Authentication & Account Lifecycle Tests', () => {
     });
 
     it('routes free trial selection directly to dashboard without checkout', () => {
-      let navigatedTo: any = null;
-      const handleSelectFreePlan = (user: any) => {
+      let navigatedTo: string | null = null;
+      const handleSelectFreePlan = (user: { username: string }) => {
         navigatedTo = `/${user.username}`;
       };
 
@@ -185,7 +188,7 @@ describe('Frontend Authentication & Account Lifecycle Tests', () => {
 
     it('assigns correct paid plan tier and routes to dashboard upon checkout completion', async () => {
       let activeUser = { username: 'contractor_bob', subscription_tier: 'free', subscription_status: 'trialing' };
-      let navigatedTo: any = null;
+      let navigatedTo: string | null = null;
 
       const handlePaidPlanCheckoutSuccess = async (planKey: string) => {
         activeUser = {

@@ -11,8 +11,8 @@ interface ParseTakeoffPayloadParams {
   fileName?: string | null;
   sheetName?: string | null;
   tableId?: string | null;
-  customMapping?: Record<string, any> | null;
-  customPreset?: Record<string, any> | null;
+  customMapping?: Record<string, unknown> | null;
+  customPreset?: Record<string, string | undefined> | null;
   defaultLaborRate?: number | null;
 }
 
@@ -68,7 +68,7 @@ export const takeoffsApi = {
     defaultLaborRate,
   }: {
     rawRows: unknown[];
-    mapping: Record<string, any>;
+    mapping: Record<string, unknown>;
     defaultLaborRate?: number | null;
   }) {
     const res = await fetch(`${API_BASE_URL}/takeoffs/normalize-mapping`, {

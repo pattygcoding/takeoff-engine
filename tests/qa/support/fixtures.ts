@@ -2,19 +2,55 @@ import fs from 'node:fs';
 import { expect, test as base } from '@playwright/test';
 import type { BrowserContext, Page } from '@playwright/test';
 import { findAuthUserByEmail, findProfile, openDatabase } from './database.ts';
-import type { Db } from './database.ts';
+import type { AuthUserRow, Db, ProfileRow } from './database.ts';
 import { createPaddleSandboxApi, deliverPaddleWebhook, payWithPaddleOverlay } from './paddleSandbox.ts';
-import type { PaddleSandboxApi } from './paddleSandbox.ts';
+import type { PaddleEntity, PaddleSandboxApi } from './paddleSandbox.ts';
 import { createQaIdentity, loadQaSettings } from './qaEnvironment.ts';
 import type { QaIdentity, QaSettings } from './qaEnvironment.ts';
 import { createSupabaseAdmin } from './supabaseAdmin.ts';
+
+/** A member row as returned by the organizations API. */
+export interface ApiMember {
+  id: string;
+  user_email?: string | null;
+  invited_email?: string | null;
+  status?: string;
+  role?: string;
+  invite_token?: string;
+  [key: string]: unknown;
+}
+
+/** An organization row as returned by the organizations API. */
+export interface ApiOrganization {
+  id: string;
+  name?: string;
+  owner_id?: string;
+  active_member_count?: number;
+  max_seats?: number;
+  my_role?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * JSON body returned by the QA-facing API endpoints the harness reads.
+ * Fields are typed loosely and assumed present on the responses that use them.
+ */
+export interface ApiBody {
+  organization: ApiOrganization;
+  organizations: ApiOrganization[];
+  members: ApiMember[];
+  inviteUrl: string;
+  error: string;
+  code?: string;
+  [key: string]: unknown;
+}
 
 /** A secondary person in a scenario, living in its own browser context. */
 export interface QaPersona {
   context: BrowserContext;
   page: Page;
   customer: QaIdentity;
-  authUser: Record<string, any> | null;
+  authUser: AuthUserRow | null;
 }
 
 export type PersonaFactory = (
@@ -35,9 +71,11 @@ interface QaFixtures {
 }
 
 // UI labels come from the English locale so copy changes don't silently break selectors.
-const en = JSON.parse(fs.readFileSync(new URL('../../../src/lang/en.json', import.meta.url), 'utf8'));
+const en: unknown = JSON.parse(fs.readFileSync(new URL('../../../src/lang/en.json', import.meta.url), 'utf8'));
 export const label = (key: string): string => {
-  const value = key.split('.').reduce((node: any, part) => node?.[part], en as any);
+  const value = key
+    .split('.')
+    .reduce<unknown>((node, part) => (node as Record<string, unknown> | undefined)?.[part], en);
   if (typeof value !== 'string') throw new Error(`Missing English label "${key}".`);
   return value;
 };
@@ -124,7 +162,7 @@ async function routeAsClient(page: Page, settings: QaSettings, customer: QaIdent
 export { expect };
 
 /** Sign up through the public registration form, exactly like a visitor. */
-export async function registerThroughUi(page: Page, customer: QaIdentity): Promise<any> {
+export async function registerThroughUi(page: Page, customer: QaIdentity): Promise<unknown> {
   await page.goto('/register?lang=en');
   const form = page.locator('form').filter({ has: page.locator('#register-email') });
   await form.locator('#register-first-name').fill(customer.firstName);
@@ -159,7 +197,7 @@ export async function verifyEmail(
   customer: QaIdentity,
   settings: QaSettings,
   { method = 'link' }: { method?: 'link' | 'admin' } = {},
-): Promise<Record<string, any>> {
+): Promise<AuthUserRow> {
   const authUser = await findAuthUserByEmail(db, customer.email);
   expect(authUser, `no auth user was created for ${customer.email}`).toBeTruthy();
   expect(authUser!.email_confirmed_at, 'new accounts must start unverified').toBeNull();
@@ -221,7 +259,7 @@ export async function createVerifiedAccount(
   customer: QaIdentity,
   settings: QaSettings,
   { verification = 'admin' }: { verification?: 'link' | 'admin' } = {},
-): Promise<Record<string, any>> {
+): Promise<AuthUserRow> {
   await registerThroughUi(page, customer);
   const authUser = await verifyEmail(db, customer, settings, { method: verification });
   await loginThroughUi(page, customer);
@@ -238,7 +276,7 @@ export async function apiAs(
   method: string,
   path: string,
   body?: unknown,
-): Promise<{ status: number; body: any }> {
+): Promise<{ status: number; body: ApiBody }> {
   const csrfToken = await page.evaluate(() => sessionStorage.getItem('takeoff_csrf'));
   const res = await page.request.fetch(`${settings.apiUrl}${path}`, {
     method,
@@ -248,7 +286,7 @@ export async function apiAs(
   return { status: res.status(), body: await res.json().catch(() => ({})) };
 }
 
-export async function getJson(page: Page, url: string): Promise<any> {
+export async function getJson(page: Page, url: string): Promise<Record<string, unknown>> {
   const res = await page.request.get(url);
   expect(res.ok(), `GET ${url} -> ${res.status()}`).toBeTruthy();
   return res.json();
@@ -258,15 +296,15 @@ export async function getJson(page: Page, url: string): Promise<any> {
 export async function expectProfile(
   db: Db,
   userId: string,
-  predicate: (profile: Record<string, any>) => boolean,
+  predicate: (profile: ProfileRow) => boolean,
   message: string,
-): Promise<Record<string, any>> {
-  let profile: Record<string, any> | null = null;
+): Promise<ProfileRow> {
+  let profile: ProfileRow | null = null;
   await expect.poll(async () => {
     profile = await findProfile(db, userId);
     return Boolean(profile && predicate(profile));
   }, { message, timeout: 20_000 }).toBe(true);
-  return profile as unknown as Record<string, any>;
+  return profile as unknown as ProfileRow;
 }
 
 export async function baseSeatsFor(db: Db, tier: string): Promise<number | null> {
@@ -286,8 +324,8 @@ export async function forwardSubscriptionWebhook(
   settings: QaSettings,
   subscriptionId: string,
   eventType: string,
-  overrides: Record<string, any> | null = null,
-): Promise<any> {
+  overrides: Record<string, unknown> | null = null,
+): Promise<PaddleEntity> {
   const current = await paddleApi(settings).getSubscription(subscriptionId);
   const data = overrides ? { ...current, ...overrides, updated_at: new Date().toISOString() } : current;
   await deliverPaddleWebhook({
@@ -305,9 +343,9 @@ export async function forwardSubscriptionWebhook(
  * send: the real subscription with its billing period advanced by one cycle. Only the clock is
  * simulated; items, prices, and the account link come from Paddle.
  */
-export async function forwardRenewalWebhook(settings: QaSettings, subscriptionId: string): Promise<any> {
+export async function forwardRenewalWebhook(settings: QaSettings, subscriptionId: string): Promise<PaddleEntity> {
   const data = await paddleApi(settings).getSubscription(subscriptionId);
-  const startsAt = new Date(data.next_billed_at || data.current_billing_period.ends_at);
+  const startsAt = new Date(data.next_billed_at || data.current_billing_period?.ends_at || Date.now());
   const endsAt = new Date(startsAt);
   if (data.billing_cycle?.interval === 'year') endsAt.setUTCFullYear(endsAt.getUTCFullYear() + 1);
   else endsAt.setUTCMonth(endsAt.getUTCMonth() + 1);
@@ -328,7 +366,7 @@ export async function forwardRenewalWebhook(settings: QaSettings, subscriptionId
 }
 
 /** Paddle transactions created by plan changes on a subscription (proration charges). */
-export async function planChangeCharges(settings: QaSettings, subscriptionId: string): Promise<any[]> {
+export async function planChangeCharges(settings: QaSettings, subscriptionId: string): Promise<PaddleEntity[]> {
   return paddleApi(settings).listTransactions(subscriptionId, 'subscription_update');
 }
 
@@ -345,7 +383,7 @@ export async function purchasePlanThroughUi(
     customer: QaIdentity;
     settings: QaSettings;
   },
-): Promise<any> {
+): Promise<PaddleEntity> {
   await page.goto('/onboarding?lang=en');
   if (interval === 'annually') {
     await page.getByRole('button', { name: new RegExp(label('core.upgradeModal.annualBilling')) }).click();
@@ -378,7 +416,7 @@ export async function buyPlan(
     customer: QaIdentity;
     settings: QaSettings;
   },
-): Promise<{ authUser: Record<string, any>; subscription: any; profile: Record<string, any> }> {
+): Promise<{ authUser: AuthUserRow; subscription: PaddleEntity; profile: ProfileRow }> {
   const authUser = await createVerifiedAccount(page, db, customer, settings);
   const subscription = await purchasePlanThroughUi(page, { plan, interval, customer, settings });
   const profile = await expectProfile(

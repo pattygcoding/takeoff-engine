@@ -247,7 +247,7 @@ export const adminApi = {
   /**
    * Create a new promo code
    */
-  async createPromoCode(promoData: Record<string, any>) {
+  async createPromoCode(promoData: Record<string, unknown>) {
     const res = await fetch(`${API_BASE_URL}/admin/promo-codes`, {
       method: 'POST',
       headers: getAuthHeaders(),

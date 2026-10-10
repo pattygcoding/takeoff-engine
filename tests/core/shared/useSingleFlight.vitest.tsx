@@ -5,8 +5,8 @@ import type { FormEvent } from 'react';
 import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
 
 function deferred() {
-  let resolve!: (value?: any) => void;
-  const promise = new Promise<any>((r) => { resolve = r; });
+  let resolve!: (value?: unknown) => void;
+  const promise = new Promise<unknown>((r) => { resolve = r; });
   return { promise, resolve };
 }
 
@@ -42,7 +42,7 @@ describe('useSingleFlight', () => {
     const pending = deferred();
     const handler = vi.fn((_id: string) => pending.promise);
     const { result } = renderHook(() => useSingleFlight());
-    const run = result.current<string[], any>((id: string) => `remove:${id}`, handler);
+    const run = result.current<string[], unknown>((id: string) => `remove:${id}`, handler);
 
     run('a');
     run('a');

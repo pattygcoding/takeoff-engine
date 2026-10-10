@@ -29,7 +29,7 @@ for (const interval of QA_INTERVALS) {
 
         // Paddle sandbox charged the test card for exactly this plan and billing cycle.
         expect(subscription.status).toBe('active');
-        expect(subscription.items.map((item: any) => item.price.id)).toContain(settings.paddle.priceIds[interval][plan]);
+        expect((subscription.items ?? []).map((item) => item.price.id)).toContain(settings.paddle.priceIds[interval][plan]);
         expect(subscription.billing_cycle).toEqual({ interval: cycle.paddleInterval, frequency: 1 });
 
         // The account is entitled to the plan, linked to the Paddle subscription that pays for it.
@@ -44,8 +44,8 @@ for (const interval of QA_INTERVALS) {
           cancels_at_period_end: false,
         });
         // It renews one billing cycle from now.
-        expect(daysUntil(profile.subscription_renews_at)).toBeGreaterThan(cycle.minDays);
-        expect(daysUntil(profile.subscription_renews_at)).toBeLessThan(cycle.maxDays);
+        expect(daysUntil(profile.subscription_renews_at ?? '')).toBeGreaterThan(cycle.minDays);
+        expect(daysUntil(profile.subscription_renews_at ?? '')).toBeLessThan(cycle.maxDays);
 
         const details = await getJson(page, `${settings.apiUrl}/billing/subscription-details`);
         expect(details).toMatchObject({ subscriptionTier: plan, subscriptionStatus: 'active', seatLimit: baseSeats });

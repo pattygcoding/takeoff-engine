@@ -1,6 +1,7 @@
 import type { Page } from '@playwright/test';
 import type { QaSettings } from '../../support/qaEnvironment.ts';
-import type { Db } from '../../support/database.ts';
+import type { AuthUserRow, Db } from '../../support/database.ts';
+import type { PaddleEntity } from '../../support/paddleSandbox.ts';
 import {
   buyPlan,
   expect,
@@ -29,8 +30,8 @@ async function expectScheduledCancellation({
   db: Db;
   settings: QaSettings;
   plan: string;
-  authUser: Record<string, any>;
-  subscription: any;
+  authUser: AuthUserRow;
+  subscription: PaddleEntity;
 }) {
   const paddleSubscription = await paddleApi(settings).getSubscription(subscription.id);
   expect(paddleSubscription.status, 'Paddle keeps billing access until the period ends').toBe('active');

@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { formatMarkupLine, formatMarkupBasisNote } from '../../../src/product/lib/markupFormatting.ts';
 
 describe('Markup formatting helper', () => {
-  const mockT = (key: string, params: any = {}) => {
+  const mockT = (key: string, params: Record<string, string | number> = {}) => {
     if (key === 'product.markup.percentBasis') {
       return `${params.pct}% of the initial estimated cost before contingency and profit are applied`;
     }

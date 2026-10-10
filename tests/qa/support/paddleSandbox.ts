@@ -11,8 +11,28 @@ export interface PaddleTestCard {
   threeDSecure?: boolean;
 }
 
+/** A subscription line item as returned by the Paddle sandbox API. */
+export interface PaddleSubscriptionItem {
+  price: { id: string };
+  quantity?: number;
+  status?: string;
+  [key: string]: unknown;
+}
+
 /** A Paddle Billing entity as returned by the sandbox API (only the fields QA reads). */
-export type PaddleEntity = Record<string, any>;
+export interface PaddleEntity {
+  id: string;
+  status?: string;
+  items?: PaddleSubscriptionItem[];
+  scheduled_change?: { action?: string } | null;
+  billing_cycle?: { interval?: string; frequency?: number };
+  customer_id?: string;
+  email?: string;
+  next_billed_at?: string;
+  current_billing_period?: { starts_at: string; ends_at: string };
+  updated_at?: string;
+  [key: string]: unknown;
+}
 
 /** The Paddle sandbox client the QA harness uses. */
 export interface PaddleSandboxApi {
@@ -131,8 +151,9 @@ export function createPaddleSandboxApi({
     let next: string | null = `${path}${path.includes('?') ? '&' : '?'}per_page=200`;
     while (next) {
       const page = await request('GET', next.replace(baseUrl, ''));
-      items.push(...(page.data || []));
-      next = page.meta?.pagination?.has_more ? page.meta.pagination.next : null;
+      items.push(...((page.data as PaddleEntity[] | undefined) ?? []));
+      const pagination = (page.meta as { pagination?: { has_more?: boolean; next?: string | null } } | undefined)?.pagination;
+      next = pagination?.has_more ? (pagination.next ?? null) : null;
     }
     return items;
   }
@@ -155,7 +176,7 @@ export function createPaddleSandboxApi({
       while (Date.now() < deadline) {
         const customers = await api.findCustomersByEmail(email);
         const subscriptions = await api.listLiveSubscriptions(customers.map((customer) => customer.id));
-        const match = subscriptions.find((subscription) => subscription.items?.some((item: any) => item.price?.id === priceId));
+        const match = subscriptions.find((subscription) => subscription.items?.some((item) => item.price?.id === priceId));
         if (match) return match;
         await new Promise((resolve) => setTimeout(resolve, 3_000));
       }
@@ -176,12 +197,12 @@ export function createPaddleSandboxApi({
       }
     },
     archiveCustomer: (customerId) => request('PATCH', `/customers/${customerId}`, { status: 'archived' }),
-    getSubscription: async (subscriptionId) => (await request('GET', `/subscriptions/${subscriptionId}`)).data,
+    getSubscription: async (subscriptionId) => (await request('GET', `/subscriptions/${subscriptionId}`)).data as PaddleEntity,
     /** Change line items directly, as the customer would in Paddle's billing portal. */
     updateItems: async (subscriptionId: string, items: Array<{ priceId: string; quantity: number }>) => (await request('PATCH', `/subscriptions/${subscriptionId}`, {
       items: items.map(({ priceId, quantity }) => ({ price_id: priceId, quantity })),
       proration_billing_mode: 'prorated_immediately',
-    })).data,
+    })).data as PaddleEntity,
     listTransactions: (subscriptionId, origin) => listAll(`/transactions?subscription_id=${subscriptionId}${origin ? `&origin=${origin}` : ''}`),
 
     /**
@@ -219,7 +240,7 @@ export async function deliverPaddleWebhook({
   secret: string;
   eventType: string;
   data: unknown;
-}): Promise<any> {
+}): Promise<unknown> {
   const body = JSON.stringify({
     event_id: `evt_${QA_TAG}_${crypto.randomBytes(8).toString('hex')}`,
     event_type: eventType,

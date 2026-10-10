@@ -3,8 +3,8 @@
  */
 /** The subset of the Supabase Auth Admin API the QA harness uses. */
 export interface SupabaseAdmin {
-  confirmEmail: (userId: string) => Promise<any>;
-  deleteUser: (userId: string) => Promise<any>;
+  confirmEmail: (userId: string) => Promise<unknown>;
+  deleteUser: (userId: string) => Promise<unknown>;
 }
 
 export function createSupabaseAdmin({

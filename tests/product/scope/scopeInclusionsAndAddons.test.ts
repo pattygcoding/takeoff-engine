@@ -1,5 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
+import type { ScopeItem } from '@/types/models';
 
 const SCOPE_STATUS = {
   INCLUDED: 'included',
@@ -34,31 +35,31 @@ function formatScopeStatusLabel(status: string): string {
   }
 }
 
-function getScopeChangeDiff(items: any[] = []): any[] {
-  return (Array.isArray(items) ? items : [])
-    .map((item: any) => {
-      const originalStatus = item?.originalStatus ?? item?.status ?? SCOPE_STATUS.INCLUDED;
-      const requestedStatus = item?.status ?? originalStatus;
-      const originalAmount = Number(item?.originalAmount ?? item?.costImpact ?? item?.amount ?? 0) || 0;
-      const requestedAmount = Number(item?.amount ?? item?.costImpact ?? 0) || 0;
-      const changed = originalStatus !== requestedStatus || originalAmount !== requestedAmount;
-      if (!changed) return null;
-      return {
-        ...item,
-        id: item?.id ?? item?.title ?? 'unknown',
-        title: item?.title ?? item?.name ?? 'Scope Item',
-        category: item?.category ?? '',
-        originalStatus,
-        originalAmount,
-        status: requestedStatus,
-        amount: requestedAmount,
-      };
-    })
-    .filter(Boolean);
+function getScopeChangeDiff(items: ScopeItem[] = []): ScopeItem[] {
+  const diffs: ScopeItem[] = [];
+  for (const item of Array.isArray(items) ? items : []) {
+    const originalStatus = item?.originalStatus ?? item?.status ?? SCOPE_STATUS.INCLUDED;
+    const requestedStatus = item?.status ?? originalStatus;
+    const originalAmount = Number(item?.originalAmount ?? item?.costImpact ?? item?.amount ?? 0) || 0;
+    const requestedAmount = Number(item?.amount ?? item?.costImpact ?? 0) || 0;
+    const changed = originalStatus !== requestedStatus || originalAmount !== requestedAmount;
+    if (!changed) continue;
+    diffs.push({
+      ...item,
+      id: item?.id ?? item?.title ?? 'unknown',
+      title: item?.title ?? item?.name ?? 'Scope Item',
+      category: item?.category ?? '',
+      originalStatus,
+      originalAmount,
+      status: requestedStatus,
+      amount: requestedAmount,
+    });
+  }
+  return diffs;
 }
 
 // Mirrors lib/product/scope.js categorizeScope()
-function categorizeScope(items: any[] = []) {
+function categorizeScope(items: ScopeItem[] = []) {
   return {
     included: items.filter((it) => it.status === SCOPE_STATUS.INCLUDED),
     excluded: items.filter((it) => it.status === SCOPE_STATUS.EXCLUDED),
@@ -68,7 +69,7 @@ function categorizeScope(items: any[] = []) {
 }
 
 // Mirrors lib/product/scope.js formatScopeAddonImpact()
-function formatScopeAddonImpact(item: any, baseAmount = 0): string | null {
+function formatScopeAddonImpact(item: ScopeItem, baseAmount = 0): string | null {
   const raw = Number(item?.costImpact) || 0;
   if (!raw) return null;
   if (item?.costImpactType === 'percent') {
@@ -82,9 +83,11 @@ function formatScopeAddonImpact(item: any, baseAmount = 0): string | null {
 }
 
 // Mirrors ScopeSummaryDisplay's column-building logic (Not Applicable is intentionally dropped)
-function buildScopeSummaryColumns(scopeItems: any[]): any[] {
+type ScopeSummaryColumn = { key: string; items: ScopeItem[]; showImpactBadge?: boolean };
+
+function buildScopeSummaryColumns(scopeItems: ScopeItem[]): ScopeSummaryColumn[] {
   const { included, excluded, optionalAddons } = categorizeScope(scopeItems);
-  const columns: any[] = [];
+  const columns: ScopeSummaryColumn[] = [];
   if (included.length > 0) columns.push({ key: 'included', items: included });
   if (excluded.length > 0) columns.push({ key: 'excluded', items: excluded });
   if (optionalAddons.length > 0) columns.push({ key: 'addons', items: optionalAddons, showImpactBadge: true });
@@ -93,8 +96,8 @@ function buildScopeSummaryColumns(scopeItems: any[]): any[] {
 
 // Mirrors ScopeInclusionsModal handlers: status/add/remove respect readOnly,
 // but add-on price fields stay editable even when the project is otherwise locked.
-function createScopeEditor(initialItems: any[], readOnly: boolean) {
-  let items = initialItems.map((it: any) => ({ ...it }));
+function createScopeEditor(initialItems: ScopeItem[], readOnly: boolean) {
+  let items = initialItems.map((it) => ({ ...it }));
 
   return {
     getItems: () => items,
@@ -124,10 +127,10 @@ function simulateDismissSavedConfirm({ isPanel, onClose }: { isPanel: boolean; o
 
 // Mirrors ClientCounterOfferModal's negotiation list: NA items are hidden entirely,
 // and add-on items are rendered as informational price cards, not the include/exclude toggle.
-function buildCounterOfferList(scopeItems: any[]) {
+function buildCounterOfferList(scopeItems: ScopeItem[]) {
   return scopeItems
-    .filter((item: any) => item.status !== SCOPE_STATUS.NOT_APPLICABLE)
-    .map((item: any) => ({
+    .filter((item) => item.status !== SCOPE_STATUS.NOT_APPLICABLE)
+    .map((item) => ({
       id: item.id,
       isAddon: item.status === SCOPE_STATUS.OPTIONAL_ADDON,
       isToggleable: item.status !== SCOPE_STATUS.OPTIONAL_ADDON,
@@ -178,10 +181,10 @@ describe('Scope Inclusions/Exclusions & Optional Add-On Pricing (Frontend Logic)
       const includedCol = columns.find((c) => c.key === 'included');
       const addonsCol = columns.find((c) => c.key === 'addons');
 
-      assert.strictEqual(includedCol.showImpactBadge, undefined);
-      assert.strictEqual(addonsCol.showImpactBadge, true);
-      assert.strictEqual(addonsCol.items.length, 1);
-      assert.strictEqual(addonsCol.items[0].id, '3');
+      assert.strictEqual(includedCol!.showImpactBadge, undefined);
+      assert.strictEqual(addonsCol!.showImpactBadge, true);
+      assert.strictEqual(addonsCol!.items.length, 1);
+      assert.strictEqual(addonsCol!.items[0].id, '3');
     });
 
     it('omits empty columns entirely (e.g. no add-ons selected)', () => {

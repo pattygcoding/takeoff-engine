@@ -15,7 +15,7 @@ import { DEFAULT_SCOPE_ITEMS, summarizeScope } from '@/product/lib/scope';
 import ScopeInclusionsModal from '@/product/components/ScopeInclusionsModal';
 import UpgradeModal from '@/core/components/billing/UpgradeModal';
 import type { ReactNode } from 'react';
-import type { CrewMember, LaborRole, RateTemplate, Rates } from '@/types/models';
+import type { CrewMember, EquipmentCatalogItem, LaborRole, MiscItem, RateTemplate, Rates } from '@/types/models';
 
 export default function RatesDrawer({
   open,
@@ -295,12 +295,12 @@ export default function RatesDrawer({
     setTimeout(() => setSuccessMsg(''), 3500);
   };
 
-  const handleUpdateRole = (roleId: string, field: string, val: any) => {
+  const handleUpdateRole = (roleId: string, field: string, val: string | number) => {
     if (readOnly) return;
     const updated = laborRoles.map((r) => {
       if (r.id !== roleId) return r;
       if (field === 'title') {
-        return { ...r, title: val };
+        return { ...r, title: String(val) };
       }
       if (field === 'hourlyRate') {
         const hourly = val === '' ? '' : Number(val);
@@ -354,17 +354,17 @@ export default function RatesDrawer({
     });
   };
 
-  const equipmentCatalog: Array<Record<string, any>> =
+  const equipmentCatalog: EquipmentCatalogItem[] =
     Array.isArray(rates?.equipmentCatalog) && rates.equipmentCatalog.length > 0
       ? rates.equipmentCatalog
       : DEFAULT_EQUIPMENT_CATALOG;
 
-  const handleUpdateEquipmentCatalogItem = (eqId: string, field: string, val: any) => {
+  const handleUpdateEquipmentCatalogItem = (eqId: string, field: string, val: string | number) => {
     if (readOnly) return;
     const updated = equipmentCatalog.map((eq) => {
       if (eq.id !== eqId) return eq;
       if (field === 'title') {
-        return { ...eq, title: val };
+        return { ...eq, title: String(val) };
       }
       return {
         ...eq,
@@ -405,7 +405,7 @@ export default function RatesDrawer({
     });
   };
 
-  const miscItems: Array<Record<string, any>> = Array.isArray(rates?.miscItems) ? rates.miscItems : [];
+  const miscItems: MiscItem[] = Array.isArray(rates?.miscItems) ? rates.miscItems : [];
 
   const handleAddMiscItem = () => {
     const newItem = {
@@ -422,7 +422,7 @@ export default function RatesDrawer({
     });
   };
 
-  const handleUpdateMiscItem = (id: string, field: string, val: any) => {
+  const handleUpdateMiscItem = (id: string, field: string, val: string | number) => {
     const updated = miscItems.map((item) => {
       if (item.id === id) {
         return {
@@ -1298,7 +1298,7 @@ function Field({
   disabled = false,
 }: {
   label: ReactNode;
-  value: any;
+  value: string | number | undefined;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   prefix?: ReactNode;
   suffix?: ReactNode;
@@ -1332,7 +1332,7 @@ function DualModeField({
   disabled = false,
 }: {
   label: ReactNode;
-  value: any;
+  value: string | number | undefined;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   type?: string;
   onTypeChange: (type: string) => void;

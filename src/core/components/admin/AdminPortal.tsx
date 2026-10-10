@@ -730,7 +730,7 @@ export default function AdminPortal() {
                               </span>
                             )}
                             {isLocked && (
-                              <span className="px-1.5 py-0.2 bg-amber-500/20 text-amber-300 text-[10px] rounded font-bold border border-amber-500/30 inline-flex items-center gap-1" title={`Locked until ${new Date(u.locked_until).toLocaleTimeString()} (5 failed attempts)`}>
+                              <span className="px-1.5 py-0.2 bg-amber-500/20 text-amber-300 text-[10px] rounded font-bold border border-amber-500/30 inline-flex items-center gap-1" title={`Locked until ${new Date(u.locked_until || 0).toLocaleTimeString()} (5 failed attempts)`}>
                                 <Lock className="w-2.5 h-2.5" /> LOCKED
                               </span>
                             )}
@@ -978,7 +978,7 @@ export default function AdminPortal() {
                         {(p.max_uses || 1) - (p.times_used || 0)} / {p.max_uses || 1}
                       </td>
                       <td className="py-3 px-4 text-slate-400 text-[11px]">
-                        {new Date(p.created_at).toLocaleDateString()}
+                        {new Date(p.created_at || 0).toLocaleDateString()}
                       </td>
                     </tr>
                   ))}
@@ -1020,7 +1020,7 @@ export default function AdminPortal() {
                     auditLogs.map((log) => (
                       <tr key={log.id} className="hover:bg-slate-800/30">
                         <td className="py-3 px-4 text-slate-400 text-[11px]">
-                          {new Date(log.created_at).toLocaleString()}
+                          {new Date(log.created_at || 0).toLocaleString()}
                         </td>
                         <td className="py-3 px-4 font-sans text-blue-300 font-semibold">
                           {log.admin?.email || log.admin?.username || log.admin_id?.slice(0, 8)}

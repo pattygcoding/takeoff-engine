@@ -9,7 +9,7 @@ import type { ImportContext, TakeoffItem } from '@/types/models';
 
 interface MappingModalData {
   headers?: string[];
-  rawRows?: Array<Record<string, any>>;
+  rawRows?: Array<Record<string, string>>;
   currentMapping?: Record<string, string | number>;
   matchConfidences?: Record<string, number>;
   overallConfidence?: number;
@@ -20,7 +20,16 @@ interface MappingModalData {
   activeSheetName?: string;
   activeTableId?: string | null;
   subTables?: Array<{ id: string; label: string }>;
-  [key: string]: any;
+  [key: string]: unknown;
+}
+
+/** Checksum/verification summary returned by the parser for spreadsheet uploads. */
+interface ChecksumSummary {
+  hasSubtotals?: boolean;
+  checksumMatches?: boolean;
+  detectedSubtotals?: number;
+  parsedSum?: number;
+  [key: string]: unknown;
 }
 
 export default function UploadStep({
@@ -35,7 +44,7 @@ export default function UploadStep({
   const [isParsing, setIsParsing] = useState(false);
   const [mappingModalData, setMappingModalData] = useState<MappingModalData | null>(null);
   const [currentUploadedFile, setCurrentUploadedFile] = useState<TakeoffFileLike | null>(null);
-  const [checksumSummary, setChecksumSummary] = useState<Record<string, any> | null>(null);
+  const [checksumSummary, setChecksumSummary] = useState<ChecksumSummary | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const guard = useSingleFlight();
@@ -100,7 +109,7 @@ export default function UploadStep({
   }: {
     items?: TakeoffItem[];
     errors?: string[];
-    checksum?: Record<string, any>;
+    checksum?: ChecksumSummary;
     detectedLaborMode?: string;
   }) => {
     setMappingModalData(null);
@@ -183,8 +192,8 @@ export default function UploadStep({
             <span>{checksumSummary.checksumMatches ? t('product.uploadStep.checksumVerified') : t('product.uploadStep.checksumNote')}</span>
           </div>
           <p>
-            {t('product.uploadStep.checksumPrefix')} <strong>{checksumSummary.detectedSubtotals.toLocaleString()}</strong> |
-            {t('product.uploadStep.checksumParsedPrefix')} <strong>{checksumSummary.parsedSum.toLocaleString()}</strong>
+            {t('product.uploadStep.checksumPrefix')} <strong>{Number(checksumSummary.detectedSubtotals).toLocaleString()}</strong> |
+            {t('product.uploadStep.checksumParsedPrefix')} <strong>{Number(checksumSummary.parsedSum).toLocaleString()}</strong>
           </p>
         </div>
       )}

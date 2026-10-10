@@ -14,11 +14,12 @@ import {
 const KEY = 'product.templates.kpiSummary';
 const ACCENT = '#0891b2';
 
-function pctOf(part: any, whole: any) {
-  return whole > 0 ? (part / whole) * 100 : 0;
+function pctOf(part: number | undefined, whole: number | undefined) {
+  const w = whole ?? 0;
+  return w > 0 ? ((part ?? 0) / w) * 100 : 0;
 }
 
-function formatPctText(value: any) {
+function formatPctText(value: number | string | null | undefined) {
   return `${formatNumber(value, 1)}%`;
 }
 

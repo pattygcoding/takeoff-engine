@@ -38,11 +38,11 @@ interface ModalState {
   variant?: string;
   defaultValue?: string;
   placeholder?: string;
-  resolve: (value: any) => void;
+  resolve: (value: unknown) => void;
 }
 
 interface ModalContextValue {
-  showAlert: (options?: AlertOptions) => Promise<any>;
+  showAlert: (options?: AlertOptions) => Promise<unknown>;
   showConfirm: (options?: ConfirmOptions) => Promise<boolean>;
   showPrompt: (options?: PromptOptions) => Promise<string | null>;
 }
@@ -54,7 +54,7 @@ export function ModalProvider({ children }: { children: ReactNode }) {
   const [inputValue, setInputValue] = useState('');
   const { t } = useTranslation();
 
-  const closeModal = useCallback((result: any) => {
+  const closeModal = useCallback((result: unknown) => {
     if (modalState?.resolve) {
       modalState.resolve(result);
     }
@@ -92,7 +92,7 @@ export function ModalProvider({ children }: { children: ReactNode }) {
         confirmText,
         cancelText,
         confirmVariant,
-        resolve,
+        resolve: (value) => resolve(value as boolean),
       });
     });
   }, [t]);
@@ -116,7 +116,7 @@ export function ModalProvider({ children }: { children: ReactNode }) {
         placeholder,
         confirmText,
         cancelText,
-        resolve,
+        resolve: (value) => resolve(value as string | null),
       });
     });
   }, [t]);

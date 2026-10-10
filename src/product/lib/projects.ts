@@ -71,7 +71,7 @@ export const projectsApi = {
     status?: string;
     items?: TakeoffItem[];
     rates?: Rates;
-    summary?: Record<string, any>;
+    summary?: Record<string, unknown>;
   }) {
     const res = await fetch(`${API_BASE_URL}/projects`, {
       method: 'POST',
@@ -99,7 +99,7 @@ export const projectsApi = {
   /**
    * Update project metadata and/or estimate line items & rates
    */
-  async update(id: string, updates: Record<string, any>) {
+  async update(id: string, updates: Record<string, unknown>) {
     const res = await fetch(`${API_BASE_URL}/projects/${id}`, {
       method: 'PUT',
       headers: getAuthHeaders(),

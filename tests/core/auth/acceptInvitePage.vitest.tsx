@@ -15,7 +15,7 @@ vi.mock('@/core/components/context/ModalContext', () => ({
 }));
 vi.mock('@/core/components/context/I18nContext', () => ({
   useTranslation: () => ({
-    t: (key: string, params: Record<string, any> = {}) => `${key} ${params.orgName || ''}`.trim(),
+    t: (key: string, params: Record<string, string | number> = {}) => `${key} ${params.orgName || ''}`.trim(),
     language: 'en',
   }),
 }));

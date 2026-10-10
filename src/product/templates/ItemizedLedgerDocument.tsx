@@ -1,5 +1,5 @@
 import React from 'react';
-import type { DocumentTemplateProps } from '@/types/models';
+import type { DocumentTemplateProps, EstimateLineItem } from '@/types/models';
 import type { DocumentColumn } from './DocumentHeaderSignoff';
 import { formatCurrency, formatNumber } from '@/product/lib/calculations';
 import { useTranslation } from '@/core/components/context/I18nContext';
@@ -24,7 +24,7 @@ export default function ItemizedLedgerDocument({ estimate, branding, currentProj
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENT;
 
-  const equipmentCost = (it: any) => (rates?.excavatorHourlyRate || 0) * (it.laborHours * 0.4);
+  const equipmentCost = (it: EstimateLineItem) => (rates?.excavatorHourlyRate || 0) * ((it.laborHours ?? 0) * 0.4);
 
   const columns: DocumentColumn[] = [
     { header: t(`${KEY}.colItem`), render: (it) => it.description },

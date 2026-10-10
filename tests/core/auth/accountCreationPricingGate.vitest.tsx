@@ -14,7 +14,7 @@ import { createCatalogFixture } from '../../helpers/paddleCatalogFixture.ts';
 const authMocks = vi.hoisted(() => ({ register: vi.fn() }));
 
 vi.mock('@/core/components/context/I18nContext', () => ({
-  useTranslation: () => ({ t: (key: string, params: any) => getTranslation(key, params, 'en'), language: 'en' }),
+  useTranslation: () => ({ t: (key: string, params: Record<string, string | number> = {}) => getTranslation(key, params, 'en'), language: 'en' }),
 }));
 vi.mock('@/core/components/context/AuthContext', () => ({
   useAuth: () => ({
@@ -79,7 +79,7 @@ afterEach(() => {
 
 describe('account creation gate state', () => {
   it('stays open while pricing loads, closes when pricing is unavailable, and reopens after retry', async () => {
-    let resolveFirst!: (reason?: any) => void;
+    let resolveFirst!: (reason?: unknown) => void;
     vi.spyOn(billingApi, 'getPricing')
       .mockImplementationOnce(() => new Promise((_, reject) => { resolveFirst = reject; }))
       .mockResolvedValueOnce(catalog());

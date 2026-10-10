@@ -8,7 +8,7 @@ import { PricingProvider, PricingStatus, usePricingDisplay } from '@/core/compon
 import { createCatalogFixture, formatMoney } from '../../helpers/paddleCatalogFixture.ts';
 
 vi.mock('@/core/components/context/I18nContext', () => ({
-  useTranslation: () => ({ t: (key: string, params: any) => getTranslation(key, params, 'en'), language: 'en' }),
+  useTranslation: () => ({ t: (key: string, params: Record<string, string | number> = {}) => getTranslation(key, params, 'en'), language: 'en' }),
 }));
 
 // Prices come from a mocked Paddle catalog generated per run; expectations are derived from it.
@@ -62,9 +62,9 @@ describe('catalog response validation', () => {
     expect(() => validateCatalogPricing(data)).toThrow();
   });
 
-  it.each([NaN, Infinity, -1, String(prices.STARTER_MONTHLY_PRICE), null, undefined])('rejects invalid amount %s', (amount: any) => {
+  it.each([NaN, Infinity, -1, String(prices.STARTER_MONTHLY_PRICE), null, undefined])('rejects invalid amount %s', (amount: unknown) => {
     const data = catalog();
-    data.prices.STARTER_MONTHLY_PRICE = amount;
+    data.prices.STARTER_MONTHLY_PRICE = amount as number;
     expect(() => validateCatalogPricing(data)).toThrow();
   });
 
@@ -75,7 +75,7 @@ describe('catalog response validation', () => {
 });
 
 describe('currency interpolation without modifying locale files', () => {
-  const formatPrice = (value: any) => formatMoney(value);
+  const formatPrice = (value?: number) => formatMoney(Number(value));
   const price = prices.STARTER_MONTHLY_PRICE;
   const yearly = prices.STARTER_YEARLY_PRICE;
 
@@ -86,8 +86,8 @@ describe('currency interpolation without modifying locale files', () => {
     ['+{{price}} €/mo', () => `+${formatMoney(price)}/mo`],
     ['or ${{yearly}}/yr', () => `or ${formatMoney(yearly)}/yr`],
   ])('uses catalog currency in %s', (template, expected) => {
-    const t = (_key: string, params: Record<string, any> = {}) =>
-      template.replace(/\{\{(\w+)\}\}/g, (_match, name: string) => params[name]);
+    const t = (_key: string, params: Record<string, string | number> = {}) =>
+      template.replace(/\{\{(\w+)\}\}/g, (_match, name: string) => String(params[name]));
     expect(translateCatalogPrice(t, 'key', { price, yearly }, formatPrice)).toBe(expected());
   });
 
@@ -103,7 +103,7 @@ describe('currency interpolation without modifying locale files', () => {
 
 describe('shared frontend pricing state', () => {
   it('shows loading, disables paid actions, and preserves free access', async () => {
-    let resolve!: (value?: any) => void;
+    let resolve!: (value?: unknown) => void;
     vi.spyOn(billingApi, 'getPricing').mockImplementation(() => new Promise((done) => { resolve = done; }));
     render(<StrictMode><PricingProvider><PricingHarness /></PricingProvider></StrictMode>);
     expect(screen.getByRole('status').textContent).toContain('Loading pricing');

@@ -24,6 +24,17 @@ interface ExpectedItem {
   unit?: string;
 }
 
+/** The parser payload as read by this harness (permissive: not every shape is present). */
+interface ParsedPayload {
+  items?: Array<Record<string, unknown>>;
+  requiresMappingModal?: boolean;
+  detectedLaborMode?: string;
+  subTables?: unknown[];
+  errors?: unknown[];
+  sheetNames?: string[];
+  [key: string]: unknown;
+}
+
 interface SampleSheet {
   file: string;
   /** Worksheet to parse; only used for Excel samples. */
@@ -106,18 +117,19 @@ const EXCEL_SAMPLE: SampleSheet = {
   ],
 };
 
-async function parseSample(fileName: string, sheetName: string | null = null): Promise<any> {
+async function parseSample(fileName: string, sheetName: string | null = null): Promise<ParsedPayload> {
   const fullPath = path.join(SAMPLES_DIR, fileName);
-  return CsvParserService.parseTakeoffPayload(
+  const result = await CsvParserService.parseTakeoffPayload(
     EXCEL_EXTENSIONS.test(fileName)
       ? { fileBuffer: fs.readFileSync(fullPath), fileName, sheetName }
       : { fileContent: fs.readFileSync(fullPath, 'utf8'), fileName, sheetName: null },
   );
+  return result as unknown as ParsedPayload;
 }
 
 const normalize = (value: unknown): string => String(value ?? '').trim().toLowerCase();
 
-function matches(item: Record<string, any>, expected: ExpectedItem): boolean {
+function matches(item: Record<string, unknown>, expected: ExpectedItem): boolean {
   if (normalize(item.system) !== normalize(expected.system)) return false;
   if (expected.descriptionIncludes && !normalize(item.description).includes(normalize(expected.descriptionIncludes))) return false;
   if (expected.quantity !== undefined && Math.abs(Number(item.quantity) - expected.quantity) > 1e-6) return false;
@@ -131,8 +143,8 @@ const describeItem = (expected: ExpectedItem): string =>
     .join(' / ');
 
 /** Asserts a single parsed sheet imported every table it contains. */
-function assertSheetParsed(parsed: Record<string, any>, sample: SampleSheet): void {
-  const items: Array<Record<string, any>> = parsed.items ?? [];
+function assertSheetParsed(parsed: ParsedPayload, sample: SampleSheet): void {
+  const items: Array<Record<string, unknown>> = parsed.items ?? [];
   const label = `${sample.file}${sample.sheet ? ` [${sample.sheet}]` : ''}`;
   const summary = [
     `${label} parsed ${items.length} item(s).`,

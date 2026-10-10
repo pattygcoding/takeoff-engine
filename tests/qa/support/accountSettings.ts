@@ -48,7 +48,7 @@ export async function changePlanThroughSettings(
     settings: QaSettings;
     expectFailure?: boolean;
   },
-): Promise<any> {
+): Promise<Record<string, unknown>> {
   const openModal = page.getByRole('button', { name: label('core.accountSettings.upgradeToPro'), exact: true })
     .or(page.getByRole('button', { name: label('core.accountSettings.changePlanOrRedeemCode'), exact: true }));
   await openModal.click();

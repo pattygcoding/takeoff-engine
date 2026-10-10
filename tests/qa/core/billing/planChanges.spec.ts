@@ -19,11 +19,14 @@ import {
   test,
 } from '../../support/fixtures.ts';
 import { findProfile } from '../../support/database.ts';
+import type { PaddleEntity } from '../../support/paddleSandbox.ts';
 import { cancelThroughSettings, changePlanThroughSettings } from '../../support/accountSettings.ts';
 
 const COLLECTED = new Set(['paid', 'completed']);
-const collectedCharges = async (settings: QaSettings, subscriptionId: string) => (await planChangeCharges(settings, subscriptionId)).filter((txn: any) => COLLECTED.has(txn.status));
-const billedPriceIds = (subscription: any) => subscription.items.filter((entry: any) => entry.status !== 'inactive').map((entry: any) => entry.price.id);
+const collectedCharges = async (settings: QaSettings, subscriptionId: string) => (await planChangeCharges(settings, subscriptionId)).filter((txn) => COLLECTED.has(txn.status ?? ''));
+const billedPriceIds = (subscription: PaddleEntity) => (subscription.items ?? [])
+  .filter((entry) => entry.status !== 'inactive')
+  .map((entry) => entry.price.id);
 
 /** The core plan picker marks the entitled plan as current ("free" = none) and offers the rest. */
 async function expectPickerShows(page: Page, plan: string) {
@@ -44,7 +47,7 @@ test.describe('upgrades', () => {
 
   test('user can upgrade from free to starter to pro to enterprise', async ({ page, db, customer, settings }) => {
     const authUser = await createVerifiedAccount(page, db, customer, settings);
-    let subscription: any;
+    let subscription: PaddleEntity;
 
     await test.step('starts on free', async () => {
       expect((await findProfile(db, authUser.id))!.subscription_tier).toBe('free');
@@ -112,7 +115,7 @@ test.describe('downgrades', () => {
         // The customer keeps the current plan until the renewal, which is when the downgrade is scheduled.
         const scheduled = await expectProfile(db, authUser.id, (row) => row.scheduled_tier === to, `downgrade to ${to} scheduled`);
         expect(scheduled.subscription_tier).toBe(from);
-        expect(new Date(scheduled.scheduled_change_effective_at).getTime()).toBe(new Date(paddleSubscription.next_billed_at).getTime());
+        expect(new Date(String(scheduled.scheduled_change_effective_at)).getTime()).toBe(new Date(String(paddleSubscription.next_billed_at)).getTime());
         await expect(page.getByRole('heading', { name: label('core.accountSettings.downgradeScheduledTitle') })).toBeVisible();
         expect(await getJson(page, `${settings.apiUrl}/billing/subscription-details`)).toMatchObject({ subscriptionTier: from, scheduledTier: to });
 

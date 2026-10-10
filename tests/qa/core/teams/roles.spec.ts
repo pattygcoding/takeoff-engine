@@ -28,7 +28,7 @@ const syntheticEmail = (settings: QaSettings, tag: string): string => createQaId
 
 async function memberIds(page: Page, settings: QaSettings, orgId: string) {
   const { body } = await apiAs(page, settings, 'GET', `/organizations/${orgId}`);
-  return Object.fromEntries(body.members.map((m: any) => [m.user_email || m.invited_email, m]));
+  return Object.fromEntries(body.members.map((m) => [String(m.user_email || m.invited_email || ''), m]));
 }
 
 test.describe('roles', () => {
@@ -78,8 +78,8 @@ test.describe('roles', () => {
         const pending = ids[pendingEmail];
         const view = await apiAs(p, settings, 'GET', `/organizations/${org.id}`);
         expect(view.status).toBe(200);
-        expect(view.body.members.find((m: any) => m.id === pending.id).invite_token, 'invite links are hidden from non-managers').toBeUndefined();
-        const attempts: Array<[string, string, any?]> = [
+        expect(view.body.members.find((m) => m.id === pending.id)!.invite_token, 'invite links are hidden from non-managers').toBeUndefined();
+        const attempts: Array<[string, string, Record<string, unknown>?]> = [
           ['POST', `/organizations/${org.id}/members`, { email: syntheticEmail(settings, 'nope'), role: 'viewer' }],
           ['POST', `/organizations/${org.id}/members/${pending.id}/resend`],
           ['POST', `/organizations/${org.id}/members/${pending.id}/revoke`],
@@ -107,10 +107,10 @@ test.describe('roles', () => {
       const invited = syntheticEmail(settings, 'byadmin');
       expect((await inviteViaUi(p, settings, { email: invited, role: 'viewer' })).status).toBe(201);
       expect((await revokeViaUi(p, settings, invited)).status).toBe(200);
-      expect((await apiAs(p, settings, 'GET', `/organizations/${org.id}`)).body.members.find((m: any) => m.id === ids[pendingEmail].id).invite_token).toBeTruthy();
+      expect((await apiAs(p, settings, 'GET', `/organizations/${org.id}`)).body.members.find((m) => m.id === ids[pendingEmail].id)!.invite_token).toBeTruthy();
 
       const ownerRow = ids[customer.email];
-      const refusals: Array<[string, string, any?]> = [
+      const refusals: Array<[string, string, Record<string, unknown>?]> = [
         ['POST', `/organizations/${org.id}/members`, { email: syntheticEmail(settings, 'newadmin'), role: 'admin' }],
         ['PUT', `/organizations/${org.id}/members/${ids[estimator.customer.email].id}`, { role: 'admin' }],
         ['PUT', `/organizations/${org.id}/members/${ownerRow.id}`, { role: 'viewer' }],
@@ -129,7 +129,7 @@ test.describe('roles', () => {
       for (const [method, path, body] of ([
         ['PUT', `/organizations/${org.id}/members/${promoted.id}`, { role: 'viewer' }],
         ['DELETE', `/organizations/${org.id}/members/${promoted.id}`],
-      ] as Array<[string, string, any?]>)) {
+      ] as Array<[string, string, Record<string, unknown>?]>)) {
         expect((await apiAs(admin.page, settings, method, path, body)).status, `${method} ${path}`).toBe(403);
       }
       await openTeam(admin.page, admin.customer, settings);
@@ -158,7 +158,7 @@ test.describe('roles', () => {
     await test.step('a member leaves on their own and the seat is freed', async () => {
       await openTeam(member.page, member.customer, settings);
       expect((await leaveViaUi(member.page, settings)).status).toBe(200);
-      await expect(member.page.getByText(tw('leftWorkspaceSuccess').replace('{{name}}', org.name))).toBeVisible();
+      await expect(member.page.getByText(tw('leftWorkspaceSuccess').replace('{{name}}', String(org.name)))).toBeVisible();
       await expect(membersHeading(member.page)).toHaveCount(0);
       await openTeam(page, customer, settings);
       await expect(memberRow(page, member.customer.email)).toHaveCount(0);

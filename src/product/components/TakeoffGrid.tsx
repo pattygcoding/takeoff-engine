@@ -8,7 +8,7 @@ import {
   DEFAULT_EQUIPMENT_CATALOG,
   DEFAULT_LABOR_ROLES,
 } from '@/product/constants/calculations.constants';
-import type { LaborRole, Rates, TakeoffItem } from '@/types/models';
+import type { EquipmentCatalogItem, LaborRole, Rates, TakeoffItem } from '@/types/models';
 
 const DEFAULT_SYSTEMS = ['Sanitary', 'Storm', 'Domestic Water', 'Equipment & Mobilization'];
 const DEFAULT_UNITS = ['LF', 'EA', 'SF', 'CY', 'SY', 'TON', 'LS', 'HR'];
@@ -93,7 +93,7 @@ export default function TakeoffGrid({
   }, [items]);
 
   const [showAddEquipmentModal, setShowAddEquipmentModal] = useState(false);
-  const equipmentCatalog: Array<Record<string, any>> =
+  const equipmentCatalog: EquipmentCatalogItem[] =
     Array.isArray(rates?.equipmentCatalog) && rates.equipmentCatalog.length > 0
       ? rates.equipmentCatalog
       : DEFAULT_EQUIPMENT_CATALOG;
@@ -173,11 +173,11 @@ export default function TakeoffGrid({
     const firstEq = equipmentCatalog[0] || {};
     setSelectedCatalogId(firstEq.id || 'custom');
     setEqCustomTitle(firstEq.title || 'Heavy Machinery Rental');
-    setEqCustomDailyRate(firstEq.dailyRate || 350);
-    setEqCustomWeeklyRate(firstEq.weeklyRate || 1200);
-    setEqCustomMonthlyRate(firstEq.monthlyRate || 3600);
-    setEqCustomDeliveryFee(firstEq.deliveryFee || 250);
-    setEqCustomFuelPct(firstEq.fuelSurchargePct ?? 5);
+    setEqCustomDailyRate(Number(firstEq.dailyRate || 350));
+    setEqCustomWeeklyRate(Number(firstEq.weeklyRate || 1200));
+    setEqCustomMonthlyRate(Number(firstEq.monthlyRate || 3600));
+    setEqCustomDeliveryFee(Number(firstEq.deliveryFee || 250));
+    setEqCustomFuelPct(Number(firstEq.fuelSurchargePct ?? 5));
     setEqAssociatedScope('General / Project-Wide');
     setEqOwnership(firstEq.equipmentOwnership || 'rented');
     setEqOperatorIncluded(Boolean(firstEq.defaultOperatorIncluded));
@@ -201,12 +201,12 @@ export default function TakeoffGrid({
     } else {
       const match = equipmentCatalog.find((eq) => eq.id === val);
       if (match) {
-        setEqCustomTitle(match.title);
-        setEqCustomDailyRate(match.dailyRate);
-        setEqCustomWeeklyRate(match.weeklyRate);
-        setEqCustomMonthlyRate(match.monthlyRate);
-        setEqCustomDeliveryFee(match.deliveryFee);
-        setEqCustomFuelPct(match.fuelSurchargePct ?? 0);
+        setEqCustomTitle(match.title || '');
+        setEqCustomDailyRate(Number(match.dailyRate));
+        setEqCustomWeeklyRate(Number(match.weeklyRate));
+        setEqCustomMonthlyRate(Number(match.monthlyRate));
+        setEqCustomDeliveryFee(Number(match.deliveryFee));
+        setEqCustomFuelPct(Number(match.fuelSurchargePct ?? 0));
         setEqOwnership(match.equipmentOwnership || 'rented');
         setEqOperatorIncluded(Boolean(match.defaultOperatorIncluded));
         setEqDamageWaiverPct(Number(match.damageWaiverPct ?? 10));

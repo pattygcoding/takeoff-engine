@@ -15,7 +15,7 @@ interface InviteData {
   inviterName?: string;
   email?: string;
   role?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export default function AcceptInvitePage() {

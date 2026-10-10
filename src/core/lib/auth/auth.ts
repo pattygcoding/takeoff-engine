@@ -137,7 +137,7 @@ export const authApi = {
     return data;
   },
 
-  async updateProfile(profileData: Record<string, any>) {
+  async updateProfile(profileData: Record<string, unknown>) {
     const res = await fetch(`${API_BASE_URL}/auth/profile`, {
       method: 'PUT',
       headers: getAuthHeaders(),

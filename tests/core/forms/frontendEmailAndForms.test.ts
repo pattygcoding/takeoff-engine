@@ -157,7 +157,7 @@ describe('Frontend Email Dispatch, Notification & Form Triggers', () => {
     });
 
     it('validates rate drawer custom labor role rate conversions', () => {
-      const updateRoleRates = (role: any, field: string, val: any, workdayHours = 8) => {
+      const updateRoleRates = (role: Record<string, unknown>, field: string, val: string | number, workdayHours = 8) => {
         if (field === 'hourlyRate') {
           const hourly = val === '' ? '' : Number(val);
           const daily = hourly === '' ? '' : Math.round(hourly * workdayHours * 100) / 100;
@@ -191,7 +191,14 @@ describe('Frontend Email Dispatch, Notification & Form Triggers', () => {
         durationUnit,
         includeDelivery,
       }: {
-        catalogItem: any;
+        catalogItem: {
+          dailyRate?: number;
+          weeklyRate?: number;
+          monthlyRate?: number;
+          deliveryFee?: number;
+          fuelSurchargePct?: number;
+          title?: string;
+        };
         durationQty: number;
         durationUnit: string;
         includeDelivery: boolean;

@@ -5,7 +5,7 @@
 import Papa from 'papaparse';
 import { getTranslation } from '@/core/lib/shared/i18n';
 import { takeoffsApi } from '@/product/lib/takeoffs';
-import type { TakeoffItem } from '@/types/models';
+import type { TakeoffFileLike, TakeoffItem } from '@/types/models';
 import {
   CSV_COLUMNS,
   TARGET_FIELDS,
@@ -18,13 +18,9 @@ import {
 /** Translate function shape accepted by the CSV helpers (defaults to `getTranslation`). */
 type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
 
-/** A File (browser) or plain descriptor accepted by the upload/parse helpers. */
-export interface TakeoffFileLike {
-  name?: string;
-  size?: number;
-  arrayBuffer?: () => Promise<ArrayBuffer>;
-  text?: () => Promise<string>;
-}
+// `TakeoffFileLike` is defined alongside the shared domain types; re-exported here
+// so the upload/parse helpers keep their long-standing import path.
+export type { TakeoffFileLike } from '@/types/models';
 
 export {
   CSV_COLUMNS,
@@ -64,16 +60,16 @@ export function isExcelFile(file: TakeoffFileLike | null | undefined): boolean {
 /**
  * Saved Vendor / Subcontractor Presets Management (LocalStorage)
  */
-export function getSavedVendorPresets(): Record<string, Record<string, any>> {
+export function getSavedVendorPresets(): Record<string, Record<string, string | undefined>> {
   try {
     const saved = localStorage.getItem(PRESETS_STORAGE_KEY);
-    return saved ? (JSON.parse(saved) as Record<string, Record<string, any>>) : {};
+    return saved ? (JSON.parse(saved) as Record<string, Record<string, string | undefined>>) : {};
   } catch {
     return {};
   }
 }
 
-export function saveVendorPreset(presetName: string, mapping: Record<string, any>) {
+export function saveVendorPreset(presetName: string, mapping: Record<string, string | undefined>) {
   if (!presetName || !mapping) return;
   try {
     const current = getSavedVendorPresets();
@@ -103,7 +99,7 @@ export async function parseTakeoffFile(
   file: TakeoffFileLike | string | null,
   sheetName: string | null = null,
   tableId: string | null = null,
-  customPreset: Record<string, any> | null = null,
+  customPreset: Record<string, string | undefined> | null = null,
 ) {
   if (typeof file !== 'string' && file?.size && file.size > MAX_FILE_SIZE_BYTES) {
     throw new Error(getTranslation('product.uploadStep.fileTooLarge'));
@@ -134,7 +130,7 @@ export async function parseTakeoffFile(
 
   // Check saved vendor presets matching filename
   const savedPresets = getSavedVendorPresets();
-  let appliedPreset: Record<string, any> | null = customPreset || null;
+  let appliedPreset: Record<string, string | undefined> | null = customPreset || null;
   if (!appliedPreset && typeof file !== 'string' && file?.name) {
     const fname = file.name.toLowerCase();
     for (const [name, presetMap] of Object.entries(savedPresets)) {
@@ -160,7 +156,7 @@ export async function parseTakeoffFile(
  */
 export async function normalizeRowsWithMapping(
   rawRows: unknown[] = [],
-  mapping: Record<string, any> = {},
+  mapping: Record<string, unknown> = {},
   defaultLaborRate: number | null = null,
 ) {
   return takeoffsApi.normalizeMapping({

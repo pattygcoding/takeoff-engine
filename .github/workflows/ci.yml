@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lint-and-typecheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      # typescript/no-explicit-any (see .oxlintrc.json) fails the build on any explicit `any`.
+      - run: npm run lint
+      # tsc --noEmit; tsconfig enables `strict`, which includes noImplicitAny.
+      - run: npm run typecheck

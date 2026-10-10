@@ -17,6 +17,7 @@ import {
 import { cancelThroughSettings, changePlanThroughSettings, restoreButton } from '../../support/accountSettings.ts';
 import { acknowledgeNotice } from '../../support/fixtures.ts';
 import { createQaIdentity } from '../../support/qaEnvironment.ts';
+import type { PaddleEntity } from '../../support/paddleSandbox.ts';
 import {
   acceptInviteViaUi,
   createWorkspace,
@@ -31,7 +32,7 @@ import {
 } from '../../support/teamWorkspace.ts';
 
 const syntheticEmail = (settings: QaSettings, tag: string): string => createQaIdentity(tag, { emailTemplate: settings.emailTemplate }).email;
-const quantityOf = (subscription: any, priceId: string) => subscription.items.find((item: any) => item.price.id === priceId)?.quantity ?? 0;
+const quantityOf = (subscription: PaddleEntity, priceId: string) => (subscription.items ?? []).find((item) => item.price.id === priceId)?.quantity ?? 0;
 
 async function ownerWithWorkspace({ page, db, customer, settings, plan }: { page: Page; db: Db; customer: QaIdentity; settings: QaSettings; plan: string }) {
   const purchase = await buyPlan(page, db, { plan, customer, settings });

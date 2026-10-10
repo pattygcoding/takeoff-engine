@@ -29,7 +29,14 @@ import {
 } from './ClientModeViews';
 import Papa from 'papaparse';
 import type { ReactNode } from 'react';
-import type { Estimate, Project, Rates, TakeoffItem } from '@/types/models';
+import type { ChangeOrder, Estimate, Project, Rates, TakeoffItem, WarrantyItem } from '@/types/models';
+
+/** Payload of a generated public proposal link. */
+interface ShareProposalData {
+  project_id?: string | number;
+  client_status?: string;
+  [key: string]: unknown;
+}
 
 // Invoice and proposal PDFs are available on every plan; the rest require Pro/Enterprise.
 const FREE_PDF_VIEWS = ['invoice', 'proposal'];
@@ -56,7 +63,7 @@ export default function ResultsStep({
   items: TakeoffItem[];
   rates: Rates;
   currentProject: Project | null;
-  onProjectSaved?: (project: any) => void;
+  onProjectSaved?: (project: Project) => void;
   onBack?: () => void;
   readOnly?: boolean;
   projectStatus?: string;
@@ -69,11 +76,11 @@ export default function ResultsStep({
   const { t } = useTranslation();
   const [proposalMode, setProposalMode] = useState(false);
   const [clientView, setClientView] = useState('proposal');
-  const [changeOrders, setChangeOrders] = useState<any[]>(currentProject?.change_orders_json || []);
-  const [warrantyItems, setWarrantyItems] = useState<any[]>(currentProject?.warranty_items_json || []);
+  const [changeOrders, setChangeOrders] = useState<ChangeOrder[]>(currentProject?.change_orders_json || []);
+  const [warrantyItems, setWarrantyItems] = useState<WarrantyItem[]>(currentProject?.warranty_items_json || []);
   const [isSavingRecords, setIsSavingRecords] = useState(false);
   const [invoiceNumber, setInvoiceNumber] = useState(() => defaultInvoiceNumber(currentProject));
-  const [netDays, setNetDays] = useState(30);
+  const [netDays, setNetDays] = useState<number | string>(30);
   const [pdfView, setPdfView] = useState<string | null>(null);
   const [isSavingProject, setIsSavingProject] = useState(false);
   const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
@@ -88,7 +95,7 @@ export default function ResultsStep({
   const [shareProposalModalOpen, setShareProposalModalOpen] = useState(false);
   const [publicShareUrl, setPublicShareUrl] = useState('');
   const [shareCopied, setShareCopied] = useState(false);
-  const [shareProposalData, setShareProposalData] = useState<any>(null);
+  const [shareProposalData, setShareProposalData] = useState<ShareProposalData | null>(null);
   const [clientRecipientEmail, setClientRecipientEmail] = useState('');
   const [clientRecipientName, setClientRecipientName] = useState(currentProject?.client_name || '');
   const [isSendingEmail, setIsSendingEmail] = useState(false);
@@ -157,7 +164,7 @@ export default function ResultsStep({
     setWarrantyItems(currentProject?.warranty_items_json || []);
   }, [currentProject?.change_orders_json, currentProject?.warranty_items_json]);
 
-  const saveClientRecords = async (patch: any) => {
+  const saveClientRecords = async (patch: Record<string, unknown>) => {
     if (!currentProject?.id) return false;
     try {
       setIsSavingRecords(true);
@@ -178,19 +185,19 @@ export default function ResultsStep({
     }
   };
 
-  const saveChangeOrders = guard<[any[]], any>('save-change-orders', async (next) => {
+  const saveChangeOrders = guard<[ChangeOrder[]], boolean>('save-change-orders', async (next) => {
     const ok = await saveClientRecords({ changeOrders: next });
     if (ok) setChangeOrders(next);
     return ok;
   });
 
-  const saveWarrantyItems = guard<[any[]], any>('save-warranty-items', async (next) => {
+  const saveWarrantyItems = guard<[WarrantyItem[]], boolean>('save-warranty-items', async (next) => {
     const ok = await saveClientRecords({ warrantyItems: next });
     if (ok) setWarrantyItems(next);
     return ok;
   });
 
-  const handleSaveToCloud = guard<[any], void>('save-project', async (e) => {
+  const handleSaveToCloud = guard<[React.FormEvent | undefined], void>('save-project', async (e) => {
     if (e) e.preventDefault();
     if (!projectNameInput.trim()) {
       setShowSaveModal(true);
@@ -330,7 +337,7 @@ export default function ResultsStep({
       setIsSendingEmail(true);
       setEmailSentSuccess('');
       const res = await proposalsApi.sendProposalEmail({
-        projectId: currentProject?.id || shareProposalData?.project_id,
+        projectId: String(currentProject?.id ?? shareProposalData?.project_id ?? ''),
         recipientEmail: clientRecipientEmail.trim(),
         recipientName: clientRecipientName.trim(),
       });
@@ -359,7 +366,7 @@ export default function ResultsStep({
   /**
    * Records export and decrements credit count before completing file download
    */
-  const processExportWithCreditCheck = async (exportFn: () => any) => {
+  const processExportWithCreditCheck = async (exportFn: () => unknown) => {
     try {
       const recordResult = await authApi.recordExport();
       if (recordResult?.trial_uses_remaining !== undefined) {
@@ -434,7 +441,7 @@ export default function ResultsStep({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pdfView]);
 
-  const PdfDocument = pdfView ? (CLIENT_VIEW_DOCUMENTS as Record<string, any>)[pdfView] : null;
+  const PdfDocument = pdfView ? CLIENT_VIEW_DOCUMENTS[pdfView] : null;
 
   const exportCsv = guard('record-export', async () => {
     await processExportWithCreditCheck(async () => {
@@ -1011,7 +1018,7 @@ export default function ResultsStep({
               value={formatCurrency(totals.totalLaborCost)}
               sub={t('product.resultsStep.laborHrs', { count: formatNumber(totals.totalLaborHours) })}
             />
-            {totals.totalEquipmentLineItemCost > 0 ? (
+            {(totals.totalEquipmentLineItemCost ?? 0) > 0 ? (
               <SummaryCard
                 label={t('product.resultsStep.equipmentLineItems', 'Equipment & Machinery')}
                 value={formatCurrency((totals.totalEquipmentLineItemCost ?? 0) + (totals.equipmentLumpSum ?? 0))}
@@ -1023,7 +1030,7 @@ export default function ResultsStep({
             {(totals.miscCost ?? 0) > 0 && (
               <SummaryCard label={t('product.resultsStep.miscellaneousCosts')} value={formatCurrency(totals.miscCost)} />
             )}
-            {totals.scopeAddonsCost > 0 && (
+            {(totals.scopeAddonsCost ?? 0) > 0 && (
               <SummaryCard
                 label={t('product.resultsStep.scopeAddonsCost', 'Scope Add-Ons')}
                 value={formatCurrency(totals.scopeAddonsCost)}
@@ -1160,7 +1167,7 @@ export default function ResultsStep({
                 <span>{t('product.resultsStep.totalBid')}</span>
                 <span className="font-mono">{formatCurrency(totals.finalBidAmount)}</span>
               </div>
-              {totals.scopeAddonsCost > 0 && (
+              {(totals.scopeAddonsCost ?? 0) > 0 && (
                 <p className="text-[11px] text-blue-600 dark:text-blue-400 mt-2">
                   {t('product.resultsStep.scopeAddonsNote', { amount: formatCurrency(totals.scopeAddonsCost) })}
                 </p>

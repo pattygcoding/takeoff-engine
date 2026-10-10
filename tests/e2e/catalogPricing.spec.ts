@@ -5,7 +5,7 @@ import { createCatalogFixture, formatMoney } from '../helpers/paddleCatalogFixtu
 // Prices come from a mocked Paddle catalog generated per run; expectations are derived from it.
 const { prices } = createCatalogFixture().catalog;
 
-async function mockApi(page: Page, { failInitially = false, user = null }: { failInitially?: boolean; user?: any } = {}) {
+async function mockApi(page: Page, { failInitially = false, user = null }: { failInitially?: boolean; user?: Record<string, unknown> | null } = {}) {
   let fail = failInitially;
   let lookups = 0;
   await page.route('**/api/**', async (route: Route) => {

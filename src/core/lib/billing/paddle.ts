@@ -1,8 +1,9 @@
 import { initializePaddle } from '@paddle/paddle-js';
+import type { PaddleEventData } from '@paddle/paddle-js';
 import { getTranslation } from '@/core/lib/shared/i18n';
 
 type PaddleClient = NonNullable<Awaited<ReturnType<typeof initializePaddle>>>;
-type PaddleEventHandler = (event: any) => void;
+type PaddleEventHandler = (event: PaddleEventData) => void;
 
 let paddleInstance: PaddleClient | null | undefined = null;
 let activeEventCallback: PaddleEventHandler | null = null;
@@ -49,7 +50,7 @@ export interface OpenPaddleCheckoutOptions {
   items?: PaddleCheckoutItem[];
   customerEmail?: string;
   customData?: Record<string, unknown>;
-  onSuccess?: (event: any) => void;
+  onSuccess?: (event: PaddleEventData) => void;
   onClose?: () => void;
 }
 
@@ -107,9 +108,11 @@ export async function openPaddleCheckout({
     checkoutPayload.customData = sanitizedCustomData;
   }
 
-  const handleCheckoutEvent = (event: any) => {
+  const handleCheckoutEvent = (event: PaddleEventData) => {
     console.log('[Paddle Checkout Event]', event?.name, event);
-    const eventName = event?.name || event?.type || event?.event;
+    // `name`/`type` cover the documented event shapes; `event` is a legacy alias.
+    const raw = event as unknown as Record<string, unknown>;
+    const eventName = raw.name || raw.type || raw.event;
     
     // Paddle emits checkout.completed, checkout.payment.successful, or transaction.completed
     if (
@@ -117,7 +120,7 @@ export async function openPaddleCheckout({
       eventName === 'checkout.payment.successful' ||
       eventName === 'transaction.completed'
     ) {
-      if (onSuccess) onSuccess(event.data || event);
+      if (onSuccess) onSuccess((event.data as unknown as PaddleEventData) || event);
     } else if (eventName === 'checkout.closed') {
       if (onClose) onClose();
     } else if (eventName === 'checkout.error' || eventName === 'checkout.warning') {

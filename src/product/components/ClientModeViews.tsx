@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { Lock, Pencil, Plus, Trash2 } from 'lucide-react';
 import { formatCurrency } from '@/product/lib/calculations';
 import { useTranslation } from '@/core/components/context/I18nContext';
+import type { ChangeOrder, EstimateSystem, EstimateTotals, Project, WarrantyItem } from '@/types/models';
 
 export const CLIENT_VIEWS = ['invoice', 'proposal', 'bid', 'changeOrders', 'warranty'];
 
@@ -13,27 +14,27 @@ const thClass = 'py-1 pr-3';
 const today = () => new Date().toISOString().slice(0, 10);
 const newId = () => (globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID() : `id_${Date.now()}`);
 
-export function sumApprovedChangeOrders(changeOrders: any[] = []) {
+export function sumApprovedChangeOrders(changeOrders: ChangeOrder[] = []) {
   return changeOrders.filter((co) => co.status === 'approved').reduce((sum, co) => sum + (Number(co.amount) || 0), 0);
 }
 
-export function billableWarrantyItems(warrantyItems: any[] = []) {
+export function billableWarrantyItems(warrantyItems: WarrantyItem[] = []) {
   return warrantyItems.filter((w) => !w.covered && Number(w.cost) > 0);
 }
 
-export function defaultInvoiceNumber(project: any) {
-  return `INV-${(project?.id || '').slice(0, 8).toUpperCase() || new Date().toISOString().slice(0, 10).replaceAll('-', '')}`;
+export function defaultInvoiceNumber(project?: Project | null) {
+  return `INV-${String(project?.id || '').slice(0, 8).toUpperCase() || new Date().toISOString().slice(0, 10).replaceAll('-', '')}`;
 }
 
 // Spreads the marked-up bid across systems by direct-cost weight; the last row absorbs rounding drift.
-export function bidDivisionRows(bySystem: any[], totals: any) {
+export function bidDivisionRows(bySystem: EstimateSystem[], totals: EstimateTotals) {
   const total = totals.finalBidAmount || 0;
   const direct = totals.totalDirectCost || 0;
   const factor = direct > 0 ? total / direct : 0;
-  const rows: Array<{ system: any; count: number; amount: number }> = bySystem.map((sys) => ({
+  const rows: Array<{ system: string | undefined; count: number; amount: number }> = bySystem.map((sys) => ({
     system: sys.system,
     count: sys.items.length,
-    amount: Math.round(sys.directCost * factor * 100) / 100,
+    amount: Math.round((sys.directCost ?? 0) * factor * 100) / 100,
   }));
   if (rows.length > 0) {
     const drift = Math.round((total - rows.reduce((s, r) => s + r.amount, 0)) * 100) / 100;
@@ -93,7 +94,7 @@ function DocTitle({ title, children }: { title: ReactNode; children?: ReactNode 
   );
 }
 
-function ProjectInfo({ project }: { project: any }) {
+function ProjectInfo({ project }: { project?: Project | null }) {
   const { t } = useTranslation();
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 text-sm">
@@ -155,15 +156,15 @@ export function InvoiceView({
   netDays,
   setNetDays,
 }: {
-  bySystem: any[];
-  totals: any;
-  changeOrders: any[];
-  warrantyItems: any[];
-  project: any;
+  bySystem: EstimateSystem[];
+  totals: EstimateTotals;
+  changeOrders: ChangeOrder[];
+  warrantyItems: WarrantyItem[];
+  project?: Project | null;
   invoiceNumber: string;
-  setInvoiceNumber: (value: any) => void;
+  setInvoiceNumber: (value: string) => void;
   netDays: number | string;
-  setNetDays: (value: any) => void;
+  setNetDays: (value: string) => void;
 }) {
   const { t } = useTranslation();
   const invoiceDate = new Date();
@@ -208,13 +209,13 @@ export function InvoiceView({
         </thead>
         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
           {bySystem.flatMap((sys) =>
-            sys.items.map((item: any) => (
+            sys.items.map((item) => (
               <tr key={item.id}>
                 <td className="py-1.5 pr-3">{item.description}{item.sizeSpec ? ` — ${item.sizeSpec}` : ''}</td>
                 <td className="py-1.5 pr-3 text-right font-mono">{item.quantity}</td>
                 <td className="py-1.5 pr-3">{item.unit}</td>
                 <td className="py-1.5 pr-3 text-right font-mono">
-                  {Number(item.quantity) > 0 ? formatCurrency(item.directCost / item.quantity) : '—'}
+                  {Number(item.quantity) > 0 ? formatCurrency((item.directCost ?? 0) / (item.quantity ?? 1)) : '—'}
                 </td>
                 <td className="py-1.5 pr-3 text-right font-mono">{formatCurrency(item.directCost)}</td>
               </tr>
@@ -259,9 +260,9 @@ export function GeneralBidView({
   totals,
   children,
 }: {
-  project: any;
-  bySystem: any[];
-  totals: any;
+  project?: Project | null;
+  bySystem: EstimateSystem[];
+  totals: EstimateTotals;
   children?: ReactNode;
 }) {
   const { t } = useTranslation();
@@ -320,7 +321,7 @@ export function GeneralBidView({
   );
 }
 
-export function ProposalPackageHeader({ project }: { project: any }) {
+export function ProposalPackageHeader({ project }: { project?: Project | null }) {
   const { t } = useTranslation();
   return (
     <>
@@ -395,8 +396,12 @@ function StatusBadge({ status, label }: { status: string; label: ReactNode }) {
   return <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${statusBadge[status] || ''}`}>{label}</span>;
 }
 
-function useRecordEditor(records: any[], onSave: (records: any[]) => any, blank: any) {
-  const [draft, setDraft] = useState<any>(blank);
+function useRecordEditor<T extends { id?: string | number }>(
+  records: T[],
+  onSave: (records: T[]) => unknown,
+  blank: T,
+) {
+  const [draft, setDraft] = useState<T>(blank);
   const [editingId, setEditingId] = useState<string | number | null>(null);
 
   const reset = () => {
@@ -404,16 +409,16 @@ function useRecordEditor(records: any[], onSave: (records: any[]) => any, blank:
     setEditingId(null);
   };
 
-  const submit = async (e: React.FormEvent, build: (draft: any) => any) => {
+  const submit = async (e: React.FormEvent, build: (draft: T) => Partial<T>) => {
     e.preventDefault();
     const next = editingId
       ? records.map((r) => (r.id === editingId ? { ...r, ...build(draft) } : r))
-      : [...records, { id: newId(), ...build(draft) }];
+      : [...records, { id: newId(), ...build(draft) } as T];
     if (await onSave(next)) reset();
   };
 
-  const edit = (record: any) => {
-    setEditingId(record.id);
+  const edit = (record: T) => {
+    setEditingId(record.id ?? null);
     setDraft({ ...blank, ...record });
   };
 
@@ -432,15 +437,15 @@ export function ChangeOrdersView({
   canEdit,
   saving,
 }: {
-  project: any;
-  totals: any;
-  changeOrders: any[];
-  onSave: (records: any[]) => any;
+  project?: Project | null;
+  totals: EstimateTotals;
+  changeOrders: ChangeOrder[];
+  onSave: (records: ChangeOrder[]) => unknown;
   canEdit: boolean;
   saving: boolean;
 }) {
   const { t } = useTranslation();
-  const editor = useRecordEditor(changeOrders, onSave, { ...blankCO, date: today() });
+  const editor = useRecordEditor<ChangeOrder>(changeOrders, onSave, { ...blankCO, date: today() });
   const { draft, setDraft } = editor;
   const original = totals.finalBidAmount || 0;
   const approved = sumApprovedChangeOrders(changeOrders);
@@ -452,12 +457,12 @@ export function ChangeOrdersView({
     return `CO-${String(max + 1).padStart(3, '0')}`;
   };
 
-  const build = (d: any) => ({
+  const build = (d: ChangeOrder) => ({
     number: d.number || nextNumber(),
-    title: d.title.trim(),
-    description: d.description.trim(),
+    title: (d.title ?? '').trim(),
+    description: (d.description ?? '').trim(),
     amount: Number(d.amount) || 0,
-    scheduleDays: parseInt(d.scheduleDays, 10) || 0,
+    scheduleDays: parseInt(String(d.scheduleDays ?? ''), 10) || 0,
     status: d.status,
     date: d.date,
   });
@@ -542,7 +547,7 @@ export function ChangeOrdersView({
                   {co.description && <p className="text-xs text-slate-500 dark:text-slate-400 whitespace-pre-line">{co.description}</p>}
                 </td>
                 <td className="py-2 pr-3 text-right">{co.scheduleDays || 0}</td>
-                <td className="py-2 pr-3"><StatusBadge status={co.status} label={t(`product.clientViews.status_${co.status}`)} /></td>
+                <td className="py-2 pr-3"><StatusBadge status={co.status ?? ''} label={t(`product.clientViews.status_${co.status}`)} /></td>
                 <td className="py-2 pr-3 text-right font-mono">{formatCurrency(co.amount)}</td>
                 <td className="py-2 no-print"><RowActions disabled={disabled} onEdit={() => editor.edit(co)} onDelete={() => editor.remove(co.id)} /></td>
               </tr>
@@ -574,24 +579,27 @@ export function WarrantyView({
   canEdit,
   saving,
 }: {
-  project: any;
-  warrantyItems: any[];
-  onSave: (records: any[]) => any;
+  project?: Project | null;
+  warrantyItems: WarrantyItem[];
+  onSave: (records: WarrantyItem[]) => unknown;
   canEdit: boolean;
   saving: boolean;
 }) {
   const { t } = useTranslation();
-  const editor = useRecordEditor(warrantyItems, onSave, { ...blankWarranty, dateReported: today() });
+  const editor = useRecordEditor<WarrantyItem>(warrantyItems, onSave, { ...blankWarranty, dateReported: today() });
   const { draft, setDraft } = editor;
   const disabled = !canEdit || saving;
-  const counts = warrantyItems.reduce((acc, w) => ({ ...acc, [w.status]: (acc[w.status] || 0) + 1 }), {});
+  const counts = warrantyItems.reduce<Record<string, number>>(
+    (acc, w) => ({ ...acc, [w.status ?? '']: (acc[w.status ?? ''] || 0) + 1 }),
+    {},
+  );
   const billableTotal = billableWarrantyItems(warrantyItems).reduce((s, w) => s + Number(w.cost), 0);
 
-  const build = (d: any) => ({
+  const build = (d: WarrantyItem) => ({
     dateReported: d.dateReported,
-    location: d.location.trim(),
-    issue: d.issue.trim(),
-    resolution: d.resolution.trim(),
+    location: (d.location ?? '').trim(),
+    issue: (d.issue ?? '').trim(),
+    resolution: (d.resolution ?? '').trim(),
     status: d.status,
     covered: d.covered,
     cost: d.covered ? 0 : Math.max(0, Number(d.cost) || 0),
@@ -697,7 +705,7 @@ export function WarrantyView({
                 </td>
                 <td className="py-2 pr-3 text-xs whitespace-pre-line">{w.resolution || '—'}</td>
                 <td className="py-2 pr-3 text-xs">{w.covered ? t('product.clientViews.covered') : t('product.clientViews.billable')}</td>
-                <td className="py-2 pr-3"><StatusBadge status={w.status} label={t(`product.clientViews.status_${w.status}`)} /></td>
+                <td className="py-2 pr-3"><StatusBadge status={w.status ?? ''} label={t(`product.clientViews.status_${w.status}`)} /></td>
                 <td className="py-2 pr-3 text-right font-mono">{w.covered ? '—' : formatCurrency(w.cost)}</td>
                 <td className="py-2 no-print"><RowActions disabled={disabled} onEdit={() => editor.edit(w)} onDelete={() => editor.remove(w.id)} /></td>
               </tr>

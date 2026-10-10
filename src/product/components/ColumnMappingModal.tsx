@@ -9,6 +9,7 @@ import {
   extractHeadersAndRowsAtHeaderRow,
 } from '@/product/lib/csv';
 import { useTranslation } from '@/core/components/context/I18nContext';
+import type { TakeoffItem } from '@/types/models';
 import { useModal } from '@/core/components/context/ModalContext';
 
 export default function ColumnMappingModal({
@@ -29,7 +30,7 @@ export default function ColumnMappingModal({
   onCancel,
 }: {
   headers?: string[];
-  rawRows?: Array<Record<string, any>>;
+  rawRows?: Array<Record<string, string>>;
   initialMapping?: Record<string, string | number>;
   matchConfidences?: Record<string, number>;
   overallConfidence?: number;
@@ -41,7 +42,7 @@ export default function ColumnMappingModal({
   activeTableId?: string | null;
   onSheetChange?: (name: string) => void;
   onTableChange?: (tableId: string) => void;
-  onConfirm: (data: any) => void;
+  onConfirm: (data: { items?: TakeoffItem[]; errors?: string[]; checksum?: Record<string, unknown>; detectedLaborMode?: string }) => void;
   onCancel: () => void;
 }) {
   const { t } = useTranslation();
@@ -50,7 +51,7 @@ export default function ColumnMappingModal({
 
   const [headerRowIndex, setHeaderRowIndex] = useState(initialHeaderRowIndex);
   const [currentHeaders, setCurrentHeaders] = useState<string[]>(initialHeaders || []);
-  const [currentRawRows, setCurrentRawRows] = useState<Array<Record<string, any>>>(initialRawRows || []);
+  const [currentRawRows, setCurrentRawRows] = useState<Array<Record<string, string>>>(initialRawRows || []);
   const [mapping, setMapping] = useState<Record<string, string | undefined>>(
     { ...(initialMapping || {}) } as Record<string, string | undefined>,
   );

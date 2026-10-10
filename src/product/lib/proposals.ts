@@ -9,7 +9,7 @@ interface GenerateProposalParams {
   location?: string;
   items?: TakeoffItem[];
   rates?: Rates;
-  summary?: Record<string, any>;
+  summary?: Record<string, unknown>;
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
