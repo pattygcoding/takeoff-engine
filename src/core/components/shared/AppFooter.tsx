@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import { useAuth } from '@/core/components/context/AuthContext';
+import { isClientProposalPath, isPublicLandingPath } from '@/core/lib/shared/publicRoutes';
 import { Ruler } from 'lucide-react';
 
 export default function AppFooter() {
@@ -11,13 +12,13 @@ export default function AppFooter() {
   const { isAuthenticated, user } = useAuth();
 
   // If on client proposal view, skip global footer (proposal has dedicated client-facing footer)
-  if (location.pathname.startsWith('/p/')) {
+  if (isClientProposalPath(location.pathname)) {
     return null;
   }
 
-  // The public landing page renders its own full-width footer.
-  const isLanding = location.pathname === '/home' || (!isAuthenticated && (location.pathname === '/' || location.pathname === ''));
-  if (isLanding) {
+  // The public landing page renders its own full-width footer (see publicRoutes for the
+  // trailing-slash caveat of the prerendered /home).
+  if (isPublicLandingPath(location.pathname, isAuthenticated)) {
     return null;
   }
 

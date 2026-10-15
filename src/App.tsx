@@ -23,6 +23,7 @@ import { PricingProvider, useAccountCreationDisabled } from '@/core/components/c
 // Product Routes (Decoupled Domain Layer)
 import { renderProductRoutes } from '@/product/routes/ProductRoutes';
 import { PENDING_INVITE_KEY } from '@/core/lib/auth/organizations';
+import { isClientProposalPath, isPublicLandingPath } from '@/core/lib/shared/publicRoutes';
 
 /** Where a freshly signed-in user lands: a pending team invitation wins over their workspace. */
 function postLoginPath(username: string) {
@@ -110,10 +111,10 @@ function AppContent() {
     );
   }
 
+  // The landing page and client proposals render their own top banner and footer; the app shell must
+  // not add a second one (see publicRoutes for the trailing-slash caveat of the prerendered /home).
   const isPublicLandingOrProposal =
-    location.pathname === '/home' ||
-    (!isAuthenticated && (location.pathname === '/' || location.pathname === '')) ||
-    location.pathname.startsWith('/p/');
+    isPublicLandingPath(location.pathname, isAuthenticated) || isClientProposalPath(location.pathname);
 
   return (
     <div className="min-h-screen bg-[var(--lp-paper)] text-[var(--lp-ink)] transition-colors duration-200">
