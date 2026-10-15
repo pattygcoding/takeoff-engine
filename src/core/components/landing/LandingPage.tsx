@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { formatCurrency, formatNumber } from '@/core/lib/shared/formatting';
@@ -11,6 +11,7 @@ import {
 import { useTheme } from '@/core/components/context/ThemeContext';
 import LanguageSelector from '@/core/components/shared/LanguageSelector';
 import SeoHead from '@/core/components/shared/SeoHead';
+import { preloadRoutesOnIdle } from '@/core/lib/shared/preloadRoutes';
 import AccessibleDialog from '@/core/components/shared/AccessibleDialog';
 import InfisicalEnvironmentBadge from '@/core/components/landing/InfisicalEnvironmentBadge';
 import { ArrowRight, ArrowDown, Sun, Moon } from 'lucide-react';
@@ -123,6 +124,13 @@ export default function LandingPage() {
   const { isDark, toggleTheme } = useTheme();
   const [showDevDisclaimer, setShowDevDisclaimer] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Warm the sign-in chunk (plus any chunks product registers — see ProductRoutes) while the
+  // browser is idle so the first navigation does not wait on a fetch (mirrors Next.js prefetching).
+  useEffect(
+    () => preloadRoutesOnIdle([() => import('@/core/components/auth/LoginPage')]),
+    []
+  );
 
   // Free Interactive Trench & Earthwork Calculator State
   const [pipeLength, setPipeLength] = useState(500);

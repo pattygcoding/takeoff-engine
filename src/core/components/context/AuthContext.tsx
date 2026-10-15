@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { authApi } from '@/core/lib/auth/auth';
+import { isPrerenderedDocument } from '@/core/lib/shared/prerender';
 import type { RegisterPayload } from '@/types/api';
 import type { UserProfile } from '@/types/models';
 
@@ -37,7 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const saved = localStorage.getItem('takeoff_user');
     return saved ? (JSON.parse(saved) as UserProfile) : null;
   });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !isPrerenderedDocument());
 
   useEffect(() => {
     const initAuth = async () => {

@@ -1,11 +1,18 @@
 import React, { lazy } from 'react';
 import { Route, Navigate, useParams } from 'react-router-dom';
 import NotFoundPage from '@/core/components/shared/NotFoundPage';
+import { registerRoutePreloaders } from '@/core/lib/shared/preloadRoutes';
 import { isWorkspacePath } from '@/product/routes/workspacePaths';
 
 const UserWorkspace = lazy(() => import('@/product/components/UserWorkspace'));
 const ClientProposalView = lazy(() => import('@/product/components/ClientProposalView'));
 const ClientGuidePage = lazy(() => import('@/product/components/ClientGuidePage'));
+
+// Core owns idle prefetching but must not import product code, so product registers its own chunks.
+registerRoutePreloaders([
+  () => import('@/product/components/UserWorkspace'),
+  () => import('@/product/components/ClientGuidePage'),
+]);
 
 // /:username/* also catches typos; only known workspace pages get the login redirect or the workspace.
 function UserWorkspaceRoute({ isAuthenticated }: { isAuthenticated: boolean }) {

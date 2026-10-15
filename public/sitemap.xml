@@ -89,4 +89,26 @@
     <xhtml:link rel="alternate" hreflang="pt" href="https://takeoffengine.com/disclaimer?lang=pt"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://takeoffengine.com/disclaimer"/>
   </url>
+  <url>
+    <loc>https://takeoffengine.com/policy</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://takeoffengine.com/policy?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://takeoffengine.com/policy?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://takeoffengine.com/policy?lang=fr"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://takeoffengine.com/policy?lang=pt"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://takeoffengine.com/policy"/>
+  </url>
+  <url>
+    <loc>https://takeoffengine.com/acceptable-use</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://takeoffengine.com/acceptable-use?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://takeoffengine.com/acceptable-use?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://takeoffengine.com/acceptable-use?lang=fr"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://takeoffengine.com/acceptable-use?lang=pt"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://takeoffengine.com/acceptable-use"/>
+  </url>
 </urlset>

@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { billingApi } from '@/core/lib/billing/billing';
 import { translateCatalogPrice, validateCatalogPricing } from '@/core/lib/billing/catalogPricing';
 import { useTranslation } from '@/core/components/context/I18nContext';
+import { readPrerenderPricing, type PrerenderPricingCatalog } from '@/core/lib/shared/prerender';
 import type { TranslationParamsInput } from '@/core/lib/shared/i18n';
 
 interface PricingCatalog {
@@ -23,15 +24,44 @@ interface PricingContextValue extends PricingState {
 
 const PricingContext = createContext<PricingContextValue | null>(null);
 
+/** Catalog inlined by the prerender script; null on client-rendered (non-prerendered) pages. */
+const prerenderedCatalog = readPrerenderPricing();
+
+/** setTimeout delays above the 32-bit ceiling fire immediately, so clamp before scheduling. */
+const MAX_TIMEOUT_MS = 2_147_483_647;
+
+function refreshDelayMs(expiresAt: string): number {
+  return Math.min(Math.max(0, Date.parse(expiresAt) - Date.now()), MAX_TIMEOUT_MS);
+}
+
 export function PricingProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<PricingState>({ catalog: null, loading: true, error: false });
+  // Trusting the inlined catalog keeps the first client render identical to the prerendered HTML.
+  // Refetching on mount would flip to a loading state and break hydration, so a refresh is
+  // scheduled for the catalog's expiry instead.
+  const [state, setState] = useState<PricingState>(() =>
+    prerenderedCatalog
+      ? { catalog: prerenderedCatalog, loading: false, error: false }
+      : { catalog: null, loading: true, error: false }
+  );
   const [revision, setRevision] = useState(0);
   const pending = useRef<Promise<PricingCatalog> | null>(null);
+  const seededCatalog = useRef<PrerenderPricingCatalog | null>(prerenderedCatalog);
   const retry = useCallback(() => setRevision((value) => value + 1), []);
 
   useEffect(() => {
     let active = true;
     let refreshTimer: ReturnType<typeof setTimeout> | undefined;
+
+    const seeded = seededCatalog.current;
+    if (seeded) {
+      seededCatalog.current = null;
+      refreshTimer = setTimeout(retry, refreshDelayMs(seeded.expiresAt));
+      return () => {
+        active = false;
+        clearTimeout(refreshTimer);
+      };
+    }
+
     setState({ catalog: null, loading: true, error: false });
     if (!pending.current) {
       const request = billingApi.getPricing().then(validateCatalogPricing);
@@ -45,7 +75,7 @@ export function PricingProvider({ children }: { children: ReactNode }) {
       (catalog) => {
         if (!active) return;
         setState({ catalog, loading: false, error: false });
-        refreshTimer = setTimeout(retry, Math.max(0, Date.parse(catalog.expiresAt) - Date.now()));
+        refreshTimer = setTimeout(retry, refreshDelayMs(catalog.expiresAt));
       },
       (error) => {
         if (!active) return;
