@@ -29,7 +29,7 @@
     "preview": "vite preview",
     "og:image": "node scripts/generate-og-image.mjs",
     "prerender": "node scripts/prerender-public.mjs",
-    "predeploy": "npm run build && npm run prerender",
+    "predeploy": "npm run build && infisical run --env=prod -- node scripts/prerender-public.mjs",
     "deploy": "gh-pages -d dist"
   },
 

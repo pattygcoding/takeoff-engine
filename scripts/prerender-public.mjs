@@ -8,16 +8,19 @@
 // it into a per-route HTML file that GitHub Pages serves directly.
 //
 // Two flavours:
-//   - `content: true` routes ship the rendered markup AND are marked `data-prerendered`, so the
-//     client hydrates them (see src/core/lib/shared/prerender.ts). The billing catalog is inlined
-//     so the first client render matches the markup exactly.
+//   - `content: true` routes ship the rendered markup and are marked `data-prerendered`; React then
+//     takes the container over with the same markup (see src/core/lib/shared/prerender.ts).
 //   - other routes ship the `<head>` only (empty `#root`), because their body is populated by
 //     runtime fetches (the guide's markdown, the auth forms) that cannot be reproduced at build.
 //
+// Rendering is hermetic: every API call is stubbed (see stubApi) so it never waits on the live
+// backend, which may be asleep — that is what previously aborted `npm run deploy`. The captured
+// markup is therefore deterministic. The billing catalog is fetched from PRERENDER_API_URL /
+// VITE_API_URL (or PRERENDER_PRICING_FILE); without it, content routes ship their loading price
+// state and the client fills prices in after takeover.
+//
 // Pages behind auth (`/:username/*`, `/settings`, `/admin`) and dynamic routes (`/p/:token`) are
 // excluded. Run with `npm run prerender` (after `vite build`); requires Playwright Chromium.
-// Set `PRERENDER_PRICING_FILE` to a JSON catalog to build offline; otherwise it is fetched from
-// `VITE_API_URL/billing/pricing` (falling back to head-only when unavailable).
 import { preview } from 'vite';
 import { chromium } from 'playwright';
 import { access, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
@@ -96,9 +99,12 @@ async function loadPricingCatalog() {
     }
   }
 
-  const apiBase = (process.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/+$/, '');
+  const apiBase = (process.env.PRERENDER_API_URL || process.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/+$/, '');
   try {
-    const response = await fetch(`${apiBase}/billing/pricing`, { headers: { 'Content-Type': 'application/json' } });
+    const response = await fetch(`${apiBase}/billing/pricing`, {
+      headers: { 'Content-Type': 'application/json' },
+      signal: AbortSignal.timeout(20_000),
+    });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
     if (!isValidCatalog(data)) throw new Error('invalid or expired catalog');
@@ -109,14 +115,41 @@ async function loadPricingCatalog() {
   }
 }
 
+/**
+ * Stubs every API call the app makes while prerendering.
+ *
+ * Rendering must never depend on the live backend. The free-tier host sleeps, so a real
+ * `/auth/me` can hang for a minute — the auth gate then never clears, no route renders, and the
+ * whole deploy dies waiting for the canonical link (which is exactly what happened). Stubbing also
+ * makes the captured markup deterministic instead of a race against the network.
+ */
+async function stubApi(page, catalog) {
+  await page.route('**/api/**', async (route) => {
+    const { pathname } = new URL(route.request().url());
+    const json = (status, body) =>
+      route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(body) });
+
+    if (pathname.endsWith('/auth/csrf')) return json(200, { csrfToken: 'prerender' });
+    if (pathname.endsWith('/auth/me')) return json(401, { error: 'Not authenticated' });
+    if (pathname.endsWith('/billing/pricing')) {
+      // Serve the catalog fetched at build time when we have one. Otherwise leave the request
+      // pending so the page renders its loading price state — which is also exactly what the
+      // client renders first, so the takeover stays identical.
+      return catalog ? json(200, catalog) : undefined;
+    }
+    return json(404, { error: 'Not found' });
+  });
+}
+
 async function main() {
   await ensureBuilt();
 
   const pricingCatalog = await loadPricingCatalog();
-  const canPrerenderContent = pricingCatalog !== null;
-  if (!canPrerenderContent) {
-    console.log('  No catalog available — public routes are prerendered head-only.');
-  }
+  console.log(
+    pricingCatalog
+      ? '  Billing catalog available — content routes ship live prices.'
+      : '  No catalog at build time — content routes ship their loading price state.'
+  );
 
   // Drop any previously prerendered route files so a re-run can't serve its own stale HTML as the
   // SPA fallback (which would bake the wrong <head> into every route).
@@ -133,13 +166,16 @@ async function main() {
   const origin = new URL(base).origin;
 
   const browser = await chromium.launch();
+  const failures = [];
   let count = 0;
   try {
     for (const route of ROUTES) {
-      const withContent = Boolean(route.content) && canPrerenderContent;
+      const withContent = Boolean(route.content);
       const page = await browser.newPage();
       try {
-        if (withContent) {
+        // Never let rendering depend on the live API (see stubApi).
+        await stubApi(page, withContent ? pricingCatalog : null);
+        if (withContent && pricingCatalog) {
           // Runs before the app's modules, so PricingProvider seeds from exactly what it rendered.
           await page.addInitScript((catalog) => {
             window.__PRERENDER_PRICING__ = catalog;
@@ -167,8 +203,9 @@ async function main() {
             document.documentElement.classList.remove('dark');
             const container = document.getElementById('root');
             if (content) {
-              // Mark the document so the client hydrates it, and inline the catalog so the first
-              // client render matches the markup (see src/core/lib/shared/prerender.ts).
+              // Mark the document so the client skips its loading splash, and inline the catalog so
+              // the first client render matches this markup exactly
+              // (see src/core/lib/shared/prerender.ts).
               document.documentElement.setAttribute('data-prerendered', '');
               if (catalog) {
                 const script = document.createElement('script');
@@ -190,6 +227,11 @@ async function main() {
         await writeFile(outPath, html, 'utf8');
         count += 1;
         console.log(`  prerendered ${route.path.padEnd(16)} -> dist/${route.out}${withContent ? ' (content)' : ''}`);
+      } catch (error) {
+        // Never write a half-rendered file (a page with no title/canonical is worse than none), but
+        // keep going so every failing route is reported at once.
+        failures.push(`${route.path} — ${error.message.split('\n')[0]}`);
+        console.error(`  FAILED ${route.path}`);
       } finally {
         await page.close();
       }
@@ -197,6 +239,10 @@ async function main() {
   } finally {
     await browser.close();
     await server.close();
+  }
+
+  if (failures.length > 0) {
+    throw new Error(`Prerendering failed for ${failures.length} route(s):\n  - ${failures.join('\n  - ')}`);
   }
 
   console.log(`Prerendered ${count} public route(s).`);
