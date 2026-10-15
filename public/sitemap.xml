@@ -1,51 +1,92 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://takeoffengine.com/home</loc>
     <lastmod>2026-09-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://takeoffengine.com/home?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://takeoffengine.com/home?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://takeoffengine.com/home?lang=fr"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://takeoffengine.com/home?lang=pt"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://takeoffengine.com/home"/>
   </url>
   <url>
     <loc>https://takeoffengine.com/guide</loc>
     <lastmod>2026-09-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://takeoffengine.com/guide?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://takeoffengine.com/guide?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://takeoffengine.com/guide?lang=fr"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://takeoffengine.com/guide?lang=pt"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://takeoffengine.com/guide"/>
   </url>
   <url>
     <loc>https://takeoffengine.com/accessibility</loc>
     <lastmod>2026-09-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://takeoffengine.com/accessibility?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://takeoffengine.com/accessibility?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://takeoffengine.com/accessibility?lang=fr"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://takeoffengine.com/accessibility?lang=pt"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://takeoffengine.com/accessibility"/>
   </url>
   <url>
     <loc>https://takeoffengine.com/privacy</loc>
     <lastmod>2026-09-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://takeoffengine.com/privacy?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://takeoffengine.com/privacy?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://takeoffengine.com/privacy?lang=fr"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://takeoffengine.com/privacy?lang=pt"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://takeoffengine.com/privacy"/>
   </url>
   <url>
     <loc>https://takeoffengine.com/refund</loc>
     <lastmod>2026-09-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://takeoffengine.com/refund?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://takeoffengine.com/refund?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://takeoffengine.com/refund?lang=fr"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://takeoffengine.com/refund?lang=pt"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://takeoffengine.com/refund"/>
   </url>
   <url>
     <loc>https://takeoffengine.com/terms-of-service</loc>
     <lastmod>2026-09-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://takeoffengine.com/terms-of-service?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://takeoffengine.com/terms-of-service?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://takeoffengine.com/terms-of-service?lang=fr"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://takeoffengine.com/terms-of-service?lang=pt"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://takeoffengine.com/terms-of-service"/>
   </url>
   <url>
     <loc>https://takeoffengine.com/terms</loc>
     <lastmod>2026-09-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://takeoffengine.com/terms?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://takeoffengine.com/terms?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://takeoffengine.com/terms?lang=fr"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://takeoffengine.com/terms?lang=pt"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://takeoffengine.com/terms"/>
   </url>
   <url>
     <loc>https://takeoffengine.com/disclaimer</loc>
     <lastmod>2026-09-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://takeoffengine.com/disclaimer?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://takeoffengine.com/disclaimer?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://takeoffengine.com/disclaimer?lang=fr"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://takeoffengine.com/disclaimer?lang=pt"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://takeoffengine.com/disclaimer"/>
   </url>
 </urlset>

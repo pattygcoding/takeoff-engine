@@ -65,6 +65,7 @@ export function DocumentLetterhead({
             <img
               src={branding.companyLogoUrl}
               alt={branding.companyName || t('product.templates.header.companyLogoAlt')}
+              decoding="async"
               className="h-12 w-auto object-contain mb-2"
             />
           )}

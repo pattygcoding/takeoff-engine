@@ -7,6 +7,9 @@ interface ImportMetaEnv {
   readonly VITE_PADDLE_CLIENT_TOKEN?: string;
   readonly VITE_PADDLE_ENVIRONMENT?: 'sandbox' | 'production' | string;
   readonly VITE_INFISICAL_ENVIRONMENT?: string;
+  /** Base URL for shareable proposal links (e.g. the backend `/p/:token` preview endpoint).
+   *  Falls back to the current origin when unset. */
+  readonly VITE_PUBLIC_PROPOSAL_BASE_URL?: string;
 }
 
 interface ImportMeta {

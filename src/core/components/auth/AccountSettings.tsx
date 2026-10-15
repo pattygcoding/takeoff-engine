@@ -699,6 +699,10 @@ export default function AccountSettings() {
                     <img
                       src={companyLogoUrl}
                       alt={t('core.accountSettings.companyLogoPreview')}
+                      width={96}
+                      height={64}
+                      loading="lazy"
+                      decoding="async"
                       className="w-24 h-16 object-contain border border-slate-200 dark:border-slate-700 rounded-xl p-1 bg-slate-50 dark:bg-slate-800"
                     />
                     <button

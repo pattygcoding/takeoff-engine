@@ -22,7 +22,7 @@ export default function UsagePolicyPage() {
       <SeoHead
         title={t('core.seo.policy.title', 'Acceptable Use Policy & Platform Terms — Takeoff Engine')}
         description={t('core.seo.policy.description', 'Review the acceptable use policy, compute fairness, rate limiting, and account standing guidelines for the Takeoff Engine estimating platform.')}
-        canonicalUrl="https://takeoffengine.com/terms"
+        canonicalUrl="https://takeoffengine.com/policy"
       />
       {/* Header Bar */}
       <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 shadow-2xs">

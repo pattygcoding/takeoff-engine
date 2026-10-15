@@ -305,7 +305,8 @@ export default function ResultsStep({
         summary: summaryPayload,
       });
 
-      const url = `${window.location.origin}/p/${res.proposal.public_token}`;
+      const shareBase = (import.meta.env.VITE_PUBLIC_PROPOSAL_BASE_URL || window.location.origin).replace(/\/+$/, '');
+      const url = `${shareBase}/p/${res.proposal.public_token}`;
       setPublicShareUrl(url);
       setShareProposalData(res.proposal);
       setClientRecipientName(currentProject?.client_name || clientNameInput || '');
@@ -922,6 +923,7 @@ export default function ResultsStep({
                 <img
                   src={branding.companyLogoUrl}
                   alt={branding.companyName || 'Company Logo'}
+                  decoding="async"
                   className="h-16 max-w-[180px] object-contain rounded"
                   crossOrigin="anonymous"
                 />

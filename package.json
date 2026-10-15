@@ -27,7 +27,9 @@
     "translate:retry": "python src/lang/lang.py --retry",
     "lint": "oxlint",
     "preview": "vite preview",
-    "predeploy": "npm run build",
+    "og:image": "node scripts/generate-og-image.mjs",
+    "prerender": "node scripts/prerender-public.mjs",
+    "predeploy": "npm run build && npm run prerender",
     "deploy": "gh-pages -d dist"
   },
 

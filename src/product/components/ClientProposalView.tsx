@@ -305,6 +305,8 @@ export default function ClientProposalView() {
                   <img
                     src={contractor.company_logo_url}
                     alt={contractor.company_name || 'Contractor Logo'}
+                    decoding="async"
+                    fetchPriority="high"
                     className="h-16 max-w-[180px] object-contain rounded"
                   />
                 ) : (
