@@ -58,7 +58,11 @@ export function I18nProvider({ children, defaultLanguage = 'en' }: { children: R
 
   // Synchronize URL search params whenever language changes or location changes
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
+    // Read the live URL rather than the rendered `location`: a route redirect rendered in the same
+    // commit (e.g. /login -> /:username for a signed-in visitor) has already replaced the URL by the
+    // time this effect runs, and writing the stale pathname back would undo that redirect — leaving
+    // the app on a route it has already left (blank page) until a reload.
+    const params = new URLSearchParams(window.location.search);
     const currentParam = params.get('lang')?.toLowerCase();
 
     // 1. If URL contains a valid ?lang parameter that differs from current state, adopt it
@@ -78,7 +82,10 @@ export function I18nProvider({ children, defaultLanguage = 'en' }: { children: R
     // 2. If URL does not have a ?lang parameter, or has an invalid one, enforce active language (?lang=en, ?lang=es, etc.)
     if (currentParam !== language) {
       params.set('lang', language);
-      navigate({ pathname: location.pathname, search: `?${params.toString()}`, hash: location.hash }, { replace: true });
+      navigate(
+        { pathname: window.location.pathname, search: `?${params.toString()}`, hash: window.location.hash },
+        { replace: true }
+      );
     }
   }, [location.pathname, location.search, location.hash, language, navigate]);
 
@@ -93,11 +100,14 @@ export function I18nProvider({ children, defaultLanguage = 'en' }: { children: R
         // ignore
       }
 
-      const params = new URLSearchParams(location.search);
+      const params = new URLSearchParams(window.location.search);
       params.set('lang', lang);
-      navigate({ pathname: location.pathname, search: `?${params.toString()}`, hash: location.hash }, { replace: true });
+      navigate(
+        { pathname: window.location.pathname, search: `?${params.toString()}`, hash: window.location.hash },
+        { replace: true }
+      );
     },
-    [location.pathname, location.search, location.hash, navigate]
+    [navigate]
   );
 
   const t = useCallback<TranslateFunction>(

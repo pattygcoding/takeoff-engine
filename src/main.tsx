@@ -41,7 +41,9 @@ window.fetch = (input, init = {}) => {
   return nativeFetch(input, { ...init, headers, credentials: 'include' });
 };
 
-// react-helmet-async appends a duplicate of every SEO tag on re-render; keep the head clean.
+// Public routes ship their SEO tags in the HTML, while React 19 hoists the same tags rendered by
+// `SeoHead` back into <head>. Prune the document's stale copies only — React removes its own tags, and
+// detaching them here aborts React's next commit and freezes the UI (see headMetadata.ts).
 installHeadMetadataDedupe();
 
 const container = document.getElementById('root')!;
