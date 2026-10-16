@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { billingApi } from '@/core/lib/billing/billing';
 import { translateCatalogPrice, validateCatalogPricing } from '@/core/lib/billing/catalogPricing';
@@ -34,7 +34,7 @@ function refreshDelayMs(expiresAt: string): number {
   return Math.min(Math.max(0, Date.parse(expiresAt) - Date.now()), MAX_TIMEOUT_MS);
 }
 
-export function PricingProvider({ children }: { children: ReactNode }) {
+export function PricingProvider({ children }: Readonly<{ children: ReactNode }>) {
   // Trusting the inlined catalog keeps the first client render identical to the prerendered HTML.
   // Refetching on mount would flip to a loading state and break hydration, so a refresh is
   // scheduled for the catalog's expiry instead.
@@ -89,7 +89,9 @@ export function PricingProvider({ children }: { children: ReactNode }) {
     };
   }, [revision, retry]);
 
-  return <PricingContext.Provider value={{ ...state, retry }}>{children}</PricingContext.Provider>;
+  const value = useMemo(() => ({ ...state, retry }), [state, retry]);
+
+  return <PricingContext.Provider value={value}>{children}</PricingContext.Provider>;
 }
 
 export function usePricing(): PricingContextValue {
@@ -121,7 +123,7 @@ export function usePricingDisplay() {
 export function PricingStatus() {
   const { catalog, loading, error, retry } = usePricing();
   const { t } = useTranslation();
-  if (loading) return <p role="status" className="p-3 text-sm">{t('core.catalogPricing.loading')}</p>;
+  if (loading) return <output className="p-3 text-sm block">{t('core.catalogPricing.loading')}</output>;
   if (error) {
     return (
       <div role="alert" className="p-3 text-sm border border-red-500 rounded-lg">

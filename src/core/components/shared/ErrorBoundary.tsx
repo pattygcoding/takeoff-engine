@@ -40,9 +40,9 @@ export default class ErrorBoundary extends React.Component<ErrorBoundaryProps, E
       if (this.state.reloading) {
         return (
           <div className="min-h-screen bg-slate-100 dark:bg-slate-950 flex items-center justify-center">
-            <div role="status" className="text-slate-600 dark:text-slate-400 font-medium animate-pulse">
+            <output className="text-slate-600 dark:text-slate-400 font-medium animate-pulse">
               {getTranslation('core.errorBoundary.updating', {}, savedLang)}
-            </div>
+            </output>
           </div>
         );
       }

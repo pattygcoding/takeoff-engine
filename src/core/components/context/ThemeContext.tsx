@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 
 type Theme = 'dark' | 'light';
@@ -15,7 +15,7 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 const THEME_STORAGE_KEY = 'takeoff_engine_theme';
 
-export function ThemeProvider({ children }: { children: ReactNode }) {
+export function ThemeProvider({ children }: Readonly<{ children: ReactNode }>) {
   const [theme, setTheme] = useState<Theme>(() => {
     try {
       const saved = localStorage.getItem(THEME_STORAGE_KEY);
@@ -46,15 +46,20 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     }
   }, [theme]);
 
-  const toggleTheme = () => {
+  const toggleTheme = useCallback(() => {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
-  };
+  }, []);
 
-  const setDarkMode = () => setTheme('dark');
-  const setLightMode = () => setTheme('light');
+  const setDarkMode = useCallback(() => setTheme('dark'), []);
+  const setLightMode = useCallback(() => setTheme('light'), []);
+
+  const value = useMemo(
+    () => ({ theme, isDark: theme === 'dark', toggleTheme, setDarkMode, setLightMode }),
+    [theme, toggleTheme, setDarkMode, setLightMode],
+  );
 
   return (
-    <ThemeContext.Provider value={{ theme, isDark: theme === 'dark', toggleTheme, setDarkMode, setLightMode }}>
+    <ThemeContext.Provider value={value}>
       {children}
     </ThemeContext.Provider>
   );

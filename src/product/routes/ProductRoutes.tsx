@@ -15,7 +15,7 @@ registerRoutePreloaders([
 ]);
 
 // /:username/* also catches typos; only known workspace pages get the login redirect or the workspace.
-function UserWorkspaceRoute({ isAuthenticated }: { isAuthenticated: boolean }) {
+function UserWorkspaceRoute({ isAuthenticated }: Readonly<{ isAuthenticated: boolean }>) {
   const { '*': subPath } = useParams();
   if (!isWorkspacePath(subPath)) return <NotFoundPage />;
   return isAuthenticated ? <UserWorkspace /> : <Navigate to="/login" replace />;

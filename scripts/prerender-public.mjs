@@ -157,7 +157,7 @@ function prepareCapturedDom({ withContent, catalog }) {
     return;
   }
 
-  document.documentElement.setAttribute('data-prerendered', '');
+  document.documentElement.dataset.prerendered = '';
   if (!catalog) return;
 
   const script = document.createElement('script');
@@ -263,7 +263,9 @@ async function main() {
   console.log(`Prerendered ${count} public route(s).`);
 }
 
-main().catch((error) => {
+try {
+  await main();
+} catch (error) {
   console.error(error);
   process.exitCode = 1;
-});
+}

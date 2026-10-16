@@ -38,7 +38,7 @@ export function bidDivisionRows(bySystem: EstimateSystem[], totals: EstimateTota
   }));
   if (rows.length > 0) {
     const drift = Math.round((total - rows.reduce((s, r) => s + r.amount, 0)) * 100) / 100;
-    rows[rows.length - 1].amount += drift;
+    rows.at(-1)!.amount += drift;
   }
   return rows;
 }
@@ -47,11 +47,11 @@ export function ClientViewTabs({
   value,
   onChange,
   lockedViews = [],
-}: {
+}: Readonly<{
   value: string;
   onChange: (view: string) => void;
   lockedViews?: string[];
-}) {
+}>) {
   const { t } = useTranslation();
   return (
     <div role="tablist" className="no-print flex flex-wrap gap-2 mb-6">
@@ -85,7 +85,7 @@ export function ClientViewTabs({
   );
 }
 
-function DocTitle({ title, children }: { title: ReactNode; children?: ReactNode }) {
+function DocTitle({ title, children }: Readonly<{ title: ReactNode; children?: ReactNode }>) {
   return (
     <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
       <h2 className="text-2xl font-black uppercase tracking-widest text-slate-900 dark:text-white">{title}</h2>
@@ -94,7 +94,7 @@ function DocTitle({ title, children }: { title: ReactNode; children?: ReactNode 
   );
 }
 
-function ProjectInfo({ project }: { project?: Project | null }) {
+function ProjectInfo({ project }: Readonly<{ project?: Project | null }>) {
   const { t } = useTranslation();
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 text-sm">
@@ -114,7 +114,7 @@ function ProjectInfo({ project }: { project?: Project | null }) {
   );
 }
 
-function SignatureBlock({ leftLabel, rightLabel }: { leftLabel: string; rightLabel: string }) {
+function SignatureBlock({ leftLabel, rightLabel }: Readonly<{ leftLabel: string; rightLabel: string }>) {
   const { t } = useTranslation();
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mt-10 text-xs text-slate-600 dark:text-slate-400">
@@ -130,7 +130,7 @@ function SignatureBlock({ leftLabel, rightLabel }: { leftLabel: string; rightLab
   );
 }
 
-function TotalRow({ label, value, strong }: { label: ReactNode; value: ReactNode; strong?: boolean }) {
+function TotalRow({ label, value, strong }: Readonly<{ label: ReactNode; value: ReactNode; strong?: boolean }>) {
   return (
     <div
       className={`flex justify-between gap-3 py-1 ${
@@ -155,7 +155,7 @@ export function InvoiceView({
   setInvoiceNumber,
   netDays,
   setNetDays,
-}: {
+}: Readonly<{
   bySystem: EstimateSystem[];
   totals: EstimateTotals;
   changeOrders: ChangeOrder[];
@@ -165,7 +165,7 @@ export function InvoiceView({
   setInvoiceNumber: (value: string) => void;
   netDays: number | string;
   setNetDays: (value: string) => void;
-}) {
+}>) {
   const { t } = useTranslation();
   const invoiceDate = new Date();
   const dueDate = new Date(invoiceDate.getTime() + (Number(netDays) || 0) * 86400000);
@@ -259,12 +259,12 @@ export function GeneralBidView({
   bySystem,
   totals,
   children,
-}: {
+}: Readonly<{
   project?: Project | null;
   bySystem: EstimateSystem[];
   totals: EstimateTotals;
   children?: ReactNode;
-}) {
+}>) {
   const { t } = useTranslation();
   const total = totals.finalBidAmount || 0;
   const rows = bidDivisionRows(bySystem, totals);
@@ -321,7 +321,7 @@ export function GeneralBidView({
   );
 }
 
-export function ProposalPackageHeader({ project }: { project?: Project | null }) {
+export function ProposalPackageHeader({ project }: Readonly<{ project?: Project | null }>) {
   const { t } = useTranslation();
   return (
     <>
@@ -357,7 +357,7 @@ export function ProposalPackageFooter() {
   );
 }
 
-function SaveNotice({ canEdit, saving }: { canEdit: boolean; saving: boolean }) {
+function SaveNotice({ canEdit, saving }: Readonly<{ canEdit: boolean; saving: boolean }>) {
   const { t } = useTranslation();
   if (!canEdit) {
     return (
@@ -369,7 +369,7 @@ function SaveNotice({ canEdit, saving }: { canEdit: boolean; saving: boolean }) 
   return saving ? <p className="no-print mb-2 text-xs text-slate-500">{t('product.resultsStep.saving')}</p> : null;
 }
 
-function RowActions({ onEdit, onDelete, disabled }: { onEdit: () => void; onDelete: () => void; disabled?: boolean }) {
+function RowActions({ onEdit, onDelete, disabled }: Readonly<{ onEdit: () => void; onDelete: () => void; disabled?: boolean }>) {
   const { t } = useTranslation();
   return (
     <div className="no-print flex items-center justify-end gap-1">
@@ -392,7 +392,7 @@ const statusBadge: Record<string, string> = {
   in_progress: 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300',
 };
 
-function StatusBadge({ status, label }: { status: string; label: ReactNode }) {
+function StatusBadge({ status, label }: Readonly<{ status: string; label: ReactNode }>) {
   return <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${statusBadge[status] || ''}`}>{label}</span>;
 }
 
@@ -436,14 +436,14 @@ export function ChangeOrdersView({
   onSave,
   canEdit,
   saving,
-}: {
+}: Readonly<{
   project?: Project | null;
   totals: EstimateTotals;
   changeOrders: ChangeOrder[];
   onSave: (records: ChangeOrder[]) => unknown;
   canEdit: boolean;
   saving: boolean;
-}) {
+}>) {
   const { t } = useTranslation();
   const editor = useRecordEditor<ChangeOrder>(changeOrders, onSave, { ...blankCO, date: today() });
   const { draft, setDraft } = editor;
@@ -578,13 +578,13 @@ export function WarrantyView({
   onSave,
   canEdit,
   saving,
-}: {
+}: Readonly<{
   project?: Project | null;
   warrantyItems: WarrantyItem[];
   onSave: (records: WarrantyItem[]) => unknown;
   canEdit: boolean;
   saving: boolean;
-}) {
+}>) {
   const { t } = useTranslation();
   const editor = useRecordEditor<WarrantyItem>(warrantyItems, onSave, { ...blankWarranty, dateReported: today() });
   const { draft, setDraft } = editor;

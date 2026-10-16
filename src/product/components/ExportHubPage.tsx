@@ -2,8 +2,7 @@ import React, { memo, useMemo, useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Lock, FileText } from 'lucide-react';
 import { useParams, Link } from 'react-router-dom';
-import { computeEstimate, formatCurrency, formatNumber } from '@/product/lib/calculations';
-import { triggerDownload } from '@/product/lib/csv';
+import { computeEstimate } from '@/product/lib/calculations';
 import { exportNodeToPdf } from '@/product/lib/pdfExport';
 import { authApi } from '@/core/lib/auth/auth';
 import { useAuth } from '@/core/components/context/AuthContext';
@@ -253,11 +252,11 @@ export default function ExportHubPage({
   items,
   rates,
   currentProject,
-}: {
+}: Readonly<{
   items: TakeoffItem[];
   rates: Rates;
   currentProject: Project | null;
-}) {
+}>) {
   const { t } = useTranslation();
   const { username, projectId } = useParams();
   const { user, setUser, refreshProfile } = useAuth();
@@ -677,7 +676,7 @@ function FormatCard({
   onScrollToPreview,
   onClick,
   thumbnailProps,
-}: {
+}: Readonly<{
   format: ExportFormatItem;
   isSelected: boolean;
   isPro: boolean;
@@ -689,7 +688,7 @@ function FormatCard({
     currentProject: Project | null;
     rates: Rates;
   };
-}) {
+}>) {
   const { t } = useTranslation();
   const isLocked = format.isProOnly && !isPro;
 

@@ -11,7 +11,7 @@ const ACCENT = '#d97706';
 /**
  * 17. Substantial Completion & Warranty Certificate Layout
  */
-export default function WarrantyCloseoutCertDocument({ estimate, branding, currentProject }: DocumentTemplateProps) {
+export default function WarrantyCloseoutCertDocument({ estimate, branding, currentProject }: Readonly<DocumentTemplateProps>) {
   const { totals = {} } = estimate;
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENT;

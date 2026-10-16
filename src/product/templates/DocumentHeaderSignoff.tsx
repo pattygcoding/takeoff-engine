@@ -26,6 +26,15 @@ export interface SignatureParty {
   subtitle?: string;
 }
 
+/** Extra cell styling for a column: the explicit class wins, then emphasis, then the first column. */
+function cellExtraClass(col: DocumentColumn, ci: number): string {
+  if (col.className) return col.className;
+  if (col.strong) return 'font-semibold text-slate-900';
+  if (col.muted) return 'text-slate-500';
+  if (ci === 0) return 'font-medium text-slate-900';
+  return '';
+}
+
 function formatPct(value: number | string | null | undefined): string {
   return formatNumber(Number(value) || 0, 1).replace(/\.0$/, '');
 }
@@ -39,13 +48,13 @@ export function DocumentLetterhead({
   project,
   accent = DEFAULT_DOC_ACCENT,
   badge,
-}: {
+}: Readonly<{
   branding?: Branding | null;
   title: ReactNode;
   project?: Project | null;
   accent?: string;
   badge?: ReactNode;
-}) {
+}>) {
   const { t } = useTranslation();
   const today = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
 
@@ -109,10 +118,10 @@ export function DocumentLetterhead({
 export function DocumentSectionHeading({
   accent = DEFAULT_DOC_ACCENT,
   children,
-}: {
+}: Readonly<{
   accent?: string;
   children: ReactNode;
-}) {
+}>) {
   return (
     <h2
       className="mb-2 pb-1 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-700 border-b break-after-avoid"
@@ -130,11 +139,11 @@ export function DocumentKeyFigures({
   figures,
   highlight,
   accent = DEFAULT_DOC_ACCENT,
-}: {
+}: Readonly<{
   figures: DocumentFigure[];
   highlight?: DocumentFigure;
   accent?: string;
-}) {
+}>) {
   const cols = figures.length + (highlight ? 1 : 0);
   return (
     <section
@@ -168,13 +177,13 @@ export function DocumentSystemTable({
   subtotal,
   headerAside,
   accent = DEFAULT_DOC_ACCENT,
-}: {
+}: Readonly<{
   bySystem?: EstimateSystem[];
   columns: DocumentColumn[];
   subtotal?: (sys: EstimateSystem) => ReactNode;
   headerAside?: (sys: EstimateSystem) => ReactNode;
   accent?: string;
-}) {
+}>) {
   const { t } = useTranslation();
 
   if (!bySystem?.length) {
@@ -182,9 +191,7 @@ export function DocumentSystemTable({
   }
 
   const cellClass = (col: DocumentColumn, ci: number) =>
-    `py-1.5 px-2 ${col.align === 'right' ? 'text-right' : ''} ${
-      col.className ?? (col.strong ? 'font-semibold text-slate-900' : col.muted ? 'text-slate-500' : ci === 0 ? 'font-medium text-slate-900' : '')
-    }`;
+    `py-1.5 px-2 ${col.align === 'right' ? 'text-right' : ''} ${cellExtraClass(col, ci)}`;
 
   return (
     <table className="w-full border-collapse text-left">
@@ -214,8 +221,8 @@ export function DocumentSystemTable({
               </div>
             </td>
           </tr>
-          {sys.items.map((it, idx) => (
-            <tr key={idx} className="border-b border-slate-100 even:bg-slate-50/70 break-inside-avoid">
+          {sys.items.map((it) => (
+            <tr key={String(it.id ?? `${it.description ?? ''}-${it.name ?? ''}`)} className="border-b border-slate-100 even:bg-slate-50/70 break-inside-avoid">
               {columns.map((col, ci) => (
                 <td key={col.header} className={cellClass(col, ci)}>
                   {col.render(it)}
@@ -302,12 +309,12 @@ export function DocumentTotalRow({
   value,
   accent = DEFAULT_DOC_ACCENT,
   colSpan = 1,
-}: {
+}: Readonly<{
   label: ReactNode;
   value: ReactNode;
   accent?: string;
   colSpan?: number;
-}) {
+}>) {
   return (
     <tr className="text-white" style={{ backgroundColor: accent }}>
       <td colSpan={colSpan} className="py-2 px-2 text-[11px] font-bold uppercase tracking-wider">{label}</td>
@@ -325,13 +332,13 @@ export function DocumentSignatureBlock({
   parties,
   showPrintedName = false,
   accent = DEFAULT_DOC_ACCENT,
-}: {
+}: Readonly<{
   heading: ReactNode;
   intro?: ReactNode;
   parties: SignatureParty[];
   showPrintedName?: boolean;
   accent?: string;
-}) {
+}>) {
   const { t } = useTranslation();
 
   return (
@@ -365,11 +372,11 @@ export function DocumentFillLine({
   label,
   value,
   labelWidth = 'w-24',
-}: {
+}: Readonly<{
   label: ReactNode;
   value?: ReactNode;
   labelWidth?: string;
-}) {
+}>) {
   return (
     <div className="flex items-end gap-2 py-1">
       <span className={`shrink-0 text-[9px] font-bold uppercase tracking-wider text-slate-500 ${labelWidth}`}>{label}</span>

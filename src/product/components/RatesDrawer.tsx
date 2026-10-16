@@ -12,7 +12,7 @@ import {
   DEFAULT_EQUIPMENT_CATALOG,
 } from '@/product/constants/calculations.constants';
 import { calculationsApi } from '@/product/lib/calculations';
-import { DEFAULT_SCOPE_ITEMS, summarizeScope } from '@/product/lib/scope';
+import { DEFAULT_SCOPE_ITEMS } from '@/product/lib/scope';
 import ScopeInclusionsModal from '@/product/components/ScopeInclusionsModal';
 import UpgradeModal from '@/core/components/billing/UpgradeModal';
 import type { ReactNode } from 'react';
@@ -156,13 +156,13 @@ export default function RatesDrawer({
   rates,
   onChange,
   readOnly = false,
-}: {
+}: Readonly<{
   open: boolean;
   onClose: () => void;
   rates: Rates;
   onChange: (rates: Rates) => void;
   readOnly?: boolean;
-}) {
+}>) {
   const { user } = useAuth();
   const { showAlert, showConfirm } = useModal();
   const { t } = useTranslation();
@@ -176,7 +176,6 @@ export default function RatesDrawer({
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [showScopeModal, setShowScopeModal] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
-  const [, setLoadLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -191,14 +190,11 @@ export default function RatesDrawer({
 
   const loadRates = async () => {
     try {
-      setLoadLoading(true);
       setErrorMsg('');
       const data = await ratesApi.list();
       setLibraries(data);
     } catch (err) {
       console.warn('Could not load rate templates:', (err as Error).message);
-    } finally {
-      setLoadLoading(false);
     }
   };
 
@@ -208,7 +204,7 @@ export default function RatesDrawer({
 
     const all = [...(libraries.systemDefaults || []), ...(libraries.userLibraries || [])];
     const match = all.find((t) => t.id === templateId);
-    if (match && match.rates_json) {
+    if (match?.rates_json) {
       onChange({
         ...rates,
         ...match.rates_json,
@@ -300,7 +296,9 @@ export default function RatesDrawer({
         standardWorkdayHours: currentHours,
       });
     } else {
-      const derivedHourly = currentHourly > 0 ? currentHourly : (currentHours > 0 ? Math.round((currentDaily / currentHours) * 100) / 100 : 65.0);
+      let derivedHourly = 65.0;
+      if (currentHourly > 0) derivedHourly = currentHourly;
+      else if (currentHours > 0) derivedHourly = Math.round((currentDaily / currentHours) * 100) / 100;
       onChange({
         ...rates,
         laborRateBasis: 'hourly',
@@ -377,7 +375,12 @@ export default function RatesDrawer({
 
   const [showCrewCalculator, setShowCrewCalculator] = useState(false);
   const [crewComposition, setCrewComposition] = useState<CrewMember[]>(() =>
-    laborRoles.map((r) => ({ roleId: r.id, title: r.title, hourlyRate: r.hourlyRate, count: r.id === 'journeyman' ? 2 : r.id === 'foreman' ? 1 : r.id === 'apprentice' ? 1 : 0 }))
+    laborRoles.map((r) => {
+      let count = 0;
+      if (r.id === 'journeyman') count = 2;
+      else if (r.id === 'foreman' || r.id === 'apprentice') count = 1;
+      return { roleId: r.id, title: r.title, hourlyRate: r.hourlyRate, count };
+    })
   );
 
   const [blendedResult, setBlendedResult] = useState({
@@ -524,7 +527,7 @@ export default function RatesDrawer({
       if (item.id === id) {
         return {
           ...item,
-          [field]: field === 'amount' ? (val === '' ? '' : Number(val)) : val,
+          [field]: field === 'amount' && val !== '' ? Number(val) : val,
         };
       }
       return item;
@@ -1360,14 +1363,14 @@ function Field({
   prefix,
   suffix,
   disabled = false,
-}: {
+}: Readonly<{
   label: ReactNode;
   value: string | number | undefined;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   prefix?: ReactNode;
   suffix?: ReactNode;
   disabled?: boolean;
-}) {
+}>) {
   return (
     <label className="block mb-4">
       <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{label}</span>

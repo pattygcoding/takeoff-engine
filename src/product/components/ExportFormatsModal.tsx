@@ -27,13 +27,13 @@ export default function ExportFormatsModal({
   onSelectFormat,
   isPro,
   onUpgrade,
-}: {
+}: Readonly<{
   isOpen: boolean;
   onClose: () => void;
   onSelectFormat: (formatId: string) => void;
   isPro: boolean;
   onUpgrade?: () => void;
-}) {
+}>) {
   const { t } = useTranslation();
   const [selectedFormatId, setSelectedFormatId] = useState('pdf');
 
@@ -246,12 +246,12 @@ function FormatCard({
   isSelected,
   onClick,
   onUpgrade,
-}: {
+}: Readonly<{
   format: ExportFormat;
   isSelected: boolean;
   onClick: () => void;
   onUpgrade?: () => void;
-}) {
+}>) {
   const { t } = useTranslation();
   const isLocked = format.isLocked;
 
@@ -325,7 +325,7 @@ function FormatCard({
 /**
  * Miniature CSS representations simulating Word/PDF document sheets
  */
-function MiniDocumentPreview({ type, accent = 'indigo' }: { type?: string; accent?: string }) {
+function MiniDocumentPreview({ type, accent = 'indigo' }: Readonly<{ type?: string; accent?: string }>) {
   if (type === 'print') {
     return (
       <div className="w-full h-full bg-white rounded border border-slate-200 p-1.5 flex flex-col gap-1 shadow-2xs">

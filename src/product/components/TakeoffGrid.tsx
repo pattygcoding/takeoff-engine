@@ -27,6 +27,9 @@ function equipmentUnit(durationUnit: string): string {
   return 'WK';
 }
 
+/** Identifier of a takeoff row (optional on imported items). */
+type ItemId = string | number | undefined;
+
 /** Row tint: equipment rows, missing-scope rows, and selected rows each get their own highlight. */
 function takeoffRowClass(item: TakeoffItem, isSelected: boolean): string {
   let tint = '';
@@ -70,20 +73,20 @@ export default function TakeoffGrid({
   readOnly = false,
   rates = {},
   onRatesChange,
-}: {
+}: Readonly<{
   items: TakeoffItem[];
   onChange: (items: TakeoffItem[]) => void;
   readOnly?: boolean;
   rates?: Rates;
   onRatesChange?: (rates: Rates) => void;
-}) {
+}>) {
   const { t } = useTranslation();
   const laborInputMode = rates?.laborMode === 'cost' ? 'cost' : 'hours';
   const hourlyRate = Number(rates?.laborHourlyRate) || 65.0;
   const laborRoles: LaborRole[] =
     Array.isArray(rates?.laborRoles) && rates.laborRoles.length > 0 ? rates.laborRoles : DEFAULT_LABOR_ROLES;
 
-  const [selectedItemIds, setSelectedItemIds] = useState<Set<string | number | undefined>>(new Set());
+  const [selectedItemIds, setSelectedItemIds] = useState<Set<ItemId>>(new Set());
   const [bulkRoleId, setBulkRoleId] = useState('');
 
   const handleToggleSelectAll = () => {
@@ -130,7 +133,7 @@ export default function TakeoffGrid({
   const systemOptions = useMemo(() => {
     const set = new Set(DEFAULT_SYSTEMS);
     items.forEach((it) => {
-      if (it.system && it.system.trim()) set.add(it.system.trim());
+      if (it.system?.trim()) set.add(it.system.trim());
     });
     return Array.from(set);
   }, [items]);
@@ -138,7 +141,7 @@ export default function TakeoffGrid({
   const unitOptions = useMemo(() => {
     const set = new Set(DEFAULT_UNITS);
     items.forEach((it) => {
-      if (it.unit && it.unit.trim()) set.add(it.unit.trim());
+      if (it.unit?.trim()) set.add(it.unit.trim());
     });
     return Array.from(set);
   }, [items]);
@@ -1004,7 +1007,7 @@ export default function TakeoffGrid({
   );
 }
 
-function Th({ children, align = 'left' }: { children?: ReactNode; align?: string }) {
+function Th({ children, align = 'left' }: Readonly<{ children?: ReactNode; align?: string }>) {
   return (
     <th className={`px-3 py-2 font-semibold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide ${align === 'right' ? 'text-right' : 'text-left'}`}>
       {children}
@@ -1012,6 +1015,6 @@ function Th({ children, align = 'left' }: { children?: ReactNode; align?: string
   );
 }
 
-function Td({ children, align = 'left' }: { children?: ReactNode; align?: string }) {
+function Td({ children, align = 'left' }: Readonly<{ children?: ReactNode; align?: string }>) {
   return <td className={`px-3 py-2 ${align === 'right' ? 'text-right' : 'text-left'}`}>{children}</td>;
 }

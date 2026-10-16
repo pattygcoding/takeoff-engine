@@ -34,9 +34,9 @@ interface ChecksumSummary {
 
 export default function UploadStep({
   onItemsParsed,
-}: {
+}: Readonly<{
   onItemsParsed: (items: TakeoffItem[], options: ImportContext) => void;
-}) {
+}>) {
   const { t } = useTranslation();
   const [isDragging, setIsDragging] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
@@ -212,8 +212,8 @@ export default function UploadStep({
             {t('product.uploadStep.issuesFound', { count: errors.length, plural: errors.length > 1 ? 's' : '' })}
           </p>
           <ul className="list-disc list-inside text-sm text-red-600 dark:text-red-400 space-y-1 max-h-40 overflow-y-auto">
-            {errors.map((err, i) => (
-              <li key={i}>{err}</li>
+            {errors.map((err) => (
+              <li key={err}>{err}</li>
             ))}
           </ul>
         </div>

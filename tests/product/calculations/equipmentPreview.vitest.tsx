@@ -19,7 +19,7 @@ describe('equipment rental preview (step 2) matches the pricing engine (step 3)'
   it('shows the engine-computed total instead of the local duration x rate + delivery + fuel shortcut', async () => {
     // A deliberately "engine-wonky" number the old client-side formula could never produce
     // (the naive shortcut for the default mini-excavator 1-week rental would be 1200 + 250 + 60 = 1510).
-    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ directCost: 3082.5 }) });
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({ directCost: 3082.5 }) });
     vi.stubGlobal('fetch', fetchMock);
 
     render(<TakeoffGrid items={[]} onChange={() => {}} rates={DEFAULT_RATES as unknown as Rates} />);

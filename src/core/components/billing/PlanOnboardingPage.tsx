@@ -103,7 +103,7 @@ function PlanCard({
   loadingText,
   onSelect,
   formatPrice,
-}: PlanCardProps) {
+}: Readonly<PlanCardProps>) {
   return (
     <div className={cardClassName}>
       {cornerBadge && (

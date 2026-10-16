@@ -32,7 +32,7 @@ function earthwork(it: EstimateLineItem) {
 /**
  * 11. Trench & Earthwork Engineering Log Layout
  */
-export default function TrenchEarthworkLogDocument({ estimate, branding, currentProject }: DocumentTemplateProps) {
+export default function TrenchEarthworkLogDocument({ estimate, branding, currentProject }: Readonly<DocumentTemplateProps>) {
   const { bySystem = [] } = estimate;
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENT;

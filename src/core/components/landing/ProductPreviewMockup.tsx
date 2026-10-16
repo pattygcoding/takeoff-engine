@@ -76,7 +76,7 @@ export default function ProductPreviewMockup({
   proposal,
   exports,
   eSign,
-}: ProductPreviewMockupProps) {
+}: Readonly<ProductPreviewMockupProps>) {
   const [tab, setTab] = useState<PreviewTabKey>('takeoff');
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
@@ -183,7 +183,7 @@ export default function ProductPreviewMockup({
 }
 
 /** Shared line-item table used by the takeoff and proposal screens. */
-function LineItemTable({ columns, rows }: Pick<PanelRowProps, 'columns' | 'rows'>) {
+function LineItemTable({ columns, rows }: Readonly<Pick<PanelRowProps, 'columns' | 'rows'>>) {
   // `table-fixed` with explicit widths keeps the item column readable; without it the browser
   // collapses that column and the descriptions ellipsize after a few characters.
   return (
@@ -222,7 +222,7 @@ function TakeoffPanel({
   rows,
   totalLabel,
   totalAmount,
-}: { fileLabel: string; mappedLabel: string } & PanelRowProps) {
+}: Readonly<{ fileLabel: string; mappedLabel: string } & PanelRowProps>) {
   return (
     <div>
       <div className="flex items-center justify-between gap-3 border-b border-[var(--lp-rule)] pb-2">
@@ -280,7 +280,7 @@ function ProposalPanel({
 }
 
 /** Screen 3: the deliverables and the client acceptance hand-off. */
-function ExportPanel({ exports, eSign }: Pick<ProductPreviewMockupProps, 'exports' | 'eSign'>) {
+function ExportPanel({ exports, eSign }: Readonly<Pick<ProductPreviewMockupProps, 'exports' | 'eSign'>>) {
   const icons = { pdf: FileText, print: Printer } as const;
 
   // These two labels are preview chrome, not document sections: they are deliberately `<p>` rather

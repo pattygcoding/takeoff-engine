@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { authApi } from '@/core/lib/auth/auth';
 import { isPrerenderedDocument } from '@/core/lib/shared/prerender';
@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       try {
         await authApi.getCsrfToken();
         // Handle Supabase Auth email redirect tokens from hash (e.g. #access_token=...&type=signup)
-        if (window.location.hash && window.location.hash.includes('access_token=')) {
+        if (window.location.hash?.includes('access_token=')) {
           const params = new URLSearchParams(window.location.hash.substring(1));
           const accessToken = params.get('access_token');
           if (accessToken) {
@@ -144,21 +144,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
   }, [user?.id]);
 
+  const value = useMemo(
+    () => ({
+      user,
+      isAuthenticated: Boolean(user),
+      isAdmin: user?.role === 'admin',
+      isPaymentExempt: user?.role === 'payment_exempt',
+      loading,
+      login,
+      register,
+      logout,
+      setUser,
+      refreshProfile,
+    }),
+    [user, loading, login, register, logout, setUser, refreshProfile],
+  );
+
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isAuthenticated: Boolean(user),
-        isAdmin: user?.role === 'admin',
-        isPaymentExempt: user?.role === 'payment_exempt',
-        loading,
-        login,
-        register,
-        logout,
-        setUser,
-        refreshProfile,
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

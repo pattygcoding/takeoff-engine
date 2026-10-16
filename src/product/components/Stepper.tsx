@@ -21,11 +21,11 @@ export default function Stepper({
   step,
   onStepClick,
   isAwarded = false,
-}: {
+}: Readonly<{
   step: number;
   onStepClick?: (step: number) => void;
   isAwarded?: boolean;
-}) {
+}>) {
   const { t } = useTranslation();
   const steps = [
     { id: 1, label: t('product.stepper.step1Label') },
@@ -43,7 +43,7 @@ export default function Stepper({
           <div key={s.id} className="flex items-center gap-2 sm:gap-4">
             <button
               type="button"
-              onClick={() => !isDisabled && onStepClick && onStepClick(s.id)}
+              onClick={() => !isDisabled && onStepClick?.(s.id)}
               disabled={isDisabled}
               title={
                 isStepLocked

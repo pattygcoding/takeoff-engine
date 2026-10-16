@@ -73,7 +73,7 @@ export async function exportNodeToPdf(
     let end = Math.min(limit, canvas.height);
     if (limit < canvas.height) {
       // Only snap when it keeps at least 60% of the page filled; otherwise hard-cut.
-      const snapped = canvasBreaks.filter((b) => b > start + pageHeightPx * 0.6 && b <= limit).pop();
+      const snapped = canvasBreaks.findLast((b) => b > start + pageHeightPx * 0.6 && b <= limit);
       if (snapped) end = snapped;
     }
     slices.push([start, end]);

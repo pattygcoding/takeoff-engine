@@ -87,7 +87,7 @@ describe('account creation gate state', () => {
     expect(screen.getByTestId('gate').textContent).toBe('open');
     expect(screen.queryByRole('alert')).toBeNull();
 
-    await act(async () => resolveFirst(new Error('Pricing is temporarily unavailable.')));
+    await act(() => resolveFirst(new Error('Pricing is temporarily unavailable.')));
     expect(screen.getByTestId('gate').textContent).toBe('closed');
     expect(screen.getByRole('alert').textContent).toContain(DISABLED_MESSAGE);
 

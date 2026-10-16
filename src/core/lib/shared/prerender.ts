@@ -27,7 +27,7 @@ declare global {
 
 /** True when the current document was produced by the prerender script. */
 export function isPrerenderedDocument(): boolean {
-  return typeof document !== 'undefined' && document.documentElement.hasAttribute('data-prerendered');
+  return typeof document !== 'undefined' && document.documentElement.dataset.prerendered !== undefined;
 }
 
 /** The billing catalog captured at build time, or null when the page was not content-prerendered. */

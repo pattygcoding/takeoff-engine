@@ -101,7 +101,7 @@ function markupLabel(
 
 /** The miscellaneous-costs summary row, omitted entirely when there is none. */
 function miscCostRows(t: TranslateFn, totals: Estimate['totals']): TableRow[] {
-  if (!(totals.miscCost! > 0)) return [];
+  if (totals.miscCost! <= 0) return [];
   return [summaryRow(t('product.wordExport.miscellaneousCosts'), formatCurrency(totals.miscCost))];
 }
 
@@ -641,6 +641,6 @@ export async function exportEstimateToWord(
   link.download = `${(currentProject?.name || 'takeoff_estimate').replace(/\s+/g, '_')}_${formatId}.docx`;
   document.body.appendChild(link);
   link.click();
-  document.body.removeChild(link);
+  link.remove();
   URL.revokeObjectURL(url);
 }

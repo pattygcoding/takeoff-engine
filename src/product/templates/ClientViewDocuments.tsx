@@ -42,11 +42,11 @@ const STATUS_STYLES: Record<string, string> = {
   in_progress: 'bg-blue-50 text-blue-800 border-blue-300',
 };
 
-function DocShell({ children }: { children: ReactNode }) {
+function DocShell({ children }: Readonly<{ children: ReactNode }>) {
   return <div className="text-slate-800 text-[11px] leading-relaxed tabular-nums bg-white">{children}</div>;
 }
 
-function StatusPill({ status }: { status: string }) {
+function StatusPill({ status }: Readonly<{ status: string }>) {
   const { t } = useTranslation();
   return (
     <span className={`inline-block px-1.5 py-0.5 border rounded-sm text-[9px] font-bold uppercase tracking-wider whitespace-nowrap ${STATUS_STYLES[status] || 'border-slate-300 text-slate-600'}`}>
@@ -67,11 +67,11 @@ function PartiesBlock({
   project,
   accent,
   aside,
-}: {
+}: Readonly<{
   project?: Project | null;
   accent?: string;
   aside: { title: ReactNode; rows: Array<[ReactNode, ReactNode]> };
-}) {
+}>) {
   const { t } = useTranslation();
   return (
     <section className="mt-6 grid grid-cols-2 gap-6 break-inside-avoid">
@@ -108,11 +108,11 @@ function SummaryTable({
   rows,
   total,
   accent,
-}: {
+}: Readonly<{
   rows: Array<{ label: ReactNode; value: ReactNode; subtotal?: boolean }>;
   total: { label: ReactNode; value: ReactNode };
   accent?: string;
-}) {
+}>) {
   return (
     <section className="mt-6 flex justify-end break-inside-avoid">
       <table className="w-full max-w-[340px] border-collapse">
@@ -130,7 +130,7 @@ function SummaryTable({
   );
 }
 
-function EmptyNotice({ children }: { children: ReactNode }) {
+function EmptyNotice({ children }: Readonly<{ children: ReactNode }>) {
   return <p className="py-6 text-center text-slate-400 italic border border-dashed border-slate-300">{children}</p>;
 }
 
@@ -145,12 +145,12 @@ export function InvoiceDocument({
   warrantyItems = [],
   invoiceNumber,
   netDays,
-}: DocumentTemplateProps & {
+}: Readonly<DocumentTemplateProps & {
   changeOrders?: ChangeOrder[];
   warrantyItems?: WarrantyItem[];
   invoiceNumber?: string;
   netDays?: number | string;
-}) {
+}>) {
   const { t } = useTranslation();
   const { totals = {}, bySystem = [] } = estimate;
   const accent = branding?.brandColor || ACCENTS.invoice;
@@ -280,7 +280,7 @@ export function InvoiceDocument({
 /* ------------------------------------------------------------------ */
 /* 2. Proposal Package                                                 */
 /* ------------------------------------------------------------------ */
-export function ProposalPackageDocument({ estimate, branding, currentProject, rates }: DocumentTemplateProps) {
+export function ProposalPackageDocument({ estimate, branding, currentProject, rates }: Readonly<DocumentTemplateProps>) {
   const { t } = useTranslation();
   const { totals = {}, bySystem = [] } = estimate;
   const accent = branding?.brandColor || ACCENTS.proposal;
@@ -366,7 +366,7 @@ export function ProposalPackageDocument({ estimate, branding, currentProject, ra
 /* ------------------------------------------------------------------ */
 /* 3. General Bid                                                      */
 /* ------------------------------------------------------------------ */
-export function GeneralBidDocument({ estimate, branding, currentProject, rates }: DocumentTemplateProps) {
+export function GeneralBidDocument({ estimate, branding, currentProject, rates }: Readonly<DocumentTemplateProps>) {
   const { t } = useTranslation();
   const { totals = {}, bySystem = [] } = estimate;
   const accent = branding?.brandColor || ACCENTS.bid;
@@ -557,11 +557,11 @@ export function WarrantyDocument({
   branding,
   currentProject,
   warrantyItems = [],
-}: {
+}: Readonly<{
   branding?: Branding | null;
   currentProject?: Project | null;
   warrantyItems?: WarrantyItem[];
-}) {
+}>) {
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENTS.warranty;
   const counts = warrantyItems.reduce<Record<string, number>>(

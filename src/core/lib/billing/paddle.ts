@@ -115,9 +115,10 @@ export async function openPaddleCheckout({
 }: OpenPaddleCheckoutOptions): Promise<boolean> {
   const paddle = await getPaddleInstance();
 
-  const checkoutItems = items && items.length > 0
-    ? items
-    : (priceId ? [{ priceId, quantity: 1 }] : []);
+  let checkoutItems = items ?? [];
+  if (checkoutItems.length === 0 && priceId) {
+    checkoutItems = [{ priceId, quantity: 1 }];
+  }
 
   if (!paddle || checkoutItems.length === 0) {
     // If Paddle token or price is not yet configured, fall back to mock checkout notice

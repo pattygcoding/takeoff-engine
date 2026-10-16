@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Check, FileDown, Link2, Lock, X, Mail, Sparkles, Truck } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -39,7 +39,7 @@ interface ShareProposalData {
 }
 
 // Invoice and proposal PDFs are available on every plan; the rest require Pro/Enterprise.
-const FREE_PDF_VIEWS = ['invoice', 'proposal'];
+const FREE_PDF_VIEWS = new Set(['invoice', 'proposal']);
 
 // Must match ids in the backend serverTemplateRegistry so record-export can enforce the tier.
 const CLIENT_PDF_FORMAT_IDS: Record<string, string> = {
@@ -116,7 +116,7 @@ function docBrandingFor(branding: Branding | null): Branding | null {
 /** Locked client views: everything outside the free formats, for accounts without Pro entitlements. */
 function lockedPdfViewsFor(isProOrExempt: boolean): string[] {
   if (isProOrExempt) return [];
-  return CLIENT_VIEWS.filter((view) => !FREE_PDF_VIEWS.includes(view));
+  return CLIENT_VIEWS.filter((view) => !FREE_PDF_VIEWS.has(view));
 }
 
 /** The off-screen PDF document component for the requested view. */
@@ -227,13 +227,13 @@ function toggleKnobClass(proposalMode: boolean): string {
 }
 
 /** Lock / download glyph for the PDF button. */
-function PdfButtonIcon({ locked }: { locked: boolean }) {
+function PdfButtonIcon({ locked }: Readonly<{ locked: boolean }>) {
   if (locked) return <Lock className="w-4 h-4" aria-hidden="true" />;
   return <FileDown className="w-4 h-4" aria-hidden="true" />;
 }
 
 /** Content of the send-proposal submit button. */
-function SendProposalButtonContent({ sending, t }: { sending: boolean; t: TranslateFn }) {
+function SendProposalButtonContent({ sending, t }: Readonly<{ sending: boolean; t: TranslateFn }>) {
   if (sending) {
     return (
       <>
@@ -261,7 +261,7 @@ export default function ResultsStep({
   readOnly = false,
   projectStatus = 'awarded',
   onDuplicate,
-}: {
+}: Readonly<{
   items: TakeoffItem[];
   rates: Rates;
   currentProject: Project | null;
@@ -270,7 +270,7 @@ export default function ResultsStep({
   readOnly?: boolean;
   projectStatus?: string;
   onDuplicate?: () => void;
-}) {
+}>) {
   const { username, projectId } = useParams();
   const navigate = useNavigate();
   const { user, setUser, refreshProfile } = useAuth();
@@ -490,7 +490,7 @@ export default function ResultsStep({
 
   const handleSendProposalEmail = guard('send-proposal-email', async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!clientRecipientEmail || !clientRecipientEmail.trim()) {
+    if (!clientRecipientEmail?.trim()) {
       await showAlert({
         title: t('product.resultsStep.missingRecipientEmail'),
         message: t('product.resultsStep.missingRecipientEmailMessage'),
@@ -610,7 +610,7 @@ export default function ResultsStep({
   const PdfDocument = pdfDocumentFor(pdfView);
 
   const exportCsv = guard('record-export', async () => {
-    await processExportWithCreditCheck(async () => {
+    await processExportWithCreditCheck(() => {
       const rows = bySystem.flatMap((sys) =>
         sys.items.map((item) => ({
           System: item.system,
@@ -1325,12 +1325,12 @@ function SummaryCard({
   value,
   sub,
   highlight,
-}: {
+}: Readonly<{
   label: ReactNode;
   value: ReactNode;
   sub?: ReactNode;
   highlight?: boolean;
-}) {
+}>) {
   return (
     <div
       className={`rounded-2xl border p-4 transition-colors ${

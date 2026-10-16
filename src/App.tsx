@@ -64,7 +64,7 @@ function AppHeader() {
           >
             <span aria-hidden="true" className="relative w-[26px] h-[26px] shrink-0 bg-[var(--lp-ink)]">
               <span className="absolute right-0 bottom-0 w-[11px] h-[11px] bg-[var(--lp-accent)]" />
-            </span>
+            </span>{' '}
             Takeoff Engine
             <span className="hidden sm:inline text-sm font-medium text-[var(--lp-muted)]">Construction Estimating</span>
           </Link>
@@ -276,7 +276,7 @@ function AppContent() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--lp-paper)] flex items-center justify-center">
-        <div role="status" className="text-[var(--lp-muted)] font-medium animate-pulse">{t('core.accessibility.loading')}</div>
+        <output className="text-[var(--lp-muted)] font-medium animate-pulse">{t('core.accessibility.loading')}</output>
       </div>
     );
   }
@@ -307,7 +307,7 @@ function AppContent() {
       <Suspense
         fallback={
           <div className="min-h-[50vh] flex items-center justify-center">
-            <div role="status" className="text-[var(--lp-muted)] font-medium animate-pulse">{t('core.accessibility.loading')}</div>
+            <output className="text-[var(--lp-muted)] font-medium animate-pulse">{t('core.accessibility.loading')}</output>
           </div>
         }
       >

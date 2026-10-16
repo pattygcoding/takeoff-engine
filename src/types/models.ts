@@ -19,7 +19,7 @@ export interface TakeoffItem {
   unit?: string;
   amount?: number | string;
   costImpact?: number | string;
-  costImpactType?: 'percent' | 'flat' | string;
+  costImpactType?: string;
   originalStatus?: string;
   originalAmount?: number | string;
   system?: string;
@@ -79,7 +79,7 @@ export interface ScopeItem {
   status?: string;
   amount?: number | string;
   costImpact?: number | string;
-  costImpactType?: 'percent' | 'flat' | string;
+  costImpactType?: string;
   originalStatus?: string;
   originalAmount?: number | string;
   description?: string;

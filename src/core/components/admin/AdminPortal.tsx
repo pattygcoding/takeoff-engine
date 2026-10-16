@@ -118,7 +118,7 @@ function AdminUserRow({
   onResetPassword,
   onUnlockAccount,
   onToggleStatus,
-}: AdminUserRowProps) {
+}: Readonly<AdminUserRowProps>) {
   const { isSuspended, isLocked, isTest } = userRowFlags(u);
   const isSelf = u.id === currentUserId;
   const unlimited = hasUnlimitedAccess(u);
@@ -750,23 +750,23 @@ export default function AdminPortal() {
   const filteredUsers = users
     .filter((u) => {
       const q = searchTerm.toLowerCase();
-      return (
-        (u.username && u.username.toLowerCase().includes(q)) ||
-        (u.email && u.email.toLowerCase().includes(q)) ||
-        (u.first_name && u.first_name.toLowerCase().includes(q)) ||
-        (u.last_name && u.last_name.toLowerCase().includes(q)) ||
-        (u.company_name && u.company_name.toLowerCase().includes(q))
+      return Boolean(
+        u.username?.toLowerCase().includes(q) ||
+        u.email?.toLowerCase().includes(q) ||
+        u.first_name?.toLowerCase().includes(q) ||
+        u.last_name?.toLowerCase().includes(q) ||
+        u.company_name?.toLowerCase().includes(q)
       );
     })
     .sort((a, b) => {
       const aIsPatty =
-        (a.username && a.username.toLowerCase() === 'patty_g7') ||
-        (a.email && a.email.toLowerCase().includes('patty_g7')) ||
-        (a.email && a.email.toLowerCase().includes('pattygsocials@gmail.com'));
+        a.username?.toLowerCase() === 'patty_g7' ||
+        a.email?.toLowerCase().includes('patty_g7') ||
+        a.email?.toLowerCase().includes('pattygsocials@gmail.com');
       const bIsPatty =
-        (b.username && b.username.toLowerCase() === 'patty_g7') ||
-        (b.email && b.email.toLowerCase().includes('patty_g7')) ||
-        (b.email && b.email.toLowerCase().includes('pattygsocials@gmail.com'));
+        b.username?.toLowerCase() === 'patty_g7' ||
+        b.email?.toLowerCase().includes('patty_g7') ||
+        b.email?.toLowerCase().includes('pattygsocials@gmail.com');
       if (aIsPatty && !bIsPatty) return -1;
       if (!aIsPatty && bIsPatty) return 1;
       return 0;

@@ -87,7 +87,7 @@ export const DEFAULT_SCOPE_ITEMS = defaultScopeItemsJson;
  * Returns a cloned initial scope list
  */
 export function getInitialScopeItems(): ScopeItem[] {
-  return JSON.parse(JSON.stringify(DEFAULT_SCOPE_ITEMS)) as ScopeItem[];
+  return structuredClone(DEFAULT_SCOPE_ITEMS);
 }
 
 /**
@@ -137,13 +137,13 @@ export function getSavedScopePresets(): ScopePreset[] {
  * Saves a new scope preset to localStorage
  */
 export function saveScopePreset(presetName: string, scopeItems: ScopeItem[]): ScopePreset | null {
-  if (!presetName || !presetName.trim()) return null;
+  if (!presetName?.trim()) return null;
   const currentPresets = getSavedScopePresets();
   const newPreset = {
     id: newId('preset_'),
     name: presetName.trim(),
     createdAt: new Date().toISOString(),
-    items: JSON.parse(JSON.stringify(scopeItems)),
+    items: structuredClone(scopeItems),
   };
 
   const updated = [newPreset, ...currentPresets.filter((p) => p.name.toLowerCase() !== presetName.trim().toLowerCase())];

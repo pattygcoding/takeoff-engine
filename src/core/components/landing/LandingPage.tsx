@@ -43,7 +43,7 @@ const STEP_BORDERS = [
   'border-t lg:border-t-0 sm:border-l sm:pl-6',
 ];
 
-function LogoMark({ inverse = false }: { inverse?: boolean }) {
+function LogoMark({ inverse = false }: Readonly<{ inverse?: boolean }>) {
   return (
     <span
       aria-hidden="true"
@@ -59,12 +59,12 @@ function SectionHeader({
   title,
   description,
   onBand = false,
-}: {
+}: Readonly<{
   label: ReactNode;
   title: ReactNode;
   description?: ReactNode;
   onBand?: boolean;
-}) {
+}>) {
   // Stacked and flush left: the label used to sit in a parallel 220px column, which pushed the
   // heading inwards until it read as centred next to the full-width content beneath it.
   // `border-current` keeps the label legible on both the paper background and the blue band.
@@ -82,13 +82,10 @@ function SectionHeader({
 }
 
 // Comparison marker: filled = included, half = limited, empty = not available.
-function Marker({ type }: { type?: string }) {
-  const fill =
-    type === 'yes'
-      ? 'bg-[var(--lp-ink)]'
-      : type === 'partial'
-        ? 'bg-[linear-gradient(90deg,var(--lp-ink)_50%,transparent_50%)]'
-        : 'bg-transparent';
+function Marker({ type }: Readonly<{ type?: string }>) {
+  let fill = 'bg-transparent';
+  if (type === 'yes') fill = 'bg-[var(--lp-ink)]';
+  else if (type === 'partial') fill = 'bg-[linear-gradient(90deg,var(--lp-ink)_50%,transparent_50%)]';
   return <i aria-hidden="true" className={`inline-block w-3 h-3 border-2 border-[var(--lp-ink)] shrink-0 ${fill}`} />;
 }
 
@@ -99,14 +96,14 @@ function CalcField({
   onChange,
   step,
   min = 0,
-}: {
+}: Readonly<{
   id: string;
   label: string;
   value: number;
   onChange: (value: number) => void;
   step?: number | string;
   min?: number;
-}) {
+}>) {
   return (
     <div>
       <label htmlFor={id} className="block text-[13px] font-semibold mb-1.5">

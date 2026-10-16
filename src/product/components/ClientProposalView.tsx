@@ -67,7 +67,6 @@ export default function ClientProposalView() {
   const [signerEmail, setSignerEmail] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [, setSignSuccess] = useState(false);
   const [signError, setSignError] = useState('');
 
   // Decline Modal States
@@ -92,9 +91,6 @@ export default function ClientProposalView() {
       setError('');
       const res = await proposalsApi.getPublicProposal(String(publicToken));
       setData(res);
-      if (res.proposal?.client_status === 'accepted') {
-        setSignSuccess(true);
-      }
     } catch (err) {
       setError((err as Error).message || t('product.clientProposal.notFoundMessage'));
     } finally {
@@ -125,7 +121,6 @@ export default function ClientProposalView() {
         signerName: signerName.trim(),
         signerEmail: signerEmail.trim(),
       });
-      setSignSuccess(true);
       await loadProposal();
     } catch (err) {
       setSignError((err as Error).message || t('product.clientProposal.signatureError'));
@@ -393,8 +388,8 @@ export default function ClientProposalView() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {snapshot.items.map((item, idx) => (
-                      <tr key={idx} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40">
+                    {snapshot.items.map((item) => (
+                      <tr key={String(item.id ?? `${item.description ?? ''}-${item.name ?? ''}`)} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40">
                         <td className="py-2.5 pr-4 font-medium text-slate-800 dark:text-slate-200">{item.description}</td>
                         <td className="py-2.5 pr-4 text-slate-500 dark:text-slate-400 text-xs">
                           <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 font-medium text-slate-700 dark:text-slate-300">

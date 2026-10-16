@@ -11,7 +11,7 @@ interface MarkdownCursor {
   key: number;
   inTable: boolean;
   tableRows: string[][];
-  currentList: { type: 'ul' | 'ol'; items: React.ReactNode[] } | null;
+  currentList: { type: 'ul' | 'ol'; items: { key: string; node: React.ReactNode }[] } | null;
 }
 
 const LIST_CLASSES: Record<'ul' | 'ol', string> = {
@@ -50,7 +50,7 @@ function flushList(cursor: MarkdownCursor, elements: React.ReactNode[]): void {
 
   const className = LIST_CLASSES[list.type];
   const key = `${list.type}-${cursor.key++}`;
-  const children = list.items.map((item, idx) => <li key={idx}>{item}</li>);
+  const children = list.items.map((item) => <li key={item.key}>{item.node}</li>);
   elements.push(
     list.type === 'ol'
       ? <ol key={key} className={className}>{children}</ol>
@@ -71,19 +71,19 @@ function flushTable(cursor: MarkdownCursor, elements: React.ReactNode[]): void {
       <table className="w-full text-left text-xs border-collapse">
         <thead className="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-b border-slate-200 dark:border-slate-700">
           <tr>
-            {headerRow.map((cell, cIdx) => (
-              <th key={cIdx} className="px-3 py-2.5 font-bold uppercase tracking-wider">
+            {headerRow.map((cell) => (
+              <th key={cell} className="px-3 py-2.5 font-bold uppercase tracking-wider">
                 {renderInlineMarkdown(cell)}
               </th>
             ))}
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-200 dark:divide-slate-800 bg-white dark:bg-slate-900">
-          {dataRows.map((row, rIdx) => (
-            <tr key={rIdx} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
-              {row.map((cell, cIdx) => (
-                <td key={cIdx} className="px-3 py-2 text-slate-700 dark:text-slate-300">
-                  {renderInlineMarkdown(cell)}
+          {dataRows.map((row) => (
+            <tr key={row.join('|')} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+              {headerRow.map((header, ci) => (
+                <td key={header} className="px-3 py-2 text-slate-700 dark:text-slate-300">
+                  {renderInlineMarkdown(row[ci] ?? '')}
                 </td>
               ))}
             </tr>
@@ -103,24 +103,24 @@ function appendListItem(cursor: MarkdownCursor, elements: React.ReactNode[], tri
     return appendNumberedItem(cursor, elements, trimmed);
   }
 
-  if (!cursor.currentList || cursor.currentList.type !== 'ul') {
+  if (cursor.currentList?.type !== 'ul') {
     flushList(cursor, elements);
     cursor.currentList = { type: 'ul', items: [] };
   }
-  cursor.currentList.items.push(renderInlineMarkdown(trimmed.slice(2)));
+  cursor.currentList.items.push({ key: `li-${cursor.key++}`, node: renderInlineMarkdown(trimmed.slice(2)) });
   return true;
 }
 
 /** Appends a `1.`-style numbered item; returns false when the line is not one. */
 function appendNumberedItem(cursor: MarkdownCursor, elements: React.ReactNode[], trimmed: string): boolean {
-  const numberedMatch = trimmed.match(/^(\d+)\.\s+(.*)/);
+  const numberedMatch = /^(\d+)\.\s+(.*)/.exec(trimmed);
   if (!numberedMatch) return false;
 
-  if (!cursor.currentList || cursor.currentList.type !== 'ol') {
+  if (cursor.currentList?.type !== 'ol') {
     flushList(cursor, elements);
     cursor.currentList = { type: 'ol', items: [] };
   }
-  cursor.currentList.items.push(renderInlineMarkdown(numberedMatch[2]));
+  cursor.currentList.items.push({ key: `li-${cursor.key++}`, node: renderInlineMarkdown(numberedMatch[2]) });
   return true;
 }
 
@@ -177,7 +177,7 @@ function appendTrailingBlock(cursor: MarkdownCursor, elements: React.ReactNode[]
   );
 }
 
-function MarkdownRenderer({ content }: { content?: string }) {
+function MarkdownRenderer({ content }: Readonly<{ content?: string }>) {
   if (!content) return null;
 
   const lines = content.split('\n');
@@ -217,10 +217,11 @@ function renderInlineMarkdown(text: string): React.ReactNode {
     parts.push({ type: 'text', content: text.slice(lastIndex) });
   }
 
-  return parts.map((part, idx) => {
+  return parts.map((part) => {
+    const partKey = `${part.type}-${part.content}`;
     if (part.type === 'code') {
       return (
-        <code key={idx} className="bg-slate-100 dark:bg-slate-800 text-blue-700 dark:text-blue-300 border border-slate-200 dark:border-slate-700 px-1.5 py-0.5 rounded font-mono text-xs">
+        <code key={partKey} className="bg-slate-100 dark:bg-slate-800 text-blue-700 dark:text-blue-300 border border-slate-200 dark:border-slate-700 px-1.5 py-0.5 rounded font-mono text-xs">
           {part.content}
         </code>
       );
@@ -228,7 +229,7 @@ function renderInlineMarkdown(text: string): React.ReactNode {
 
     let str = part.content;
     const formattedElements: React.ReactNode[] = [];
-    const formattingRegex = /(\*\*([^*]+)\*\*|\*([^*]+)\*|\[([^\]\[]+)\]\(([^()]+)\))/g;
+    const formattingRegex = /(\*\*([^*]+)\*\*|\*([^*]+)\*|\[([^[\]]+)\]\(([^()]+)\))/g;
     let fLastIdx = 0;
     let fMatch;
 
@@ -261,7 +262,7 @@ function renderInlineMarkdown(text: string): React.ReactNode {
       formattedElements.push(str.slice(fLastIdx));
     }
 
-    return <React.Fragment key={idx}>{formattedElements}</React.Fragment>;
+    return <React.Fragment key={partKey}>{formattedElements}</React.Fragment>;
   });
 }
 
@@ -290,6 +291,7 @@ export default function ClientGuidePage() {
         const text = await res.text();
         setMarkdown(text);
       } catch (err) {
+        console.warn('Could not load the client guide:', (err as Error).message);
         setMarkdown(`# ${t('product.clientGuide.title')}\n\n${t('product.clientGuide.errorLoading')}`);
       } finally {
         setLoading(false);

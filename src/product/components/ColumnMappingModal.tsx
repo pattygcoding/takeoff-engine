@@ -12,6 +12,20 @@ import { useTranslation } from '@/core/components/context/I18nContext';
 import type { TakeoffItem } from '@/types/models';
 import { useModal } from '@/core/components/context/ModalContext';
 
+/** Badge styling for a mapping-confidence score. */
+function confidenceBadgeClass(confidence: number): string {
+  if (confidence >= 0.95) return 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800';
+  if (confidence >= 0.8) return 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800';
+  return 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800';
+}
+
+/** Select styling for a mapping field: already mapped, required but unmapped, or optional. */
+function columnSelectClass(isMapped: boolean, isRequired: boolean): string {
+  if (isMapped) return 'border-blue-300 dark:border-blue-600 font-semibold text-blue-900 dark:text-blue-200';
+  if (isRequired) return 'border-amber-300 dark:border-amber-600 text-amber-900 dark:text-amber-300';
+  return 'border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400';
+}
+
 export default function ColumnMappingModal({
   headers: initialHeaders,
   rawRows: initialRawRows,
@@ -307,13 +321,7 @@ export default function ColumnMappingModal({
                       </span>
                       {confidence !== undefined && (
                         <span
-                          className={`text-[10px] px-1.5 py-0.5 rounded font-mono font-medium ${
-                            confidence >= 0.95
-                              ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                              : confidence >= 0.8
-                              ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
-                              : 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
-                          }`}
+                          className={`text-[10px] px-1.5 py-0.5 rounded font-mono font-medium ${confidenceBadgeClass(confidence)}`}
                         >
                           {t('product.columnMappingModal.matchConfidence', { confidence: Math.round(confidence * 100) })}
                         </span>
@@ -328,17 +336,11 @@ export default function ColumnMappingModal({
                     <select
                       value={mapping[field.key] || ''}
                       onChange={(e) => handleChange(field.key, e.target.value)}
-                      className={`w-full px-3 py-1.5 text-xs bg-white dark:bg-slate-800 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer ${
-                        mapping[field.key]
-                          ? 'border-blue-300 dark:border-blue-600 font-semibold text-blue-900 dark:text-blue-200'
-                          : field.required
-                          ? 'border-amber-300 dark:border-amber-600 text-amber-900 dark:text-amber-300'
-                          : 'border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400'
-                      }`}
+                      className={`w-full px-3 py-1.5 text-xs bg-white dark:bg-slate-800 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer ${columnSelectClass(Boolean(mapping[field.key]), Boolean(field.required))}`}
                     >
                       <option value="">{t('product.columnMappingModal.selectFileColumn')}</option>
-                      {currentHeaders.map((h, i) => (
-                        <option key={i} value={h}>
+                      {currentHeaders.map((h) => (
+                        <option key={h} value={h}>
                           {h}
                         </option>
                       ))}
@@ -367,8 +369,8 @@ export default function ColumnMappingModal({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200/60 dark:divide-slate-800 bg-white dark:bg-slate-900">
-                    {previewRows.map((row, idx) => (
-                      <tr key={idx} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50">
+                    {previewRows.map((row) => (
+                      <tr key={Object.values(row).join('|')} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50">
                         <td className="p-2 text-slate-700 dark:text-slate-300 font-mono text-[11px] truncate max-w-[120px]">
                           {mapping.system ? String(row[mapping.system] ?? '-') : '-'}
                         </td>

@@ -32,7 +32,6 @@ export default function AcceptInvitePage() {
   const [inviteData, setInviteData] = useState<InviteData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [accepting, setAccepting] = useState(false);
-  const [, setSuccess] = useState(false);
 
   const guard = useSingleFlight();
   // 1. Verify invitation token on mount
@@ -89,7 +88,6 @@ export default function AcceptInvitePage() {
         throw new Error(data.error || t('core.acceptInvite.acceptFailedError'));
       }
 
-      setSuccess(true);
       if (refreshProfile) await refreshProfile();
       sessionStorage.removeItem(PENDING_INVITE_KEY);
 

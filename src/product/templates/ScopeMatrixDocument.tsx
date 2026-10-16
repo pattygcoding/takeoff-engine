@@ -19,7 +19,7 @@ const ACCENT = '#7e22ce';
 /**
  * 7. Commercial Scope & Spec Matrix Document Layout
  */
-export default function ScopeMatrixDocument({ estimate, branding, currentProject }: DocumentTemplateProps) {
+export default function ScopeMatrixDocument({ estimate, branding, currentProject }: Readonly<DocumentTemplateProps>) {
   const { totals = {}, bySystem = [], rates } = estimate;
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENT;

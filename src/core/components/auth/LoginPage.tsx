@@ -7,21 +7,15 @@ import { openPaddleCheckout } from '@/core/lib/billing/paddle';
 import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
 import {
   AccountCreationDisabledNotice,
-  PricingStatus,
   useAccountCreationDisabled,
   usePricing,
   usePricingDisplay,
 } from '@/core/components/context/PricingContext';
 import SeoHead from '@/core/components/shared/SeoHead';
 import PlanSelectionView from '@/core/components/billing/PlanSelectionView';
-import { ArrowLeft, AlertTriangle, PartyPopper, Check, ArrowRight } from 'lucide-react';
+import { ArrowLeft, AlertTriangle } from 'lucide-react';
 import { isValidPassword, isValidPhoneNumber, PASSWORD_MIN_LENGTH } from '@/core/lib/shared/validators';
-import {
-  STARTER_PLAN_SEATS,
-  PRO_PLAN_SEATS,
-  ENTERPRISE_PLAN_SEATS,
-  CURRENT_TERMS_VERSION,
-} from '@/core/constants';
+import { CURRENT_TERMS_VERSION } from '@/core/constants';
 import type { TranslateFunction } from '@/core/components/context/I18nContext';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/;
@@ -335,9 +329,9 @@ export default function LoginPage({ initialView = 'login' }) {
         )}
 
         {message && (
-          <div role="status" className="mb-4 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/60 text-sm text-emerald-700 dark:text-emerald-300">
+          <output className="mb-4 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/60 text-sm text-emerald-700 dark:text-emerald-300 block">
             {message}
-          </div>
+          </output>
         )}
 
         {/* POST-REGISTRATION PLAN SELECTION VIEW */}

@@ -8,28 +8,23 @@ import { takeoffsApi } from '@/product/lib/takeoffs';
 import type { TakeoffFileLike, TakeoffItem } from '@/types/models';
 import {
   CSV_COLUMNS,
-  TARGET_FIELDS,
   EXCEL_EXTENSIONS,
   PRESETS_STORAGE_KEY,
   MAX_FILE_SIZE_BYTES,
-  MAX_FILE_SIZE_LABEL,
 } from '@/product/constants/csv.constants';
 
 /** Translate function shape accepted by the CSV helpers (defaults to `getTranslation`). */
 type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
 
+/** File shapes accepted by the Excel upload parser. */
+type ExcelUploadSource = TakeoffFileLike | string | null;
+
 // `TakeoffFileLike` is defined alongside the shared domain types; re-exported here
 // so the upload/parse helpers keep their long-standing import path.
 export type { TakeoffFileLike } from '@/types/models';
 
-export {
-  CSV_COLUMNS,
-  TARGET_FIELDS,
-  EXCEL_EXTENSIONS,
-  PRESETS_STORAGE_KEY,
-  MAX_FILE_SIZE_BYTES,
-  MAX_FILE_SIZE_LABEL,
-};
+export { CSV_COLUMNS, EXCEL_EXTENSIONS, PRESETS_STORAGE_KEY, MAX_FILE_SIZE_BYTES };
+export { TARGET_FIELDS, MAX_FILE_SIZE_LABEL } from '@/product/constants/csv.constants';
 
 let idCounter = 0;
 export function nextId() {
@@ -92,11 +87,11 @@ export function deleteVendorPreset(presetName: string) {
 }
 
 /** Reads an Excel upload as base64, which is the shape the parser API expects. */
-async function readExcelAsBase64(file: TakeoffFileLike | string | null): Promise<string | null> {
+async function readExcelAsBase64(file: ExcelUploadSource): Promise<string | null> {
   if (!file || typeof file === 'string' || typeof file.arrayBuffer !== 'function') return null;
   const bytes = new Uint8Array(await file.arrayBuffer());
   let binary = '';
-  for (const byte of bytes) binary += String.fromCharCode(byte);
+  for (const byte of bytes) binary += String.fromCodePoint(byte);
   return btoa(binary);
 }
 
@@ -233,7 +228,7 @@ export function triggerDownload(content: BlobPart, filename: string, mimeType: s
   link.download = filename;
   document.body.appendChild(link);
   link.click();
-  document.body.removeChild(link);
+  link.remove();
   URL.revokeObjectURL(url);
 }
 

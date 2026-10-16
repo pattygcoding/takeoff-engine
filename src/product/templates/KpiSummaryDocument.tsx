@@ -14,9 +14,8 @@ import {
 const KEY = 'product.templates.kpiSummary';
 const ACCENT = '#0891b2';
 
-function pctOf(part: number | undefined, whole: number | undefined) {
-  const w = whole ?? 0;
-  return w > 0 ? ((part ?? 0) / w) * 100 : 0;
+function pctOf(part: number | undefined, whole = 0) {
+  return whole > 0 ? ((part ?? 0) / whole) * 100 : 0;
 }
 
 function formatPctText(value: number | string | null | undefined) {
@@ -26,7 +25,7 @@ function formatPctText(value: number | string | null | undefined) {
 /**
  * 6. Executive KPI & Margin Summary Document Layout
  */
-export default function KpiSummaryDocument({ estimate, branding, currentProject }: DocumentTemplateProps) {
+export default function KpiSummaryDocument({ estimate, branding, currentProject }: Readonly<DocumentTemplateProps>) {
   const { totals = {}, bySystem = [] } = estimate;
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENT;

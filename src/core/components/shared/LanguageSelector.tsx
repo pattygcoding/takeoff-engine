@@ -64,7 +64,7 @@ export const LANGUAGES: Language[] = [
 // it should open leftwards (right-aligned) or rightwards (left-aligned).
 const DROPDOWN_WIDTH = 144;
 
-export default function LanguageSelector({ variant = 'light' }: { variant?: string }) {
+export default function LanguageSelector({ variant = 'light' }: Readonly<{ variant?: string }>) {
   const { language, setLanguage, t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   // Flip the panel to open rightwards when a right-aligned panel would clip off the left edge.

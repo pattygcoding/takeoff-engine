@@ -39,7 +39,7 @@ export function translateCatalogPrice(
   const interpolation: Record<string, string | number> = { ...params } as Record<string, string | number>;
   for (const name of ['price', 'yearly', 'monthlyRate', 'annualRate']) {
     if (!(name in params)) continue;
-    const match = String(params[name]).match(/^(\d+(?:\.\d+)?)(.*)/);
+    const match = /^(\d+(?:\.\d+)?)(.*)/.exec(String(params[name]));
     const marker = `__CATALOG_MONEY_${tokens.length}__`;
     tokens.push({ marker, text: match ? `${formatPrice(Number(match[1]))}${match[2]}` : formatPrice(undefined) });
     interpolation[name] = marker;

@@ -19,7 +19,7 @@ const ACCENT = '#1d4ed8';
 /**
  * 8. Material Purchase & Supply Order Layout
  */
-export default function MaterialProcurementDocument({ estimate, branding, currentProject }: DocumentTemplateProps) {
+export default function MaterialProcurementDocument({ estimate, branding, currentProject }: Readonly<DocumentTemplateProps>) {
   const { totals = {}, bySystem = [] } = estimate;
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENT;

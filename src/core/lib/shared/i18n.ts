@@ -98,6 +98,6 @@ export const i18n = {
     }
   },
   addResource: (lang: string, translations: TranslationTree): void => {
-    resources[lang] = { ...(resources[lang] || {}), ...translations };
+    resources[lang] = { ...resources[lang], ...translations };
   },
 };

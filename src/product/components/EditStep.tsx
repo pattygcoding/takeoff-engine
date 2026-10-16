@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Check } from 'lucide-react';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import { parseTakeoffFile, buildMappingModalDataFromItems } from '@/product/lib/csv';
-import { DEFAULT_SCOPE_ITEMS, summarizeScope } from '@/product/lib/scope';
+import { DEFAULT_SCOPE_ITEMS } from '@/product/lib/scope';
 import TakeoffGrid from './TakeoffGrid';
 import RatesDrawer from './RatesDrawer';
 import ColumnMappingModal from './ColumnMappingModal';
@@ -41,7 +41,7 @@ export default function EditStep({
   onDuplicate,
   importContext = { file: null, mappingData: null },
   onImportContextChange,
-}: {
+}: Readonly<{
   items: TakeoffItem[];
   onItemsChange: (items: TakeoffItem[]) => void;
   rates: Rates;
@@ -52,7 +52,7 @@ export default function EditStep({
   onDuplicate?: () => void;
   importContext?: ImportContext;
   onImportContextChange?: (context: ImportContext) => void;
-}) {
+}>) {
   const { t } = useTranslation();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [scopeExpanded, setScopeExpanded] = useState(false);

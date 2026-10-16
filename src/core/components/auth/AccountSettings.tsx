@@ -118,7 +118,7 @@ function PasswordField({
   placeholder,
   minLength,
   t,
-}: {
+}: Readonly<{
   label: string;
   value: string;
   onChange: (value: string) => void;
@@ -127,7 +127,7 @@ function PasswordField({
   placeholder: string;
   minLength?: number;
   t: TranslateFn;
-}) {
+}>) {
   return (
     <div>
       <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
@@ -207,7 +207,6 @@ export default function AccountSettings() {
 
   // Billing & Subscription state (US-021)
   const [subDetails, setSubDetails] = useState<SubscriptionDetails | null>(null);
-  const [, setSubLoading] = useState(true);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelReason, setCancelReason] = useState('Project completed');
@@ -225,13 +224,10 @@ export default function AccountSettings() {
 
   const loadSubscriptionDetails = async () => {
     try {
-      setSubLoading(true);
       const data = await billingApi.getSubscriptionDetails();
       setSubDetails(data);
     } catch (err) {
       console.warn('Could not load subscription details:', (err as Error).message);
-    } finally {
-      setSubLoading(false);
     }
   };
 

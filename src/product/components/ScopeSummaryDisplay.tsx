@@ -20,12 +20,12 @@ export default function ScopeSummaryDisplay({
   className = '',
   forceLight = false,
   baseAmount = 0,
-}: {
+}: Readonly<{
   scopeItems?: ScopeItem[];
   className?: string;
   forceLight?: boolean;
   baseAmount?: number;
-}) {
+}>) {
   const { t } = useTranslation();
 
   // Projects that never opened the scope panel still carry the standard default trade boundaries.
@@ -88,7 +88,7 @@ function ScopeColumn({
   showImpactBadge = false,
   baseAmount = 0,
   forceLight = false,
-}: {
+}: Readonly<{
   heading: string;
   icon: ReactNode;
   items: ScopeItem[];
@@ -98,7 +98,7 @@ function ScopeColumn({
   showImpactBadge?: boolean;
   baseAmount?: number;
   forceLight?: boolean;
-}) {
+}>) {
   if (!items || items.length === 0) return null;
   return (
     <div className={lightSafe(`rounded-2xl p-4 border ${colorClasses}`, forceLight)}>

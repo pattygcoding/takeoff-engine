@@ -21,7 +21,7 @@ export default function ProjectWorkspace({
   setCurrentProject,
   importContext = { file: null, mappingData: null },
   setImportContext,
-}: {
+}: Readonly<{
   step?: number;
   items: TakeoffItem[];
   setItems: Dispatch<SetStateAction<TakeoffItem[]>>;
@@ -31,7 +31,7 @@ export default function ProjectWorkspace({
   setCurrentProject: Dispatch<SetStateAction<Project | null>>;
   importContext?: ImportContext;
   setImportContext: Dispatch<SetStateAction<ImportContext>>;
-}) {
+}>) {
   const { username, projectId } = useParams();
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -100,11 +100,14 @@ export default function ProjectWorkspace({
       else if (targetStep === 2) navigate(`/${username}/takeoff/${projectId}/edit`);
       else if (targetStep === 3) navigate(`/${username}/takeoff/${projectId}/results`);
       else if (targetStep === 4) navigate(`/${username}/takeoff/${projectId}/export`);
-    } else {
-      if (targetStep === 1) navigate(`/${username}/upload`);
-      else if (targetStep === 2) navigate(`/${username}/edit`);
-      else if (targetStep === 3) navigate(`/${username}/results`);
-      else if (targetStep === 4) navigate(`/${username}/export`);
+    } else if (targetStep === 1) {
+      navigate(`/${username}/upload`);
+    } else if (targetStep === 2) {
+      navigate(`/${username}/edit`);
+    } else if (targetStep === 3) {
+      navigate(`/${username}/results`);
+    } else if (targetStep === 4) {
+      navigate(`/${username}/export`);
     }
   };
 

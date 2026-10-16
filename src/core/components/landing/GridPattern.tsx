@@ -32,7 +32,7 @@ export default function GridPattern({
   squares,
   className,
   ...props
-}: GridPatternProps) {
+}: Readonly<GridPatternProps>) {
   // React ids contain characters that are illegal inside a `url(#...)` reference, so strip them.
   const patternId = `grid-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
 

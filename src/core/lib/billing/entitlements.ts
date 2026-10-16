@@ -1,7 +1,7 @@
 import type { UserProfile } from '@/types/models';
 
 /** Paid tiers that grant full access while the subscription is active. */
-const PAID_TIERS = ['starter', 'pro', 'enterprise'];
+const PAID_TIERS = new Set(['starter', 'pro', 'enterprise']);
 
 /**
  * True when the account may use every feature without spending trial credits: admins,
@@ -12,7 +12,7 @@ export function hasFullAccess(user: UserProfile | null | undefined): boolean {
     user?.role === 'admin' ||
     user?.role === 'payment_exempt' ||
     user?.has_unlimited_bypass === true ||
-    (user?.subscription_status === 'active' && PAID_TIERS.includes(user?.subscription_tier ?? ''))
+    (user?.subscription_status === 'active' && PAID_TIERS.has(user?.subscription_tier ?? ''))
   );
 }
 

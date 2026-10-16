@@ -13,7 +13,7 @@ export function normalizePhoneDigits(value: string | null | undefined): string {
  * A phone number is valid if empty (field is optional) or resolves to exactly 10 digits.
  */
 export function isValidPhoneNumber(value: string | null | undefined): boolean {
-  if (!value || !value.trim()) return true;
+  if (!value?.trim()) return true;
   return normalizePhoneDigits(value).length === 10;
 }
 

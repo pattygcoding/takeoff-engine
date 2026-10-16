@@ -18,7 +18,7 @@ const ACCENT = '#1e293b';
 /**
  * 5. AIA Unit Price Bid Schedule Document Layout
  */
-export default function AiaBidScheduleDocument({ estimate, branding, currentProject }: DocumentTemplateProps) {
+export default function AiaBidScheduleDocument({ estimate, branding, currentProject }: Readonly<DocumentTemplateProps>) {
   const { totals = {}, bySystem = [] } = estimate;
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENT;

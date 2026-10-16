@@ -19,7 +19,7 @@ const ACCENT = '#0f766e';
 /**
  * 10. Subcontractor Scope Submittal Layout
  */
-export default function SubcontractorScopeDocument({ estimate, branding, currentProject }: DocumentTemplateProps) {
+export default function SubcontractorScopeDocument({ estimate, branding, currentProject }: Readonly<DocumentTemplateProps>) {
   const { totals = {}, bySystem = [], rates } = estimate;
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENT;

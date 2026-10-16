@@ -40,7 +40,7 @@ export default function SeoHead({
   ogType = 'website',
   ogImage = DEFAULT_OG_IMAGE,
   schemaData = null,
-}: SeoHeadProps) {
+}: Readonly<SeoHeadProps>) {
   // The app keeps the active language in the `?lang=` query param (see I18nProvider), so the
   // canonical URL and hreflang alternates must carry it — otherwise every language collapses
   // into a single canonical and translated pages are never indexed separately.

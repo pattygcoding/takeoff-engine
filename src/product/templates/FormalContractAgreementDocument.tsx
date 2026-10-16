@@ -15,7 +15,7 @@ import {
 const KEY = 'product.templates.formalContract';
 const ACCENT = '#1e293b';
 
-function Clause({ title, children }: { title: ReactNode; children: ReactNode }) {
+function Clause({ title, children }: Readonly<{ title: ReactNode; children: ReactNode }>) {
   return (
     <p className="break-inside-avoid">
       <strong className="text-slate-900">{title}</strong> {children}
@@ -26,7 +26,7 @@ function Clause({ title, children }: { title: ReactNode; children: ReactNode }) 
 /**
  * 13. Owner-Contractor Formal Agreement Layout
  */
-export default function FormalContractAgreementDocument({ estimate, branding, currentProject }: DocumentTemplateProps) {
+export default function FormalContractAgreementDocument({ estimate, branding, currentProject }: Readonly<DocumentTemplateProps>) {
   const { totals = {}, bySystem = [], rates } = estimate;
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENT;

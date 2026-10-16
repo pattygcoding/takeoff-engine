@@ -25,7 +25,7 @@ export default function DotPattern({
   cr = 1,
   className,
   ...props
-}: DotPatternProps) {
+}: Readonly<DotPatternProps>) {
   // React ids contain characters that are illegal inside a `url(#...)` reference, so strip them.
   const patternId = `dot-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
 

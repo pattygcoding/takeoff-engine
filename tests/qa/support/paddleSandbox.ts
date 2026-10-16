@@ -203,7 +203,10 @@ export function createPaddleSandboxApi({
       items: items.map(({ priceId, quantity }) => ({ price_id: priceId, quantity })),
       proration_billing_mode: 'prorated_immediately',
     })).data as PaddleEntity,
-    listTransactions: (subscriptionId, origin) => listAll(`/transactions?subscription_id=${subscriptionId}${origin ? `&origin=${origin}` : ''}`),
+    listTransactions: (subscriptionId, origin) => {
+      const originFilter = origin ? `&origin=${origin}` : '';
+      return listAll(`/transactions?subscription_id=${subscriptionId}${originFilter}`);
+    },
 
     /**
      * Cancels every live QA subscription and archives every QA customer (found by tag, plus any

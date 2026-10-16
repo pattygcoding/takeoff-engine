@@ -16,7 +16,7 @@ const TH = 'py-2 px-2 text-[9px] font-bold uppercase tracking-wider text-slate-6
 /**
  * 14. Phase Milestone Draw Schedule Layout
  */
-export default function PhaseMilestoneDrawDocument({ estimate, branding, currentProject }: DocumentTemplateProps) {
+export default function PhaseMilestoneDrawDocument({ estimate, branding, currentProject }: Readonly<DocumentTemplateProps>) {
   const { totals = {} } = estimate;
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENT;
@@ -63,7 +63,7 @@ export default function PhaseMilestoneDrawDocument({ estimate, branding, current
             {milestones.map((m, idx) => {
               cumulative += m.pct;
               return (
-                <tr key={idx} className="border-b border-slate-100 even:bg-slate-50/70 break-inside-avoid">
+                <tr key={m.name} className="border-b border-slate-100 even:bg-slate-50/70 break-inside-avoid">
                   <td className="py-2 px-2 font-bold" style={{ color: accent }}>{String(idx + 1).padStart(2, '0')}</td>
                   <td className="py-2 px-2 font-semibold text-slate-900">{m.name}</td>
                   <td className="py-2 px-2 text-slate-600">{m.desc}</td>

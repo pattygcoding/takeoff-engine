@@ -13,6 +13,9 @@ import type { TranslateFunction } from '@/core/components/context/I18nContext';
 import type { ScopeItem, ScopePreset } from '@/types/models';
 
 /** Row tint for a scope item, by status. */
+/** Identifier of a scope item (optional on imported items). */
+type ScopeItemId = string | number | undefined;
+
 function statusRowClass(status: string): string {
   if (status === SCOPE_STATUS.INCLUDED) return 'bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-200/80 dark:border-emerald-800/60';
   if (status === SCOPE_STATUS.EXCLUDED) return 'bg-rose-50/40 dark:bg-rose-950/20 border-rose-200/80 dark:border-rose-800/60';
@@ -37,7 +40,7 @@ export default function ScopeInclusionsModal({
   variant = 'modal',
   expanded = false,
   onToggleExpanded,
-}: {
+}: Readonly<{
   scopeItems?: ScopeItem[];
   onSave?: (items: ScopeItem[]) => void;
   onClose?: () => void;
@@ -45,13 +48,13 @@ export default function ScopeInclusionsModal({
   variant?: string;
   expanded?: boolean;
   onToggleExpanded?: () => void;
-}) {
+}>) {
   const { t } = useTranslation();
   const isPanel = variant === 'panel';
   const [items, setItems] = useState<ScopeItem[]>(() => {
     return Array.isArray(scopeItems) && scopeItems.length > 0
-      ? (JSON.parse(JSON.stringify(scopeItems)) as ScopeItem[])
-      : (JSON.parse(JSON.stringify(DEFAULT_SCOPE_ITEMS)) as ScopeItem[]);
+      ? structuredClone(scopeItems)
+      : structuredClone(DEFAULT_SCOPE_ITEMS);
   });
 
   const [activeCategory, setActiveCategory] = useState('all'); // 'all' | 'fixtures' | 'site' | 'admin'
@@ -75,8 +78,8 @@ export default function ScopeInclusionsModal({
     if (isPanel) {
       setItems(
         Array.isArray(scopeItems) && scopeItems.length > 0
-          ? JSON.parse(JSON.stringify(scopeItems))
-          : JSON.parse(JSON.stringify(DEFAULT_SCOPE_ITEMS))
+          ? structuredClone(scopeItems)
+          : structuredClone(DEFAULT_SCOPE_ITEMS)
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -88,7 +91,7 @@ export default function ScopeInclusionsModal({
     onSave?.(nextItems);
   };
 
-  const handleStatusChange = (id: string | number | undefined, newStatus: string) => {
+  const handleStatusChange = (id: ScopeItemId, newStatus: string) => {
     if (readOnly) return;
     applyItemChanges((currentItems) =>
       currentItems.map((it) => (it.id === id ? { ...it, status: newStatus } : it))
@@ -154,7 +157,7 @@ export default function ScopeInclusionsModal({
     if (!presetId) return;
     const found = presets.find((p) => p.id === presetId);
     if (found && Array.isArray(found.items)) {
-      applyItemChanges(() => JSON.parse(JSON.stringify(found.items)));
+      applyItemChanges(() => structuredClone(found.items));
       setPresetFeedback(t('product.scopeModal.presetLoaded', 'Preset applied!'));
       setTimeout(() => setPresetFeedback(''), 3000);
     }
@@ -172,7 +175,7 @@ export default function ScopeInclusionsModal({
   };
 
   const handleResetToDefault = () => {
-    applyItemChanges(() => JSON.parse(JSON.stringify(DEFAULT_SCOPE_ITEMS)));
+    applyItemChanges(() => structuredClone(DEFAULT_SCOPE_ITEMS));
     setSelectedPresetId('');
     setPresetFeedback(t('product.scopeModal.resetApplied', 'Reset to defaults.'));
     setTimeout(() => setPresetFeedback(''), 3000);
@@ -639,7 +642,7 @@ export default function ScopeInclusionsModal({
   );
 }
 
-function SavedConfirmModal({ t, onDismiss }: { t: TranslateFunction; onDismiss: () => void }) {
+function SavedConfirmModal({ t, onDismiss }: Readonly<{ t: TranslateFunction; onDismiss: () => void }>) {
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs animate-fade-in">
       <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-sm w-full p-6 border border-slate-200 dark:border-slate-800 text-center">

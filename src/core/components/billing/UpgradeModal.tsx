@@ -134,7 +134,7 @@ type ShowAlert = ReturnType<typeof useModal>['showAlert'];
 type ShowConfirm = ReturnType<typeof useModal>['showConfirm'];
 
 /** Shown to admins / VIP accounts that never need to check out. */
-function ExemptNotice({ t, onClose }: { t: PricingTranslate; onClose: () => void }) {
+function ExemptNotice({ t, onClose }: Readonly<{ t: PricingTranslate; onClose: () => void }>) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-fade-in">
       <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-md w-full p-6 sm:p-8 text-center relative">
@@ -164,7 +164,7 @@ function ExemptNotice({ t, onClose }: { t: PricingTranslate; onClose: () => void
 }
 
 /** Monthly / annual billing switch. */
-function BillingIntervalToggle({ isAnnual, onChange, t }: { isAnnual: boolean; onChange: (interval: string) => void; t: PricingTranslate }) {
+function BillingIntervalToggle({ isAnnual, onChange, t }: Readonly<{ isAnnual: boolean; onChange: (interval: string) => void; t: PricingTranslate }>) {
   return (
     <div className="mt-4 inline-flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200">
       <button
@@ -201,7 +201,7 @@ interface TierButtonProps {
 }
 
 /** The Starter plan card in the modal's tier selector. */
-function StarterTierButton({ activePlan, currentTier, isAnnual, monthlyPrice, yearlyPrice, seats, formatPrice, onSelect, t }: TierButtonProps) {
+function StarterTierButton({ activePlan, currentTier, isAnnual, monthlyPrice, yearlyPrice, seats, formatPrice, onSelect, t }: Readonly<TierButtonProps>) {
   return (
     <button
       type="button"
@@ -226,7 +226,7 @@ function StarterTierButton({ activePlan, currentTier, isAnnual, monthlyPrice, ye
 }
 
 /** The Pro plan card in the modal's tier selector. */
-function ProTierButton({ activePlan, currentTier, isAnnual, monthlyPrice, yearlyPrice, seats, formatPrice, onSelect, t }: TierButtonProps) {
+function ProTierButton({ activePlan, currentTier, isAnnual, monthlyPrice, yearlyPrice, seats, formatPrice, onSelect, t }: Readonly<TierButtonProps>) {
   return (
     <button
       type="button"
@@ -255,7 +255,7 @@ function ProTierButton({ activePlan, currentTier, isAnnual, monthlyPrice, yearly
 }
 
 /** The Enterprise plan card in the modal's tier selector. */
-function EnterpriseTierButton({ activePlan, currentTier, isAnnual, monthlyPrice, yearlyPrice, seats, formatPrice, onSelect, t }: TierButtonProps) {
+function EnterpriseTierButton({ activePlan, currentTier, isAnnual, monthlyPrice, yearlyPrice, seats, formatPrice, onSelect, t }: Readonly<TierButtonProps>) {
   return (
     <button
       type="button"
@@ -316,7 +316,7 @@ function ExtraSeatsPanel({
   extraSeatYearly,
   onChangeAdditionalSeats,
   t,
-}: {
+}: Readonly<{
   additionalSeats: number;
   totalSeats: number;
   baseSeats: number;
@@ -325,7 +325,7 @@ function ExtraSeatsPanel({
   extraSeatYearly: number;
   onChangeAdditionalSeats: (next: number) => void;
   t: PricingTranslate;
-}) {
+}>) {
   const seatPrice = isAnnual ? `${extraSeatYearly}/yr` : `${extraSeatMonthly}/mo`;
   return (
     <div className="bg-amber-50/80 border border-amber-200 rounded-xl p-3 mb-4 text-xs">
@@ -363,7 +363,7 @@ function ExtraSeatsPanel({
 }
 
 /** Tick glyph used in the plan benefit list. */
-function CheckBullet({ toneClassName = 'text-emerald-400' }: { toneClassName?: string }) {
+function CheckBullet({ toneClassName = 'text-emerald-400' }: Readonly<{ toneClassName?: string }>) {
   return (
     <svg className={`w-4 h-4 ${toneClassName} flex-shrink-0`} fill="currentColor" viewBox="0 0 20 20">
       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -385,7 +385,7 @@ function PlanFeatureCard({
   formatPrice,
   onCheckout,
   t,
-}: {
+}: Readonly<{
   activePlan: string;
   currentTier: string;
   isAnnual: boolean;
@@ -398,7 +398,7 @@ function PlanFeatureCard({
   formatPrice: (amount?: number) => string;
   onCheckout: () => void;
   t: PricingTranslate;
-}) {
+}>) {
   return (
     <div className="bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 text-white rounded-xl p-4 sm:p-5 mb-4 border border-blue-800/40 shadow-lg">
       <div className="flex justify-between items-baseline mb-3">
@@ -496,7 +496,7 @@ function PromoCodeForm({
   onCodeChange,
   onSubmit,
   t,
-}: {
+}: Readonly<{
   promoCodeInput: string;
   promoLoading: boolean;
   promoMsg: string;
@@ -504,7 +504,7 @@ function PromoCodeForm({
   onCodeChange: (value: string) => void;
   onSubmit: (e: React.FormEvent) => void;
   t: PricingTranslate;
-}) {
+}>) {
   return (
     <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 mb-3">
       <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
@@ -538,7 +538,7 @@ function PromoCodeForm({
 }
 
 /** Footer actions below the modal body. */
-function CreditsFooter({ isOutOfCredits, onClose, onReturnToLogin, t }: { isOutOfCredits: boolean; onClose: () => void; onReturnToLogin: () => void; t: PricingTranslate }) {
+function CreditsFooter({ isOutOfCredits, onClose, onReturnToLogin, t }: Readonly<{ isOutOfCredits: boolean; onClose: () => void; onReturnToLogin: () => void; t: PricingTranslate }>) {
   return (
     <div className="flex justify-center">
       {isOutOfCredits ? (
@@ -695,7 +695,7 @@ async function runCheckoutFlow(input: {
   }
 }
 
-export default function UpgradeModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+export default function UpgradeModal({ isOpen, onClose }: Readonly<{ isOpen: boolean; onClose: () => void }>) {
   const { user, logout, refreshProfile } = useAuth();
   const { showAlert, showConfirm } = useModal();
   const { t, prices, ready, formatPrice } = usePricingDisplay();

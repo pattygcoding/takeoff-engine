@@ -6,6 +6,9 @@ import { useTranslation } from '@/core/components/context/I18nContext';
 import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
 import type { Project } from '@/types/models';
 
+/** Identifier of the project card whose action menu is open. */
+type ActionMenuId = string | number | null | undefined;
+
 const STATUS_CONFIG: Record<string, { label: string; badgeClass: string }> = {
   draft: {
     label: 'Draft',
@@ -32,10 +35,10 @@ const STATUS_CONFIG: Record<string, { label: string; badgeClass: string }> = {
 export default function ProjectDashboard({
   onOpenProject,
   onNewTakeoff,
-}: {
+}: Readonly<{
   onOpenProject: (project: Project, targetStep?: string) => void;
   onNewTakeoff: () => void;
-}) {
+}>) {
   const { isAdmin } = useAuth();
   const { showAlert, showConfirm } = useModal();
   const { t } = useTranslation();
@@ -44,7 +47,7 @@ export default function ProjectDashboard({
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [actionMenuOpenId, setActionMenuOpenId] = useState<string | number | null | undefined>(null);
+  const [actionMenuOpenId, setActionMenuOpenId] = useState<ActionMenuId>(null);
 
   // Modals state
   const [renameModalProject, setRenameModalProject] = useState<Project | null>(null);
@@ -66,7 +69,7 @@ export default function ProjectDashboard({
       // Only show error message for non-404 network errors, otherwise gracefully default to empty project list
       const errMsg = (err as Error).message;
       if (errMsg && !errMsg.includes('404') && !errMsg.includes('Not Found')) {
-        setError(errMsg || t('product.projectDashboard.errLoadFailed'));
+        setError(errMsg);
       } else {
         setProjects([]);
       }
@@ -83,8 +86,8 @@ export default function ProjectDashboard({
   const filteredProjects = projects.filter((project) => {
     const matchesSearch =
       (project.name ?? '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (project.client_name && project.client_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (project.location && project.location.toLowerCase().includes(searchQuery.toLowerCase()));
+      project.client_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      project.location?.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesStatus = statusFilter === 'all' || project.status === statusFilter;
     return matchesSearch && matchesStatus;
@@ -298,12 +301,14 @@ export default function ProjectDashboard({
       </div>
 
       {/* Main Content Area */}
-      {loading ? (
+      {loading && (
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-12 text-center shadow-sm">
           <div className="inline-block animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mb-3" />
           <p className="text-slate-500 dark:text-slate-400 font-medium">{t('product.projectDashboard.loading')}</p>
         </div>
-      ) : error ? (
+      )}
+
+      {!loading && error && (
         <div className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-2xl p-6 text-center text-red-700 dark:text-red-300 shadow-sm">
           <p className="font-semibold mb-2">{t('product.projectDashboard.errorLoading')}</p>
           <p className="text-sm mb-4">{error}</p>
@@ -314,7 +319,9 @@ export default function ProjectDashboard({
             {t('product.projectDashboard.tryAgain')}
           </button>
         </div>
-      ) : filteredProjects.length === 0 ? (
+      )}
+
+      {!loading && !error && filteredProjects.length === 0 && (
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-12 text-center shadow-sm">
           <div className="w-16 h-16 bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -346,7 +353,9 @@ export default function ProjectDashboard({
             {t('product.projectDashboard.uploadTakeoffFile')}
           </button>
         </div>
-      ) : (
+      )}
+
+      {!loading && !error && filteredProjects.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredProjects.map((project) => {
             const rawStatus = (project.status || 'draft').toLowerCase().trim();
@@ -523,11 +532,14 @@ export default function ProjectDashboard({
                     </div>
                   </div>
 
-                  <h3
-                    onClick={() => handleOpen(project)}
-                    className="text-lg font-bold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition cursor-pointer line-clamp-1"
-                  >
-                    {project.name}
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition cursor-pointer line-clamp-1">
+                    <button
+                      type="button"
+                      onClick={() => handleOpen(project)}
+                      className="cursor-pointer text-left"
+                    >
+                      {project.name}
+                    </button>
                   </h3>
 
                   {(project.client_name || project.location) && (

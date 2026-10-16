@@ -24,8 +24,8 @@ if (!supabaseUrl || !serviceRoleKey || !port) {
 const target = new URL(supabaseUrl);
 
 // SSRF allowlist: only the configured Supabase scheme and host may ever be requested (Sonar S5144).
-const allowedSchemes = [target.protocol];
-const allowedHosts = [target.hostname];
+const allowedSchemes = new Set([target.protocol]);
+const allowedHosts = new Set([target.hostname]);
 
 /**
  * Resolves the caller-supplied request path against the configured Supabase origin.
@@ -41,7 +41,7 @@ function resolveUpstream(url: URL): URL {
     throw new Error(`Blocked request path ${url.pathname}`);
   }
   const upstream = new URL(`${url.pathname}${url.search}`, target);
-  if (!allowedSchemes.includes(upstream.protocol) || !allowedHosts.includes(upstream.hostname)) {
+  if (!allowedSchemes.has(upstream.protocol) || !allowedHosts.has(upstream.hostname)) {
     throw new Error(`Blocked upstream ${upstream.protocol}//${upstream.hostname}`);
   }
   return upstream;

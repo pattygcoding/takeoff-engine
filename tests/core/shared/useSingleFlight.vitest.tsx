@@ -38,7 +38,7 @@ describe('useSingleFlight', () => {
     await expect(run()).resolves.toBe('ok');
   });
 
-  it('tracks per-argument keys independently', async () => {
+  it('tracks per-argument keys independently', () => {
     const pending = deferred();
     const handler = vi.fn((_id: string) => pending.promise);
     const { result } = renderHook(() => useSingleFlight());
@@ -82,7 +82,7 @@ describe('useSingleFlight', () => {
 
     expect(api).toHaveBeenCalledTimes(1);
     expect(second.defaultPrevented).toBe(true);
-    await act(async () => { pending.resolve(); });
+    await act(() => { pending.resolve(); });
     fireEvent.submit(form);
     expect(api).toHaveBeenCalledTimes(2);
   });

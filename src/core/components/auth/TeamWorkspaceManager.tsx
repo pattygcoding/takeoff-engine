@@ -8,6 +8,13 @@ import { PricingStatus, usePricingDisplay } from '@/core/components/context/Pric
 import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
 import type { Organization, OrganizationMember } from '@/types/models';
 
+/** Badge styling for a member's invitation status. */
+function memberStatusClass(status: string | undefined): string {
+  if (status === 'active') return 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800';
+  if (status === 'revoked') return 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-900';
+  return 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800';
+}
+
 export default function TeamWorkspaceManager() {
   const { user, refreshProfile } = useAuth();
   const { showAlert, showConfirm } = useModal();
@@ -17,7 +24,6 @@ export default function TeamWorkspaceManager() {
   const [activeOrg, setActiveOrg] = useState<Organization | null>(null);
   const [members, setMembers] = useState<OrganizationMember[]>([]);
   const [myRole, setMyRole] = useState<string | null>(null);
-  const [, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
@@ -61,7 +67,6 @@ export default function TeamWorkspaceManager() {
   /** Reload the workspace list and show `preferredOrgId` (falls back to the first workspace). */
   const loadOrganizations = async (preferredOrgId: string | null = null) => {
     try {
-      setLoading(true);
       setError('');
       const list = await organizationsApi.list();
       setOrganizations(list);
@@ -75,8 +80,6 @@ export default function TeamWorkspaceManager() {
       }
     } catch (err) {
       setError((err as Error).message || t('core.teamWorkspaceManager.failedLoadWorkspaces'));
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -193,6 +196,7 @@ export default function TeamWorkspaceManager() {
         variant: 'success',
       });
     } catch (err) {
+      console.warn('Could not copy the workspace link:', (err as Error).message);
       await showAlert({
         title: t('core.teamWorkspaceManager.copyFailedTitle'),
         message: link,
@@ -546,13 +550,7 @@ export default function TeamWorkspaceManager() {
                     <td className="py-2.5 px-3">
                       <div className="flex items-center gap-1.5">
                         <span
-                          className={`px-2 py-0.5 rounded-md font-semibold text-[10px] uppercase ${
-                            m.status === 'active'
-                              ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                              : m.status === 'revoked'
-                              ? 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-900'
-                              : 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
-                          }`}
+                          className={`px-2 py-0.5 rounded-md font-semibold text-[10px] uppercase ${memberStatusClass(m.status)}`}
                         >
                           {m.status}
                         </span>

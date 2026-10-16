@@ -111,7 +111,7 @@ describe('shared frontend pricing state', () => {
     expect((screen.getByRole('button', { name: 'Free access' }) as HTMLButtonElement).disabled).toBe(false);
     expect(screen.getByText('Unrelated workspace')).toBeTruthy();
     expect(billingApi.getPricing).toHaveBeenCalledTimes(1);
-    await act(async () => resolve(catalog()));
+    await act(() => resolve(catalog()));
     expect(screen.getByTestId('translated').textContent).toBe(formatMoney(prices.STARTER_MONTHLY_PRICE));
     expect((screen.getByRole('button', { name: 'Paid checkout' }) as HTMLButtonElement).disabled).toBe(false);
     expect(screen.getByTestId('seat-total').textContent)
@@ -143,7 +143,7 @@ describe('shared frontend pricing state', () => {
     vi.spyOn(billingApi, 'getPricing')
       .mockResolvedValueOnce(catalog())
       .mockRejectedValueOnce(new Error('refresh failed'));
-    await act(async () => render(<PricingProvider><PricingHarness /></PricingProvider>));
+    await act(() => render(<PricingProvider><PricingHarness /></PricingProvider>));
     expect((screen.getByRole('button', { name: 'Paid checkout' }) as HTMLButtonElement).disabled).toBe(false);
     await act(async () => { await vi.advanceTimersByTimeAsync(300_000); });
     expect(screen.getByRole('alert')).toBeTruthy();
@@ -155,7 +155,7 @@ describe('shared frontend pricing state', () => {
 describe('pricing API client', () => {
   it('uses the public pricing endpoint and returns its response', async () => {
     const data = catalog();
-    const fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => data });
+    const fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(data) });
     vi.stubGlobal('fetch', fetch);
     expect(await billingApi.getPricing()).toEqual(data);
     expect(fetch.mock.calls[0][0]).toMatch(/\/billing\/pricing$/);

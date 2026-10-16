@@ -1,6 +1,9 @@
 type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
 
-function formatCurrency(value: number | string | null | undefined): string {
+/** Values accepted by the currency formatter. */
+type CurrencyInput = number | string | null | undefined;
+
+function formatCurrency(value: CurrencyInput): string {
   return (Number(value) || 0).toLocaleString('en-US', {
     style: 'currency',
     currency: 'USD',

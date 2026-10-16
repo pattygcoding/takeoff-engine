@@ -7,7 +7,7 @@ interface AccessibleDialogProps extends ComponentPropsWithoutRef<'dialog'> {
   className?: string;
 }
 
-export default function AccessibleDialog({ children, onClose, className = '', ...props }: AccessibleDialogProps) {
+export default function AccessibleDialog({ children, onClose, className = '', ...props }: Readonly<AccessibleDialogProps>) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {

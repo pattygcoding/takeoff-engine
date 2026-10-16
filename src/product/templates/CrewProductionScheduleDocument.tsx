@@ -21,7 +21,7 @@ const TH = 'py-2 px-2 text-[9px] font-bold uppercase tracking-wider text-slate-6
 /**
  * 9. Crew & Equipment Production Schedule Layout
  */
-export default function CrewProductionScheduleDocument({ estimate, branding, currentProject }: DocumentTemplateProps) {
+export default function CrewProductionScheduleDocument({ estimate, branding, currentProject }: Readonly<DocumentTemplateProps>) {
   const { totals = {}, bySystem = [] } = estimate;
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENT;

@@ -102,7 +102,7 @@ export const test = base.extend<QaFixtures>({
   customerLabel: ['customer', { option: true }],
 
   // eslint-disable-next-line no-empty-pattern
-  settings: async ({}, provide) => provide(loadQaSettings()),
+  settings: ({}, provide) => provide(loadQaSettings()),
 
   // eslint-disable-next-line no-empty-pattern
   db: async ({}, provide) => {

@@ -16,11 +16,11 @@ export default function PlanSelectionView({
   checkoutLoadingPlan,
   onSelectPlan,
   onSkip,
-}: {
+}: Readonly<{
   checkoutLoadingPlan: string;
   onSelectPlan: (planKey: string) => void;
   onSkip: () => void;
-}) {
+}>) {
   const { t, prices, ready } = usePricingDisplay();
   const {
     STARTER_MONTHLY_PRICE, PRO_MONTHLY_PRICE, ENTERPRISE_MONTHLY_PRICE,

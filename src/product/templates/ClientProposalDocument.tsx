@@ -19,7 +19,7 @@ const ACCENT = '#2563eb';
 /**
  * 2. Standard Client Proposal Document Layout
  */
-export default function ClientProposalDocument({ estimate, branding, currentProject }: DocumentTemplateProps) {
+export default function ClientProposalDocument({ estimate, branding, currentProject }: Readonly<DocumentTemplateProps>) {
   const { totals = {}, bySystem = [], rates } = estimate;
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENT;

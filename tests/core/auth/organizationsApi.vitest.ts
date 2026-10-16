@@ -10,7 +10,7 @@ describe('organizationsApi HTTP harness', () => {
 
   it('sends the stored bearer token and a minimal normalized invite payload', async () => {
     sessionStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, 'test-access-token');
-    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ member: { id: 'member-id' } }) });
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({ member: { id: 'member-id' } }) });
     vi.stubGlobal('fetch', fetchMock);
     await organizationsApi.inviteMember('org-id', { email: 'invitee@example.test', role: 'viewer' });
     const [url, request] = fetchMock.mock.calls[0];

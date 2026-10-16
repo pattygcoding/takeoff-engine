@@ -17,11 +17,11 @@ export function ColumnMappingVisual({
   mappedLabel,
   columnLabels,
   sources = ['Bluebeam', 'PlanSwift', 'Trimble'],
-}: {
+}: Readonly<{
   mappedLabel: string;
   columnLabels: string[];
   sources?: string[];
-}) {
+}>) {
   return (
     <div className={VISUAL_SURFACE}>
       <div className="flex flex-wrap gap-1.5">
@@ -59,13 +59,13 @@ export function ProposalVisual({
   lines,
   totalLabel,
   totalAmount,
-}: {
+}: Readonly<{
   documentTitle: string;
   eSigned: string;
   lines: Array<{ label: string; amount: number }>;
   totalLabel: string;
   totalAmount: number;
-}) {
+}>) {
   return (
     <div className={VISUAL_SURFACE}>
       <div className="flex items-center justify-between gap-3">
@@ -103,11 +103,11 @@ export function VolumeFormulaVisual({
   formula,
   output,
   units,
-}: {
+}: Readonly<{
   formula: string;
   output: string;
   units: string;
-}) {
+}>) {
   return (
     <div className={VISUAL_SURFACE}>
       <div className="flex items-center justify-between gap-3">
@@ -128,10 +128,10 @@ export function VolumeFormulaVisual({
 export function EditableGridVisual({
   headers,
   rows,
-}: {
+}: Readonly<{
   headers: { item: string; qty: string; rate: string };
   rows: Array<{ label: string; qty: string; rate: number }>;
-}) {
+}>) {
   return (
     <div className={VISUAL_SURFACE}>
       <div className="grid grid-cols-[1fr_auto_auto] gap-x-3 text-[10px] font-semibold uppercase tracking-[0.06em] text-[var(--lp-muted)]">
@@ -169,9 +169,9 @@ export function EditableGridVisual({
 /** Export tile: the deliverables the same numbers can leave as (PDF only — that is what ships). */
 export function ExportFormatVisual({
   items,
-}: {
+}: Readonly<{
   items: Array<{ label: string; format: 'pdf' | 'print' }>;
-}) {
+}>) {
   const icons = { pdf: FileText, print: Printer } as const;
 
   return (
@@ -200,11 +200,11 @@ export function SignatureVisual({
   clientUrl,
   signature,
   eSigned,
-}: {
+}: Readonly<{
   clientUrl: string;
   signature: string;
   eSigned: string;
-}) {
+}>) {
   return (
     <div className="w-full lg:w-[320px]">
       <div className="flex items-center gap-2 border border-[var(--lp-rule)] bg-[var(--lp-card-alt)] px-2.5 py-1.5 font-mono text-[11px]">

@@ -21,13 +21,6 @@
   --color-slate-950: #0b0f19;
 }
 
-:root {
-  --app-font: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-  font-family: var(--app-font);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
 html {
   font-family: var(--app-font);
 }
@@ -114,6 +107,10 @@ body:has(dialog[open]) {
 
 /* Shared app + landing palette (light default, dark via html.dark). */
 :root {
+  --app-font: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--app-font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   --lp-paper: #f2f0e9;
   --lp-card: #ffffff;
   --lp-card-alt: #fbfaf6;
@@ -130,6 +127,11 @@ body:has(dialog[open]) {
   --lp-inverse: #101010;
   --lp-inverse-text: #b9b5a9;
   --lp-inverse-rule: #38352f;
+  /* Landing-page depth: lift/frame shadows for raised sections and preview frames. */
+  --lp-shadow-lift: 0 22px 44px -30px rgb(16 16 16 / 0.55);
+  --lp-shadow-frame: 0 34px 64px -36px rgb(16 16 16 / 0.5);
+  /* Resting shadow so bento tiles read as separate cards rather than one field. */
+  --lp-shadow-tile: 0 1px 2px rgb(16 16 16 / 0.07), 0 14px 30px -26px rgb(16 16 16 / 0.55);
 }
 
 .dark {
@@ -149,6 +151,9 @@ body:has(dialog[open]) {
   --lp-inverse: #05070c;
   --lp-inverse-text: #a1a8b5;
   --lp-inverse-rule: #1e293b;
+  --lp-shadow-lift: 0 22px 46px -28px rgb(0 0 0 / 0.9);
+  --lp-shadow-frame: 0 34px 68px -32px rgb(0 0 0 / 0.95);
+  --lp-shadow-tile: 0 1px 0 rgb(255 255 255 / 0.05) inset, 0 16px 32px -24px rgb(0 0 0 / 0.95);
 }
 
 /* Landing-style buttons (also reused by the app header so it matches the
@@ -230,19 +235,6 @@ body:has(dialog[open]) {
    `animationDelay` (see LandingPage). Colours come from the --lp-* palette; there
    are deliberately no coloured glows.
 --------------------------------------------------------------------------- */
-:root {
-  --lp-shadow-lift: 0 22px 44px -30px rgb(16 16 16 / 0.55);
-  --lp-shadow-frame: 0 34px 64px -36px rgb(16 16 16 / 0.5);
-  /* Resting shadow so bento tiles read as separate cards rather than one field. */
-  --lp-shadow-tile: 0 1px 2px rgb(16 16 16 / 0.07), 0 14px 30px -26px rgb(16 16 16 / 0.55);
-}
-
-.dark {
-  --lp-shadow-lift: 0 22px 46px -28px rgb(0 0 0 / 0.9);
-  --lp-shadow-frame: 0 34px 68px -32px rgb(0 0 0 / 0.95);
-  --lp-shadow-tile: 0 1px 0 rgb(255 255 255 / 0.05) inset, 0 16px 32px -24px rgb(0 0 0 / 0.95);
-}
-
 @keyframes lp-rise {
   from {
     opacity: 0;

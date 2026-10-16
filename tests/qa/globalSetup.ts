@@ -47,7 +47,8 @@ export default async function globalSetup() {
 
       const failures: string[] = [];
       if (footprint.length) {
-        failures.push(`QA data still present after cleanup:\n${footprint.map((hit) => `  - ${hit.table}: ${hit.rows} row(s)`).join('\n')}`);
+        const remaining = footprint.map((hit) => `  - ${hit.table}: ${hit.rows} row(s)`).join('\n');
+        failures.push(`QA data still present after cleanup:\n${remaining}`);
       }
       if (diff.length) {
         failures.push(

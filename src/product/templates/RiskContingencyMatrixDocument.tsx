@@ -17,7 +17,7 @@ const TH = 'py-2 px-2 text-[9px] font-bold uppercase tracking-wider text-slate-6
 /**
  * 15. Risk & Contingency Matrix Layout
  */
-export default function RiskContingencyMatrixDocument({ estimate, branding, currentProject, rates }: DocumentTemplateProps) {
+export default function RiskContingencyMatrixDocument({ estimate, branding, currentProject, rates }: Readonly<DocumentTemplateProps>) {
   const { totals = {}, bySystem = [] } = estimate;
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENT;

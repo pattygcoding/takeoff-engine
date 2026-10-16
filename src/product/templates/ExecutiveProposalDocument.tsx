@@ -17,7 +17,7 @@ const ACCENT = '#059669';
 /**
  * 3. Executive Proposal Document Layout
  */
-export default function ExecutiveProposalDocument({ estimate, branding, currentProject }: DocumentTemplateProps) {
+export default function ExecutiveProposalDocument({ estimate, branding, currentProject }: Readonly<DocumentTemplateProps>) {
   const { totals = {}, bySystem = [], rates } = estimate;
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENT;

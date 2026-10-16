@@ -20,7 +20,7 @@ const ACCENT = '#3b82f6';
 /**
  * 1. Internal Cost Estimate Document Layout
  */
-export default function StandardEstimateDocument({ estimate, branding, currentProject }: DocumentTemplateProps) {
+export default function StandardEstimateDocument({ estimate, branding, currentProject }: Readonly<DocumentTemplateProps>) {
   const { totals = {}, bySystem = [], rates } = estimate;
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENT;

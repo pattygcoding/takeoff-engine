@@ -11,6 +11,9 @@ import { Scale, Lightbulb, Check, X, Plus, Minus, ShowerHead } from 'lucide-reac
 import type { ScopeItem } from '@/types/models';
 
 /** Badge tint for a scope item's status. */
+/** Identifier of a scope item (optional on imported items). */
+type ScopeItemId = string | number | undefined;
+
 function statusBadgeClass(status: string): string {
   if (status === SCOPE_STATUS.OPTIONAL_ADDON) return 'bg-blue-600 text-white';
   if (status === SCOPE_STATUS.INCLUDED) return 'bg-emerald-600 text-white';
@@ -41,7 +44,7 @@ export default function ClientCounterOfferModal({
   onSubmit,
   onClose,
   submitting = false,
-}: {
+}: Readonly<{
   currentScope?: ScopeItem[];
   clientName?: string;
   signerEmail?: string;
@@ -54,14 +57,14 @@ export default function ClientCounterOfferModal({
   }) => void;
   onClose: () => void;
   submitting?: boolean;
-}) {
+}>) {
   const { t } = useTranslation();
   const [scopeList, setScopeList] = useState<ScopeItem[]>(() => {
     const initialList = Array.isArray(currentScope) && currentScope.length > 0
       ? currentScope
       : DEFAULT_SCOPE_ITEMS;
 
-    return JSON.parse(JSON.stringify(initialList)).map((item: ScopeItem) => ({
+    return structuredClone(initialList).map((item: ScopeItem) => ({
       ...item,
       originalStatus: item.originalStatus ?? item.status ?? SCOPE_STATUS.INCLUDED,
       originalAmount: Number(item.originalAmount ?? item.amount ?? item.costImpact ?? 0) || 0,
@@ -75,7 +78,7 @@ export default function ClientCounterOfferModal({
   const [name, setName] = useState(clientName || '');
   const [email, setEmail] = useState(signerEmail || '');
 
-  const handleStatusChange = (id: string | number | undefined, nextStatus: string) => {
+  const handleStatusChange = (id: ScopeItemId, nextStatus: string) => {
     setScopeList((prev) =>
       prev.map((item) => {
         if (item.id !== id) return item;

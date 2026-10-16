@@ -63,7 +63,7 @@ test.describe('plan and billing changes with a team', () => {
     const paddleSubscription = await paddleApi(settings).getSubscription(subscription.id);
     expect(quantityOf(paddleSubscription, settings.paddle.priceIds.monthly.pro ?? '')).toBe(1);
     expect(quantityOf(paddleSubscription, settings.paddle.seatPriceIds.monthly ?? '')).toBe(2);
-    expect((await planChangeCharges(settings, subscription.id)).length).toBe(chargesBefore);
+    expect(await planChangeCharges(settings, subscription.id)).toHaveLength(chargesBefore);
     expect(await expectProfile(db, authUser.id, (row) => row.scheduled_tier === 'pro', 'downgrade scheduled'))
       .toMatchObject({ subscription_tier: 'enterprise', seat_limit: 8, scheduled_additional_seats: 2 });
 

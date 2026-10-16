@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { AlertTriangle, X, Check, PenLine, Info } from 'lucide-react';
 import AccessibleDialog from '@/core/components/shared/AccessibleDialog';
@@ -75,7 +75,7 @@ function dismissValue(type: ModalState['type']): boolean | null {
   return false;
 }
 
-export function ModalProvider({ children }: { children: ReactNode }) {
+export function ModalProvider({ children }: Readonly<{ children: ReactNode }>) {
   const [modalState, setModalState] = useState<ModalState | null>(null);
   const [inputValue, setInputValue] = useState('');
   const { t } = useTranslation();
@@ -109,7 +109,7 @@ export function ModalProvider({ children }: { children: ReactNode }) {
     confirmText = t('core.accessibility.confirm'),
     cancelText = t('core.accessibility.cancel'),
     confirmVariant = 'danger', // 'danger' | 'primary'
-  }: ConfirmOptions = {}) => {
+  }: Readonly<ConfirmOptions> = {}) => {
     return new Promise<boolean>((resolve) => {
       setModalState({
         type: 'confirm',
@@ -147,8 +147,10 @@ export function ModalProvider({ children }: { children: ReactNode }) {
     });
   }, [t]);
 
+  const value = useMemo(() => ({ showAlert, showConfirm, showPrompt }), [showAlert, showConfirm, showPrompt]);
+
   return (
-    <ModalContext.Provider value={{ showAlert, showConfirm, showPrompt }}>
+    <ModalContext.Provider value={value}>
       {children}
 
       {modalState && (

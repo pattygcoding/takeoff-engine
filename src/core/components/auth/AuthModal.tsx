@@ -13,11 +13,11 @@ export default function AuthModal({
   isOpen,
   onClose,
   initialView = 'login',
-}: {
+}: Readonly<{
   isOpen: boolean;
   onClose: () => void;
   initialView?: string;
-}) {
+}>) {
   const { login, register } = useAuth();
   const { t } = useTranslation();
   const accountCreationDisabled = useAccountCreationDisabled();
@@ -38,8 +38,6 @@ export default function AuthModal({
   const [honeypot, setHoneypot] = useState('');
 
   const [forgotEmail, setForgotEmail] = useState('');
-  const [, setResetToken] = useState('');
-  const [, setNewPassword] = useState('');
 
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
@@ -53,7 +51,6 @@ export default function AuthModal({
     setMessage('');
     setLoginPassword('');
     setRegisterPassword('');
-    setNewPassword('');
   };
 
   const switchView = (newView: string) => {

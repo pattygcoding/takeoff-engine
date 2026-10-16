@@ -11,7 +11,7 @@ export interface BentoGridProps extends ComponentPropsWithoutRef<'div'> {
  * one on phones. Row height is a minimum rather than a fixed `auto-rows-[22rem]`, so long
  * translations never clip.
  */
-export function BentoGrid({ className = '', ...props }: BentoGridProps) {
+export function BentoGrid({ className = '', ...props }: Readonly<BentoGridProps>) {
   return (
     <div
       className={`grid w-full grid-cols-1 auto-rows-[minmax(300px,auto)] gap-4 sm:grid-cols-2 lg:grid-cols-6 ${className}`}
@@ -54,7 +54,7 @@ export function BentoCard({
   layout = 'stack',
   className = '',
   ...props
-}: BentoCardProps) {
+}: Readonly<BentoCardProps>) {
   if (layout === 'row') {
     return (
       <div

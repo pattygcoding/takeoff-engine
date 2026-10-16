@@ -19,7 +19,7 @@ const ACCENT = '#d97706';
 /**
  * 4. Itemized Job-Cost Ledger Document Layout
  */
-export default function ItemizedLedgerDocument({ estimate, branding, currentProject, rates }: DocumentTemplateProps) {
+export default function ItemizedLedgerDocument({ estimate, branding, currentProject, rates }: Readonly<DocumentTemplateProps>) {
   const { totals = {}, bySystem = [] } = estimate;
   const { t } = useTranslation();
   const accent = branding?.brandColor || ACCENT;

@@ -2,22 +2,11 @@
  * Calculations & Pricing Client Adapter
  * Pure client API wrapper delegating calculations to the backend engine.
  */
-import {
-  DEFAULT_TRENCH_WIDTH_FT,
-  DEFAULT_WORKDAY_HOURS,
-  DEFAULT_LABOR_ROLES,
-  DEFAULT_EQUIPMENT_CATALOG,
-  DEFAULT_RATES,
-} from '@/product/constants/calculations.constants';
+import { DEFAULT_LABOR_ROLES, DEFAULT_RATES } from '@/product/constants/calculations.constants';
 import type { CrewMember, LaborRole, Rates, TakeoffItem } from '@/types/models';
 
-export {
-  DEFAULT_TRENCH_WIDTH_FT,
-  DEFAULT_WORKDAY_HOURS,
-  DEFAULT_LABOR_ROLES,
-  DEFAULT_EQUIPMENT_CATALOG,
-  DEFAULT_RATES,
-};
+export { DEFAULT_TRENCH_WIDTH_FT, DEFAULT_WORKDAY_HOURS, DEFAULT_EQUIPMENT_CATALOG } from '@/product/constants/calculations.constants';
+export { DEFAULT_LABOR_ROLES, DEFAULT_RATES };
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 

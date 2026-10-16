@@ -33,7 +33,7 @@ function getInitialLanguage(): string {
   return 'en';
 }
 
-export function I18nProvider({ children, defaultLanguage = 'en' }: { children: ReactNode; defaultLanguage?: string }) {
+export function I18nProvider({ children, defaultLanguage = 'en' }: Readonly<{ children: ReactNode; defaultLanguage?: string }>) {
   const location = useLocation();
   const navigate = useNavigate();
   const [language, setLanguageState] = useState<string>(getInitialLanguage);

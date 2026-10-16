@@ -10,7 +10,7 @@
 /** `Number(value)` when it is a non-zero finite number, otherwise `fallback` (i.e. `Number(v) || fb`). */
 export function toNumberOr(value: unknown, fallback: number): number {
   const parsed = Number(value);
-  return parsed ? parsed : fallback;
+  return parsed || fallback;
 }
 
 /** The string itself when it is a non-empty string, otherwise `''` (i.e. `v || ''` for text fields). */

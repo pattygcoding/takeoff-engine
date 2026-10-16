@@ -15,7 +15,7 @@ const item = {
 } as unknown as TakeoffItem;
 
 function stubFetch(json: unknown = {}) {
-  const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => json });
+  const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(json) });
   vi.stubGlobal('fetch', fetchMock);
   return fetchMock;
 }
@@ -72,7 +72,7 @@ describe('calculationsApi HTTP contract (step 2 and step 3 both depend on it)', 
   });
 
   it('surfaces the server error message when the request fails', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, json: async () => ({ error: 'Boom' }) }));
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, json: () => Promise.resolve({ error: 'Boom' }) }));
 
     await expect(calculationsApi.computeEstimate([item], DEFAULT_RATES)).rejects.toThrow('Boom');
   });

@@ -80,7 +80,7 @@ export const proposalsApi = {
    * Alias for backward compatibility
    */
   async generateLink(projectId: string, proposalData?: GenerateProposalParams) {
-    return this.generateProposal({ projectId, ...(proposalData || {}) });
+    return this.generateProposal({ projectId, ...proposalData });
   },
 
   /**
