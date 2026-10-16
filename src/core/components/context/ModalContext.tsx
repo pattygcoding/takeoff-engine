@@ -49,6 +49,32 @@ interface ModalContextValue {
 
 const ModalContext = createContext<ModalContextValue | null>(null);
 
+/** Icon tile tint for the dialog, keyed by variant (a destructive confirm wins). */
+function dialogIconClass(state: ModalState): string {
+  if (state.type === 'confirm' && state.confirmVariant === 'danger') return 'bg-red-100 text-red-600';
+  if (state.variant === 'error') return 'bg-red-100 text-red-600';
+  if (state.variant === 'success') return 'bg-emerald-100 text-emerald-600';
+  if (state.variant === 'warning') return 'bg-amber-100 text-amber-600';
+  return 'bg-blue-100 text-blue-600';
+}
+
+/** Header icon for the dialog, keyed by variant. */
+function dialogIcon(state: ModalState) {
+  if (state.type === 'confirm' && state.confirmVariant === 'danger') return <AlertTriangle className="w-5 h-5" />;
+  if (state.variant === 'error') return <X className="w-5 h-5" />;
+  if (state.variant === 'success') return <Check className="w-5 h-5" />;
+  if (state.variant === 'warning') return <AlertTriangle className="w-5 h-5" />;
+  if (state.type === 'prompt') return <PenLine className="w-5 h-5" />;
+  return <Info className="w-5 h-5" />;
+}
+
+/** The value a dismissed dialog resolves with: alerts confirm, prompts cancel, confirms decline. */
+function dismissValue(type: ModalState['type']): boolean | null {
+  if (type === 'alert') return true;
+  if (type === 'prompt') return null;
+  return false;
+}
+
 export function ModalProvider({ children }: { children: ReactNode }) {
   const [modalState, setModalState] = useState<ModalState | null>(null);
   const [inputValue, setInputValue] = useState('');
@@ -130,7 +156,7 @@ export function ModalProvider({ children }: { children: ReactNode }) {
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in"
           aria-labelledby="modal-title"
           aria-describedby={modalState.message ? 'modal-message' : undefined}
-          onClose={() => closeModal(modalState.type === 'alert' ? true : modalState.type === 'prompt' ? null : false)}
+          onClose={() => closeModal(dismissValue(modalState.type))}
         >
           <div
             className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-md w-full p-6 sm:p-7 relative transition-all transform scale-100 opacity-100"
@@ -138,31 +164,9 @@ export function ModalProvider({ children }: { children: ReactNode }) {
             {/* Header Icon & Title */}
             <div className="flex items-start gap-3.5 mb-4">
               <div
-                className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                  modalState.type === 'confirm' && modalState.confirmVariant === 'danger'
-                    ? 'bg-red-100 text-red-600'
-                    : modalState.variant === 'error'
-                    ? 'bg-red-100 text-red-600'
-                    : modalState.variant === 'success'
-                    ? 'bg-emerald-100 text-emerald-600'
-                    : modalState.variant === 'warning'
-                    ? 'bg-amber-100 text-amber-600'
-                    : 'bg-blue-100 text-blue-600'
-                }`}
+                className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${dialogIconClass(modalState)}`}
               >
-                {modalState.type === 'confirm' && modalState.confirmVariant === 'danger' ? (
-                  <AlertTriangle className="w-5 h-5" />
-                ) : modalState.variant === 'error' ? (
-                  <X className="w-5 h-5" />
-                ) : modalState.variant === 'success' ? (
-                  <Check className="w-5 h-5" />
-                ) : modalState.variant === 'warning' ? (
-                  <AlertTriangle className="w-5 h-5" />
-                ) : modalState.type === 'prompt' ? (
-                  <PenLine className="w-5 h-5" />
-                ) : (
-                  <Info className="w-5 h-5" />
-                )}
+                {dialogIcon(modalState)}
               </div>
               <div className="flex-1 min-w-0">
                 <h3 id="modal-title" className="text-base font-bold text-slate-900 leading-6">

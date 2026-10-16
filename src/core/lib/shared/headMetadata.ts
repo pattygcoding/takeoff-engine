@@ -27,34 +27,63 @@ const NAME_KEYS = new Set(['description', 'robots', 'keywords']);
  */
 const REPEATABLE_PROPERTY_KEYS = new Set(['og:image', 'og:image:alt', 'og:locale:alternate']);
 
+/** Key for a `<link>` tag: the canonical link and each hreflang alternate are distinct. */
+function linkMetadataKey(node: Element): string | null {
+  const rel = node.getAttribute('rel');
+  if (rel === 'canonical') return 'link:canonical';
+  if (rel !== 'alternate') return null;
+  const hreflang = node.getAttribute('hreflang');
+  return hreflang ? `link:alternate:${hreflang}` : null;
+}
+
+/**
+ * Key for a `<meta>` tag. `property` wins over `name`, and the repeatable Open Graph properties
+ * include their content so that each occurrence stays its own tag.
+ */
+function metaMetadataKey(node: Element): string | null {
+  const property = node.getAttribute('property');
+  if (property) {
+    const content = REPEATABLE_PROPERTY_KEYS.has(property) ? `:${node.getAttribute('content') ?? ''}` : '';
+    return `meta:property:${property}${content}`;
+  }
+  const name = node.getAttribute('name');
+  if (!name || !(NAME_KEYS.has(name) || name.startsWith('twitter:'))) return null;
+  return `meta:name:${name}`;
+}
+
 function metadataKey(node: Element): string | null {
   const tag = node.tagName.toLowerCase();
 
   if (tag === 'title') return 'title';
-
-  if (tag === 'link') {
-    const rel = node.getAttribute('rel');
-    if (rel === 'canonical') return 'link:canonical';
-    if (rel === 'alternate') {
-      const hreflang = node.getAttribute('hreflang');
-      if (hreflang) return `link:alternate:${hreflang}`;
-    }
-    return null;
-  }
-
-  if (tag === 'meta') {
-    const property = node.getAttribute('property');
-    if (property) {
-      if (REPEATABLE_PROPERTY_KEYS.has(property)) {
-        return `meta:property:${property}:${node.getAttribute('content') ?? ''}`;
-      }
-      return `meta:property:${property}`;
-    }
-    const name = node.getAttribute('name');
-    if (name && (NAME_KEYS.has(name) || name.startsWith('twitter:'))) return `meta:name:${name}`;
-  }
+  if (tag === 'link') return linkMetadataKey(node);
+  if (tag === 'meta') return metaMetadataKey(node);
 
   return null;
+}
+
+/** Buckets `<head>` children by their SEO key; tags without a key are left out entirely. */
+function groupByMetadataKey(children: Element[]): Map<string, Element[]> {
+  const byKey = new Map<string, Element[]>();
+  for (const node of children) {
+    const key = metadataKey(node);
+    if (!key) continue;
+    const group = byKey.get(key);
+    if (group) group.push(node);
+    else byKey.set(key, [node]);
+  }
+  return byKey;
+}
+
+/**
+ * The occurrences of a duplicated key that should be dropped.
+ *
+ * A React-rendered tag for the same key means every document copy is the stale one; otherwise the
+ * duplicates all belong to the document and only the newest wins.
+ */
+function staleNodes(group: Element[], documentOwned?: Set<Element>): Element[] {
+  if (!documentOwned) return group.slice(0, -1);
+  const owned = group.filter((node) => documentOwned.has(node));
+  return owned.length < group.length ? owned : group.slice(0, -1);
 }
 
 /**
@@ -65,22 +94,9 @@ function metadataKey(node: Element): string | null {
  * unmounts them itself) are always left in place, even when they collide on a key.
  */
 export function pruneDuplicateHeadMetadata(head: HTMLElement = document.head, documentOwned?: Set<Element>): void {
-  const byKey = new Map<string, Element[]>();
-  for (const node of Array.from(head.children)) {
-    const key = metadataKey(node);
-    if (!key) continue;
-    const group = byKey.get(key);
-    if (group) group.push(node);
-    else byKey.set(key, [node]);
-  }
-
-  for (const group of byKey.values()) {
+  for (const group of groupByMetadataKey(Array.from(head.children)).values()) {
     if (group.length < 2) continue;
-    const owned = documentOwned ? group.filter((node) => documentOwned.has(node)) : group;
-    // A React-rendered tag for the same key means the document's copy is the stale one; otherwise the
-    // duplicates all belong to the document and the newest wins.
-    const stale = documentOwned && owned.length < group.length ? owned : group.slice(0, -1);
-    for (const node of stale) node.remove();
+    for (const node of staleNodes(group, documentOwned)) node.remove();
   }
 }
 

@@ -64,8 +64,47 @@
         "ctaTrial": "Commencer l'essai gratuit (5 métrés gratuits)",
         "ctaCalculator": "Tester la calculatrice en direct",
         "badgeNoCard": "Aucune carte de crédit requise",
-        "badgeInstantExports": "Exports instantanés PDF et Word",
+        "badgeInstantExports": "Exports instantanés PDF",
         "badgeColumnMapper": "Mappeur automatique d'alias de colonnes"
+      },
+      "bento": {
+        "tag": "Fonctionnalités",
+        "title": "Toutes les étapes d'estimation, dans un seul espace de travail",
+        "description": "De la feuille de calcul que votre estimateur utilise déjà au devis signé dans la boîte de réception de votre client, sans quitter le navigateur.",
+        "t1Title": "Importez n'importe quelle feuille de métré",
+        "t1Desc": "Les exports Bluebeam, PlanSwift ou Trimble arrivent sous forme de métré multi-lignes propre, avec des en-têtes associés par alias intelligents.",
+        "t2Title": "Des devis prêts pour le client en 60 secondes",
+        "t2Desc": "Chaque ligne devient un document à votre image, avec quantités, prix unitaires et un total en direct que votre client peut accepter.",
+        "t3Title": "Calcul de tranchées et de terrassement intégré",
+        "t3Desc": "Le volume d'excavation, le remblai et la production d'équipe sont recalculés au fil de la saisie.",
+        "t3Formula": "Long. × larg. × prof. ÷ 27",
+        "t3Units": "verges cubes",
+        "t4Title": "Grille de métré multi-lignes",
+        "t4Desc": "Modifiez quantités, unités et prix dans une grille pensée pour le clavier et adossée à des bibliothèques de tarifs réutilisables.",
+        "t4ColRate": "Prix",
+        "t5Title": "Export PDF en un clic",
+        "t5Desc": "Un clic exporte exactement les chiffres signés par votre client.",
+        "t6Title": "Portail public et signature électronique du client",
+        "t6Desc": "Envoyez un lien en lecture seule. Votre client vérifie le métré et signe numériquement, et le total signé est enregistré sur le devis.",
+        "t6ClientUrl": "te.pub/p/0147",
+        "ctaCalculator": "Tester la calculatrice en direct",
+        "ctaPricing": "Comparer les plans"
+      },
+      "preview": {
+        "tablist": "Écrans d'aperçu du produit",
+        "tabTakeoff": "Import du métré",
+        "tabProposal": "Devis client",
+        "tabExport": "Export et signature",
+        "urlBar": "app.takeoffengine.com/proposal/0147",
+        "hint": "Aperçu interactif",
+        "exportsHeading": "Livrables",
+        "exportPrepared": "Prêt",
+        "exportPdf": "Devis PDF",
+        "exportPrint": "Imprimer / Enregistrer en PDF",
+        "eSignHeading": "Acceptation du client",
+        "eSignStatus": "Envoyé pour signature",
+        "eSignClientUrl": "te.pub/p/0147",
+        "eSignNote": "Votre client ouvre un portail en lecture seule, vérifie chaque ligne et signe en un geste."
       },
       "topbar": {
         "tagline": "Plateforme d'estimation civile et de services publics"
@@ -97,7 +136,7 @@
         "s3Title": "Calculer",
         "s3Desc": "Volumes de tranchées, calculs de production et heures de main-d'œuvre.",
         "s4Title": "Envoyer",
-        "s4Desc": "Devis PDF ou Word à votre image de marque, signé numériquement par votre client."
+        "s4Desc": "Devis PDF à votre image de marque, signé numériquement par votre client."
       },
       "calculator": {
         "tag": "Outil gratuit interactif",
@@ -118,7 +157,7 @@
         "crewProduction": "Production de main-d'œuvre de l'équipe ({{hours}} h)",
         "directBid": "Devis direct estimé de tranchée",
         "importCta": "Importer la feuille de métré complète sur plusieurs lignes",
-        "exportPrompt": "Souhaitez-vous exporter cela en devis Word / PDF ?",
+        "exportPrompt": "Souhaitez-vous exporter cela en devis PDF ?",
         "createAccount": "Créer un compte gratuit"
       },
       "comparison": {
@@ -137,8 +176,8 @@
         "row2Te": "Alias intelligents",
         "row2Excel": "Copier-coller manuel",
         "row2Ent": "Configuration complexe requise",
-        "row3Label": "Devis client en un clic et export Word",
-        "row3Te": "PDF à votre image et .DOCX",
+        "row3Label": "Devis client en un clic et export PDF",
+        "row3Te": "PDF à votre image",
         "row3Excel": "Mise en forme manuelle des documents",
         "row3Ent": "Rapports lourds",
         "row4Label": "Portail public et signature électronique du client",
@@ -180,7 +219,7 @@
           "description": "Idéal pour les estimateurs indépendants qui soumissionnent chaque semaine.",
           "f1": "{{seats}} siège d'estimateur",
           "f2": "Calculs illimités",
-          "f3": "Export standard Word et PDF",
+          "f3": "Export standard PDF",
           "f4": "2 bibliothèques de tarifs personnalisées",
           "f5": "Sauvegarde cloud et tableau de bord de projets",
           "cta": "Choisir Démarrage"

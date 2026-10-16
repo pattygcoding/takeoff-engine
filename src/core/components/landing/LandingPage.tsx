@@ -14,7 +14,19 @@ import SeoHead from '@/core/components/shared/SeoHead';
 import { preloadRoutesOnIdle } from '@/core/lib/shared/preloadRoutes';
 import AccessibleDialog from '@/core/components/shared/AccessibleDialog';
 import InfisicalEnvironmentBadge from '@/core/components/landing/InfisicalEnvironmentBadge';
-import { ArrowRight, ArrowDown, Sun, Moon } from 'lucide-react';
+import DotPattern from '@/core/components/landing/DotPattern';
+import GridPattern from '@/core/components/landing/GridPattern';
+import { BentoCard, BentoGrid } from '@/core/components/landing/BentoGrid';
+import ProductPreviewMockup, { type PreviewRow } from '@/core/components/landing/ProductPreviewMockup';
+import {
+  ColumnMappingVisual,
+  EditableGridVisual,
+  ExportFormatVisual,
+  ProposalVisual,
+  SignatureVisual,
+  VolumeFormulaVisual,
+} from '@/core/components/landing/BentoVisuals';
+import { ArrowRight, ArrowDown, Sun, Moon, Layers, FileText, Ruler, Table2, Download, Signature } from 'lucide-react';
 import {
   STARTER_PLAN_SEATS,
   PRO_PLAN_SEATS,
@@ -53,17 +65,18 @@ function SectionHeader({
   description?: ReactNode;
   onBand?: boolean;
 }) {
+  // Stacked and flush left: the label used to sit in a parallel 220px column, which pushed the
+  // heading inwards until it read as centred next to the full-width content beneath it.
+  // `border-current` keeps the label legible on both the paper background and the blue band.
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-3 lg:gap-8 mb-12">
-      <div className="text-[13px] font-semibold lg:pt-2.5">
-        <span>{label}</span>
-      </div>
-      <div>
-        <h2 className="text-[32px] sm:text-[42px] leading-[1.08] tracking-[-0.035em] font-extrabold max-w-[17em]">{title}</h2>
-        {description && (
-          <p className={`mt-4 text-[17px] max-w-[36em] ${onBand ? 'text-white' : 'text-[var(--lp-muted)]'}`}>{description}</p>
-        )}
-      </div>
+    <div className="mb-12">
+      <p className="inline-flex items-center border border-current px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.07em]">
+        {label}
+      </p>
+      <h2 className="mt-4 text-[32px] sm:text-[42px] leading-[1.08] tracking-[-0.035em] font-extrabold max-w-[19em]">{title}</h2>
+      {description && (
+        <p className={`mt-4 text-[17px] max-w-[46em] ${onBand ? 'text-white' : 'text-[var(--lp-muted)]'}`}>{description}</p>
+      )}
     </div>
   );
 }
@@ -160,13 +173,50 @@ export default function LandingPage() {
   ];
 
   const sampleDate = new Date(2026, 0, 14).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
-  const sampleRows: Array<[string, string, number, number]> = [
-    [t('core.landing.sampleDoc.row1'), '277.8 CY', 18, 5000.4],
-    [t('core.landing.sampleDoc.row2'), '500 LF', 14.5, 7250],
-    [t('core.landing.sampleDoc.row3'), '62.0 CY', 38, 2356],
-    [t('core.landing.sampleDoc.row4'), '271.3 CY', 11, 2984.3],
+  // One dataset drives the hero preview mockup and the capability tiles, so the landing page
+  // always shows the same project the product itself would produce.
+  const sampleRows: PreviewRow[] = [
+    { label: t('core.landing.sampleDoc.row1'), qty: '277.8 CY', unit: 18, amount: 5000.4 },
+    { label: t('core.landing.sampleDoc.row2'), qty: '500 LF', unit: 14.5, amount: 7250 },
+    { label: t('core.landing.sampleDoc.row3'), qty: '62.0 CY', unit: 38, amount: 2356 },
+    { label: t('core.landing.sampleDoc.row4'), qty: '271.3 CY', unit: 11, amount: 2984.3 },
   ];
-  const sampleTotal = sampleRows.reduce((sum, row) => sum + row[3], 0);
+  const sampleTotal = sampleRows.reduce((sum, row) => sum + row.amount, 0);
+
+  const previewColumns = {
+    item: t('core.landing.sampleDoc.colItem'),
+    qty: t('core.landing.sampleDoc.colQty'),
+    unit: t('core.landing.sampleDoc.colUnit'),
+    amount: t('core.landing.sampleDoc.colAmount'),
+  };
+
+  const sampleProposal = {
+    title: t('core.landing.sampleDoc.title'),
+    project: t('core.landing.sampleDoc.project'),
+    number: t('core.landing.sampleDoc.number'),
+    signature: 'R. Hartwell',
+    acceptedBy: t('core.landing.sampleDoc.acceptedBy', { date: sampleDate }),
+    eSigned: t('core.landing.sampleDoc.eSigned'),
+    note: t('core.landing.sampleDoc.note'),
+  };
+
+  const previewExports = {
+    heading: t('core.landing.preview.exportsHeading'),
+    prepared: t('core.landing.preview.exportPrepared'),
+    items: [
+      // Client-facing documents ship as PDF only (see product/lib/pdfExport) — do not add
+      // format claims here that the app cannot actually produce.
+      { label: t('core.landing.preview.exportPdf'), format: 'pdf' as const },
+      { label: t('core.landing.preview.exportPrint'), format: 'print' as const },
+    ],
+  };
+
+  const previewESign = {
+    heading: t('core.landing.preview.eSignHeading'),
+    status: t('core.landing.preview.eSignStatus'),
+    clientUrl: t('core.landing.preview.eSignClientUrl'),
+    note: t('core.landing.preview.eSignNote'),
+  };
 
   const steps = [1, 2, 3, 4].map((n) => ({
     title: t(`core.landing.steps.s${n}Title`),
@@ -357,9 +407,17 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero */}
-      <div id="features" className="pt-[52px] sm:pt-[84px] scroll-mt-20">
-        <div className="max-w-[1160px] mx-auto px-5 sm:px-7">
-          <h1 className="text-[38px] sm:text-[50px] lg:text-[68px] leading-[1.14] tracking-[-0.04em] font-extrabold max-w-[1010px]">
+      <section className="relative pt-[52px] sm:pt-[84px]">
+        {/* Dot-matrix depth: one tiled SVG pattern (Magic UI dot-pattern port) faded out
+            before the fold, so it reads as paper texture rather than a coloured glow. */}
+        <DotPattern
+          width={22}
+          height={22}
+          cr={1.2}
+          className="pointer-events-none absolute inset-0 h-full w-full text-[var(--lp-rule)] [mask-image:radial-gradient(125%_85%_at_50%_0%,black,transparent_74%)]"
+        />
+        <div className="relative max-w-[1160px] mx-auto px-5 sm:px-7">
+          <h1 className="lp-rise text-[38px] sm:text-[50px] lg:text-[68px] leading-[1.14] tracking-[-0.04em] font-extrabold max-w-[1010px]">
             {t('core.landing.hero.title')}{' '}
             <mark className="bg-[var(--lp-accent)] text-white px-[0.12em] whitespace-nowrap">
               {t('core.landing.hero.titleHighlight')}
@@ -367,7 +425,7 @@ export default function LandingPage() {
           </h1>
 
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.05fr] gap-12 lg:gap-[72px] mt-14 items-start">
-            <div>
+            <div className="lp-rise" style={{ animationDelay: '90ms' }}>
               <p className="text-[19px] leading-[1.55] max-w-[30em] text-[var(--lp-ink)]/85">{t('core.landing.hero.subtitle')}</p>
               <div className="flex flex-wrap gap-3 mt-8">
                 <button
@@ -394,62 +452,37 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Sample proposal document */}
-            <figure className="bg-[var(--lp-card)] border-2 border-[var(--lp-ink)]" aria-label={t('core.landing.sampleDoc.ariaLabel')}>
-              <div className="flex justify-between gap-3 px-[18px] py-[9px] bg-[var(--lp-inverse)] text-[var(--lp-inverse-text)] font-mono text-xs">
-                <span className="truncate">sewer_main_takeoff.xlsx</span>
-                <b className="font-medium text-[#93c5fd] shrink-0">{t('core.landing.sampleDoc.mapped')}</b>
-              </div>
-              <div className="flex justify-between items-end px-[18px] pt-5 pb-4 border-b-2 border-[var(--lp-ink)]">
-                <div>
-                  <p className="text-[22px] font-extrabold tracking-[-0.02em] leading-[1.1]">{t('core.landing.sampleDoc.title')}</p>
-                  <p className="text-[12.5px] text-[var(--lp-muted)] mt-1">{t('core.landing.sampleDoc.project')}</p>
-                </div>
-                <div className="text-right font-mono text-xs text-[var(--lp-muted)]">
-                  {t('core.landing.sampleDoc.number')}
-                  <br />
-                  {sampleDate}
-                </div>
-              </div>
-              <table className="w-full border-collapse text-[13px] sm:text-[13.5px]">
-                <thead>
-                  <tr className="text-[11px] tracking-[0.06em] uppercase text-[var(--lp-muted)]">
-                    <th className="text-left font-semibold px-3 sm:px-[18px] py-2.5 border-b border-[var(--lp-ink)]">{t('core.landing.sampleDoc.colItem')}</th>
-                    <th className="text-right font-semibold px-3 sm:px-[18px] py-2.5 border-b border-[var(--lp-ink)]">{t('core.landing.sampleDoc.colQty')}</th>
-                    <th className="hidden sm:table-cell text-right font-semibold px-[18px] py-2.5 border-b border-[var(--lp-ink)]">{t('core.landing.sampleDoc.colUnit')}</th>
-                    <th className="text-right font-semibold px-3 sm:px-[18px] py-2.5 border-b border-[var(--lp-ink)]">{t('core.landing.sampleDoc.colAmount')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sampleRows.map(([label, qty, unit, amount]) => (
-                    <tr key={label}>
-                      <td className="px-3 sm:px-[18px] py-[11px] border-b border-[var(--lp-rule)]">{label}</td>
-                      <td className="px-3 sm:px-[18px] py-[11px] border-b border-[var(--lp-rule)] text-right font-mono text-[12px] sm:text-[12.5px] tabular-nums whitespace-nowrap">{qty}</td>
-                      <td className="hidden sm:table-cell px-[18px] py-[11px] border-b border-[var(--lp-rule)] text-right font-mono text-[12.5px] tabular-nums">{formatCurrency(unit)}</td>
-                      <td className="px-3 sm:px-[18px] py-[11px] border-b border-[var(--lp-rule)] text-right font-mono text-[12px] sm:text-[12.5px] tabular-nums">{formatCurrency(amount)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <div className="flex justify-between items-center px-[18px] py-3.5 bg-[var(--lp-accent)] text-white border-b-2 border-[var(--lp-ink)]">
-                <span className="font-bold text-sm">{t('core.landing.sampleDoc.total')}</span>
-                <b className="font-mono font-semibold text-[22px] tabular-nums">{formatCurrency(sampleTotal)}</b>
-              </div>
-              <div className="flex justify-between items-end gap-4 px-[18px] pt-5 pb-3.5">
-                <div>
-                  <div className="border-b border-[var(--lp-ink)] min-w-[180px] pb-0.5 italic font-medium text-[21px] tracking-[-0.01em]">R. Hartwell</div>
-                  <div className="text-[11px] text-[var(--lp-muted)] mt-1">{t('core.landing.sampleDoc.acceptedBy', { date: sampleDate })}</div>
-                </div>
-                <span className="font-mono font-semibold text-[11px] tracking-[0.05em] border-2 border-[var(--lp-accent)] text-[var(--lp-accent-text)] px-2 py-1">
-                  {t('core.landing.sampleDoc.eSigned')}
-                </span>
-              </div>
-              <figcaption className="text-[11.5px] text-[var(--lp-muted)] px-[18px] pb-3.5">{t('core.landing.sampleDoc.note')}</figcaption>
+            {/* Interactive product preview: the real workspace screens, live inside a
+                browser/laptop frame that is drawn with the palette (no stock device art). */}
+            <figure
+              className="lp-rise"
+              style={{ animationDelay: '180ms' }}
+              aria-label={t('core.landing.sampleDoc.ariaLabel')}
+            >
+              <ProductPreviewMockup
+                urlLabel={t('core.landing.preview.urlBar')}
+                tablistLabel={t('core.landing.preview.tablist')}
+                hint={t('core.landing.preview.hint')}
+                tabLabels={{
+                  takeoff: t('core.landing.preview.tabTakeoff'),
+                  proposal: t('core.landing.preview.tabProposal'),
+                  export: t('core.landing.preview.tabExport'),
+                }}
+                fileLabel="sewer_main_takeoff.xlsx"
+                mappedLabel={t('core.landing.sampleDoc.mapped')}
+                columns={previewColumns}
+                rows={sampleRows}
+                totalLabel={t('core.landing.sampleDoc.total')}
+                totalAmount={sampleTotal}
+                proposal={sampleProposal}
+                exports={previewExports}
+                eSign={previewESign}
+              />
             </figure>
           </div>
 
           {/* Process strip */}
-          <ol className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mt-[88px] border-t-2 border-[var(--lp-ink)]">
+          <ol className="lp-rise grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mt-[88px] border-t-2 border-[var(--lp-ink)]" style={{ animationDelay: '260ms' }}>
             {steps.map((step, idx) => (
               <li
                 key={step.title}
@@ -461,7 +494,135 @@ export default function LandingPage() {
             ))}
           </ol>
         </div>
-      </div>
+      </section>
+
+      {/* Capabilities — Bento grid.
+          This replaces the uniform card row a typical landing page uses: six tiles on a
+          six-column track with deliberate size variety, each carrying a live mini-visual.
+          A tiled line grid (Magic UI grid-pattern port) adds depth behind them. */}
+      <section
+        id="features"
+        className="relative mt-[72px] sm:mt-[104px] scroll-mt-20 border-t-2 border-[var(--lp-ink)] py-[72px] sm:py-[104px]"
+      >
+        <GridPattern
+          width={56}
+          height={56}
+          className="pointer-events-none absolute inset-0 h-full w-full fill-none stroke-[var(--lp-rule)] [mask-image:linear-gradient(to_bottom,black_2%,transparent_46%)]"
+        />
+        <div className="relative max-w-[1160px] mx-auto px-5 sm:px-7">
+          <div className="lp-rise">
+            <SectionHeader
+              label={t('core.landing.bento.tag')}
+              title={t('core.landing.bento.title')}
+              description={t('core.landing.bento.description')}
+            />
+          </div>
+
+          <BentoGrid>
+            <BentoCard
+              className="lp-rise sm:col-span-2 lg:col-span-3"
+              icon={Layers}
+              name={t('core.landing.bento.t1Title')}
+              description={t('core.landing.bento.t1Desc')}
+              visual={
+                <ColumnMappingVisual
+                  mappedLabel={t('core.landing.sampleDoc.mapped')}
+                  columnLabels={[
+                    previewColumns.item,
+                    previewColumns.qty,
+                    previewColumns.unit,
+                    previewColumns.amount,
+                  ]}
+                />
+              }
+              cta={t('core.landing.bento.ctaCalculator')}
+              href="#calculator"
+            />
+            <BentoCard
+              className="lp-rise sm:col-span-2 lg:col-span-3"
+              style={{ animationDelay: '80ms' }}
+              icon={FileText}
+              name={t('core.landing.bento.t2Title')}
+              description={t('core.landing.bento.t2Desc')}
+              visual={
+                <ProposalVisual
+                  documentTitle={sampleProposal.title}
+                  eSigned={sampleProposal.eSigned}
+                  lines={sampleRows.slice(0, 2).map(({ label, amount }) => ({ label, amount }))}
+                  totalLabel={t('core.landing.sampleDoc.total')}
+                  totalAmount={sampleTotal}
+                />
+              }
+              cta={t('core.landing.bento.ctaCalculator')}
+              href="#calculator"
+            />
+            <BentoCard
+              className="lp-rise lg:col-span-2"
+              style={{ animationDelay: '160ms' }}
+              icon={Ruler}
+              name={t('core.landing.bento.t3Title')}
+              description={t('core.landing.bento.t3Desc')}
+              visual={
+                <VolumeFormulaVisual
+                  formula={t('core.landing.bento.t3Formula')}
+                  output={formatNumber(totalExcavationCuYd, 1)}
+                  units={t('core.landing.bento.t3Units')}
+                />
+              }
+              cta={t('core.landing.bento.ctaCalculator')}
+              href="#calculator"
+            />
+            <BentoCard
+              className="lp-rise lg:col-span-2"
+              style={{ animationDelay: '240ms' }}
+              icon={Table2}
+              name={t('core.landing.bento.t4Title')}
+              description={t('core.landing.bento.t4Desc')}
+              visual={
+                <EditableGridVisual
+                  headers={{
+                    item: previewColumns.item,
+                    qty: previewColumns.qty,
+                    rate: t('core.landing.bento.t4ColRate'),
+                  }}
+                  rows={sampleRows
+                    .slice(0, 3)
+                    .map(({ label, qty, unit }) => ({ label, qty, rate: unit }))}
+                />
+              }
+              cta={t('core.landing.bento.ctaCalculator')}
+              href="#calculator"
+            />
+            <BentoCard
+              className="lp-rise sm:col-span-2 lg:col-span-2"
+              style={{ animationDelay: '320ms' }}
+              icon={Download}
+              name={t('core.landing.bento.t5Title')}
+              description={t('core.landing.bento.t5Desc')}
+              visual={<ExportFormatVisual items={previewExports.items} />}
+              cta={t('core.landing.bento.ctaPricing')}
+              href="#pricing"
+            />
+            <BentoCard
+              layout="row"
+              className="lp-rise sm:col-span-2 lg:col-span-6"
+              style={{ animationDelay: '400ms' }}
+              icon={Signature}
+              name={t('core.landing.bento.t6Title')}
+              description={t('core.landing.bento.t6Desc')}
+              visual={
+                <SignatureVisual
+                  clientUrl={t('core.landing.bento.t6ClientUrl')}
+                  signature={sampleProposal.signature}
+                  eSigned={sampleProposal.eSigned}
+                />
+              }
+              cta={t('core.landing.bento.ctaPricing')}
+              href="#pricing"
+            />
+          </BentoGrid>
+        </div>
+      </section>
 
       {/* Calculator */}
       <section id="calculator" className="mt-[72px] sm:mt-[104px] py-[72px] sm:py-[104px] bg-[var(--lp-band)] text-white border-y-2 border-[var(--lp-ink)] scroll-mt-16">

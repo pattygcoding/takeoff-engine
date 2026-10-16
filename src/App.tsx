@@ -24,6 +24,7 @@ import { PricingProvider, useAccountCreationDisabled } from '@/core/components/c
 import { renderProductRoutes } from '@/product/routes/ProductRoutes';
 import { PENDING_INVITE_KEY } from '@/core/lib/auth/organizations';
 import { isClientProposalPath, isPublicLandingPath } from '@/core/lib/shared/publicRoutes';
+import { hasFullAccess, remainingTrialCredits } from '@/core/lib/billing/entitlements';
 
 /** Where a freshly signed-in user lands: a pending team invitation wins over their workspace. */
 function postLoginPath(username: string) {
@@ -45,12 +46,213 @@ const RefundPolicyPage = lazy(() => import('@/core/components/legal/RefundPolicy
 const TermsOfServicePage = lazy(() => import('@/core/components/legal/TermsOfServicePage'));
 const AccessibilityPage = lazy(() => import('@/core/components/legal/AccessibilityPage'));
 
+/** The signed-in app shell header: brand mark, theme/language controls, and account menu. */
+function AppHeader() {
+  const { user, isAuthenticated } = useAuth();
+  const { t } = useTranslation();
+  const accountCreationDisabled = useAccountCreationDisabled();
+  const navigate = useNavigate();
+  const brandPath = isAuthenticated && user?.username ? `/${user.username}` : '/home';
+
+  return (
+    <header className="no-print bg-[var(--lp-paper)] border-b-2 border-[var(--lp-ink)] py-3 sm:py-4 transition-colors duration-200">
+      <div className="max-w-6xl mx-auto px-4 flex flex-wrap gap-3 items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Link
+            className="flex items-center gap-2.5 cursor-pointer font-extrabold text-[17px] tracking-[-0.02em]"
+            to={brandPath}
+          >
+            <span aria-hidden="true" className="relative w-[26px] h-[26px] shrink-0 bg-[var(--lp-ink)]">
+              <span className="absolute right-0 bottom-0 w-[11px] h-[11px] bg-[var(--lp-accent)]" />
+            </span>
+            Takeoff Engine
+            <span className="hidden sm:inline text-sm font-medium text-[var(--lp-muted)]">Construction Estimating</span>
+          </Link>
+
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              navigate('/home');
+            }}
+            aria-label="View public marketing site & free trench calculator"
+            className="inline-flex items-center justify-center w-9 h-9 border border-[var(--lp-ink)] hover:bg-[var(--lp-ink)] hover:text-[var(--lp-paper)] transition-colors cursor-pointer"
+            title="View public marketing site & free trench calculator"
+          >
+            <Globe aria-hidden="true" className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="flex items-center gap-3 sm:gap-5">
+          <ThemeToggle variant="landing" />
+          <LanguageSelector variant="landing" />
+
+          {isAuthenticated ? (
+            <UserMenu />
+          ) : (
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => navigate('/login')}
+                className="text-sm font-medium hover:text-[var(--lp-accent-text)] transition-colors cursor-pointer"
+              >
+                Log In
+              </button>
+              <button
+                onClick={() => navigate('/register')}
+                disabled={accountCreationDisabled}
+                title={accountCreationDisabled ? t('core.catalogPricing.accountCreationDisabled') : undefined}
+                className="lp-btn lp-btn-sm"
+              >
+                Sign Up
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </header>
+  );
+}
+
+/** Every application route; auth gates are applied per route. */
+function AppRoutes() {
+  const { user, isAuthenticated } = useAuth();
+  // Where a signed-in visitor belongs: their workspace, or the invitation they still have pending.
+  const signedInPath = user?.username ? postLoginPath(user.username) : null;
+
+  return (
+    <Routes>
+      {/* Core Auth & Onboarding Routes */}
+      <Route
+        path="/login"
+        element={
+          signedInPath ? (
+            <Navigate to={signedInPath} replace />
+          ) : (
+            <LoginPage initialView="login" />
+          )
+        }
+      />
+      <Route path="/register" element={<LoginPage initialView="register" />} />
+      <Route
+        path="/onboarding"
+        element={
+          isAuthenticated ? (
+            <PlanOnboardingPage />
+          ) : (
+            <Navigate to="/register" replace />
+          )
+        }
+      />
+      <Route
+        path="/forgot-password"
+        element={
+          signedInPath ? (
+            <Navigate to={signedInPath} replace />
+          ) : (
+            <LoginPage initialView="forgot" />
+          )
+        }
+      />
+      <Route path="/accept-invite" element={<AcceptInvitePage />} />
+
+      {/* Core Landing Page */}
+      <Route path="/home" element={<LandingPage />} />
+
+      {/* Core Super-Admin Portal */}
+      <Route
+        path="/admin"
+        element={
+          isAuthenticated && user?.role === 'admin' ? (
+            <AdminPortal />
+          ) : (
+            <Navigate to="/" replace />
+          )
+        }
+      />
+
+      {/* Core Terms, Privacy, Refund, Legal & Policy Pages */}
+      <Route path="/terms" element={<TermsOfServicePage />} />
+      <Route path="/accessibility" element={<AccessibilityPage />} />
+      <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+      <Route path="/privacy" element={<PrivacyPolicyPage />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+      <Route path="/refund" element={<RefundPolicyPage />} />
+      <Route path="/refund-policy" element={<RefundPolicyPage />} />
+      <Route path="/policy" element={<UsagePolicyPage />} />
+      <Route path="/acceptable-use" element={<UsagePolicyPage />} />
+      <Route path="/disclaimer" element={<LegalDisclaimerPage />} />
+      <Route path="/legal-disclaimer" element={<LegalDisclaimerPage />} />
+
+      {/* User Scoped Core Settings & Legal Wrappers */}
+      <Route path="/:username/terms" element={<TermsOfServicePage />} />
+      <Route path="/:username/privacy" element={<PrivacyPolicyPage />} />
+      <Route path="/:username/refund" element={<RefundPolicyPage />} />
+      <Route path="/:username/acceptable-use" element={<UsagePolicyPage />} />
+      <Route path="/:username/disclaimer" element={<LegalDisclaimerPage />} />
+      <Route
+        path="/:username/settings"
+        element={
+          isAuthenticated ? (
+            <AccountSettings />
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      />
+
+      {/* Product-Specific Routes (Decoupled Domain Layer) */}
+      {renderProductRoutes(isAuthenticated)}
+
+      {/* Core Root Route & Fallback */}
+      <Route
+        path="/"
+        element={
+          signedInPath ? (
+            <Navigate to={signedInPath} replace />
+          ) : (
+            <LandingPage />
+          )
+        }
+      />
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
+  );
+}
+
+/** Moves focus to the page heading so keyboard users are not left behind after a route change. */
+function focusMainHeading(content: HTMLElement): () => void {
+  const focusTarget = (target: HTMLElement) => {
+    target.setAttribute('tabindex', '-1');
+    target.focus({ preventScroll: true });
+  };
+
+  const heading = content.querySelector('h1');
+  if (heading) {
+    focusTarget(heading);
+    return () => {};
+  }
+
+  // Lazy routes show the Suspense fallback first; move focus to the heading once the page mounts.
+  focusTarget(content);
+  const observer = new MutationObserver(() => {
+    const mountedHeading = content.querySelector('h1');
+    if (!mountedHeading) return;
+    observer.disconnect();
+    if (document.activeElement !== content && document.activeElement !== document.body) return;
+    focusTarget(mountedHeading);
+  });
+  observer.observe(content, { childList: true, subtree: true });
+  const timeout = setTimeout(() => observer.disconnect(), 10000);
+  return () => {
+    observer.disconnect();
+    clearTimeout(timeout);
+  };
+}
+
 function AppContent() {
   const { user, isAuthenticated, loading } = useAuth();
   const { t } = useTranslation();
-  const accountCreationDisabled = useAccountCreationDisabled();
   const [showAutoUpgradeModal, setShowAutoUpgradeModal] = useState(false);
-  const navigate = useNavigate();
   const location = useLocation();
   const previousPath = useRef(location.pathname);
 
@@ -59,47 +261,15 @@ function AppContent() {
     previousPath.current = location.pathname;
     window.scrollTo({ top: 0, behavior: 'instant' });
     const content = document.getElementById('main-content');
-    if (!content) return undefined;
-    const focusTarget = (target: HTMLElement) => {
-      target.setAttribute('tabindex', '-1');
-      target.focus({ preventScroll: true });
-    };
-    const heading = content.querySelector('h1');
-    if (heading) {
-      focusTarget(heading);
-      return undefined;
-    }
-    // Lazy routes show the Suspense fallback first; move focus to the heading once the page mounts.
-    focusTarget(content);
-    const observer = new MutationObserver(() => {
-      const mountedHeading = content.querySelector('h1');
-      if (!mountedHeading) return;
-      observer.disconnect();
-      if (document.activeElement === content || document.activeElement === document.body) {
-        focusTarget(mountedHeading);
-      }
-    });
-    observer.observe(content, { childList: true, subtree: true });
-    const timeout = setTimeout(() => observer.disconnect(), 10000);
-    return () => {
-      observer.disconnect();
-      clearTimeout(timeout);
-    };
+    return content ? focusMainHeading(content) : undefined;
   }, [location.pathname, loading]);
 
-  const isExempt =
-    user?.role === 'admin' ||
-    user?.role === 'payment_exempt' ||
-    user?.has_unlimited_bypass === true ||
-    (user?.subscription_status === 'active' && ['starter', 'pro', 'enterprise'].includes(user?.subscription_tier ?? ''));
+  const isExempt = hasFullAccess(user);
 
   // Automatically prompt free users with 0 credits to upgrade when they log in / view the app
   useEffect(() => {
-    if (!loading && isAuthenticated && user && !isExempt) {
-      const remainingCredits = typeof user.trial_uses_remaining === 'number' ? user.trial_uses_remaining : 5;
-      if (remainingCredits <= 0) {
-        setShowAutoUpgradeModal(true);
-      }
+    if (!loading && isAuthenticated && !isExempt && remainingTrialCredits(user) <= 0) {
+      setShowAutoUpgradeModal(true);
     }
   }, [loading, isAuthenticated, user?.id, user?.trial_uses_remaining, isExempt]);
 
@@ -131,63 +301,7 @@ function AppContent() {
       >
         {t('core.accessibility.skipToContent')}
       </a>
-      {!isPublicLandingOrProposal && (
-        <header className="no-print bg-[var(--lp-paper)] border-b-2 border-[var(--lp-ink)] py-3 sm:py-4 transition-colors duration-200">
-          <div className="max-w-6xl mx-auto px-4 flex flex-wrap gap-3 items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Link
-                className="flex items-center gap-2.5 cursor-pointer font-extrabold text-[17px] tracking-[-0.02em]"
-                to={isAuthenticated && user?.username ? `/${user.username}` : '/home'}
-              >
-                <span aria-hidden="true" className="relative w-[26px] h-[26px] shrink-0 bg-[var(--lp-ink)]">
-                  <span className="absolute right-0 bottom-0 w-[11px] h-[11px] bg-[var(--lp-accent)]" />
-                </span>
-                Takeoff Engine
-                <span className="hidden sm:inline text-sm font-medium text-[var(--lp-muted)]">Construction Estimating</span>
-              </Link>
-
-              <button
-                type="button"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  navigate('/home');
-                }}
-                aria-label="View public marketing site & free trench calculator"
-                className="inline-flex items-center justify-center w-9 h-9 border border-[var(--lp-ink)] hover:bg-[var(--lp-ink)] hover:text-[var(--lp-paper)] transition-colors cursor-pointer"
-                title="View public marketing site & free trench calculator"
-              >
-                <Globe aria-hidden="true" className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="flex items-center gap-3 sm:gap-5">
-              <ThemeToggle variant="landing" />
-              <LanguageSelector variant="landing" />
-
-              {isAuthenticated ? (
-                <UserMenu />
-              ) : (
-                <div className="flex items-center gap-4">
-                  <button
-                    onClick={() => navigate('/login')}
-                    className="text-sm font-medium hover:text-[var(--lp-accent-text)] transition-colors cursor-pointer"
-                  >
-                    Log In
-                  </button>
-                  <button
-                    onClick={() => navigate('/register')}
-                    disabled={accountCreationDisabled}
-                    title={accountCreationDisabled ? t('core.catalogPricing.accountCreationDisabled') : undefined}
-                    className="lp-btn lp-btn-sm"
-                  >
-                    Sign Up
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </header>
-      )}
+      {!isPublicLandingOrProposal && <AppHeader />}
 
       <main id="main-content" tabIndex={-1}>
       <Suspense
@@ -197,111 +311,7 @@ function AppContent() {
           </div>
         }
       >
-      <Routes>
-        {/* Core Auth & Onboarding Routes */}
-        <Route
-          path="/login"
-          element={
-            isAuthenticated && user?.username ? (
-              <Navigate to={postLoginPath(user.username)} replace />
-            ) : (
-              <LoginPage initialView="login" />
-            )
-          }
-        />
-        <Route
-          path="/register"
-          element={<LoginPage initialView="register" />}
-        />
-        <Route
-          path="/onboarding"
-          element={
-            isAuthenticated ? (
-              <PlanOnboardingPage />
-            ) : (
-              <Navigate to="/register" replace />
-            )
-          }
-        />
-        <Route
-          path="/forgot-password"
-          element={
-            isAuthenticated && user?.username ? (
-              <Navigate to={`/${user.username}`} replace />
-            ) : (
-              <LoginPage initialView="forgot" />
-            )
-          }
-        />
-        <Route
-          path="/accept-invite"
-          element={<AcceptInvitePage />}
-        />
-
-        {/* Core Landing Page */}
-        <Route
-          path="/home"
-          element={<LandingPage />}
-        />
-
-        {/* Core Super-Admin Portal */}
-        <Route
-          path="/admin"
-          element={
-            isAuthenticated && user?.role === 'admin' ? (
-              <AdminPortal />
-            ) : (
-              <Navigate to="/" replace />
-            )
-          }
-        />
-
-        {/* Core Terms, Privacy, Refund, Legal & Policy Pages */}
-        <Route path="/terms" element={<TermsOfServicePage />} />
-        <Route path="/accessibility" element={<AccessibilityPage />} />
-        <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-        <Route path="/privacy" element={<PrivacyPolicyPage />} />
-        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-        <Route path="/refund" element={<RefundPolicyPage />} />
-        <Route path="/refund-policy" element={<RefundPolicyPage />} />
-        <Route path="/policy" element={<UsagePolicyPage />} />
-        <Route path="/acceptable-use" element={<UsagePolicyPage />} />
-        <Route path="/disclaimer" element={<LegalDisclaimerPage />} />
-        <Route path="/legal-disclaimer" element={<LegalDisclaimerPage />} />
-
-        {/* User Scoped Core Settings & Legal Wrappers */}
-        <Route path="/:username/terms" element={<TermsOfServicePage />} />
-        <Route path="/:username/privacy" element={<PrivacyPolicyPage />} />
-        <Route path="/:username/refund" element={<RefundPolicyPage />} />
-        <Route path="/:username/acceptable-use" element={<UsagePolicyPage />} />
-        <Route path="/:username/disclaimer" element={<LegalDisclaimerPage />} />
-        <Route
-          path="/:username/settings"
-          element={
-            !isAuthenticated ? (
-              <Navigate to="/login" replace />
-            ) : (
-              <AccountSettings />
-            )
-          }
-        />
-
-        {/* Product-Specific Routes (Decoupled Domain Layer) */}
-        {renderProductRoutes(isAuthenticated)}
-
-        {/* Core Root Route & Fallback */}
-        <Route
-          path="/"
-          element={
-            isAuthenticated && user?.username ? (
-              <Navigate to={`/${user.username}`} replace />
-            ) : (
-              <LandingPage />
-            )
-          }
-        />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+        <AppRoutes />
       </Suspense>
       </main>
 

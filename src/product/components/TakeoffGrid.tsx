@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import type { ChangeEvent, FormEvent, ReactNode } from 'react';
 import { Truck, AlertTriangle, X } from 'lucide-react';
 import { createBlankItem } from '@/product/lib/csv';
+import { newId } from '@/core/lib/shared/ids';
+import { toNumberOr } from '@/core/lib/shared/coerce';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import { calculationsApi, formatCurrency } from '@/product/lib/calculations';
 import {
@@ -12,6 +14,57 @@ import type { EquipmentCatalogItem, LaborRole, Rates, TakeoffItem } from '@/type
 
 const DEFAULT_SYSTEMS = ['Sanitary', 'Storm', 'Domestic Water', 'Equipment & Mobilization'];
 const DEFAULT_UNITS = ['LF', 'EA', 'SF', 'CY', 'SY', 'TON', 'LS', 'HR'];
+
+/** Equipment is filed under the scope it belongs to, or the shared mobilization bucket. */
+function equipmentSystem(associatedScope: string): string {
+  return associatedScope && associatedScope !== 'General / Project-Wide' ? associatedScope : 'Equipment & Mobilization';
+}
+
+/** The billing unit for an equipment rental duration. */
+function equipmentUnit(durationUnit: string): string {
+  if (durationUnit === 'days') return 'DAY';
+  if (durationUnit === 'months') return 'MO';
+  return 'WK';
+}
+
+/** Row tint: equipment rows, missing-scope rows, and selected rows each get their own highlight. */
+function takeoffRowClass(item: TakeoffItem, isSelected: boolean): string {
+  const tint = item.isEquipment
+    ? 'bg-amber-50/50 dark:bg-amber-950/25 border-l-4 border-l-amber-500'
+    : item.hasMissingScope
+    ? 'bg-amber-50/40 dark:bg-amber-950/20'
+    : '';
+  const selected = isSelected ? 'bg-blue-50/40 dark:bg-blue-950/30' : '';
+  return `hover:bg-slate-50 dark:hover:bg-slate-800/50 ${tint} ${selected}`;
+}
+
+/** Negative quantities are called out in red. */
+function quantityInputClass(item: TakeoffItem): string {
+  const invalid = Number(item.quantity) < 0 ? 'text-red-600 dark:text-red-400 font-bold' : '';
+  return `w-20 bg-transparent outline-none text-right disabled:opacity-80 disabled:cursor-not-allowed dark:text-white ${invalid}`;
+}
+
+/**
+ * The labour cell value: raw hours in `hours` mode, otherwise the derived cost (the stored unit
+ * cost when the row already has one, else hours × rate).
+ */
+function laborCellValue(item: TakeoffItem, laborInputMode: string, hourlyRate: string | number): string | number {
+  if (laborInputMode === 'hours') return item.laborHoursPerUnit ?? '';
+  if (item.laborUnitCost !== undefined) return item.laborUnitCost;
+  const hours = item.laborHoursPerUnit;
+  if (hours === undefined || hours === '') return '';
+  return Math.round(Number(hours) * Number(hourlyRate) * 100) / 100;
+}
+
+/** The onChange handler for the labour cell, matching the active input mode. */
+function laborCellHandler(
+  item: TakeoffItem,
+  laborInputMode: string,
+  numberField: (item: TakeoffItem, field: string) => (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void,
+  laborCostField: (item: TakeoffItem) => (e: ChangeEvent<HTMLInputElement>) => void,
+): (e: ChangeEvent<HTMLInputElement>) => void {
+  return laborInputMode === 'hours' ? numberField(item, 'laborHoursPerUnit') : laborCostField(item);
+}
 
 export default function TakeoffGrid({
   items,
@@ -234,29 +287,29 @@ export default function TakeoffGrid({
     }
 
     const newEquipmentItem = {
-      id: `eq-item-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
-      system: eqAssociatedScope && eqAssociatedScope !== 'General / Project-Wide' ? eqAssociatedScope : 'Equipment & Mobilization',
+      id: newId('eq-item-'),
+      system: equipmentSystem(eqAssociatedScope),
       description: eqCustomTitle || t('product.takeoffGrid.equipmentItemFallback', 'Machinery Rental'),
       sizeSpec: `${eqDurationQty} ${eqDurationUnit} rental${eqIncludeDelivery ? ' + Delivery' : ''}`,
-      quantity: Number(eqDurationQty) || 1,
-      unit: eqDurationUnit === 'days' ? 'DAY' : eqDurationUnit === 'months' ? 'MO' : 'WK',
+      quantity: toNumberOr(eqDurationQty, 1),
+      unit: equipmentUnit(eqDurationUnit),
       avgDepthFt: '',
       materialCostPerUnit: 0,
       laborHoursPerUnit: 0,
       laborUnitCost: 0,
       laborRoleId: null,
       isEquipment: true,
-      equipmentDurationQty: Number(eqDurationQty) || 1,
+      equipmentDurationQty: toNumberOr(eqDurationQty, 1),
       equipmentDurationUnit: eqDurationUnit,
-      equipmentDailyRate: Number(eqCustomDailyRate) || 0,
-      equipmentWeeklyRate: Number(eqCustomWeeklyRate) || 0,
-      equipmentMonthlyRate: Number(eqCustomMonthlyRate) || 0,
-      equipmentDeliveryFee: Number(eqCustomDeliveryFee) || 0,
-      equipmentFuelSurchargePct: Number(eqCustomFuelPct) || 0,
-      equipmentDamageWaiverPct: Number(eqDamageWaiverPct) || 0,
-      equipmentMinimumRentalDays: Number(eqMinimumRentalDays) || 1,
-      equipmentStandbyDays: Number(eqStandbyDays) || 0,
-      equipmentStandbyRatePct: Number(eqStandbyRatePct) || 50,
+      equipmentDailyRate: toNumberOr(eqCustomDailyRate, 0),
+      equipmentWeeklyRate: toNumberOr(eqCustomWeeklyRate, 0),
+      equipmentMonthlyRate: toNumberOr(eqCustomMonthlyRate, 0),
+      equipmentDeliveryFee: toNumberOr(eqCustomDeliveryFee, 0),
+      equipmentFuelSurchargePct: toNumberOr(eqCustomFuelPct, 0),
+      equipmentDamageWaiverPct: toNumberOr(eqDamageWaiverPct, 0),
+      equipmentMinimumRentalDays: toNumberOr(eqMinimumRentalDays, 1),
+      equipmentStandbyDays: toNumberOr(eqStandbyDays, 0),
+      equipmentStandbyRatePct: toNumberOr(eqStandbyRatePct, 50),
       equipmentOwnership: eqOwnership,
       equipmentOperatorIncluded: eqOperatorIncluded,
       equipmentOperatorRoleId: 'operator',
@@ -417,13 +470,7 @@ export default function TakeoffGrid({
               return (
                 <tr
                   key={item.id}
-                  className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 ${
-                    item.isEquipment
-                      ? 'bg-amber-50/50 dark:bg-amber-950/25 border-l-4 border-l-amber-500'
-                      : item.hasMissingScope
-                      ? 'bg-amber-50/40 dark:bg-amber-950/20'
-                      : ''
-                  } ${selectedItemIds.has(item.id) ? 'bg-blue-50/40 dark:bg-blue-950/30' : ''}`}
+                  className={takeoffRowClass(item, selectedItemIds.has(item.id))}
                 >
                   {!readOnly && (
                     <td className="px-3 py-2 text-center w-8">
@@ -486,9 +533,7 @@ export default function TakeoffGrid({
                       value={item.quantity ?? ''}
                       onChange={numberField(item, 'quantity')}
                       disabled={readOnly}
-                      className={`w-20 bg-transparent outline-none text-right disabled:opacity-80 disabled:cursor-not-allowed dark:text-white ${
-                        Number(item.quantity) < 0 ? 'text-red-600 dark:text-red-400 font-bold' : ''
-                      }`}
+                      className={quantityInputClass(item)}
                     />
                   </Td>
                   <Td>
@@ -541,7 +586,7 @@ export default function TakeoffGrid({
                   <Td align="right">
                     {item.isEquipment ? (
                       <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                        ${(Number(item.equipmentCost) || 0).toLocaleString()}
+                        ${toNumberOr(item.equipmentCost, 0).toLocaleString()}
                       </span>
                     ) : (
                       <input
@@ -563,12 +608,8 @@ export default function TakeoffGrid({
                       <input
                         type="number"
                         step="any"
-                        value={
-                          laborInputMode === 'hours'
-                            ? (item.laborHoursPerUnit ?? '')
-                            : (item.laborUnitCost ?? (item.laborHoursPerUnit !== undefined && item.laborHoursPerUnit !== '' ? Math.round((Number(item.laborHoursPerUnit) * Number(itemHourlyRate)) * 100) / 100 : ''))
-                        }
-                        onChange={laborInputMode === 'hours' ? numberField(item, 'laborHoursPerUnit') : laborCostField(item)}
+                        value={laborCellValue(item, laborInputMode, itemHourlyRate)}
+                        onChange={laborCellHandler(item, laborInputMode, numberField, laborCostField)}
                         disabled={readOnly}
                         className="w-20 bg-transparent outline-none text-right disabled:opacity-80 disabled:cursor-not-allowed dark:text-white"
                       />

@@ -1,3 +1,5 @@
+import { randomInt } from 'node:crypto';
+
 // Tests never hardcode plan prices. Each run mocks the Paddle catalog with freshly
 // generated amounts and derives every expected value from them.
 
@@ -12,8 +14,9 @@ export const CATALOG_PRICE_NAMES = [
   'EXTRA_SEAT_YEARLY_PRICE',
 ];
 
+/** A fresh, never-hardcoded price in minor units, drawn from a CSPRNG (Sonar S2245). */
 export function randomMinorUnits() {
-  return 100 + Math.floor(Math.random() * 99_900);
+  return randomInt(100, 100_000);
 }
 
 /**

@@ -50,6 +50,30 @@ const CLIENT_PDF_FORMAT_IDS: Record<string, string> = {
   warranty: 'client_warranty_log',
 };
 
+/** Persists the estimate as a cloud project, preferring an update once the project exists. */
+async function persistEstimate(
+  currentProject: Project | null,
+  fields: { name: string; clientName: string; location: string },
+  summary: Record<string, unknown>,
+  items: TakeoffItem[],
+  rates: Rates,
+  onSaved?: (project: Project) => void,
+  refresh?: () => Promise<unknown>,
+): Promise<Project | null> {
+  const payload = { ...fields, items, rates, summary };
+
+  if (currentProject?.id) {
+    const updated = await projectsApi.update(String(currentProject.id), payload);
+    if (onSaved) onSaved(updated);
+    return updated;
+  }
+
+  const created = await projectsApi.create({ ...payload, status: 'draft' });
+  if (onSaved) onSaved(created);
+  if (refresh) void refresh();
+  return created;
+}
+
 export default function ResultsStep({
   items,
   rates,
@@ -198,7 +222,7 @@ export default function ResultsStep({
   });
 
   const handleSaveToCloud = guard<[React.FormEvent | undefined], void>('save-project', async (e) => {
-    if (e) e.preventDefault();
+    e?.preventDefault();
     if (!projectNameInput.trim()) {
       setShowSaveModal(true);
       return;
@@ -220,51 +244,37 @@ export default function ResultsStep({
         totalItemsCount: items.length,
       };
 
-      let savedProject = null;
-
-      if (currentProject?.id) {
-        // Update existing project
-        savedProject = await projectsApi.update(String(currentProject.id), {
+      const savedProject = await persistEstimate(
+        currentProject,
+        {
           name: projectNameInput.trim(),
           clientName: clientNameInput.trim(),
           location: locationInput.trim(),
-          items,
-          rates,
-          summary: summaryPayload,
-        });
-        if (onProjectSaved) onProjectSaved(savedProject);
-      } else {
-        // Create new cloud project
-        savedProject = await projectsApi.create({
-          name: projectNameInput.trim(),
-          clientName: clientNameInput.trim(),
-          location: locationInput.trim(),
-          status: 'draft',
-          items,
-          rates,
-          summary: summaryPayload,
-        });
-        if (onProjectSaved) onProjectSaved(savedProject);
-        if (refreshProfile) void refreshProfile();
-      }
+        },
+        summaryPayload,
+        items,
+        rates,
+        onProjectSaved,
+        refreshProfile,
+      );
 
       setShowSaveModal(false);
       setSaveSuccessMsg(t('product.resultsStep.estimateSavedSuccess'));
       setTimeout(() => setSaveSuccessMsg(''), 4000);
-      return savedProject;
+      return;
     } catch (err) {
       if ((err as { code?: string }).code === 'TRIAL_EXHAUSTED') {
         setShowSaveModal(false);
         if (refreshProfile) void refreshProfile();
         setShowUpgradeModal(true);
-        return null;
+        return;
       }
       await showAlert({
         title: t('product.resultsStep.saveFailed'),
         message: (err as Error).message || t('product.resultsStep.savingProject'),
         variant: 'error',
       });
-      return null;
+      return;
     } finally {
       setIsSavingProject(false);
     }

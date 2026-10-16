@@ -7,8 +7,32 @@ import {
   formatScopeStatusLabel,
 } from '@/product/lib/scope';
 import { useTranslation } from '@/core/components/context/I18nContext';
+import { toNumberOr } from '@/core/lib/shared/coerce';
 import { Scale, Lightbulb, Check, X, Plus, Minus, ShowerHead } from 'lucide-react';
 import type { ScopeItem } from '@/types/models';
+
+/** Badge tint for a scope item's status. */
+function statusBadgeClass(status: string): string {
+  if (status === SCOPE_STATUS.OPTIONAL_ADDON) return 'bg-blue-600 text-white';
+  if (status === SCOPE_STATUS.INCLUDED) return 'bg-emerald-600 text-white';
+  if (status === SCOPE_STATUS.EXCLUDED) return 'bg-rose-600 text-white';
+  return 'bg-slate-600 text-white';
+}
+
+/** Row border and tint for a scope item's status. */
+function statusRowTint(status: string): string {
+  if (status === SCOPE_STATUS.OPTIONAL_ADDON) return 'border-blue-300 dark:border-blue-800 bg-blue-50/60 dark:bg-blue-950/30';
+  if (status === SCOPE_STATUS.INCLUDED) return 'border-emerald-300 dark:border-emerald-800 bg-emerald-50/60 dark:bg-emerald-950/30';
+  if (status === SCOPE_STATUS.EXCLUDED) return 'border-rose-300 dark:border-rose-800 bg-rose-50/60 dark:bg-rose-950/30';
+  return 'border-slate-300 dark:border-slate-700 bg-slate-100/80 dark:bg-slate-800/70';
+}
+
+/** Tint for a status option button, highlighted when it is the item's current status. */
+function statusOptionClass(selected: boolean): string {
+  return selected
+    ? 'border-slate-900 dark:border-slate-200 bg-slate-900 dark:bg-slate-200 text-white dark:text-slate-900'
+    : 'border-slate-300 dark:border-slate-600 bg-white/80 dark:bg-slate-900/70 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800';
+}
 
 export default function ClientCounterOfferModal({
   currentScope = DEFAULT_SCOPE_ITEMS,
@@ -168,30 +192,15 @@ export default function ClientCounterOfferModal({
                 .filter((item) => item.status !== SCOPE_STATUS.NOT_APPLICABLE)
                 .map((item) => {
                   const isAddon = item.status === SCOPE_STATUS.OPTIONAL_ADDON;
-                  const resolvedBaseAmount = Number(item?.baseAmount ?? item?.calculatedBaseAmount ?? baseAmount ?? 0) || 0;
+                  const resolvedBaseAmount = toNumberOr(item?.baseAmount ?? item?.calculatedBaseAmount ?? baseAmount ?? 0, 0);
                   const addonImpact = isAddon
                     ? formatScopeAddonImpact({ ...item, costImpact: item.amount }, resolvedBaseAmount)
                     : null;
-                  const statusBadgeClasses = isAddon
-                    ? 'bg-blue-600 text-white'
-                    : item.status === SCOPE_STATUS.INCLUDED
-                      ? 'bg-emerald-600 text-white'
-                      : item.status === SCOPE_STATUS.EXCLUDED
-                        ? 'bg-rose-600 text-white'
-                        : 'bg-slate-600 text-white';
 
                   return (
                     <div
                       key={item.id}
-                      className={`p-2.5 rounded-xl border transition ${
-                        isAddon
-                          ? 'border-blue-300 dark:border-blue-800 bg-blue-50/60 dark:bg-blue-950/30'
-                          : item.status === SCOPE_STATUS.INCLUDED
-                            ? 'border-emerald-300 dark:border-emerald-800 bg-emerald-50/60 dark:bg-emerald-950/30'
-                            : item.status === SCOPE_STATUS.EXCLUDED
-                              ? 'border-rose-300 dark:border-rose-800 bg-rose-50/60 dark:bg-rose-950/30'
-                              : 'border-slate-300 dark:border-slate-700 bg-slate-100/80 dark:bg-slate-800/70'
-                      }`}
+                      className={`p-2.5 rounded-xl border transition ${statusRowTint(item.status ?? '')}`}
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0 flex-1">
@@ -210,7 +219,7 @@ export default function ClientCounterOfferModal({
                           </div>
                           <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5">{item.description}</p>
                         </div>
-                        <span className={`text-[10px] font-bold px-2 py-1 rounded-lg shrink-0 ${statusBadgeClasses}`}>
+                        <span className={`text-[10px] font-bold px-2 py-1 rounded-lg shrink-0 ${statusBadgeClass(item.status ?? '')}`}>
                           {formatScopeStatusLabel(item.status ?? '')}
                         </span>
                       </div>
@@ -223,11 +232,7 @@ export default function ClientCounterOfferModal({
                               key={option.value}
                               type="button"
                               onClick={() => handleStatusChange(item.id, option.value)}
-                              className={`px-2 py-1 text-[10px] font-bold rounded-lg border transition ${
-                                selected
-                                  ? 'border-slate-900 dark:border-slate-200 bg-slate-900 dark:bg-slate-200 text-white dark:text-slate-900'
-                                  : 'border-slate-300 dark:border-slate-600 bg-white/80 dark:bg-slate-900/70 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
-                              }`}
+                              className={`px-2 py-1 text-[10px] font-bold rounded-lg border transition ${statusOptionClass(selected)}`}
                             >
                               <span className="inline-flex items-center gap-1">{option.icon} {option.label}</span>
                             </button>

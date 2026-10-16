@@ -10,6 +10,26 @@ import ScopeInclusionsModal from './ScopeInclusionsModal';
 import type { TakeoffFileLike } from '@/product/lib/csv';
 import type { ImportContext, MappingModalData, Rates, TakeoffItem } from '@/types/models';
 
+/** Per-status copy for the project banner, keyed by project status. */
+const STATUS_COPY: Record<string, { label: string; description: string }> = {
+  submitted: {
+    label: 'product.editStep.statusSubmitted',
+    description: 'product.editStep.submittedDesc',
+  },
+  archived: {
+    label: 'product.editStep.statusArchived',
+    description: 'product.editStep.archivedDesc',
+  },
+  declined: {
+    label: 'product.editStep.statusDeclined',
+    description: 'product.editStep.declinedDesc',
+  },
+  awarded: {
+    label: 'product.editStep.statusAwarded',
+    description: 'product.editStep.awardedDesc',
+  },
+};
+
 export default function EditStep({
   items,
   onItemsChange,
@@ -40,23 +60,9 @@ export default function EditStep({
   const [successToast, setSuccessToast] = useState('');
   const [isReparsing, setIsReparsing] = useState(false);
 
-  const statusLabel =
-    projectStatus === 'submitted'
-      ? t('product.editStep.statusSubmitted')
-      : projectStatus === 'archived'
-      ? t('product.editStep.statusArchived')
-      : projectStatus === 'declined'
-      ? t('product.editStep.statusDeclined')
-      : t('product.editStep.statusAwarded');
-
-  const statusDescription =
-    projectStatus === 'submitted'
-      ? t('product.editStep.submittedDesc')
-      : projectStatus === 'archived'
-      ? t('product.editStep.archivedDesc')
-      : projectStatus === 'declined'
-      ? t('product.editStep.declinedDesc')
-      : t('product.editStep.awardedDesc');
+  const statusCopy = STATUS_COPY[projectStatus] ?? STATUS_COPY.awarded;
+  const statusLabel = t(statusCopy.label);
+  const statusDescription = t(statusCopy.description);
 
   const handleOpenRemapModal = () => {
     if (readOnly) return;

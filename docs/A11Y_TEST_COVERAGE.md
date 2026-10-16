@@ -67,6 +67,7 @@ Scanned routes (each gets the axe + reflow test below):
 | `failed login exposes an announced error associated with the form` | With `POST **/auth/login` mocked to `401`, submitting an invalid login shows `role="alert"` "Invalid login credentials.", the form is `aria-describedby="auth-error"`, and `aria-busy="false"`. |
 | `password reset success is announced without moving focus` | With `POST **/auth/forgot-password` mocked, submitting shows `role="status"` "Reset instructions sent." and keeps focus on the submit button. |
 | `reduced motion removes long transitions and focus has a visible outline` | Under `reducedMotion: 'reduce'`, the skip link's computed outline is `3px solid` and its `transitionDuration` is effectively `0`. |
+| `` `landing product preview passes axe on every screen (${locale})` `` (×2 locales) | The preview widget swaps whole screens, so the route scan above only ever saw its first panel. This dismisses the notice, then clicks through **every** `role="tab"`, requires a visible `role="tabpanel"`, and runs the full axe tag set + the 320 px reflow check on **each** panel. `en` runs in all projects; `fr` (longer strings = the overflow risk) runs once, on `desktop-light`. |
 
 ## `dialogs.spec.js`
 

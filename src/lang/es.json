@@ -65,8 +65,47 @@
         "ctaTrial": "Empiece la prueba gratuita (5 takeoffs gratis)",
         "ctaCalculator": "Probar la calculadora en vivo",
         "badgeNoCard": "No se requiere tarjeta de crédito",
-        "badgeInstantExports": "Exportaciones instantáneas en PDF y Word",
+        "badgeInstantExports": "Exportaciones instantáneas en PDF",
         "badgeColumnMapper": "Mapeador automático de alias de columnas"
+      },
+      "bento": {
+        "tag": "Capacidades",
+        "title": "Todos los pasos de estimación, en un solo espacio de trabajo",
+        "description": "Desde la hoja de cálculo que su estimador ya utiliza hasta la propuesta firmada en la bandeja de entrada de su cliente, sin salir del navegador.",
+        "t1Title": "Importe cualquier hoja de takeoff",
+        "t1Desc": "Las exportaciones de Bluebeam, PlanSwift o Trimble llegan como un takeoff limpio de varias líneas, con los encabezados emparejados mediante alias inteligentes.",
+        "t2Title": "Propuestas listas para el cliente en 60 segundos",
+        "t2Desc": "Cada línea se convierte en un documento con su marca, con cantidades, tarifas unitarias y un total en vivo que su cliente puede aceptar.",
+        "t3Title": "Cálculo de zanjas y movimiento de tierras integrado",
+        "t3Desc": "El volumen de excavación, el relleno y la producción de la cuadrilla se recalculan mientras escribe.",
+        "t3Formula": "L × P × A ÷ 27",
+        "t3Units": "yardas cúbicas",
+        "t4Title": "Cuadrícula de takeoff de varias líneas",
+        "t4Desc": "Edite cantidades, unidades y tarifas en una cuadrícula pensada para el teclado y respaldada por bibliotecas de tarifas reutilizables.",
+        "t4ColRate": "Tarifa",
+        "t5Title": "Exportación a PDF con un solo clic",
+        "t5Desc": "Un clic exporta los números exactos que firmó su cliente.",
+        "t6Title": "Portal público y firma electrónica del cliente",
+        "t6Desc": "Envíe un enlace de solo lectura. Su cliente revisa el takeoff y firma digitalmente, de modo que el total firmado queda registrado en la propuesta.",
+        "t6ClientUrl": "te.pub/p/0147",
+        "ctaCalculator": "Probar la calculadora en vivo",
+        "ctaPricing": "Comparar planes"
+      },
+      "preview": {
+        "tablist": "Pantallas de vista previa del producto",
+        "tabTakeoff": "Importación del takeoff",
+        "tabProposal": "Propuesta del cliente",
+        "tabExport": "Exportación y firma",
+        "urlBar": "app.takeoffengine.com/proposal/0147",
+        "hint": "Vista previa interactiva",
+        "exportsHeading": "Entregables",
+        "exportPrepared": "Listo",
+        "exportPdf": "Propuesta en PDF",
+        "exportPrint": "Imprimir / Guardar como PDF",
+        "eSignHeading": "Aceptación del cliente",
+        "eSignStatus": "Enviada para firma",
+        "eSignClientUrl": "te.pub/p/0147",
+        "eSignNote": "Su cliente abre un portal de solo lectura, revisa cada línea y firma en un toque."
       },
       "topbar": {
         "tagline": "Plataforma de estimación civil y de servicios públicos"
@@ -98,7 +137,7 @@
         "s3Title": "Calcular",
         "s3Desc": "Volúmenes de zanjas, matemáticas de producción y horas de mano de obra.",
         "s4Title": "Enviar",
-        "s4Desc": "Propuesta en PDF o Word con marca, firmada digitalmente por su cliente."
+        "s4Desc": "Propuesta en PDF con marca, firmada digitalmente por su cliente."
       },
       "calculator": {
         "tag": "Herramienta gratuita interactiva",
@@ -119,7 +158,7 @@
         "crewProduction": "Producción de mano de obra de la cuadrilla ({{hours}} hrs)",
         "directBid": "Oferta directa estimada de zanja",
         "importCta": "Importar hoja de takeoff completa de varias líneas",
-        "exportPrompt": "¿Desea exportar esto como una propuesta de oferta en Word / PDF?",
+        "exportPrompt": "¿Desea exportar esto como una propuesta de oferta en PDF?",
         "createAccount": "Crear cuenta gratuita"
       },
       "comparison": {
@@ -138,8 +177,8 @@
         "row2Te": "Alias inteligentes",
         "row2Excel": "Copiar y pegar manual",
         "row2Ent": "Se requiere configuración compleja",
-        "row3Label": "Propuesta para el cliente y exportación a Word con un solo clic",
-        "row3Te": "PDF con marca y .DOCX",
+        "row3Label": "Propuesta para el cliente y exportación a PDF con un solo clic",
+        "row3Te": "PDF con marca",
         "row3Excel": "Formato de documento manual",
         "row3Ent": "Informes torpes",
         "row4Label": "Portal público y firma electrónica del cliente",
@@ -181,7 +220,7 @@
           "description": "Ideal para estimadores independientes que ofertan semanalmente.",
           "f1": "{{seats}} puesto de estimador",
           "f2": "Cálculos ilimitados",
-          "f3": "Exportación estándar a Word y PDF",
+          "f3": "Exportación estándar a PDF",
           "f4": "2 bibliotecas personalizadas de tarifas",
           "f5": "Guardado en la nube y panel de proyectos",
           "cta": "Elegir inicial"

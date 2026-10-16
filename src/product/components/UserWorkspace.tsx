@@ -14,6 +14,22 @@ import type { ImportContext, Project, Rates, TakeoffItem } from '@/types/models'
 const ProjectWorkspace = lazy(() => import('@/product/components/ProjectWorkspace'));
 const AccountSettings = lazy(() => import('@/core/components/auth/AccountSettings'));
 
+/** The first candidate that is a non-empty array, or `[]`. */
+function firstNonEmptyArray<T>(...candidates: unknown[]): T[] {
+  for (const candidate of candidates) {
+    if (Array.isArray(candidate) && candidate.length > 0) return candidate as T[];
+  }
+  return [];
+}
+
+/** The first candidate that is a non-empty object, or `null`. */
+function firstNonEmptyObject<T>(...candidates: unknown[]): T | null {
+  for (const candidate of candidates) {
+    if (candidate && typeof candidate === 'object' && Object.keys(candidate).length > 0) return candidate as T;
+  }
+  return null;
+}
+
 export default function UserWorkspace() {
   const { username } = useParams();
   const { user } = useAuth();
@@ -41,47 +57,25 @@ export default function UserWorkspace() {
   const goToStep = (step: number) => navigate(userStepPaths[step]);
 
   const handleOpenProject = async (project: Project, targetStep: string = 'edit') => {
+    let activeProject = project;
     try {
       // Fetch full project data with items_json and rates_json
-      const fullProject = await projectsApi.getById(String(project.id));
-      const activeProject = fullProject || project;
-      setCurrentProject(activeProject);
-
-      const est = activeProject.latestEstimate;
-      if (est?.items_json && Array.isArray(est.items_json) && est.items_json.length > 0) {
-        setItems(est.items_json);
-      } else if (activeProject.items && Array.isArray(activeProject.items) && activeProject.items.length > 0) {
-        setItems(activeProject.items);
-      }
-
-      if (est?.rates_json && typeof est.rates_json === 'object' && Object.keys(est.rates_json).length > 0) {
-        setRates(est.rates_json);
-      } else if (activeProject.rates && typeof activeProject.rates === 'object' && Object.keys(activeProject.rates).length > 0) {
-        setRates(activeProject.rates);
-      }
-
-      if (targetStep === 'results') {
-        navigate(`/${username}/takeoff/${project.id}/results`);
-      } else {
-        navigate(`/${username}/takeoff/${project.id}/edit`);
-      }
+      activeProject = (await projectsApi.getById(String(project.id))) || project;
     } catch (err) {
       console.error('Failed to load project details:', err);
-      // Fallback with provided project object
-      setCurrentProject(project);
-      const est = project.latestEstimate;
-      if (est?.items_json && Array.isArray(est.items_json) && est.items_json.length > 0) {
-        setItems(est.items_json);
-      }
-      if (est?.rates_json && typeof est.rates_json === 'object' && Object.keys(est.rates_json).length > 0) {
-        setRates(est.rates_json);
-      }
-      if (targetStep === 'results') {
-        navigate(`/${username}/takeoff/${project.id}/results`);
-      } else {
-        navigate(`/${username}/takeoff/${project.id}/edit`);
-      }
+      // Fall back to the project object the caller already had.
     }
+    setCurrentProject(activeProject);
+
+    // Prefer the estimate payload, falling back to the project columns when it is empty.
+    const est = activeProject.latestEstimate;
+    const projectItems = firstNonEmptyArray<TakeoffItem>(est?.items_json, activeProject.items);
+    if (projectItems.length > 0) setItems(projectItems);
+
+    const projectRates = firstNonEmptyObject<Rates>(est?.rates_json, activeProject.rates);
+    if (projectRates) setRates(projectRates);
+
+    navigate(`/${username}/takeoff/${project.id}/${targetStep === 'results' ? 'results' : 'edit'}`);
   };
 
   const handleNewTakeoff = () => {

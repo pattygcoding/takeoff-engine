@@ -91,6 +91,35 @@ export function deleteVendorPreset(presetName: string) {
   }
 }
 
+/** Reads an Excel upload as base64, which is the shape the parser API expects. */
+async function readExcelAsBase64(file: TakeoffFileLike | string | null): Promise<string | null> {
+  if (!file || typeof file === 'string' || typeof file.arrayBuffer !== 'function') return null;
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  let binary = '';
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary);
+}
+
+/** Reads a CSV upload, or returns an already-loaded CSV string unchanged. */
+async function readCsvContent(file: TakeoffFileLike | string | null): Promise<string | null> {
+  if (typeof file === 'string') return file;
+  if (file && typeof file.text === 'function') return file.text();
+  return null;
+}
+
+/** The saved vendor preset whose name is contained in the uploaded file name, if any. */
+function matchVendorPreset(
+  fileName: string | undefined,
+  presets: Record<string, Record<string, string | undefined>>,
+): Record<string, string | undefined> | null {
+  if (!fileName) return null;
+  const lowerName = fileName.toLowerCase();
+  for (const [name, presetMap] of Object.entries(presets)) {
+    if (lowerName.includes(name.toLowerCase())) return presetMap;
+  }
+  return null;
+}
+
 /**
  * High-level Parser Entrypoint:
  * Reads CSV / Excel bytes and dispatches directly to server-side parser engine.
@@ -110,36 +139,14 @@ export async function parseTakeoffFile(
   const isExcel = isExcelFile(typeof file === 'string' ? null : file);
 
   if (isExcel) {
-    if (file && typeof file !== 'string' && typeof file.arrayBuffer === 'function') {
-      const buffer = await file.arrayBuffer();
-      const bytes = new Uint8Array(buffer);
-      let binary = '';
-      const len = bytes.byteLength;
-      for (let i = 0; i < len; i++) {
-        binary += String.fromCharCode(bytes[i]);
-      }
-      fileBase64 = btoa(binary);
-    }
+    fileBase64 = await readExcelAsBase64(file);
   } else {
-    if (file && typeof file !== 'string' && typeof file.text === 'function') {
-      fileContent = await file.text();
-    } else if (typeof file === 'string') {
-      fileContent = file;
-    }
+    fileContent = await readCsvContent(file);
   }
 
   // Check saved vendor presets matching filename
-  const savedPresets = getSavedVendorPresets();
-  let appliedPreset: Record<string, string | undefined> | null = customPreset || null;
-  if (!appliedPreset && typeof file !== 'string' && file?.name) {
-    const fname = file.name.toLowerCase();
-    for (const [name, presetMap] of Object.entries(savedPresets)) {
-      if (fname.includes(name.toLowerCase())) {
-        appliedPreset = presetMap;
-        break;
-      }
-    }
-  }
+  const appliedPreset = customPreset
+    || matchVendorPreset(typeof file === 'string' ? undefined : file?.name, getSavedVendorPresets());
 
   return takeoffsApi.parseTakeoffPayload({
     fileContent,

@@ -11,6 +11,37 @@ import {
   PRO_PLAN_SEATS,
   ENTERPRISE_PLAN_SEATS,
 } from '@/core/constants';
+import type { UserProfile } from '@/types/models';
+
+/** Whether the account already holds plan entitlements (so the chooser can show its current tier). */
+function hasPlanEntitlements(user: UserProfile | null): boolean {
+  return Boolean(user?.subscription_status === 'active' || user?.has_unlimited_bypass || user?.role === 'payment_exempt');
+}
+
+/** The tier the plan chooser treats as current. */
+function currentTierOf(user: UserProfile | null): string {
+  return hasPlanEntitlements(user) ? user?.subscription_tier || 'free' : 'free';
+}
+
+/** Where the chooser continues to: the user's workspace, or sign-in when we don't know the name. */
+function workspaceTarget(username: string): string {
+  return username ? `/${username}` : '/login';
+}
+
+/** Sandbox/instant activation used when Paddle checkout is unavailable. */
+async function activateMockSubscription(planKey: string, interval: string): Promise<void> {
+  const res = await billingApi.mockActivate(planKey, interval, 0);
+  if (res.user) localStorage.setItem('takeoff_user', JSON.stringify(res.user));
+}
+
+/** Mirrors a completed Paddle checkout into our own subscription state, without failing the flow. */
+async function syncCheckoutSubscription(planKey: string, interval: string): Promise<void> {
+  try {
+    await activateMockSubscription(planKey, interval);
+  } catch (syncErr) {
+    console.warn('[Paddle Post-Checkout Sync Warning]', syncErr);
+  }
+}
 
 export default function PlanOnboardingPage() {
   const { user, refreshProfile } = useAuth();
@@ -28,16 +59,10 @@ export default function PlanOnboardingPage() {
   const guard = useSingleFlight();
   const isAnnual = billingInterval === 'annually';
   const targetUsername = user?.username || '';
-  const currentTier = (user?.subscription_status === 'active' || user?.has_unlimited_bypass || user?.role === 'payment_exempt')
-    ? (user?.subscription_tier || 'free')
-    : 'free';
+  const currentTier = currentTierOf(user);
 
   const handleSelectFree = () => {
-    if (targetUsername) {
-      navigate(`/${targetUsername}`, { replace: true });
-    } else {
-      navigate('/login', { replace: true });
-    }
+    navigate(workspaceTarget(targetUsername), { replace: true });
   };
 
   const handleSelectPaidPlan = guard('checkout', async (planKey: string) => {
@@ -53,35 +78,17 @@ export default function PlanOnboardingPage() {
         customerEmail: user?.email,
         customData: checkoutParams.customData,
         onSuccess: async () => {
-          try {
-            const syncRes = await billingApi.mockActivate(planKey, billingInterval, 0);
-            if (syncRes.user) {
-              localStorage.setItem('takeoff_user', JSON.stringify(syncRes.user));
-            }
-          } catch (syncErr) {
-            console.warn('[Paddle Post-Checkout Sync Warning]', syncErr);
-          }
+          await syncCheckoutSubscription(planKey, billingInterval);
           if (refreshProfile) await refreshProfile();
-          if (targetUsername) {
-            navigate(`/${targetUsername}`, { replace: true });
-          } else {
-            navigate('/login', { replace: true });
-          }
+          navigate(workspaceTarget(targetUsername), { replace: true });
         },
       });
 
       // Sandbox mock fallback if Paddle checkout overlay is disabled or mock mode
       if (!launched) {
-        const mockRes = await billingApi.mockActivate(planKey, billingInterval, 0);
-        if (mockRes.user) {
-          localStorage.setItem('takeoff_user', JSON.stringify(mockRes.user));
-        }
+        await activateMockSubscription(planKey, billingInterval);
         if (refreshProfile) await refreshProfile();
-        if (targetUsername) {
-          navigate(`/${targetUsername}`, { replace: true });
-        } else {
-          navigate('/login', { replace: true });
-        }
+        navigate(workspaceTarget(targetUsername), { replace: true });
       }
     } catch (err) {
       setError((err as Error).message || 'Failed to initialize plan checkout');

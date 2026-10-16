@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { Lock, Pencil, Plus, Trash2 } from 'lucide-react';
+import { newId } from '@/core/lib/shared/ids';
 import { formatCurrency } from '@/product/lib/calculations';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import type { ChangeOrder, EstimateSystem, EstimateTotals, Project, WarrantyItem } from '@/types/models';
@@ -12,7 +13,6 @@ const inputClass =
 const labelClass = 'block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1';
 const thClass = 'py-1 pr-3';
 const today = () => new Date().toISOString().slice(0, 10);
-const newId = () => (globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID() : `id_${Date.now()}`);
 
 export function sumApprovedChangeOrders(changeOrders: ChangeOrder[] = []) {
   return changeOrders.filter((co) => co.status === 'approved').reduce((sum, co) => sum + (Number(co.amount) || 0), 0);

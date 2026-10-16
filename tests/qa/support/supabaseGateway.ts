@@ -12,12 +12,39 @@ import { QA_TAG } from './qaEnvironment.ts';
  * Everything else is forwarded untouched.
  */
 
-const target = String(process.env.SUPABASE_URL || '').replace(/(?<!\/)\/+$/, '');
+const supabaseUrl = String(process.env.SUPABASE_URL || '').replace(/(?<!\/)\/+$/, '');
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const port = Number(process.env.QA_SUPABASE_GATEWAY_PORT);
-if (!target || !serviceRoleKey || !port) {
+if (!supabaseUrl || !serviceRoleKey || !port) {
   console.error('[qa-gateway] SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY and QA_SUPABASE_GATEWAY_PORT are required.');
   process.exit(1);
+}
+
+// Parsed once so that every forwarded request can be pinned to exactly this origin.
+const target = new URL(supabaseUrl);
+
+// SSRF allowlist: only the configured Supabase scheme and host may ever be requested (Sonar S5144).
+const allowedSchemes = [target.protocol];
+const allowedHosts = [target.hostname];
+
+/**
+ * Resolves the caller-supplied request path against the configured Supabase origin.
+ *
+ * The path comes from the incoming request, so the resolved URL is checked against the
+ * allowlist before it is used. `new URL` resolves a protocol-relative path (`//evil.example/p`)
+ * to a *different* host, which is exactly what the host check below rejects.
+ */
+function resolveUpstream(url: URL): URL {
+  // Only a plain absolute path is ever forwarded. A protocol-relative path (`//host/p`) would
+  // resolve to a different origin, so it is refused before the URL is built (Sonar S5144).
+  if (!url.pathname.startsWith('/') || url.pathname.startsWith('//')) {
+    throw new Error(`Blocked request path ${url.pathname}`);
+  }
+  const upstream = new URL(`${url.pathname}${url.search}`, target);
+  if (!allowedSchemes.includes(upstream.protocol) || !allowedHosts.includes(upstream.hostname)) {
+    throw new Error(`Blocked upstream ${upstream.protocol}//${upstream.hostname}`);
+  }
+  return upstream;
 }
 
 const HOP_BY_HOP = new Set(['host', 'connection', 'content-length', 'transfer-encoding', 'accept-encoding', 'keep-alive']);
@@ -42,7 +69,7 @@ async function signUpWithoutEmail(
   body: { email: string; password: string; data?: unknown },
   res: http.ServerResponse,
 ): Promise<void> {
-  const response = await fetch(`${target}/auth/v1/admin/generate_link`, {
+  const response = await fetch(new URL('/auth/v1/admin/generate_link', target), {
     method: 'POST',
     headers: { apikey: serviceRoleKey ?? '', Authorization: `Bearer ${serviceRoleKey ?? ''}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -72,7 +99,7 @@ async function forward(
   const headers = Object.fromEntries(
     Object.entries(req.headers).filter(([name]) => !HOP_BY_HOP.has(name)),
   ) as Record<string, string>;
-  const send = () => fetch(`${target}${url.pathname}${url.search}`, {
+  const send = () => fetch(resolveUpstream(url), {
     method: req.method,
     headers,
     body: ['GET', 'HEAD'].includes(req.method ?? '') ? undefined : (body as BodyInit),
@@ -110,7 +137,7 @@ function isQaSignIn(req: http.IncomingMessage, url: URL, body: Buffer): boolean 
 
 const server = http.createServer(async (req, res) => {
   try {
-    const url = new URL(req.url ?? '/', 'http://gateway');
+    const url = new URL(req.url ?? '/', 'https://gateway');
     if (url.pathname === '/__qa/health') return sendJson(res, 200, { ok: true });
     if (url.pathname === '/__qa/verification-token') {
       const email = String(url.searchParams.get('email') || '').toLowerCase();

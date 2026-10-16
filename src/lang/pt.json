@@ -64,8 +64,47 @@
         "ctaTrial": "Comece o teste gratuito (5 takeoffs grátis)",
         "ctaCalculator": "Testar calculadora ao vivo",
         "badgeNoCard": "Nenhum cartão de crédito necessário",
-        "badgeInstantExports": "Exportações instantâneas em PDF e Word",
+        "badgeInstantExports": "Exportações instantâneas em PDF",
         "badgeColumnMapper": "Mapeador automático de alias de colunas"
+      },
+      "bento": {
+        "tag": "Recursos",
+        "title": "Todas as etapas de estimativa, em um só espaço de trabalho",
+        "description": "Da planilha que seu estimador já usa até a proposta assinada na caixa de entrada do seu cliente, sem sair do navegador.",
+        "t1Title": "Importe qualquer planilha de takeoff",
+        "t1Desc": "Exportações do Bluebeam, PlanSwift ou Trimble chegam como um takeoff de várias linhas e limpo, com cabeçalhos combinados por aliases inteligentes.",
+        "t2Title": "Propostas prontas para o cliente em 60 segundos",
+        "t2Desc": "Cada linha vira um documento com a sua marca, com quantidades, taxas unitárias e um total ao vivo que seu cliente pode aceitar.",
+        "t3Title": "Cálculo de valas e terraplenagem integrado",
+        "t3Desc": "O volume de escavação, o reaterro e a produção da equipe são recalculados enquanto você digita.",
+        "t3Formula": "Comp. × Prof. × Larg. ÷ 27",
+        "t3Units": "jardas cúbicas",
+        "t4Title": "Grade de takeoff de várias linhas",
+        "t4Desc": "Edite quantidades, unidades e taxas em uma grade focada no teclado e apoiada por bibliotecas de taxas reutilizáveis.",
+        "t4ColRate": "Taxa",
+        "t5Title": "Exportação em PDF com um clique",
+        "t5Desc": "Um clique exporta exatamente os números assinados pelo seu cliente.",
+        "t6Title": "Portal público e assinatura eletrônica do cliente",
+        "t6Desc": "Envie um link somente leitura. Seu cliente revisa o takeoff e assina digitalmente, e o total assinado fica registrado na proposta.",
+        "t6ClientUrl": "te.pub/p/0147",
+        "ctaCalculator": "Testar calculadora ao vivo",
+        "ctaPricing": "Comparar planos"
+      },
+      "preview": {
+        "tablist": "Telas de pré-visualização do produto",
+        "tabTakeoff": "Importação do takeoff",
+        "tabProposal": "Proposta do cliente",
+        "tabExport": "Exportação e assinatura",
+        "urlBar": "app.takeoffengine.com/proposal/0147",
+        "hint": "Pré-visualização interativa",
+        "exportsHeading": "Entregáveis",
+        "exportPrepared": "Pronto",
+        "exportPdf": "Proposta em PDF",
+        "exportPrint": "Imprimir / Salvar como PDF",
+        "eSignHeading": "Aceite do cliente",
+        "eSignStatus": "Enviada para assinatura",
+        "eSignClientUrl": "te.pub/p/0147",
+        "eSignNote": "Seu cliente abre um portal somente leitura, confere cada linha e assina com um toque."
       },
       "topbar": {
         "tagline": "Plataforma de estimativa civil e de serviços públicos"
@@ -97,7 +136,7 @@
         "s3Title": "Calcular",
         "s3Desc": "Volumes de valas, cálculos de produção e horas de mão de obra.",
         "s4Title": "Enviar",
-        "s4Desc": "Proposta em PDF ou Word com marca, assinada digitalmente pelo seu cliente."
+        "s4Desc": "Proposta em PDF com marca, assinada digitalmente pelo seu cliente."
       },
       "calculator": {
         "tag": "Ferramenta gratuita interativa",
@@ -118,7 +157,7 @@
         "crewProduction": "Produção de mão de obra da equipe ({{hours}} h)",
         "directBid": "Proposta direta estimada de vala",
         "importCta": "Importar planilha de takeoff completa de várias linhas",
-        "exportPrompt": "Quer exportar isto como uma proposta de licitação Word / PDF?",
+        "exportPrompt": "Quer exportar isto como uma proposta de licitação em PDF?",
         "createAccount": "Criar conta gratuita"
       },
       "comparison": {
@@ -137,8 +176,8 @@
         "row2Te": "Aliases inteligentes",
         "row2Excel": "Copiar e colar manual",
         "row2Ent": "Configuração complexa necessária",
-        "row3Label": "Proposta ao cliente e exportação para Word com um clique",
-        "row3Te": "PDF com marca e .DOCX",
+        "row3Label": "Proposta ao cliente e exportação para PDF com um clique",
+        "row3Te": "PDF com marca",
         "row3Excel": "Formatação manual de documentos",
         "row3Ent": "Relatórios desajeitados",
         "row4Label": "Portal público e assinatura eletrônica do cliente",
@@ -180,7 +219,7 @@
           "description": "Ótimo para estimadores autônomos que licitam trabalhos semanalmente.",
           "f1": "{{seats}} assento de estimador",
           "f2": "Cálculos ilimitados",
-          "f3": "Exportação padrão para Word e PDF",
+          "f3": "Exportação padrão para PDF",
           "f4": "2 bibliotecas de taxas personalizadas",
           "f5": "Salvamento na nuvem e painel de projetos",
           "cta": "Escolher inicial"

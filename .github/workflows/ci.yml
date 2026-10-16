@@ -18,7 +18,7 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      - run: npm ci
+      - run: npm ci --ignore-scripts
       # typescript/no-explicit-any (see .oxlintrc.json) fails the build on any explicit `any`.
       - run: npm run lint
       # tsc --noEmit; tsconfig enables `strict`, which includes noImplicitAny.
@@ -33,7 +33,7 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      - run: npm ci
+      - run: npm ci --ignore-scripts
       # node:test suites: validation, architecture boundary, API clients, shared helpers.
       - run: npm run test
       # vitest + jsdom suites: React components, contexts, and pricing state.
@@ -58,8 +58,10 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      - run: npm ci --ignore-scripts
+      # Use the lockfile-pinned local Playwright CLI instead of `npx`, so no package is
+      # downloaded on demand and no install-time lifecycle scripts run (Sonar S6505 / S8543).
+      - run: ./node_modules/.bin/playwright install --with-deps chromium
       # The config boots the Vite dev server on :4176 and drives it in Chromium.
       - run: npm run test:e2e
       - uses: actions/upload-artifact@v4

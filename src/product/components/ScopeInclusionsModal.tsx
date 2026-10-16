@@ -7,9 +7,26 @@ import {
   saveScopePreset,
   deleteScopePreset,
 } from '@/product/lib/scope';
+import { newId } from '@/core/lib/shared/ids';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import type { TranslateFunction } from '@/core/components/context/I18nContext';
 import type { ScopeItem, ScopePreset } from '@/types/models';
+
+/** Row tint for a scope item, by status. */
+function statusRowClass(status: string): string {
+  if (status === SCOPE_STATUS.INCLUDED) return 'bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-200/80 dark:border-emerald-800/60';
+  if (status === SCOPE_STATUS.EXCLUDED) return 'bg-rose-50/40 dark:bg-rose-950/20 border-rose-200/80 dark:border-rose-800/60';
+  if (status === SCOPE_STATUS.OPTIONAL_ADDON) return 'bg-blue-50/40 dark:bg-blue-950/20 border-blue-200/80 dark:border-blue-800/60';
+  return 'bg-slate-100/50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 opacity-80';
+}
+
+/** Category chip tint for a scope item. */
+function categoryChipClass(category: string): string {
+  if (category === 'fixtures') return 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300';
+  if (category === 'site') return 'bg-sky-100 dark:bg-sky-950 text-sky-800 dark:text-sky-300';
+  if (category === 'admin') return 'bg-purple-100 dark:bg-purple-950 text-purple-800 dark:text-purple-300';
+  return 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300';
+}
 
 export default function ScopeInclusionsModal({
   scopeItems = DEFAULT_SCOPE_ITEMS,
@@ -102,7 +119,7 @@ export default function ScopeInclusionsModal({
     if (readOnly || !newTitle.trim()) return;
 
     const newItem = {
-      id: `custom_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      id: newId('custom_'),
       category: newCategory,
       title: newTitle.trim(),
       description: newDesc.trim() || 'Custom trade item',
@@ -351,28 +368,12 @@ export default function ScopeInclusionsModal({
             return (
               <div
                 key={item.id}
-                className={`p-3 rounded-2xl border transition flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 ${
-                  isIncluded
-                    ? 'bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-200/80 dark:border-emerald-800/60'
-                    : isExcluded
-                    ? 'bg-rose-50/40 dark:bg-rose-950/20 border-rose-200/80 dark:border-rose-800/60'
-                    : isAddon
-                    ? 'bg-blue-50/40 dark:bg-blue-950/20 border-blue-200/80 dark:border-blue-800/60'
-                    : 'bg-slate-100/50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 opacity-80'
-                }`}
+                className={`p-3 rounded-2xl border transition flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 ${statusRowClass(item.status ?? '')}`}
               >
                 <div className="space-y-0.5 max-w-lg min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-xs font-bold text-slate-900 dark:text-slate-100">{item.title}</span>
-                    <span className={`text-[10px] uppercase font-bold px-1.5 py-0.2 rounded-md ${
-                      item.category === 'fixtures'
-                        ? 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300'
-                        : item.category === 'site'
-                        ? 'bg-sky-100 dark:bg-sky-950 text-sky-800 dark:text-sky-300'
-                        : item.category === 'admin'
-                        ? 'bg-purple-100 dark:bg-purple-950 text-purple-800 dark:text-purple-300'
-                        : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
-                    }`}>
+                    <span className={`text-[10px] uppercase font-bold px-1.5 py-0.2 rounded-md ${categoryChipClass(item.category ?? '')}`}>
                       {item.category}
                     </span>
                   </div>

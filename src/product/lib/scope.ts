@@ -4,6 +4,7 @@
  * and scope calculation/normalization functions.
  */
 
+import { newId } from '@/core/lib/shared/ids';
 import defaultScopeItemsJson from '@/product/data/inclusions/defaultScopeItems.json';
 import type { ScopeItem, ScopePreset } from '@/types/models';
 
@@ -139,7 +140,7 @@ export function saveScopePreset(presetName: string, scopeItems: ScopeItem[]): Sc
   if (!presetName || !presetName.trim()) return null;
   const currentPresets = getSavedScopePresets();
   const newPreset = {
-    id: `preset_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+    id: newId('preset_'),
     name: presetName.trim(),
     createdAt: new Date().toISOString(),
     items: JSON.parse(JSON.stringify(scopeItems)),

@@ -220,6 +220,71 @@ body:has(dialog[open]) {
   display: none;
 }
 
+/* ---------------------------------------------------------------------------
+   Landing-page depth & entrance helpers.
+
+   `lp-rise` is the entrance transition used by the hero, the Bento tiles and the
+   product-preview mockup: content settles to its final frame with `both`, so a
+   prerendered document (see scripts/prerender-public.mjs) is never left hidden and
+   the animation needs no JavaScript. Per-element stagger is applied with an inline
+   `animationDelay` (see LandingPage). Colours come from the --lp-* palette; there
+   are deliberately no coloured glows.
+--------------------------------------------------------------------------- */
+:root {
+  --lp-shadow-lift: 0 22px 44px -30px rgb(16 16 16 / 0.55);
+  --lp-shadow-frame: 0 34px 64px -36px rgb(16 16 16 / 0.5);
+  /* Resting shadow so bento tiles read as separate cards rather than one field. */
+  --lp-shadow-tile: 0 1px 2px rgb(16 16 16 / 0.07), 0 14px 30px -26px rgb(16 16 16 / 0.55);
+}
+
+.dark {
+  --lp-shadow-lift: 0 22px 46px -28px rgb(0 0 0 / 0.9);
+  --lp-shadow-frame: 0 34px 68px -32px rgb(0 0 0 / 0.95);
+  --lp-shadow-tile: 0 1px 0 rgb(255 255 255 / 0.05) inset, 0 16px 32px -24px rgb(0 0 0 / 0.95);
+}
+
+@keyframes lp-rise {
+  from {
+    opacity: 0;
+    /* The standalone `translate` property is animated instead of `transform`, so a filled
+       entrance animation cannot override the `transform` used by `.lp-lift:hover`. */
+    translate: 0 20px;
+    filter: blur(10px);
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+    filter: blur(0);
+  }
+}
+
+.lp-rise {
+  animation: lp-rise 0.58s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Bento tiles and the device frame get a hair of lift on hover, never a glow. */
+.lp-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.lp-lift:hover {
+  transform: translate3d(0, -4px, 0);
+  box-shadow: var(--lp-shadow-lift);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* `both` would otherwise hold the transparent/blurred start frame for the whole
+     stagger delay, so drop the animation entirely instead of shortening it. */
+  .lp-rise {
+    animation: none !important;
+  }
+
+  .lp-lift:hover {
+    transform: none !important;
+  }
+}
+
 @media print {
   @page {
     size: letter portrait;

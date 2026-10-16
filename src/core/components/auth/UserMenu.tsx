@@ -6,6 +6,17 @@ import { authApi } from '@/core/lib/auth/auth';
 import UpgradeModal from '@/core/components/billing/UpgradeModal';
 import { Zap, ChevronDown, X } from 'lucide-react';
 import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
+import { hasFullAccess, remainingTrialCredits } from '@/core/lib/billing/entitlements';
+import type { UserProfile } from '@/types/models';
+
+/** The plan badge label for the header; exempt roles win over subscription tiers. */
+function planLabel(user: UserProfile | null): string {
+  if (user?.role === 'admin') return 'Super-Admin';
+  if (user?.role === 'payment_exempt') return 'VIP Member / All Features Unlocked';
+  if (user?.subscription_tier === 'starter') return 'Starter Plan';
+  if (user?.subscription_tier === 'enterprise') return 'Enterprise Plan';
+  return user?.subscription_tier === 'pro' ? 'Pro Plan' : 'Free Trial';
+}
 
 export default function UserMenu() {
   const { user, logout } = useAuth();
@@ -24,24 +35,12 @@ export default function UserMenu() {
   const [loading, setLoading] = useState(false);
 
   const guard = useSingleFlight();
-  const isExempt =
-    user?.role === 'admin' ||
-    user?.role === 'payment_exempt' ||
-    user?.has_unlimited_bypass === true ||
-    (user?.subscription_status === 'active' && ['starter', 'pro', 'enterprise'].includes(user?.subscription_tier ?? ''));
-
-  const getPlanLabel = () => {
-    if (user?.role === 'admin') return 'Super-Admin';
-    if (user?.role === 'payment_exempt') return 'VIP Member / All Features Unlocked';
-    if (user?.subscription_tier === 'starter') return 'Starter Plan';
-    if (user?.subscription_tier === 'enterprise') return 'Enterprise Plan';
-    return user?.subscription_tier === 'pro' ? 'Pro Plan' : 'Free Trial';
-  };
+  const isExempt = hasFullAccess(user);
 
   const isAdmin = user?.role === 'admin';
   const isPaymentExempt = user?.role === 'payment_exempt';
 
-  const credits = typeof user?.trial_uses_remaining === 'number' ? user.trial_uses_remaining : 5;
+  const credits = remainingTrialCredits(user);
 
   const handleUpdatePassword = guard('update-password', async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,7 +74,7 @@ export default function UserMenu() {
           <svg className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
           </svg>
-          <span>{getPlanLabel()}</span>
+          <span>{planLabel(user)}</span>
         </span>
       ) : (
         <button

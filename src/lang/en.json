@@ -64,9 +64,49 @@
         "ctaTrial": "Start Free Trial (5 Free Takeoffs)",
         "ctaCalculator": "Test Live Calculator",
         "badgeNoCard": "No credit card required",
-        "badgeInstantExports": "Instant PDF & Word exports",
+        "badgeInstantExports": "Instant PDF exports",
         "badgeColumnMapper": "Auto column alias mapper"
       },
+      "bento": {
+        "tag": "Capabilities",
+        "title": "Every estimating step, in one workspace",
+        "description": "From the spreadsheet your estimator already has to the signed proposal in your client's inbox — without leaving the browser.",
+        "t1Title": "Import any takeoff sheet",
+        "t1Desc": "Bluebeam, PlanSwift or Trimble exports land as a clean multi-line takeoff, with headers matched by intelligent aliases.",
+        "t2Title": "Client-ready proposals in 60 seconds",
+        "t2Desc": "Every line becomes a branded document with quantities, unit rates and a live total your client can accept.",
+        "t3Title": "Trench & earthwork math built in",
+        "t3Desc": "Excavation volume, backfill and crew production recalculate as you type.",
+        "t3Formula": "L × D × W ÷ 27",
+        "t3Units": "cubic yards",
+        "t4Title": "Multi-line takeoff grid",
+        "t4Desc": "Edit quantities, units and rates in a keyboard-first grid backed by reusable rate libraries.",
+        "t4ColRate": "Rate",
+        "t5Title": "One-click PDF export",
+        "t5Desc": "One click exports the exact numbers your client signed.",
+        "t6Title": "Public portal & e-signature acceptance",
+        "t6Desc": "Send a read-only link. Your client reviews the takeoff and signs digitally, so the signed total is recorded on the proposal.",
+        "t6ClientUrl": "te.pub/p/0147",
+        "ctaCalculator": "Try the live calculator",
+        "ctaPricing": "Compare plans"
+      },
+      "preview": {
+        "tablist": "Product preview screens",
+        "tabTakeoff": "Takeoff import",
+        "tabProposal": "Client proposal",
+        "tabExport": "Export & e-sign",
+        "urlBar": "app.takeoffengine.com/proposal/0147",
+        "hint": "Interactive preview",
+        "exportsHeading": "Deliverables",
+        "exportPrepared": "Ready",
+        "exportPdf": "PDF proposal",
+        "exportPrint": "Print / save as PDF",
+        "eSignHeading": "Client acceptance",
+        "eSignStatus": "Sent for signature",
+        "eSignClientUrl": "te.pub/p/0147",
+        "eSignNote": "Your client opens a read-only portal, checks every line, and signs in one tap."
+      },
+
       "topbar": {
         "tagline": "Civil & Utility Estimating Platform"
       },
@@ -97,7 +137,7 @@
         "s3Title": "Calculate",
         "s3Desc": "Trench volumes, production math, and labor hours.",
         "s4Title": "Send",
-        "s4Desc": "Branded PDF or Word proposal, signed digitally by your client."
+        "s4Desc": "Branded PDF proposal, signed digitally by your client."
       },
       "calculator": {
         "tag": "Interactive Free Tool",
@@ -118,7 +158,7 @@
         "crewProduction": "Crew Production Labor ({{hours}} hrs)",
         "directBid": "Estimated Direct Trench Bid",
         "importCta": "Import Complete Multi-Line Takeoff Sheet",
-        "exportPrompt": "Want to export this as a Word / PDF bid proposal?",
+        "exportPrompt": "Want to export this as a PDF bid proposal?",
         "createAccount": "Create Free Account"
       },
       "comparison": {
@@ -137,8 +177,8 @@
         "row2Te": "Intelligent Aliases",
         "row2Excel": "Manual copy-pasting",
         "row2Ent": "Complex setup required",
-        "row3Label": "One-Click Client Proposal & Word Export",
-        "row3Te": "Branded PDF & .DOCX",
+        "row3Label": "One-Click Client Proposal & PDF Export",
+        "row3Te": "Branded PDF",
         "row3Excel": "Manual document formatting",
         "row3Ent": "Clunky reports",
         "row4Label": "Public Portal & Client E-Signature",
@@ -180,7 +220,7 @@
           "description": "Great for solo estimators bidding jobs weekly.",
           "f1": "{{seats}} Estimator Seat",
           "f2": "Unlimited Calculations",
-          "f3": "Standard Word & PDF Export",
+          "f3": "Standard PDF Export",
           "f4": "2 Custom Rate Libraries",
           "f5": "Cloud Save & Project Dashboard",
           "cta": "Choose Starter"

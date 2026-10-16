@@ -108,8 +108,8 @@ test('unknown pages show a not-found page while workspace links still ask visito
 
 const LANDING_AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'];
 
-async function dismissLandingNotice(page: Page) {
-  await page.goto('/home?lang=en');
+async function dismissLandingNotice(page: Page, lang = 'en') {
+  await page.goto(`/home?lang=${lang}`);
   await expect(page.getByRole('dialog')).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(page.getByRole('dialog')).toHaveCount(0);
@@ -188,3 +188,28 @@ test('reduced motion removes long transitions and focus has a visible outline', 
   expect(style.outlineStyle).toBe('solid');
   expect(parseFloat(style.transitionDuration)).toBeLessThanOrEqual(0.00001);
 });
+
+// The landing product-preview widget swaps whole screens, so the route scan above only ever saw its
+// first panel (the others are not in the DOM until their tab is active). Scan every panel, and once
+// in a non-English locale, whose longer strings are the horizontal-overflow risk. This is what
+// caught the "Deliverables" heading-order regression, which was invisible to the route scan.
+const PREVIEW_LOCALES = ['en', 'fr'];
+
+for (const locale of PREVIEW_LOCALES) {
+  test(`landing product preview passes axe on every screen (${locale})`, async ({ page }, testInfo) => {
+    test.skip(locale !== 'en' && testInfo.project.name !== 'desktop-light', 'The non-English scan runs once');
+    await dismissLandingNotice(page, locale);
+
+    const tabs = page.locator('[role="tab"]');
+    const panelCount = await tabs.count();
+    expect(panelCount).toBeGreaterThan(0);
+
+    for (let index = 0; index < panelCount; index += 1) {
+      await tabs.nth(index).click();
+      await expect(page.getByRole('tabpanel')).toBeVisible();
+      const results = await new AxeBuilder({ page }).withTags(LANDING_AXE_TAGS).analyze();
+      expect(results.violations.map(({ id, nodes }) => ({ id, targets: nodes.map((node) => node.target) }))).toEqual([]);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
+    }
+  });
+}

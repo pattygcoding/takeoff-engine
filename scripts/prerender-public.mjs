@@ -141,6 +141,83 @@ async function stubApi(page, catalog) {
   });
 }
 
+/**
+ * Captures the DOM in the shape the deployed file should ship: theme-neutral, marked
+ * `data-prerendered` for content routes, with the build-time catalog inlined so the first client
+ * render matches this markup exactly (see src/core/lib/shared/prerender.ts).
+ *
+ * Runs inside the browser via `page.evaluate`, so it must not reference anything from this module.
+ */
+function prepareCapturedDom({ withContent, catalog }) {
+  document.documentElement.classList.remove('dark');
+  const container = document.getElementById('root');
+
+  if (!withContent) {
+    if (container) container.innerHTML = '';
+    return;
+  }
+
+  document.documentElement.setAttribute('data-prerendered', '');
+  if (!catalog) return;
+
+  const script = document.createElement('script');
+  script.textContent = `window.__PRERENDER_PRICING__ = ${JSON.stringify(catalog).replace(/</g, '\\u003c')};`;
+  document.head.prepend(script);
+}
+
+/** The auth gate renders a splash until it settles, so wait for the route's own content. */
+async function waitForContentRoute(page) {
+  await page.waitForFunction(
+    () => (document.getElementById('root')?.childElementCount ?? 0) > 0,
+    { timeout: 20_000 }
+  );
+  await page.waitForSelector('#root h1', { timeout: 20_000 }).catch(() => {});
+  await page.waitForTimeout(300);
+}
+
+/**
+ * Renders one route in a fresh page and writes its HTML.
+ *
+ * Returns a failure description rather than throwing, so every broken route is reported at once.
+ * A half-rendered file is never written — a page with no title/canonical is worse than none.
+ */
+async function prerenderRoute(browser, route, { base, origin, pricingCatalog }) {
+  const withContent = Boolean(route.content);
+  const page = await browser.newPage();
+  try {
+    // Never let rendering depend on the live API (see stubApi).
+    await stubApi(page, withContent ? pricingCatalog : null);
+    if (withContent && pricingCatalog) {
+      // Runs before the app's modules, so PricingProvider seeds from exactly what it rendered.
+      await page.addInitScript((catalog) => {
+        window.__PRERENDER_PRICING__ = catalog;
+      }, pricingCatalog);
+    }
+
+    await page.goto(new URL(route.path, base).href, { waitUntil: 'domcontentloaded' });
+    // `SeoHead` injects the canonical link once the route has rendered. <link> elements are
+    // never "visible", so wait for attachment rather than visibility.
+    await page.waitForSelector('link[rel="canonical"]', { state: 'attached', timeout: 20_000 });
+    if (withContent) await waitForContentRoute(page);
+
+    await page.evaluate(prepareCapturedDom, { withContent, catalog: withContent ? pricingCatalog : null });
+
+    // Vite injects dynamic-import modulepreloads with an absolute preview origin; rewrite them
+    // to root-relative so the deployed files don't reference localhost.
+    const html = (await page.content()).split(origin).join('');
+    const outPath = path.join(distDir, route.out);
+    await mkdir(path.dirname(outPath), { recursive: true });
+    await writeFile(outPath, html, 'utf8');
+    console.log(`  prerendered ${route.path.padEnd(16)} -> dist/${route.out}${withContent ? ' (content)' : ''}`);
+    return null;
+  } catch (error) {
+    console.error(`  FAILED ${route.path}`);
+    return `${route.path} — ${error.message.split('\n')[0]}`;
+  } finally {
+    await page.close();
+  }
+}
+
 async function main() {
   await ensureBuilt();
 
@@ -170,71 +247,9 @@ async function main() {
   let count = 0;
   try {
     for (const route of ROUTES) {
-      const withContent = Boolean(route.content);
-      const page = await browser.newPage();
-      try {
-        // Never let rendering depend on the live API (see stubApi).
-        await stubApi(page, withContent ? pricingCatalog : null);
-        if (withContent && pricingCatalog) {
-          // Runs before the app's modules, so PricingProvider seeds from exactly what it rendered.
-          await page.addInitScript((catalog) => {
-            window.__PRERENDER_PRICING__ = catalog;
-          }, pricingCatalog);
-        }
-
-        await page.goto(new URL(route.path, base).href, { waitUntil: 'domcontentloaded' });
-        // `SeoHead` injects the canonical link once the route has rendered. <link> elements are
-        // never "visible", so wait for attachment rather than visibility.
-        await page.waitForSelector('link[rel="canonical"]', { state: 'attached', timeout: 20_000 });
-
-        if (withContent) {
-          // The auth gate renders a splash until it settles; wait for the real page.
-          await page.waitForFunction(
-            () => (document.getElementById('root')?.childElementCount ?? 0) > 0,
-            { timeout: 20_000 }
-          );
-          await page.waitForSelector('#root h1', { timeout: 20_000 }).catch(() => {});
-          await page.waitForTimeout(300);
-        }
-
-        await page.evaluate(
-          ({ withContent: content, catalog }) => {
-            // Keep the captured HTML theme-neutral so the inline boot script decides on the client.
-            document.documentElement.classList.remove('dark');
-            const container = document.getElementById('root');
-            if (content) {
-              // Mark the document so the client skips its loading splash, and inline the catalog so
-              // the first client render matches this markup exactly
-              // (see src/core/lib/shared/prerender.ts).
-              document.documentElement.setAttribute('data-prerendered', '');
-              if (catalog) {
-                const script = document.createElement('script');
-                script.textContent = `window.__PRERENDER_PRICING__ = ${JSON.stringify(catalog).replace(/</g, '\\u003c')};`;
-                document.head.prepend(script);
-              }
-            } else if (container) {
-              container.innerHTML = '';
-            }
-          },
-          { withContent, catalog: withContent ? pricingCatalog : null }
-        );
-
-        // Vite injects dynamic-import modulepreloads with an absolute preview origin; rewrite them
-        // to root-relative so the deployed files don't reference localhost.
-        const html = (await page.content()).split(origin).join('');
-        const outPath = path.join(distDir, route.out);
-        await mkdir(path.dirname(outPath), { recursive: true });
-        await writeFile(outPath, html, 'utf8');
-        count += 1;
-        console.log(`  prerendered ${route.path.padEnd(16)} -> dist/${route.out}${withContent ? ' (content)' : ''}`);
-      } catch (error) {
-        // Never write a half-rendered file (a page with no title/canonical is worse than none), but
-        // keep going so every failing route is reported at once.
-        failures.push(`${route.path} — ${error.message.split('\n')[0]}`);
-        console.error(`  FAILED ${route.path}`);
-      } finally {
-        await page.close();
-      }
+      const failure = await prerenderRoute(browser, route, { base, origin, pricingCatalog });
+      if (failure) failures.push(failure);
+      else count += 1;
     }
   } finally {
     await browser.close();

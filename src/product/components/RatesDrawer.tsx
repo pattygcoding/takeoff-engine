@@ -4,6 +4,7 @@ import { ratesApi } from '@/product/lib/rates';
 import { useAuth } from '@/core/components/context/AuthContext';
 import { useModal } from '@/core/components/context/ModalContext';
 import { useTranslation } from '@/core/components/context/I18nContext';
+import { newId } from '@/core/lib/shared/ids';
 import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
 import {
   DEFAULT_WORKDAY_HOURS,
@@ -16,6 +17,59 @@ import ScopeInclusionsModal from '@/product/components/ScopeInclusionsModal';
 import UpgradeModal from '@/core/components/billing/UpgradeModal';
 import type { ReactNode } from 'react';
 import type { CrewMember, EquipmentCatalogItem, LaborRole, MiscItem, RateTemplate, Rates } from '@/types/models';
+
+/** Rounds to cents, matching the drawer's inline rate math. */
+function round2(value: number): number {
+  return Math.round(value * 100) / 100;
+}
+
+/** A role's effective hours per workday: its own override when enabled, else the drawer default. */
+function roleHoursFor(role: LaborRole, mode: string, defaultHours: number): number {
+  if (mode === 'perRole' && Number(role.workdayHours) > 0) return Number(role.workdayHours);
+  return defaultHours;
+}
+
+/** Applies one inline edit to a labour role, keeping the hourly/daily pair consistent. */
+function roleWithField(
+  role: LaborRole,
+  field: string,
+  val: string | number,
+  mode: string,
+  defaultHours: number,
+): LaborRole {
+  const hours = roleHoursFor(role, mode, defaultHours);
+  if (field === 'title') return { ...role, title: String(val) };
+  if (field === 'hourlyRate') return roleWithHourlyRate(role, val, hours);
+  if (field === 'dailyRate') return roleWithDailyRate(role, val, hours);
+  if (field === 'workdayHours') return roleWithWorkdayHours(role, val);
+  return role;
+}
+
+/** A numeric field value, or `''` when the field was cleared. */
+function rateOrBlank(val: string | number): '' | number {
+  return val === '' ? '' : Number(val);
+}
+
+/** Applies an hourly-rate edit and derives the daily rate from it. */
+function roleWithHourlyRate(role: LaborRole, val: string | number, hours: number): LaborRole {
+  const hourly = rateOrBlank(val);
+  return { ...role, hourlyRate: hourly, dailyRate: hourly === '' ? '' : round2(hourly * hours) };
+}
+
+/** Applies a daily-rate edit and derives the hourly rate from it. */
+function roleWithDailyRate(role: LaborRole, val: string | number, hours: number): LaborRole {
+  const daily = rateOrBlank(val);
+  if (daily === '') return { ...role, dailyRate: daily, hourlyRate: '' };
+  return { ...role, dailyRate: daily, hourlyRate: hours > 0 ? round2(daily / hours) : 0 };
+}
+
+/** Applies a workday-hours edit and re-derives the daily rate when the hourly rate is usable. */
+function roleWithWorkdayHours(role: LaborRole, val: string | number): LaborRole {
+  const hours = rateOrBlank(val);
+  if (hours === '') return { ...role, workdayHours: hours, dailyRate: '' };
+  const hourly = Number(role.hourlyRate);
+  return { ...role, workdayHours: hours, dailyRate: Number.isFinite(hourly) ? round2(hourly * hours) : role.dailyRate };
+}
 
 export default function RatesDrawer({
   open,
@@ -297,31 +351,7 @@ export default function RatesDrawer({
 
   const handleUpdateRole = (roleId: string, field: string, val: string | number) => {
     if (readOnly) return;
-    const updated = laborRoles.map((r) => {
-      if (r.id !== roleId) return r;
-      if (field === 'title') {
-        return { ...r, title: String(val) };
-      }
-      if (field === 'hourlyRate') {
-        const hourly = val === '' ? '' : Number(val);
-        const roleHours = workdayHoursMode === 'perRole' && Number(r.workdayHours) > 0 ? Number(r.workdayHours) : workdayHours;
-        const daily = hourly === '' ? '' : Math.round(hourly * roleHours * 100) / 100;
-        return { ...r, hourlyRate: hourly, dailyRate: daily };
-      }
-      if (field === 'dailyRate') {
-        const daily = val === '' ? '' : Number(val);
-        const roleHours = workdayHoursMode === 'perRole' && Number(r.workdayHours) > 0 ? Number(r.workdayHours) : workdayHours;
-        const hourly = daily === '' ? '' : (roleHours > 0 ? Math.round((daily / roleHours) * 100) / 100 : 0);
-        return { ...r, dailyRate: daily, hourlyRate: hourly };
-      }
-      if (field === 'workdayHours') {
-        const roleHours = val === '' ? '' : Number(val);
-        const hourly = Number(r.hourlyRate);
-        const daily = roleHours === '' ? '' : (Number.isFinite(hourly) ? Math.round(hourly * roleHours * 100) / 100 : r.dailyRate);
-        return { ...r, workdayHours: roleHours, dailyRate: daily };
-      }
-      return r;
-    });
+    const updated = laborRoles.map((r) => (r.id === roleId ? roleWithField(r, field, val, workdayHoursMode, workdayHours) : r));
 
     onChange({
       ...rates,
@@ -409,7 +439,7 @@ export default function RatesDrawer({
 
   const handleAddMiscItem = () => {
     const newItem = {
-      id: String(Date.now() + Math.random()),
+      id: newId('misc_'),
       title: '',
       amount: '',
     };
