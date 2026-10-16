@@ -76,36 +76,51 @@ function summaryRow(label: string, value: string, highlight = false, highlightCo
   });
 }
 
-/**
- * Builds and downloads a Word (.docx) document for the estimate matching the selected layout format.
- * @param {object} estimate - result of computeEstimate()
- * @param {boolean} proposalMode - whether to hide internal cost/markup details
- * @param {object} branding - contractor branding options (companyName, companyLogoUrl, brandColor, etc.)
- * @param {Function} [customT] - optional translation function (defaults to getTranslation)
- * @param {string} [formatId] - current template format ID (e.g. 'material_procurement', 'standard_estimate', etc.)
- * @param {object} [currentProject] - current project metadata
- * @param {object} [rates] - active rate calculations/percentages
- */
-export async function exportEstimateToWord(
-  estimate: Estimate,
-  proposalMode: boolean,
-  branding: Branding = {},
-  customT: TranslateFn | null = null,
-  formatId: string = 'standard_estimate',
-  currentProject: Project | null = null,
-  rates: Rates = {},
-) {
-  const t = customT || getTranslation;
-  const { totals, bySystem } = estimate;
-  const brandColorHex = hexColorWithoutHash(branding?.brandColor || '#0284c7');
-  const hasBranding = Boolean(branding?.companyName || branding?.companyLogoUrl);
+/** Whether the branding carries anything worth rendering in the header/footer. */
+function hasBrandingInfo(branding: Branding): boolean {
+  return Boolean(branding?.companyName || branding?.companyLogoUrl);
+}
 
-  const children: (Paragraph | Table)[] = [];
+/** A per-unit rate, guarding against a zero or absent quantity. */
+function unitCost(total: number, quantity: number): number {
+  return quantity > 0 ? total / quantity : 0;
+}
 
-  // 1. Company Branding & Project Header Block
+/** The overhead/contingency/profit label, honouring the fixed-amount vs percentage basis. */
+function markupLabel(
+  t: TranslateFn,
+  basis: string | undefined,
+  labelKey: string,
+  amount: number | undefined,
+  pct: number | undefined,
+  defaultPct: number,
+): string {
+  if (basis === 'fixed') return t(labelKey);
+  return formatMarkupLine(t(labelKey), amount, pct ?? defaultPct, t);
+}
+
+/** The miscellaneous-costs summary row, omitted entirely when there is none. */
+function miscCostRows(t: TranslateFn, totals: Estimate['totals']): TableRow[] {
+  if (!(totals.miscCost! > 0)) return [];
+  return [summaryRow(t('product.wordExport.miscellaneousCosts'), formatCurrency(totals.miscCost))];
+}
+
+/** The sign-off footer line, branded or generic. */
+function footerLine(t: TranslateFn, branded: boolean, companyName?: string): string {
+  if (!branded) return t('product.wordExport.footerDefault');
+  return t('product.wordExport.footerBranded', { company: companyName || t('product.wordExport.fallbackContractor') });
+}
+
+/** Builds the company/project header block, fetching the logo when one is configured. */
+async function buildHeaderChildren(
+  t: TranslateFn,
+  branding: Branding,
+  currentProject: Project | null,
+  brandColorHex: string,
+): Promise<Paragraph[]> {
   const headerChildren: Paragraph[] = [];
 
-  if (hasBranding && branding.companyLogoUrl) {
+  if (hasBrandingInfo(branding) && branding.companyLogoUrl) {
     try {
       const response = await fetch(branding.companyLogoUrl);
       const imageBlob = await response.blob();
@@ -186,7 +201,37 @@ export async function exportEstimateToWord(
     })
   );
 
-  children.push(...headerChildren);
+  return headerChildren;
+}
+
+/**
+ * Builds and downloads a Word (.docx) document for the estimate matching the selected layout format.
+ * @param {object} estimate - result of computeEstimate()
+ * @param {boolean} proposalMode - whether to hide internal cost/markup details
+ * @param {object} branding - contractor branding options (companyName, companyLogoUrl, brandColor, etc.)
+ * @param {Function} [customT] - optional translation function (defaults to getTranslation)
+ * @param {string} [formatId] - current template format ID (e.g. 'material_procurement', 'standard_estimate', etc.)
+ * @param {object} [currentProject] - current project metadata
+ * @param {object} [rates] - active rate calculations/percentages
+ */
+export async function exportEstimateToWord(
+  estimate: Estimate,
+  proposalMode: boolean,
+  branding: Branding = {},
+  customT: TranslateFn | null = null,
+  formatId: string = 'standard_estimate',
+  currentProject: Project | null = null,
+  rates: Rates = {},
+) {
+  const t = customT || getTranslation;
+  const { totals, bySystem } = estimate;
+  const brandColorHex = hexColorWithoutHash(branding?.brandColor || '#0284c7');
+  const hasBranding = hasBrandingInfo(branding);
+
+  const children: (Paragraph | Table)[] = [];
+
+  // 1. Company Branding & Project Header Block
+  children.push(...(await buildHeaderChildren(t, branding, currentProject, brandColorHex)));
 
   // 2. Specialized Template Layouts
   if (formatId === 'material_procurement') {
@@ -223,7 +268,7 @@ export async function exportEstimateToWord(
 
     const items = bySystem.flatMap((s) => s.items);
     const itemRows = items.map((it) => {
-      const unitMat = it.quantity! > 0 ? it.materialCost! / it.quantity! : 0;
+      const unitMat = unitCost(it.materialCost!, it.quantity!);
       return new TableRow({
         children: [
           bodyCell(it.description),
@@ -295,7 +340,7 @@ export async function exportEstimateToWord(
 
     const items = bySystem.flatMap((s) => s.items);
     const itemRows = items.map((it, idx) => {
-      const unitBid = it.quantity! > 0 ? it.directCost! / it.quantity! : 0;
+      const unitBid = unitCost(it.directCost!, it.quantity!);
       return new TableRow({
         children: [
           bodyCell(String(idx + 1).padStart(3, '0')),
@@ -478,23 +523,17 @@ export async function exportEstimateToWord(
       })
     );
 
-    const overheadLabel = totals.overheadType === 'fixed'
-      ? t('product.wordExport.overheadFixed')
-      : formatMarkupLine(t('product.wordExport.overheadFixed'), totals.overheadAmount, totals.overheadPct ?? 10, t);
+    const overheadLabel = markupLabel(t, totals.overheadType, 'product.wordExport.overheadFixed', totals.overheadAmount, totals.overheadPct, 10);
 
-    const contingencyLabel = totals.contingencyType === 'fixed'
-      ? t('product.wordExport.contingencyFixed')
-      : formatMarkupLine(t('product.wordExport.contingencyFixed'), totals.contingencyAmount, totals.contingencyPct ?? 5, t);
+    const contingencyLabel = markupLabel(t, totals.contingencyType, 'product.wordExport.contingencyFixed', totals.contingencyAmount, totals.contingencyPct, 5);
 
-    const profitLabel = totals.profitType === 'fixed'
-      ? t('product.wordExport.profitFixed')
-      : formatMarkupLine(t('product.wordExport.profitFixed'), totals.profitAmount, totals.profitPct ?? 15, t);
+    const profitLabel = markupLabel(t, totals.profitType, 'product.wordExport.profitFixed', totals.profitAmount, totals.profitPct, 15);
 
     const summaryRows = [
       summaryRow(t('product.wordExport.totalMaterialCost'), formatCurrency(totals.totalMaterialCost)),
       summaryRow(t('product.wordExport.totalLaborCost'), `${formatCurrency(totals.totalLaborCost)} (${formatNumber(totals.totalLaborHours)} hrs)`),
       summaryRow(t('product.wordExport.equipmentMobilization'), formatCurrency(totals.equipmentLumpSum)),
-      ...(totals.miscCost! > 0 ? [summaryRow(t('product.wordExport.miscellaneousCosts'), formatCurrency(totals.miscCost))] : []),
+      ...miscCostRows(t, totals),
       summaryRow(t('product.wordExport.totalDirectCost'), formatCurrency(totals.totalDirectCost)),
       summaryRow(overheadLabel, formatCurrency(totals.overheadAmount)),
       summaryRow(contingencyLabel, formatCurrency(totals.contingencyAmount)),
@@ -582,9 +621,7 @@ export async function exportEstimateToWord(
       spacing: { before: 400 },
       children: [
         new TextRun({
-          text: hasBranding
-            ? t('product.wordExport.footerBranded', { company: branding.companyName || t('product.wordExport.fallbackContractor') })
-            : t('product.wordExport.footerDefault'),
+          text: footerLine(t, hasBranding, branding.companyName),
           size: 16,
           color: '94A3B8',
           italics: true,

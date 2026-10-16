@@ -29,7 +29,7 @@ import {
 } from './ClientModeViews';
 import Papa from 'papaparse';
 import type { ReactNode } from 'react';
-import type { ChangeOrder, Estimate, Project, Rates, TakeoffItem, WarrantyItem } from '@/types/models';
+import type { Branding, ChangeOrder, Estimate, Project, Rates, TakeoffItem, WarrantyItem } from '@/types/models';
 
 /** Payload of a generated public proposal link. */
 interface ShareProposalData {
@@ -72,6 +72,184 @@ async function persistEstimate(
   if (onSaved) onSaved(created);
   if (refresh) void refresh();
   return created;
+}
+
+type AuthUser = ReturnType<typeof useAuth>['user'];
+type TranslateFn = ReturnType<typeof useTranslation>['t'];
+
+/** First matching (condition, value) pair, else the fallback. */
+function pick<T>(cases: Array<[boolean, T]>, fallback: T): T {
+  for (const [condition, value] of cases) {
+    if (condition) return value;
+  }
+  return fallback;
+}
+
+/** Whether the account holds one of the given paid tiers (or bypasses billing). */
+function hasTierAccess(user: AuthUser, tiers: string[]): boolean {
+  if (user?.role === 'admin') return true;
+  if (user?.role === 'payment_exempt') return true;
+  if (user?.has_unlimited_bypass === true) return true;
+  return user?.subscription_status === 'active' && tiers.includes(user?.subscription_tier ?? '');
+}
+
+/** Branding block for the estimate, cleared when the plan does not include custom branding. */
+function brandingFor(user: AuthUser, enabled: boolean): Branding | null {
+  if (!enabled) return null;
+  return {
+    companyName: user?.company_name || '',
+    companyLogoUrl: user?.company_logo_url || '',
+    companyAddress: user?.company_address || '',
+    companyPhone: user?.phone_number || '',
+    licenseNumber: user?.license_number || '',
+    brandColor: user?.brand_color || '#0284c7',
+  };
+}
+
+/** '#0284c7' is the DB column default, so treat it as "no brand color chosen" and let each PDF use its own accent. */
+function docBrandingFor(branding: Branding | null): Branding | null {
+  if (!branding) return null;
+  if (branding.brandColor?.toLowerCase() !== '#0284c7') return branding;
+  return { ...branding, brandColor: '' };
+}
+
+/** Locked client views: everything outside the free formats, for accounts without Pro entitlements. */
+function lockedPdfViewsFor(isProOrExempt: boolean): string[] {
+  if (isProOrExempt) return [];
+  return CLIENT_VIEWS.filter((view) => !FREE_PDF_VIEWS.includes(view));
+}
+
+/** The off-screen PDF document component for the requested view. */
+function pdfDocumentFor(pdfView: string | null) {
+  if (!pdfView) return null;
+  return CLIENT_VIEW_DOCUMENTS[pdfView];
+}
+
+/** Whether the itemised internal breakdown tables should render. */
+function showsInternalBreakdown(proposalMode: boolean, clientView: string): boolean {
+  return !proposalMode || clientView === 'proposal';
+}
+
+/** Headline label for the project status banner. */
+function statusLabelFor(status: string, t: TranslateFn): string {
+  return pick([
+    [status === 'submitted', t('product.resultsStep.statusSubmitted')],
+    [status === 'archived', t('product.resultsStep.statusArchived')],
+    [status === 'declined', t('product.resultsStep.statusDeclined')],
+  ], t('product.resultsStep.statusAwarded'));
+}
+
+/** Explanatory line for the project status banner. */
+function statusDescriptionFor(status: string, t: TranslateFn): string {
+  return pick([
+    [status === 'submitted', t('product.resultsStep.statusDescSubmitted')],
+    [status === 'archived', t('product.resultsStep.statusDescArchived')],
+    [status === 'declined', t('product.resultsStep.statusDescDeclined')],
+  ], t('product.resultsStep.statusDescAwarded'));
+}
+
+/** Combined equipment line-item cost plus lump sum. */
+function equipmentLineTotal(totals: Estimate['totals']): number {
+  return (totals.totalEquipmentLineItemCost ?? 0) + (totals.equipmentLumpSum ?? 0);
+}
+
+/** Sub-label noting the equipment mobilisation portion, when present. */
+function equipmentMobNote(totals: Estimate['totals']): string | undefined {
+  if ((totals.equipmentLumpSum ?? 0) <= 0) return undefined;
+  return `Incl. ${formatCurrency(totals.equipmentLumpSum)} mob`;
+}
+
+/** Label for the save-to-cloud action button. */
+function saveButtonLabel(t: TranslateFn, saving: boolean, hasProject: boolean): string {
+  if (saving) return t('product.resultsStep.saving');
+  if (hasProject) return t('product.resultsStep.updateCloudEstimate');
+  return t('product.resultsStep.saveToProjects');
+}
+
+/** Label for the share-link action button. */
+function shareButtonLabel(t: TranslateFn, generating: boolean): string {
+  if (generating) return t('product.resultsStep.generatingLink');
+  return t('product.resultsStep.shareClientLink');
+}
+
+/** Label for the download-PDF button. */
+function pdfButtonLabel(t: TranslateFn, generating: boolean): string {
+  if (generating) return t('product.exportHub.generatingPdf');
+  return t('product.clientViews.downloadPdf');
+}
+
+/** Class for the download-PDF button. */
+function pdfButtonClass(isPdfLocked: boolean): string {
+  if (isPdfLocked) return 'border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/40';
+  return 'bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-white text-white dark:text-slate-900';
+}
+
+/** Title of the save-project modal. */
+function saveModalTitle(t: TranslateFn, hasProject: boolean): string {
+  if (hasProject) return t('product.resultsStep.updateProjectDetails');
+  return t('product.resultsStep.saveProjectToCloud');
+}
+
+/** Label for the modal's save submit button. */
+function saveSubmitLabel(t: TranslateFn, saving: boolean): string {
+  if (saving) return t('product.resultsStep.saving');
+  return t('product.resultsStep.saveEstimate');
+}
+
+/** Label for the copy-public-link button. */
+function copyLinkLabel(t: TranslateFn, copied: boolean): string {
+  if (copied) return t('product.resultsStep.copied');
+  return t('product.resultsStep.copyLink');
+}
+
+/** Headline for the results page, depending on proposal mode. */
+function resultsTitle(t: TranslateFn, proposalMode: boolean): string {
+  if (proposalMode) return t('product.resultsStep.clientProposalTitle');
+  return t('product.resultsStep.internalCostBreakdownTitle');
+}
+
+/** Subtitle for the results page, depending on proposal mode. */
+function resultsSubtitle(t: TranslateFn, proposalMode: boolean): string {
+  if (proposalMode) return t('product.resultsStep.clientProposalSubtitle');
+  return t('product.resultsStep.internalCostBreakdownSubtitle');
+}
+
+/** Track colour of the proposal-mode toggle. */
+function toggleTrackClass(proposalMode: boolean): string {
+  if (proposalMode) return 'bg-blue-600';
+  return 'bg-slate-300 dark:bg-slate-700';
+}
+
+/** Knob offset of the proposal-mode toggle. */
+function toggleKnobClass(proposalMode: boolean): string {
+  if (proposalMode) return 'translate-x-6';
+  return 'translate-x-1';
+}
+
+/** Lock / download glyph for the PDF button. */
+function PdfButtonIcon({ locked }: { locked: boolean }) {
+  if (locked) return <Lock className="w-4 h-4" aria-hidden="true" />;
+  return <FileDown className="w-4 h-4" aria-hidden="true" />;
+}
+
+/** Content of the send-proposal submit button. */
+function SendProposalButtonContent({ sending, t }: { sending: boolean; t: TranslateFn }) {
+  if (sending) {
+    return (
+      <>
+        <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+        <span>{t('product.resultsStep.sendingEmail')}</span>
+      </>
+    );
+  }
+  return (
+    <>
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+      </svg>
+      <span>{t('product.resultsStep.sendProposalAndLock')}</span>
+    </>
+  );
 }
 
 export default function ResultsStep({
@@ -126,35 +304,12 @@ export default function ResultsStep({
   const [emailSentSuccess, setEmailSentSuccess] = useState('');
 
   const guard = useSingleFlight();
-  const isExempt =
-    user?.role === 'admin' ||
-    user?.role === 'payment_exempt' ||
-    user?.has_unlimited_bypass === true ||
-    (user?.subscription_status === 'active' && ['starter', 'pro', 'enterprise'].includes(user?.subscription_tier ?? ''));
+  const isProOrExempt = hasTierAccess(user, ['pro', 'enterprise']);
 
-  const isProOrExempt =
-    user?.role === 'admin' ||
-    user?.role === 'payment_exempt' ||
-    user?.has_unlimited_bypass === true ||
-    (user?.subscription_status === 'active' && ['pro', 'enterprise'].includes(user?.subscription_tier ?? ''));
+  const branding = brandingFor(user, isProOrExempt);
+  const docBranding = docBrandingFor(branding);
 
-  const branding = isProOrExempt
-    ? {
-        companyName: user?.company_name || '',
-        companyLogoUrl: user?.company_logo_url || '',
-        companyAddress: user?.company_address || '',
-        companyPhone: user?.phone_number || '',
-        licenseNumber: user?.license_number || '',
-        brandColor: user?.brand_color || '#0284c7',
-      }
-    : null;
-
-  // '#0284c7' is the DB column default, so treat it as "no brand color chosen" and let each PDF use its own accent.
-  const docBranding = branding
-    ? { ...branding, brandColor: branding.brandColor.toLowerCase() !== '#0284c7' ? branding.brandColor : '' }
-    : null;
-
-  const lockedPdfViews = isProOrExempt ? [] : CLIENT_VIEWS.filter((view) => !FREE_PDF_VIEWS.includes(view));
+  const lockedPdfViews = lockedPdfViewsFor(isProOrExempt);
   const isPdfLocked = lockedPdfViews.includes(clientView);
 
   const [estimate, setEstimate] = useState<Estimate>({ totals: {}, bySystem: [], items: [] });
@@ -452,7 +607,7 @@ export default function ResultsStep({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pdfView]);
 
-  const PdfDocument = pdfView ? CLIENT_VIEW_DOCUMENTS[pdfView] : null;
+  const PdfDocument = pdfDocumentFor(pdfView);
 
   const exportCsv = guard('record-export', async () => {
     await processExportWithCreditCheck(async () => {
@@ -488,23 +643,8 @@ export default function ResultsStep({
   };
 
   const activeStatus = currentProject?.status || projectStatus;
-  const statusLabel =
-    activeStatus === 'submitted'
-      ? t('product.resultsStep.statusSubmitted')
-      : activeStatus === 'archived'
-      ? t('product.resultsStep.statusArchived')
-      : activeStatus === 'declined'
-      ? t('product.resultsStep.statusDeclined')
-      : t('product.resultsStep.statusAwarded');
-
-  const statusDescription =
-    activeStatus === 'submitted'
-      ? t('product.resultsStep.statusDescSubmitted')
-      : activeStatus === 'archived'
-      ? t('product.resultsStep.statusDescArchived')
-      : activeStatus === 'declined'
-      ? t('product.resultsStep.statusDescDeclined')
-      : t('product.resultsStep.statusDescAwarded');
+  const statusLabel = statusLabelFor(activeStatus, t);
+  const statusDescription = statusDescriptionFor(activeStatus, t);
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 text-slate-900 dark:text-slate-100">
@@ -541,12 +681,10 @@ export default function ResultsStep({
       <div className="no-print flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-            {proposalMode ? t('product.resultsStep.clientProposalTitle') : t('product.resultsStep.internalCostBreakdownTitle')}
+            {resultsTitle(t, proposalMode)}
           </h1>
           <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-            {proposalMode
-              ? t('product.resultsStep.clientProposalSubtitle')
-              : t('product.resultsStep.internalCostBreakdownSubtitle')}
+            {resultsSubtitle(t, proposalMode)}
           </p>
         </div>
 
@@ -565,14 +703,10 @@ export default function ResultsStep({
               role="switch"
               aria-checked={proposalMode}
               onClick={() => setProposalMode((v) => !v)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
-                proposalMode ? 'bg-blue-600' : 'bg-slate-300 dark:bg-slate-700'
-              }`}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${toggleTrackClass(proposalMode)}`}
             >
               <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  proposalMode ? 'translate-x-6' : 'translate-x-1'
-                }`}
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${toggleKnobClass(proposalMode)}`}
               />
             </button>
           </label>
@@ -596,7 +730,7 @@ export default function ResultsStep({
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
               </svg>
-              {isSavingProject ? t('product.resultsStep.saving') : currentProject?.id ? t('product.resultsStep.updateCloudEstimate') : t('product.resultsStep.saveToProjects')}
+              {saveButtonLabel(t, isSavingProject, Boolean(currentProject?.id))}
             </button>
           )}
 
@@ -609,7 +743,7 @@ export default function ResultsStep({
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
             </svg>
-            {isGeneratingShareLink ? t('product.resultsStep.generatingLink') : t('product.resultsStep.shareClientLink')}
+            {shareButtonLabel(t, isGeneratingShareLink)}
           </button>
 
           {saveSuccessMsg && (
@@ -647,14 +781,10 @@ export default function ResultsStep({
             type="button"
             onClick={handleDownloadClientPdf}
             disabled={Boolean(pdfView) || isCalculating}
-            className={`mb-6 inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold shadow-xs transition disabled:opacity-60 cursor-pointer ${
-              isPdfLocked
-                ? 'border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/40'
-                : 'bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-white text-white dark:text-slate-900'
-            }`}
+            className={`mb-6 inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold shadow-xs transition disabled:opacity-60 cursor-pointer ${pdfButtonClass(isPdfLocked)}`}
           >
-            {isPdfLocked ? <Lock className="w-4 h-4" aria-hidden="true" /> : <FileDown className="w-4 h-4" aria-hidden="true" />}
-            {pdfView ? t('product.exportHub.generatingPdf') : t('product.clientViews.downloadPdf')}
+            <PdfButtonIcon locked={isPdfLocked} />
+            {pdfButtonLabel(t, Boolean(pdfView))}
             {isPdfLocked && (
               <span className="ml-1 px-1.5 py-0.5 rounded-md bg-amber-500 text-white text-[10px] font-bold uppercase tracking-wide">
                 {t('product.clientViews.proBadge')}
@@ -707,7 +837,7 @@ export default function ResultsStep({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
-              {currentProject?.id ? t('product.resultsStep.updateProjectDetails') : t('product.resultsStep.saveProjectToCloud')}
+              {saveModalTitle(t, Boolean(currentProject?.id))}
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
               {t('product.resultsStep.modalSaveDescription')}
@@ -766,7 +896,7 @@ export default function ResultsStep({
                   disabled={isSavingProject}
                   className="px-5 py-2 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-xs disabled:opacity-50 cursor-pointer"
                 >
-                  {isSavingProject ? t('product.resultsStep.saving') : t('product.resultsStep.saveEstimate')}
+                  {saveSubmitLabel(t, isSavingProject)}
                 </button>
               </div>
             </form>
@@ -843,19 +973,7 @@ export default function ResultsStep({
                     disabled={isSendingEmail}
                     className="w-full mt-2 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
                   >
-                    {isSendingEmail ? (
-                      <>
-                        <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        <span>{t('product.resultsStep.sendingEmail')}</span>
-                      </>
-                    ) : (
-                      <>
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                        </svg>
-                        <span>{t('product.resultsStep.sendProposalAndLock')}</span>
-                      </>
-                    )}
+                    <SendProposalButtonContent sending={isSendingEmail} t={t} />
                   </button>
                 </div>
               </form>
@@ -884,7 +1002,7 @@ export default function ResultsStep({
                     }}
                     className="px-3.5 py-2 bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white rounded-xl text-xs font-bold whitespace-nowrap shadow-xs transition cursor-pointer"
                   >
-                    {shareCopied ? t('product.resultsStep.copied') : t('product.resultsStep.copyLink')}
+                    {copyLinkLabel(t, shareCopied)}
                   </button>
                 </div>
               </div>
@@ -1017,7 +1135,7 @@ export default function ResultsStep({
           />
         )}
 
-        {(!proposalMode || clientView === 'proposal') && (
+        {showsInternalBreakdown(proposalMode, clientView) && (
         <>
         {proposalMode && <ProposalPackageHeader project={currentProject} />}
 
@@ -1032,8 +1150,8 @@ export default function ResultsStep({
             {(totals.totalEquipmentLineItemCost ?? 0) > 0 ? (
               <SummaryCard
                 label={t('product.resultsStep.equipmentLineItems', 'Equipment & Machinery')}
-                value={formatCurrency((totals.totalEquipmentLineItemCost ?? 0) + (totals.equipmentLumpSum ?? 0))}
-                sub={(totals.equipmentLumpSum ?? 0) > 0 ? `Incl. ${formatCurrency(totals.equipmentLumpSum)} mob` : undefined}
+                value={formatCurrency(equipmentLineTotal(totals))}
+                sub={equipmentMobNote(totals)}
               />
             ) : (
               <SummaryCard label={t('product.resultsStep.equipmentMobilization')} value={formatCurrency(totals.equipmentLumpSum)} />

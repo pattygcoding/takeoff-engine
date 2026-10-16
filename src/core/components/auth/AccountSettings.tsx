@@ -21,6 +21,150 @@ interface SubscriptionDetails {
   [key: string]: unknown;
 }
 
+type AuthUser = ReturnType<typeof useAuth>['user'];
+type TranslateFn = ReturnType<typeof useTranslation>['t'];
+
+/** First matching (condition, value) pair, else the fallback. */
+function pick<T>(cases: Array<[boolean, T]>, fallback: T): T {
+  for (const [condition, value] of cases) {
+    if (condition) return value;
+  }
+  return fallback;
+}
+
+/** Whether the account holds one of the given paid tiers (or bypasses billing). */
+function hasTierAccess(user: AuthUser, tiers: string[]): boolean {
+  if (user?.role === 'admin') return true;
+  if (user?.role === 'payment_exempt') return true;
+  if (user?.has_unlimited_bypass === true) return true;
+  return user?.subscription_status === 'active' && tiers.includes(user?.subscription_tier ?? '');
+}
+
+/** Whether the account is a VIP / unlimited-bypass account. */
+function hasBillingBypass(user: AuthUser): boolean {
+  return user?.role === 'payment_exempt' || user?.has_unlimited_bypass === true;
+}
+
+/** A button label that swaps to its in-flight variant while busy. */
+function busyButtonLabel(t: TranslateFn, busy: boolean, busyKey: [string, string?], idleKey: [string, string?]): string {
+  const [key, fallback] = busy ? busyKey : idleKey;
+  if (fallback === undefined) return t(key);
+  return t(key, fallback);
+}
+
+/** Badge class for the subscription tier pill. */
+function planBadgeClass(user: AuthUser): string {
+  const premiumTier = user?.subscription_tier === 'pro' || user?.subscription_tier === 'enterprise';
+  if (premiumTier || hasBillingBypass(user)) {
+    return 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700';
+  }
+  if (user?.subscription_tier === 'starter') {
+    return 'bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border border-blue-300 dark:border-blue-700';
+  }
+  return 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700';
+}
+
+/** Badge label for the subscription tier pill. */
+function planBadgeLabel(user: AuthUser, t: TranslateFn): string {
+  return pick([
+    [hasBillingBypass(user), t('core.accountSettings.vipUnlimitedBypass')],
+    [user?.subscription_tier === 'enterprise', t('core.accountSettings.enterprisePlan')],
+    [user?.subscription_tier === 'pro', t('core.accountSettings.proPlan')],
+    [user?.subscription_tier === 'starter', t('core.accountSettings.starterPlan')],
+  ], t('core.accountSettings.freeTier'));
+}
+
+/** Formatted renewal date for the cancellation banner, or a fallback phrase. */
+function renewalDateLabel(subDetails: SubscriptionDetails | null, t: TranslateFn): string {
+  if (!subDetails?.subscriptionRenewsAt) return t('core.accountSettings.endOfBillingCycle');
+  return new Date(subDetails.subscriptionRenewsAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
+
+/** Formatted effective date for the scheduled-downgrade banner, or a fallback phrase. */
+function downgradeDateLabel(subDetails: SubscriptionDetails | null, t: TranslateFn): string {
+  const raw = subDetails?.scheduledChangeEffectiveAt || subDetails?.subscriptionRenewsAt;
+  if (!raw) return t('core.accountSettings.nextBillingCycle', 'your next billing date');
+  return new Date(raw).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
+
+/** Headline for the current-status cell. */
+function currentStatusLabel(subDetails: SubscriptionDetails | null, user: AuthUser, t: TranslateFn): string {
+  return pick([
+    [Boolean(subDetails?.cancelsAtPeriodEnd), t('core.accountSettings.activeCancelingAtPeriodEnd')],
+    [subDetails?.subscriptionStatus === 'active', t('core.accountSettings.activeRecurring')],
+    [user?.role === 'payment_exempt', t('core.accountSettings.vipLifetimeAccess')],
+  ], t('core.accountSettings.freeAccess'));
+}
+
+/** Sub-line for the current-status cell. */
+function accessRenewalLabel(subDetails: SubscriptionDetails | null, user: AuthUser, t: TranslateFn): string {
+  if (subDetails?.subscriptionRenewsAt) {
+    const prefix = subDetails?.cancelsAtPeriodEnd ? t('core.accountSettings.accessEndsOn') : t('core.accountSettings.renewsOn');
+    const date = new Date(subDetails.subscriptionRenewsAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    return `${prefix} ${date}`;
+  }
+  const paidTierActive = ['starter', 'pro', 'enterprise'].includes(user?.subscription_tier ?? '') && subDetails?.subscriptionStatus === 'active';
+  if (paidTierActive || user?.has_unlimited_bypass) return t('core.accountSettings.unlimitedProposalsAndExports');
+  return t('core.accountSettings.freeTrialExportsRemaining', { count: user?.trial_uses_remaining ?? 5 });
+}
+
+/** Password input with a show/hide toggle. */
+function PasswordField({
+  label,
+  value,
+  onChange,
+  show,
+  onToggle,
+  placeholder,
+  minLength,
+  t,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  show: boolean;
+  onToggle: () => void;
+  placeholder: string;
+  minLength?: number;
+  t: TranslateFn;
+}) {
+  return (
+    <div>
+      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+        {label}
+      </label>
+      <div className="relative">
+        <input
+          type={show ? 'text' : 'password'}
+          required
+          minLength={minLength}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className="w-full px-3.5 py-2.5 pr-10 text-sm border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        />
+        <button
+          type="button"
+          onClick={onToggle}
+          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 text-sm focus:outline-none cursor-pointer"
+          aria-label={show ? t('core.loginPage.hidePassword', 'Hide password') : t('core.loginPage.showPassword', 'Show password')}
+        >
+          {show ? (
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+            </svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function AccountSettings() {
   const { user, setUser, logout, refreshProfile } = useAuth();
   const { showAlert } = useModal();
@@ -173,17 +317,8 @@ export default function AccountSettings() {
     }
   });
 
-  const isPaidOrExempt =
-    user?.role === 'admin' ||
-    user?.role === 'payment_exempt' ||
-    user?.has_unlimited_bypass === true ||
-    (user?.subscription_status === 'active' && ['starter', 'pro', 'enterprise'].includes(user?.subscription_tier ?? ''));
-
-  const isProOrExempt =
-    user?.role === 'admin' ||
-    user?.role === 'payment_exempt' ||
-    user?.has_unlimited_bypass === true ||
-    (user?.subscription_status === 'active' && ['pro', 'enterprise'].includes(user?.subscription_tier ?? ''));
+  const isPaidOrExempt = hasTierAccess(user, ['starter', 'pro', 'enterprise']);
+  const isProOrExempt = hasTierAccess(user, ['pro', 'enterprise']);
 
   const handleLogoFileChange = guard('upload-logo', async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -351,23 +486,9 @@ export default function AccountSettings() {
 
             <div className="flex items-center gap-2">
               <span
-                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
-                  ['pro', 'enterprise'].includes(user?.subscription_tier ?? '') || user?.role === 'payment_exempt' || user?.has_unlimited_bypass
-                    ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700'
-                    : user?.subscription_tier === 'starter'
-                    ? 'bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border border-blue-300 dark:border-blue-700'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
-                }`}
+                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${planBadgeClass(user)}`}
               >
-                {user?.role === 'payment_exempt' || user?.has_unlimited_bypass
-                  ? t('core.accountSettings.vipUnlimitedBypass')
-                  : user?.subscription_tier === 'enterprise'
-                  ? t('core.accountSettings.enterprisePlan')
-                  : user?.subscription_tier === 'pro'
-                  ? t('core.accountSettings.proPlan')
-                  : user?.subscription_tier === 'starter'
-                  ? t('core.accountSettings.starterPlan')
-                  : t('core.accountSettings.freeTier')}
+                {planBadgeLabel(user, t)}
               </span>
             </div>
           </div>
@@ -379,7 +500,7 @@ export default function AccountSettings() {
           )}
 
           {/* Payment Exempt / VIP Notice (US-016) */}
-          {(user?.role === 'payment_exempt' || user?.has_unlimited_bypass) && (
+          {hasBillingBypass(user) && (
             <div className="mb-6 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 flex items-start gap-3">
               <span className="text-xl"><Crown className="w-5 h-5" /></span>
               <div>
@@ -404,13 +525,7 @@ export default function AccountSettings() {
                 <h3 className="text-sm font-bold text-amber-900 dark:text-amber-200">{t('core.accountSettings.cancellationScheduledTitle')}</h3>
                 <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
                   {t('core.accountSettings.cancellationScheduledMessage', {
-                    date: subDetails?.subscriptionRenewsAt
-                      ? new Date(subDetails.subscriptionRenewsAt).toLocaleDateString('en-US', {
-                          month: 'long',
-                          day: 'numeric',
-                          year: 'numeric',
-                        })
-                      : t('core.accountSettings.endOfBillingCycle'),
+                    date: renewalDateLabel(subDetails, t),
                   })}
                 </p>
               </div>
@@ -428,13 +543,7 @@ export default function AccountSettings() {
                 <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
                   {t('core.accountSettings.downgradeScheduledMessage', {
                     plan: subDetails.scheduledTier.toUpperCase(),
-                    date: subDetails?.scheduledChangeEffectiveAt || subDetails?.subscriptionRenewsAt
-                      ? new Date((subDetails?.scheduledChangeEffectiveAt || subDetails?.subscriptionRenewsAt)!).toLocaleDateString('en-US', {
-                          month: 'long',
-                          day: 'numeric',
-                          year: 'numeric',
-                        })
-                      : t('core.accountSettings.nextBillingCycle', 'your next billing date'),
+                    date: downgradeDateLabel(subDetails, t),
                     currentPlan: (user?.subscription_tier || 'Pro').toUpperCase(),
                   })}
                 </p>
@@ -449,26 +558,10 @@ export default function AccountSettings() {
             <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1.5">
               <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{t('core.accountSettings.currentStatusLabel')}</span>
               <p className="text-sm font-bold text-slate-800 dark:text-slate-200 capitalize">
-                {subDetails?.cancelsAtPeriodEnd
-                  ? t('core.accountSettings.activeCancelingAtPeriodEnd')
-                  : subDetails?.subscriptionStatus === 'active'
-                  ? t('core.accountSettings.activeRecurring')
-                  : user?.role === 'payment_exempt'
-                  ? t('core.accountSettings.vipLifetimeAccess')
-                  : t('core.accountSettings.freeAccess')}
+                {currentStatusLabel(subDetails, user, t)}
               </p>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                {subDetails?.subscriptionRenewsAt
-                  ? `${subDetails?.cancelsAtPeriodEnd ? t('core.accountSettings.accessEndsOn') : t('core.accountSettings.renewsOn')} ${new Date(
-                      subDetails.subscriptionRenewsAt
-                    ).toLocaleDateString('en-US', {
-                      month: 'long',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })}`
-                  : (['starter', 'pro', 'enterprise'].includes(user?.subscription_tier ?? '') && subDetails?.subscriptionStatus === 'active') || user?.has_unlimited_bypass
-                  ? t('core.accountSettings.unlimitedProposalsAndExports')
-                  : t('core.accountSettings.freeTrialExportsRemaining', { count: user?.trial_uses_remaining ?? 5 })}
+                {accessRenewalLabel(subDetails, user, t)}
               </p>
             </div>
 
@@ -514,7 +607,7 @@ export default function AccountSettings() {
                   onClick={handleOpenCustomerPortal}
                   className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition cursor-pointer"
                 >
-                  {portalLoading ? t('core.accountSettings.openingPortal') : t('core.accountSettings.manageInvoicesAndPayment')}
+                  {busyButtonLabel(t, portalLoading, ['core.accountSettings.openingPortal'], ['core.accountSettings.manageInvoicesAndPayment'])}
                 </button>
               )}
 
@@ -543,7 +636,7 @@ export default function AccountSettings() {
                   className="px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 border border-emerald-600 rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
                 >
                   <Check className="w-4 h-4" />
-                  <span>{restoreLoading ? t('core.accountSettings.restoringSubscription', 'Restoring...') : t('core.accountSettings.restoreSubscription', 'Restore Subscription')}</span>
+                  <span>{busyButtonLabel(t, restoreLoading, ['core.accountSettings.restoringSubscription', 'Restoring...'], ['core.accountSettings.restoreSubscription', 'Restore Subscription'])}</span>
                 </button>
               )}
             </div>
@@ -651,7 +744,7 @@ export default function AccountSettings() {
                 disabled={profileLoading}
                 className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-semibold shadow-xs transition cursor-pointer"
               >
-                {profileLoading ? t('core.accountSettings.savingChanges') : t('core.accountSettings.saveProfileChanges')}
+                {busyButtonLabel(t, profileLoading, ['core.accountSettings.savingChanges'], ['core.accountSettings.saveProfileChanges'])}
               </button>
             </div>
           </form>
@@ -725,7 +818,7 @@ export default function AccountSettings() {
                     <svg className="w-4 h-4 text-slate-500 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                     </svg>
-                    <span>{logoUploading ? t('core.accountSettings.uploadingLogo') : t('core.accountSettings.uploadImageButton')}</span>
+                    <span>{busyButtonLabel(t, logoUploading, ['core.accountSettings.uploadingLogo'], ['core.accountSettings.uploadImageButton'])}</span>
                     <input
                       type="file"
                       accept="image/png, image/jpeg, image/jpg, image/svg+xml, image/webp"
@@ -810,7 +903,7 @@ export default function AccountSettings() {
                 disabled={profileLoading}
                 className="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 disabled:opacity-50 text-white text-sm font-semibold shadow-xs transition cursor-pointer"
               >
-                {profileLoading ? t('core.accountSettings.savingBranding') : t('core.accountSettings.saveBrandingSettings')}
+                {busyButtonLabel(t, profileLoading, ['core.accountSettings.savingBranding'], ['core.accountSettings.saveBrandingSettings'])}
               </button>
             </div>
           </form>
@@ -842,107 +935,38 @@ export default function AccountSettings() {
           )}
 
           <form onSubmit={handleUpdatePassword} className="space-y-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                {t('core.accountSettings.currentPasswordLabel', 'Current Password')}
-              </label>
-              <div className="relative">
-                <input
-                  type={showOldPassword ? 'text' : 'password'}
-                  required
-                  value={oldPassword}
-                  onChange={(e) => setOldPassword(e.target.value)}
-                  placeholder={t('core.accountSettings.currentPasswordPlaceholder', '••••••••')}
-                  className="w-full px-3.5 py-2.5 pr-10 text-sm border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowOldPassword(!showOldPassword)}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 text-sm focus:outline-none cursor-pointer"
-                  aria-label={showOldPassword ? t('core.loginPage.hidePassword', 'Hide password') : t('core.loginPage.showPassword', 'Show password')}
-                >
-                  {showOldPassword ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
-                    </svg>
-                  ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                  )}
-                </button>
-              </div>
-            </div>
+            <PasswordField
+              label={t('core.accountSettings.currentPasswordLabel', 'Current Password')}
+              value={oldPassword}
+              onChange={setOldPassword}
+              show={showOldPassword}
+              onToggle={() => setShowOldPassword(!showOldPassword)}
+              placeholder={t('core.accountSettings.currentPasswordPlaceholder', '••••••••')}
+              t={t}
+            />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                  {t('core.accountSettings.newPasswordLabel')}
-                </label>
-                <div className="relative">
-                  <input
-                    type={showNewPassword ? 'text' : 'password'}
-                    required
-                    minLength={PASSWORD_MIN_LENGTH}
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder={t('core.accountSettings.newPasswordPlaceholder', '••••••••')}
-                    className="w-full px-3.5 py-2.5 pr-10 text-sm border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 text-sm focus:outline-none cursor-pointer"
-                    aria-label={showNewPassword ? t('core.loginPage.hidePassword', 'Hide password') : t('core.loginPage.showPassword', 'Show password')}
-                  >
-                    {showNewPassword ? (
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
-                      </svg>
-                    ) : (
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    )}
-                  </button>
-                </div>
-              </div>
+              <PasswordField
+                label={t('core.accountSettings.newPasswordLabel')}
+                value={newPassword}
+                onChange={setNewPassword}
+                show={showNewPassword}
+                onToggle={() => setShowNewPassword(!showNewPassword)}
+                placeholder={t('core.accountSettings.newPasswordPlaceholder', '••••••••')}
+                minLength={PASSWORD_MIN_LENGTH}
+                t={t}
+              />
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                  {t('core.accountSettings.confirmPasswordLabel')}
-                </label>
-                <div className="relative">
-                  <input
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    required
-                    minLength={6}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder={t('core.accountSettings.confirmPasswordPlaceholder', '••••••••')}
-                    className="w-full px-3.5 py-2.5 pr-10 text-sm border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 text-sm focus:outline-none cursor-pointer"
-                    aria-label={showConfirmPassword ? t('core.loginPage.hidePassword', 'Hide password') : t('core.loginPage.showPassword', 'Show password')}
-                  >
-                    {showConfirmPassword ? (
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
-                      </svg>
-                    ) : (
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    )}
-                  </button>
-                </div>
-              </div>
+              <PasswordField
+                label={t('core.accountSettings.confirmPasswordLabel')}
+                value={confirmPassword}
+                onChange={setConfirmPassword}
+                show={showConfirmPassword}
+                onToggle={() => setShowConfirmPassword(!showConfirmPassword)}
+                placeholder={t('core.accountSettings.confirmPasswordPlaceholder', '••••••••')}
+                minLength={6}
+                t={t}
+              />
             </div>
 
             <div className="pt-2 flex justify-end">
@@ -951,7 +975,7 @@ export default function AccountSettings() {
                 disabled={passwordLoading || !oldPassword || !newPassword || !confirmPassword}
                 className="px-5 py-2.5 rounded-xl bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 disabled:opacity-50 text-white text-sm font-semibold shadow-xs transition cursor-pointer"
               >
-                {passwordLoading ? t('core.accountSettings.updatingPassword') : t('core.accountSettings.updatePasswordButton')}
+                {busyButtonLabel(t, passwordLoading, ['core.accountSettings.updatingPassword'], ['core.accountSettings.updatePasswordButton'])}
               </button>
             </div>
           </form>
@@ -1069,7 +1093,7 @@ export default function AccountSettings() {
                   disabled={cancelLoading}
                   className="px-4 py-2 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 rounded-xl transition shadow-xs cursor-pointer"
                 >
-                  {cancelLoading ? t('core.accountSettings.cancelingSubscription') : t('core.accountSettings.confirmCancellation')}
+                  {busyButtonLabel(t, cancelLoading, ['core.accountSettings.cancelingSubscription'], ['core.accountSettings.confirmCancellation'])}
                 </button>
               </div>
             </form>
@@ -1121,7 +1145,7 @@ export default function AccountSettings() {
                 onClick={handleDeleteAccount}
                 className="px-4 py-2 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 rounded-xl transition cursor-pointer"
               >
-                {deleteLoading ? t('core.accountSettings.deletingAccount') : t('core.accountSettings.permanentlyDeleteButton')}
+                {busyButtonLabel(t, deleteLoading, ['core.accountSettings.deletingAccount'], ['core.accountSettings.permanentlyDeleteButton'])}
               </button>
             </div>
           </div>

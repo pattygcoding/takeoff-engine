@@ -71,6 +71,85 @@ function roleWithWorkdayHours(role: LaborRole, val: string | number): LaborRole 
   return { ...role, workdayHours: hours, dailyRate: Number.isFinite(hourly) ? round2(hourly * hours) : role.dailyRate };
 }
 
+/** Whether the coarse section filter should render a given section. */
+function isSectionVisible(activeSection: string, section: string): boolean {
+  return activeSection === 'all' || activeSection === section;
+}
+
+/** Class for the sticky section filter pills. */
+function sectionTabClass(selected: boolean): string {
+  const tone = selected
+    ? 'bg-blue-600 text-white shadow-xs font-bold'
+    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700';
+  return `px-2.5 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer shrink-0 ${tone}`;
+}
+
+/** Class for the workday-hours mode toggle. */
+function workdayModeClass(selected: boolean): string {
+  const tone = selected ? 'bg-blue-600 text-white shadow-xs font-semibold' : 'text-slate-500 dark:text-slate-400';
+  return `px-2.5 py-1 rounded-md ${tone}`;
+}
+
+/** Class for the labour-basis toggle. */
+function laborBasisClass(selected: boolean): string {
+  const tone = selected
+    ? 'bg-blue-600 text-white shadow-xs font-semibold'
+    : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200';
+  return `px-2.5 py-1 rounded-md transition-colors cursor-pointer ${tone}`;
+}
+
+/** Class for the sliding drawer panel. */
+function drawerPanelClass(open: boolean): string {
+  if (open) return 'translate-x-0';
+  return 'translate-x-full';
+}
+
+/** The drawer's resolved labour basis, workday hours and derived rate defaults. */
+function resolveLaborSettings(rates: Rates): {
+  laborBasis: string;
+  workdayHours: number;
+  workdayHoursMode: string;
+  currentHourlyRate: number;
+  currentDailyRate: number;
+} {
+  const laborBasis = rates.laborRateBasis === 'daily' ? 'daily' : 'hourly';
+  let workdayHours = DEFAULT_WORKDAY_HOURS;
+  if (Number(rates.standardWorkdayHours) > 0) workdayHours = Number(rates.standardWorkdayHours);
+  else if (Number(rates.workdayHours) > 0) workdayHours = Number(rates.workdayHours);
+  const workdayHoursMode = rates.workdayHoursMode === 'perRole' ? 'perRole' : 'standard';
+  const currentHourlyRate = Number(rates.laborHourlyRate)
+    || (laborBasis === 'daily' && Number(rates.laborDailyRate) > 0 ? Number(rates.laborDailyRate) / workdayHours : 65.0);
+  const currentDailyRate = Number(rates.laborDailyRate)
+    || (Number(rates.laborHourlyRate) > 0 ? Number(rates.laborHourlyRate) * workdayHours : 520.0);
+  return { laborBasis, workdayHours, workdayHoursMode, currentHourlyRate, currentDailyRate };
+}
+
+/** The rate row's labour roles, falling back to the shipped defaults. */
+function laborRolesOf(rates: Rates): LaborRole[] {
+  if (Array.isArray(rates.laborRoles) && rates.laborRoles.length > 0) return rates.laborRoles;
+  return DEFAULT_LABOR_ROLES;
+}
+
+/** The equipment catalog, falling back to the shipped defaults. */
+function equipmentCatalogOf(rates: Rates): EquipmentCatalogItem[] {
+  if (Array.isArray(rates?.equipmentCatalog) && rates.equipmentCatalog.length > 0) return rates.equipmentCatalog;
+  return DEFAULT_EQUIPMENT_CATALOG;
+}
+
+/** The miscellaneous cost items, defaulting to none. */
+function miscItemsOf(rates: Rates): MiscItem[] {
+  if (Array.isArray(rates?.miscItems)) return rates.miscItems;
+  return [];
+}
+
+type Translate = ReturnType<typeof useTranslation>['t'];
+
+/** Label for the save-template submit button. */
+function saveTemplateLabel(t: Translate, loading: boolean): string {
+  if (loading) return t('product.ratesDrawer.saving');
+  return t('product.ratesDrawer.saveTemplate');
+}
+
 export default function RatesDrawer({
   open,
   onClose,
@@ -202,13 +281,7 @@ export default function RatesDrawer({
     onChange({ ...rates, [field]: type });
   };
 
-  const laborBasis = rates.laborRateBasis === 'daily' ? 'daily' : 'hourly';
-  const workdayHours = Number(rates.standardWorkdayHours) > 0
-    ? Number(rates.standardWorkdayHours)
-    : (Number(rates.workdayHours) > 0 ? Number(rates.workdayHours) : DEFAULT_WORKDAY_HOURS);
-  const workdayHoursMode = rates.workdayHoursMode === 'perRole' ? 'perRole' : 'standard';
-  const currentHourlyRate = Number(rates.laborHourlyRate) || (laborBasis === 'daily' && Number(rates.laborDailyRate) > 0 ? Number(rates.laborDailyRate) / workdayHours : 65.0);
-  const currentDailyRate = Number(rates.laborDailyRate) || (Number(rates.laborHourlyRate) > 0 ? Number(rates.laborHourlyRate) * workdayHours : 520.0);
+  const { laborBasis, workdayHours, workdayHoursMode, currentHourlyRate, currentDailyRate } = resolveLaborSettings(rates);
 
   const handleLaborBasisChange = (newBasis: string) => {
     if (readOnly) return;
@@ -300,10 +373,7 @@ export default function RatesDrawer({
     }
   };
 
-  const laborRoles: LaborRole[] =
-    Array.isArray(rates.laborRoles) && rates.laborRoles.length > 0
-      ? rates.laborRoles
-      : DEFAULT_LABOR_ROLES;
+  const laborRoles: LaborRole[] = laborRolesOf(rates);
 
   const [showCrewCalculator, setShowCrewCalculator] = useState(false);
   const [crewComposition, setCrewComposition] = useState<CrewMember[]>(() =>
@@ -384,10 +454,7 @@ export default function RatesDrawer({
     });
   };
 
-  const equipmentCatalog: EquipmentCatalogItem[] =
-    Array.isArray(rates?.equipmentCatalog) && rates.equipmentCatalog.length > 0
-      ? rates.equipmentCatalog
-      : DEFAULT_EQUIPMENT_CATALOG;
+  const equipmentCatalog: EquipmentCatalogItem[] = equipmentCatalogOf(rates);
 
   const handleUpdateEquipmentCatalogItem = (eqId: string, field: string, val: string | number) => {
     if (readOnly) return;
@@ -435,7 +502,7 @@ export default function RatesDrawer({
     });
   };
 
-  const miscItems: MiscItem[] = Array.isArray(rates?.miscItems) ? rates.miscItems : [];
+  const miscItems: MiscItem[] = miscItemsOf(rates);
 
   const handleAddMiscItem = () => {
     const newItem = {
@@ -485,7 +552,7 @@ export default function RatesDrawer({
       {open && <div aria-hidden="true" className="fixed inset-0 bg-black/40 backdrop-blur-xs z-20" onClick={onClose} />}
       <aside
         className={`fixed top-0 right-0 h-full w-full sm:w-[440px] bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 shadow-2xl z-30 transform transition-transform flex flex-col text-slate-900 dark:text-slate-100
-          ${open ? 'translate-x-0' : 'translate-x-full'}`}
+          ${drawerPanelClass(open)}`}
       >
         {/* Fixed / Sticky Header with Title and Section Filter Pills */}
         <div className="shrink-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 z-10">
@@ -509,66 +576,42 @@ export default function RatesDrawer({
             <button
               type="button"
               onClick={() => setActiveSection('all')}
-              className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer shrink-0 ${
-                activeSection === 'all'
-                  ? 'bg-blue-600 text-white shadow-xs font-bold'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
-              }`}
+              className={sectionTabClass(activeSection === 'all')}
             >
               <Globe className="w-3.5 h-3.5 inline mr-1 -mt-0.5" />{t('product.ratesDrawer.sectionAll', 'All Settings')}
             </button>
             <button
               type="button"
               onClick={() => setActiveSection('templates')}
-              className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer shrink-0 ${
-                activeSection === 'templates'
-                  ? 'bg-blue-600 text-white shadow-xs font-bold'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
-              }`}
+              className={sectionTabClass(activeSection === 'templates')}
             >
               <Library className="w-3.5 h-3.5 inline mr-1 -mt-0.5" />{t('product.ratesDrawer.sectionTemplates', 'Templates')}
             </button>
             <button
               type="button"
               onClick={() => setActiveSection('labor')}
-              className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer shrink-0 ${
-                activeSection === 'labor'
-                  ? 'bg-blue-600 text-white shadow-xs font-bold'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
-              }`}
+              className={sectionTabClass(activeSection === 'labor')}
             >
               <HardHat className="w-3.5 h-3.5 inline mr-1 -mt-0.5" />{t('product.ratesDrawer.sectionLabor', 'Labor & Crew')}
             </button>
             <button
               type="button"
               onClick={() => setActiveSection('equipment')}
-              className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer shrink-0 ${
-                activeSection === 'equipment'
-                  ? 'bg-blue-600 text-white shadow-xs font-bold'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
-              }`}
+              className={sectionTabClass(activeSection === 'equipment')}
             >
               <Truck className="w-3.5 h-3.5 inline mr-1 -mt-0.5" />{t('product.ratesDrawer.sectionEquipment', 'Equipment')}
             </button>
             <button
               type="button"
               onClick={() => setActiveSection('trenching')}
-              className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer shrink-0 ${
-                activeSection === 'trenching'
-                  ? 'bg-blue-600 text-white shadow-xs font-bold'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
-              }`}
+              className={sectionTabClass(activeSection === 'trenching')}
             >
               <Ruler className="w-3.5 h-3.5 inline mr-1 -mt-0.5" />{t('product.ratesDrawer.sectionTrenching', 'Trenching')}
             </button>
             <button
               type="button"
               onClick={() => setActiveSection('markups')}
-              className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer shrink-0 ${
-                activeSection === 'markups'
-                  ? 'bg-blue-600 text-white shadow-xs font-bold'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
-              }`}
+              className={sectionTabClass(activeSection === 'markups')}
             >
               <Coins className="w-3.5 h-3.5 inline mr-1 -mt-0.5" />{t('product.ratesDrawer.sectionMarkups', 'Markups & Misc')}
             </button>
@@ -587,7 +630,7 @@ export default function RatesDrawer({
           )}
 
           {/* Rate Template Switcher */}
-          {(activeSection === 'all' || activeSection === 'templates') && (
+          {isSectionVisible(activeSection, 'templates') && (
             <div className="relative overflow-hidden bg-gradient-to-br from-blue-50/90 via-blue-50/40 to-slate-50 dark:from-blue-950/40 dark:via-slate-800/80 dark:to-slate-800/60 border-2 border-blue-200/80 dark:border-blue-800/80 rounded-2xl p-4 shadow-xs">
               <div className="flex items-center justify-between mb-2.5">
                 <div className="flex items-center gap-2">
@@ -671,14 +714,14 @@ export default function RatesDrawer({
           )}
 
           {/* Base Labor & Labor Roles Section */}
-          {(activeSection === 'all' || activeSection === 'labor') && (
+          {isSectionVisible(activeSection, 'labor') && (
             <div className="space-y-4">
               <section className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl p-4">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">{t('product.ratesDrawer.workdayHoursMode')}</h3>
                   <div className="inline-flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 text-xs font-medium">
-                    <button type="button" disabled={readOnly} onClick={() => onChange({ ...rates, workdayHoursMode: 'standard' })} className={`px-2.5 py-1 rounded-md ${workdayHoursMode === 'standard' ? 'bg-blue-600 text-white shadow-xs font-semibold' : 'text-slate-500 dark:text-slate-400'} disabled:cursor-not-allowed`}>{t('product.ratesDrawer.standardHours')}</button>
-                    <button type="button" disabled={readOnly} onClick={() => onChange({ ...rates, workdayHoursMode: 'perRole' })} className={`px-2.5 py-1 rounded-md ${workdayHoursMode === 'perRole' ? 'bg-blue-600 text-white shadow-xs font-semibold' : 'text-slate-500 dark:text-slate-400'} disabled:cursor-not-allowed`}>{t('product.ratesDrawer.customHoursPerRole')}</button>
+                    <button type="button" disabled={readOnly} onClick={() => onChange({ ...rates, workdayHoursMode: 'standard' })} className={`${workdayModeClass(workdayHoursMode === 'standard')} disabled:cursor-not-allowed`}>{t('product.ratesDrawer.standardHours')}</button>
+                    <button type="button" disabled={readOnly} onClick={() => onChange({ ...rates, workdayHoursMode: 'perRole' })} className={`${workdayModeClass(workdayHoursMode === 'perRole')} disabled:cursor-not-allowed`}>{t('product.ratesDrawer.customHoursPerRole')}</button>
                   </div>
                 </div>
                 <Field
@@ -698,11 +741,7 @@ export default function RatesDrawer({
                       type="button"
                       disabled={readOnly}
                       onClick={() => handleLaborBasisChange('hourly')}
-                      className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
-                        laborBasis === 'hourly'
-                          ? 'bg-blue-600 text-white shadow-xs font-semibold'
-                          : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
-                      } disabled:cursor-not-allowed`}
+                      className={`${laborBasisClass(laborBasis === 'hourly')} disabled:cursor-not-allowed`}
                     >
                       {t('product.ratesDrawer.hourlyBasis', 'Hourly ($/hr)')}
                     </button>
@@ -710,11 +749,7 @@ export default function RatesDrawer({
                       type="button"
                       disabled={readOnly}
                       onClick={() => handleLaborBasisChange('daily')}
-                      className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
-                        laborBasis === 'daily'
-                          ? 'bg-blue-600 text-white shadow-xs font-semibold'
-                          : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
-                      } disabled:cursor-not-allowed`}
+                      className={`${laborBasisClass(laborBasis === 'daily')} disabled:cursor-not-allowed`}
                     >
                       {t('product.ratesDrawer.dailyBasis', 'Daily ($/day)')}
                     </button>
@@ -868,7 +903,7 @@ export default function RatesDrawer({
           )}
 
           {/* US-046: Equipment & Machinery Rentals Catalog */}
-          {(activeSection === 'all' || activeSection === 'equipment') && (
+          {isSectionVisible(activeSection, 'equipment') && (
             <section className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl p-4">
               <div className="flex items-center justify-between mb-2">
                 <div>
@@ -998,7 +1033,7 @@ export default function RatesDrawer({
           )}
 
           {/* Trenching & Earthwork */}
-          {(activeSection === 'all' || activeSection === 'trenching') && (
+          {isSectionVisible(activeSection, 'trenching') && (
             <section className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl p-4">
               <h3 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-3">{t('product.ratesDrawer.trenchingEarthwork')}</h3>
               <Field label={t('product.ratesDrawer.trenchWidth')} value={rates.trenchWidthFt} onChange={update('trenchWidthFt')} disabled={readOnly} />
@@ -1009,7 +1044,7 @@ export default function RatesDrawer({
           )}
 
           {/* Markups & Business Constants */}
-          {(activeSection === 'all' || activeSection === 'markups') && (
+          {isSectionVisible(activeSection, 'markups') && (
             <section className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl p-4">
               <h3 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-3">{t('product.ratesDrawer.markupBusinessConstants')}</h3>
               <DualModeField
@@ -1173,7 +1208,7 @@ export default function RatesDrawer({
                     disabled={saveLoading}
                     className="px-4 py-1.5 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-xs disabled:opacity-50 cursor-pointer"
                   >
-                    {saveLoading ? t('product.ratesDrawer.saving') : t('product.ratesDrawer.saveTemplate')}
+                    {saveTemplateLabel(t, saveLoading)}
                   </button>
                 </div>
               </form>

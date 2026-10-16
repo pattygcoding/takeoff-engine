@@ -26,6 +26,238 @@ interface AdminUserFormData {
   reason: string;
 }
 
+/** Suspension / lock / test-user flags for an admin table row. */
+function userRowFlags(u: AdminUser): { isSuspended: boolean; isLocked: boolean; isTest: boolean } {
+  const isSuspended = Boolean(u.is_disabled || u.status === 'suspended' || u.status === 'disabled');
+  const isLocked = Boolean(u.locked_until && new Date(u.locked_until).getTime() > Date.now());
+  const isTest = Boolean(u.is_test_user || ['free_user', 'standard_user', 'pro_user', 'enterprise_user'].includes(u.username ?? ''));
+  return { isSuspended, isLocked, isTest };
+}
+
+/** Row background tint reflecting the account's workflow state. */
+function rowToneClass(isSuspended: boolean, isLocked: boolean): string {
+  if (isSuspended) return 'bg-red-950/20';
+  if (isLocked) return 'bg-amber-950/20';
+  return '';
+}
+
+/** Badge class for the account status pill. */
+function statusBadgeClass(isSuspended: boolean, isLocked: boolean): string {
+  if (isSuspended) return 'bg-red-500/20 text-red-400 border border-red-500/30';
+  if (isLocked) return 'bg-amber-500/20 text-amber-400 border border-amber-500/30';
+  return 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+}
+
+/** Visible label for the account status pill. */
+function statusLabel(isSuspended: boolean, isLocked: boolean): string {
+  if (isSuspended) return 'Suspended';
+  if (isLocked) return 'Locked';
+  return 'Active';
+}
+
+/** Whether the account already has unlimited access (paid tier or VIP bypass). */
+function hasUnlimitedAccess(u: AdminUser): boolean {
+  return Boolean(u.has_unlimited_bypass || (u.subscription_tier && u.subscription_tier !== 'free'));
+}
+
+/** Trial credits left, defaulting to five when unset. */
+function trialCredits(u: AdminUser): number {
+  return u.trial_uses_remaining ?? 5;
+}
+
+/** Class for the VIP bypass toggle button. */
+function bypassButtonClass(hasBypass: boolean | undefined): string {
+  if (hasBypass) return 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30';
+  return 'bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-700';
+}
+
+/** Class for the test-user toggle button. */
+function testUserButtonClass(isTest: boolean): string {
+  if (isTest) return 'bg-cyan-950/40 hover:bg-cyan-900/60 text-cyan-300 border-cyan-500/40';
+  return 'bg-slate-800 hover:bg-slate-700 text-slate-400 border-slate-700';
+}
+
+/** Class for the suspend / reactivate button. */
+function suspendButtonClass(isSuspended: boolean, isSelf: boolean): string {
+  const tone = isSuspended
+    ? 'bg-emerald-900/30 hover:bg-emerald-900/50 text-emerald-300 border-emerald-600/50'
+    : 'bg-red-900/30 hover:bg-red-900/50 text-red-300 border-red-500/40';
+  return `px-2 py-1 rounded-lg text-xs font-semibold border transition ${tone} ${isSelf ? 'opacity-40 cursor-not-allowed' : ''}`;
+}
+
+interface AdminUserRowProps {
+  u: AdminUser;
+  currentUserId?: string | number;
+  starterPrice: number;
+  proPrice: number;
+  enterprisePrice: number;
+  formatPrice: (amount?: number) => string;
+  onRoleChange: (targetUser: AdminUser, role: string) => void;
+  onTierChange: (targetUser: AdminUser, tier: string) => void;
+  onSetCredits: (targetUser: AdminUser) => void;
+  onToggleBypass: (targetUser: AdminUser) => void;
+  onToggleTestUser: (targetUser: AdminUser) => void;
+  onResetPassword: (targetUser: AdminUser) => void;
+  onUnlockAccount: (targetUser: AdminUser) => void;
+  onToggleStatus: (targetUser: AdminUser) => void;
+}
+
+/** One row of the admin user directory, together with its moderation controls. */
+function AdminUserRow({
+  u,
+  currentUserId,
+  starterPrice,
+  proPrice,
+  enterprisePrice,
+  formatPrice,
+  onRoleChange,
+  onTierChange,
+  onSetCredits,
+  onToggleBypass,
+  onToggleTestUser,
+  onResetPassword,
+  onUnlockAccount,
+  onToggleStatus,
+}: AdminUserRowProps) {
+  const { isSuspended, isLocked, isTest } = userRowFlags(u);
+  const isSelf = u.id === currentUserId;
+  const unlimited = hasUnlimitedAccess(u);
+
+  return (
+    <tr key={u.id} className={`hover:bg-slate-800/30 ${rowToneClass(isSuspended, isLocked)}`}>
+      <td className="py-3 px-4 font-medium text-slate-200">
+        <div className="flex items-center gap-2">
+          <span className={isSuspended ? 'line-through text-slate-400' : ''}>
+            @{u.username || 'user'}
+          </span>
+          {isSelf && (
+            <span className="px-1.5 py-0.2 bg-blue-500/20 text-blue-300 text-[10px] rounded font-bold border border-blue-500/30">
+              YOU
+            </span>
+          )}
+          {isLocked && (
+            <span className="px-1.5 py-0.2 bg-amber-500/20 text-amber-300 text-[10px] rounded font-bold border border-amber-500/30 inline-flex items-center gap-1" title={`Locked until ${new Date(u.locked_until || 0).toLocaleTimeString()} (5 failed attempts)`}>
+              <Lock className="w-2.5 h-2.5" /> LOCKED
+            </span>
+          )}
+          {isTest && (
+            <span className="px-1.5 py-0.2 bg-cyan-500/20 text-cyan-300 text-[10px] rounded font-bold border border-cyan-500/30" title="Test user - excluded from estimated MRR">
+              TEST USER
+            </span>
+          )}
+        </div>
+        <div className="text-[11px] text-slate-400">{u.email}</div>
+        {u.company_name && (
+          <div className="text-[10px] text-blue-400 flex items-center gap-1"><Building2 className="w-2.5 h-2.5" /> {u.company_name}</div>
+        )}
+      </td>
+      <td className="py-3 px-4">
+        <select
+          value={u.role || 'user'}
+          disabled={isSelf}
+          onChange={(e) => onRoleChange(u, e.target.value)}
+          className={`bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 ${
+            isSelf ? 'opacity-60 cursor-not-allowed' : ''
+          }`}
+        >
+          <option value="user">User</option>
+          <option value="payment_exempt">Payment Exempt (VIP)</option>
+          <option value="admin">Super-Admin</option>
+        </select>
+      </td>
+      <td className="py-3 px-4">
+        <select
+          value={u.subscription_tier || 'free'}
+          onChange={(e) => onTierChange(u, e.target.value)}
+          className="bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold"
+        >
+          <option value="free">Free ($0)</option>
+          <option value="starter">Starter ({formatPrice(starterPrice)})</option>
+          <option value="pro">Pro ({formatPrice(proPrice)})</option>
+          <option value="enterprise">Enterprise ({formatPrice(enterprisePrice)})</option>
+        </select>
+      </td>
+      <td className="py-3 px-4 text-center">
+        <span
+          className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${statusBadgeClass(isSuspended, isLocked)}`}
+        >
+          {statusLabel(isSuspended, isLocked)}
+        </span>
+      </td>
+      <td className="py-3 px-4 text-center font-bold text-slate-200">
+        {unlimited ? (
+          <span className="text-emerald-400 font-mono text-base font-black cursor-default" title="Unlimited access (paid tier or VIP bypass)">
+            ∞
+          </span>
+        ) : (
+          <button
+            type="button"
+            title="Click to edit free trial credits"
+            onClick={() => onSetCredits(u)}
+            className="inline-flex items-center justify-center gap-1 px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-blue-300 hover:text-white border border-slate-700 hover:border-blue-500/50 rounded-lg text-xs font-bold transition cursor-pointer"
+          >
+            <span>{trialCredits(u)}</span>
+            <Pencil className="w-2.5 h-2.5 text-slate-400" />
+          </button>
+        )}
+      </td>
+      <td className="py-3 px-4 text-center">
+        <button
+          type="button"
+          onClick={() => onToggleBypass(u)}
+          className={`px-2.5 py-1 rounded-lg font-bold text-[10px] uppercase transition ${bypassButtonClass(u.has_unlimited_bypass)}`}
+        >
+          {u.has_unlimited_bypass ? (
+            <span className="inline-flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Active</span>
+          ) : 'Disabled'}
+        </button>
+      </td>
+      <td className="py-3 px-4 text-slate-400 text-[11px]">
+        {new Date(u.created_at ?? '').toLocaleDateString()}
+      </td>
+      <td className="py-3 px-4 text-right">
+        <div className="flex items-center justify-end gap-1.5 flex-wrap">
+          <button
+            type="button"
+            title={isTest ? 'Unmark Test User' : 'Mark as Test User (exclude from MRR)'}
+            onClick={() => onToggleTestUser(u)}
+            className={`px-2 py-1 rounded-lg text-xs font-semibold border transition ${testUserButtonClass(isTest)}`}
+          >
+            {isTest ? <span className="inline-flex items-center gap-1"><FlaskConical className="w-3 h-3" /> Test</span> : 'Live'}
+          </button>
+          <button
+            type="button"
+            title="Dispatch Password Reset Link"
+            onClick={() => onResetPassword(u)}
+            className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-lg text-xs font-semibold transition inline-flex items-center gap-1"
+          >
+            <KeyRound className="w-3 h-3" /> Reset
+          </button>
+          {isLocked && (
+            <button
+              type="button"
+              title="Unlock account & clear failed attempts"
+              onClick={() => onUnlockAccount(u)}
+              className="px-2 py-1 bg-amber-900/40 hover:bg-amber-900/60 text-amber-300 border border-amber-500/50 rounded-lg text-xs font-semibold transition inline-flex items-center gap-1"
+            >
+              <LockOpen className="w-3 h-3" /> Unlock
+            </button>
+          )}
+          <button
+            type="button"
+            title={isSuspended ? 'Reactivate Account' : 'Suspend Account'}
+            disabled={isSelf}
+            onClick={() => onToggleStatus(u)}
+            className={suspendButtonClass(isSuspended, isSelf)}
+          >
+            {isSuspended ? 'Activate' : 'Suspend'}
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
+}
+
 export default function AdminPortal() {
   const { prices, formatPrice } = usePricingDisplay();
   const { STARTER_MONTHLY_PRICE, PRO_MONTHLY_PRICE, ENTERPRISE_MONTHLY_PRICE } = prices;
@@ -713,162 +945,25 @@ export default function AdminPortal() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800">
-                  {filteredUsers.map((u) => {
-                    const isSuspended = u.is_disabled || u.status === 'suspended' || u.status === 'disabled';
-                    const isLocked = u.locked_until && new Date(u.locked_until).getTime() > Date.now();
-                    const isTest = u.is_test_user || ['free_user', 'standard_user', 'pro_user', 'enterprise_user'].includes(u.username ?? '');
-                    return (
-                      <tr key={u.id} className={`hover:bg-slate-800/30 ${isSuspended ? 'bg-red-950/20' : isLocked ? 'bg-amber-950/20' : ''}`}>
-                        <td className="py-3 px-4 font-medium text-slate-200">
-                          <div className="flex items-center gap-2">
-                            <span className={isSuspended ? 'line-through text-slate-400' : ''}>
-                              @{u.username || 'user'}
-                            </span>
-                            {u.id === user?.id && (
-                              <span className="px-1.5 py-0.2 bg-blue-500/20 text-blue-300 text-[10px] rounded font-bold border border-blue-500/30">
-                                YOU
-                              </span>
-                            )}
-                            {isLocked && (
-                              <span className="px-1.5 py-0.2 bg-amber-500/20 text-amber-300 text-[10px] rounded font-bold border border-amber-500/30 inline-flex items-center gap-1" title={`Locked until ${new Date(u.locked_until || 0).toLocaleTimeString()} (5 failed attempts)`}>
-                                <Lock className="w-2.5 h-2.5" /> LOCKED
-                              </span>
-                            )}
-                            {isTest && (
-                              <span className="px-1.5 py-0.2 bg-cyan-500/20 text-cyan-300 text-[10px] rounded font-bold border border-cyan-500/30" title="Test user - excluded from estimated MRR">
-                                TEST USER
-                              </span>
-                            )}
-                          </div>
-                          <div className="text-[11px] text-slate-400">{u.email}</div>
-                          {u.company_name && (
-                            <div className="text-[10px] text-blue-400 flex items-center gap-1"><Building2 className="w-2.5 h-2.5" /> {u.company_name}</div>
-                          )}
-                        </td>
-                        <td className="py-3 px-4">
-                          <select
-                            value={u.role || 'user'}
-                            disabled={u.id === user?.id}
-                            onChange={(e) => handleRoleChange(u, e.target.value)}
-                            className={`bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 ${
-                              u.id === user?.id ? 'opacity-60 cursor-not-allowed' : ''
-                            }`}
-                          >
-                            <option value="user">User</option>
-                            <option value="payment_exempt">Payment Exempt (VIP)</option>
-                            <option value="admin">Super-Admin</option>
-                          </select>
-                        </td>
-                        <td className="py-3 px-4">
-                          <select
-                            value={u.subscription_tier || 'free'}
-                            onChange={(e) => handleSubscriptionTierChange(u, e.target.value)}
-                            className="bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold"
-                          >
-                            <option value="free">Free ($0)</option>
-                            <option value="starter">Starter ({formatPrice(STARTER_MONTHLY_PRICE)})</option>
-                            <option value="pro">Pro ({formatPrice(PRO_MONTHLY_PRICE)})</option>
-                            <option value="enterprise">Enterprise ({formatPrice(ENTERPRISE_MONTHLY_PRICE)})</option>
-                          </select>
-                        </td>
-                        <td className="py-3 px-4 text-center">
-                          <span
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                              isSuspended
-                                ? 'bg-red-500/20 text-red-400 border border-red-500/30'
-                                : isLocked
-                                ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                                : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                            }`}
-                          >
-                            {isSuspended ? 'Suspended' : isLocked ? 'Locked' : 'Active'}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-center font-bold text-slate-200">
-                          {u.has_unlimited_bypass || (u.subscription_tier && u.subscription_tier !== 'free') ? (
-                            <span className="text-emerald-400 font-mono text-base font-black cursor-default" title="Unlimited access (paid tier or VIP bypass)">
-                              ∞
-                            </span>
-                          ) : (
-                            <button
-                              type="button"
-                              title="Click to edit free trial credits"
-                              onClick={() => handleSetCredits(u)}
-                              className="inline-flex items-center justify-center gap-1 px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-blue-300 hover:text-white border border-slate-700 hover:border-blue-500/50 rounded-lg text-xs font-bold transition cursor-pointer"
-                            >
-                              <span>{u.trial_uses_remaining ?? 5}</span>
-                              <Pencil className="w-2.5 h-2.5 text-slate-400" />
-                            </button>
-                          )}
-                        </td>
-                        <td className="py-3 px-4 text-center">
-                          <button
-                            type="button"
-                            onClick={() => handleToggleBypass(u)}
-                            className={`px-2.5 py-1 rounded-lg font-bold text-[10px] uppercase transition ${
-                              u.has_unlimited_bypass
-                                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30'
-                                : 'bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-700'
-                            }`}
-                          >
-                            {u.has_unlimited_bypass ? (
-                              <span className="inline-flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Active</span>
-                            ) : 'Disabled'}
-                          </button>
-                        </td>
-                        <td className="py-3 px-4 text-slate-400 text-[11px]">
-                          {new Date(u.created_at ?? '').toLocaleDateString()}
-                        </td>
-                        <td className="py-3 px-4 text-right">
-                          <div className="flex items-center justify-end gap-1.5 flex-wrap">
-                            <button
-                              type="button"
-                              title={isTest ? 'Unmark Test User' : 'Mark as Test User (exclude from MRR)'}
-                              onClick={() => handleToggleTestUser(u)}
-                              className={`px-2 py-1 rounded-lg text-xs font-semibold border transition ${
-                                isTest
-                                  ? 'bg-cyan-950/40 hover:bg-cyan-900/60 text-cyan-300 border-cyan-500/40'
-                                  : 'bg-slate-800 hover:bg-slate-700 text-slate-400 border-slate-700'
-                              }`}
-                            >
-                              {isTest ? <span className="inline-flex items-center gap-1"><FlaskConical className="w-3 h-3" /> Test</span> : 'Live'}
-                            </button>
-                            <button
-                              type="button"
-                              title="Dispatch Password Reset Link"
-                              onClick={() => handleResetPassword(u)}
-                              className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-lg text-xs font-semibold transition inline-flex items-center gap-1"
-                            >
-                              <KeyRound className="w-3 h-3" /> Reset
-                            </button>
-                            {isLocked && (
-                              <button
-                                type="button"
-                                title="Unlock account & clear failed attempts"
-                                onClick={() => handleUnlockAccount(u)}
-                                className="px-2 py-1 bg-amber-900/40 hover:bg-amber-900/60 text-amber-300 border border-amber-500/50 rounded-lg text-xs font-semibold transition inline-flex items-center gap-1"
-                              >
-                                <LockOpen className="w-3 h-3" /> Unlock
-                              </button>
-                            )}
-                            <button
-                              type="button"
-                              title={isSuspended ? 'Reactivate Account' : 'Suspend Account'}
-                              disabled={u.id === user?.id}
-                              onClick={() => handleToggleStatus(u)}
-                              className={`px-2 py-1 rounded-lg text-xs font-semibold border transition ${
-                                isSuspended
-                                  ? 'bg-emerald-900/30 hover:bg-emerald-900/50 text-emerald-300 border-emerald-600/50'
-                                  : 'bg-red-900/30 hover:bg-red-900/50 text-red-300 border-red-500/40'
-                              } ${u.id === user?.id ? 'opacity-40 cursor-not-allowed' : ''}`}
-                            >
-                              {isSuspended ? 'Activate' : 'Suspend'}
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {filteredUsers.map((u) => (
+                    <AdminUserRow
+                      key={u.id}
+                      u={u}
+                      currentUserId={user?.id}
+                      starterPrice={STARTER_MONTHLY_PRICE}
+                      proPrice={PRO_MONTHLY_PRICE}
+                      enterprisePrice={ENTERPRISE_MONTHLY_PRICE}
+                      formatPrice={formatPrice}
+                      onRoleChange={handleRoleChange}
+                      onTierChange={handleSubscriptionTierChange}
+                      onSetCredits={handleSetCredits}
+                      onToggleBypass={handleToggleBypass}
+                      onToggleTestUser={handleToggleTestUser}
+                      onResetPassword={handleResetPassword}
+                      onUnlockAccount={handleUnlockAccount}
+                      onToggleStatus={handleToggleStatus}
+                    />
+                  ))}
                 </tbody>
               </table>
             </div>
