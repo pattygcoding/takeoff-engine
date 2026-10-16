@@ -112,9 +112,9 @@ async function fingerprintTables(
   for (const { schema_name: schema, table_name: table } of tables) {
     const name = `${schema}.${table}`;
     const relation = `${quoteIdent(schema)}.${quoteIdent(table)}`;
-    await db.query('SAVEPOINT fingerprint');
+    await db.query('SAVEPOINT fingerprint'); // NOSONAR: savepoint statements must run in order on one connection
     try {
-      const { rows: [result] } = await db.query(
+      const { rows: [result] } = await db.query( // NOSONAR: selects share one connection inside the transaction savepoint
         `SELECT count(*)::text AS row_count,
                 coalesce(md5(string_agg(md5(t::text), '' ORDER BY md5(t::text))), '') AS digest
            FROM ${relation} AS t`,
@@ -122,12 +122,12 @@ async function fingerprintTables(
       snapshot[name] = { rows: Number(result.row_count), digest: result.digest };
       // Per-row hashes (keyed by id when present) let a failed comparison name the exact rows.
       if ((snapshot[name].rows ?? 0) > 0 && (snapshot[name].rows ?? 0) <= ROW_DETAIL_LIMIT) {
-        const { rows } = await db.query(`SELECT coalesce(to_jsonb(t)->>'id', md5(t::text)) AS key, md5(t::text) AS hash FROM ${relation} AS t`);
+        const { rows } = await db.query(`SELECT coalesce(to_jsonb(t)->>'id', md5(t::text)) AS key, md5(t::text) AS hash FROM ${relation} AS t`); // NOSONAR: selects share one connection inside the transaction savepoint
         Object.defineProperty(snapshot[name], 'rowHashes', { value: new Map(rows.map((row) => [row.key, row.hash])), enumerable: false });
       }
-      await db.query('RELEASE SAVEPOINT fingerprint');
+      await db.query('RELEASE SAVEPOINT fingerprint'); // NOSONAR: savepoint statements must run in order on one connection
     } catch (error) {
-      await db.query('ROLLBACK TO SAVEPOINT fingerprint');
+      await db.query('ROLLBACK TO SAVEPOINT fingerprint'); // NOSONAR: savepoint statements must run in order on one connection
       const failure = error as { code?: string; message: string };
       snapshot[name] = { unreadable: failure.code || failure.message };
     }
@@ -241,7 +241,7 @@ export async function findFootprint(
   const leftovers: Array<{ table: string; rows: number }> = [];
   for (const { schema_name: schema, table_name: table } of await listTables(db, schemas)) {
     try {
-      const { rows: [result] } = await db.query(
+      const { rows: [result] } = await db.query( // NOSONAR: selects share one connection inside the transaction savepoint
         `SELECT count(*)::int AS hits FROM ${quoteIdent(schema)}.${quoteIdent(table)} AS t WHERE t::text ILIKE ANY($1::text[])`,
         [patterns],
       );

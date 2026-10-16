@@ -5,7 +5,7 @@ import type { ApiBody, ApiOrganization, QaPersona } from './fixtures.ts';
 import type { QaIdentity, QaSettings } from './qaEnvironment.ts';
 
 const tw = (key: string): string => label(`core.teamWorkspaceManager.${key}`);
-const escapeRegExp = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const escapeRegExp = (text: string): string => text.replace(new RegExp(String.raw`[.*+?^\${}()|[\]\\]`, 'g'), String.raw`\$&`);
 const pathOf = (res: Response): string => new URL(res.url()).pathname;
 
 function waitForApi(page: Page, settings: QaSettings, method: string, pathPattern: RegExp): Promise<Response> {
@@ -60,7 +60,7 @@ export async function createWorkspace(page: Page, settings: QaSettings, name: st
 
 export async function selectWorkspace(page: Page, settings: QaSettings, name: string): Promise<void> {
   const loaded = waitForApi(page, settings, 'GET', /^\/organizations\/[^/]+$/);
-  await page.getByRole('button', { name: new RegExp(`^${escapeRegExp(name)} \\(`) }).click();
+  await page.getByRole('button', { name: new RegExp(String.raw`^${escapeRegExp(name)} \(`) }).click();
   await loaded;
 }
 
@@ -138,7 +138,7 @@ export async function setExtraSeatsViaUi(page: Page, settings: QaSettings, extra
   for (let guard = 0; guard < 50; guard += 1) {
     const current = Number(await counter.textContent());
     if (current === extraSeats) break;
-    await modal.getByRole('button', { name: current < extraSeats ? '+' : '-', exact: true }).click();
+    await modal.getByRole('button', { name: current < extraSeats ? '+' : '-', exact: true }).click(); // NOSONAR: each click depends on the seat count of the previous one
   }
   await expect(counter).toHaveText(String(extraSeats));
 

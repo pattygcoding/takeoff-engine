@@ -98,7 +98,7 @@ export default function ScopeInclusionsModal({
     );
   };
 
-  const handleRemoveItem = (id: string | number | undefined) => {
+  const handleRemoveItem = (id: ScopeItemId) => {
     if (readOnly) return;
     applyItemChanges((currentItems) => currentItems.filter((it) => it.id !== id));
   };
@@ -586,7 +586,7 @@ export default function ScopeInclusionsModal({
           <div className="flex items-center gap-3 shrink-0">
             {metricsBadges}
             <span className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center shrink-0">
-              <svg
+              <svg aria-hidden="true"
                 className={`w-4 h-4 transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`}
                 fill="none"
                 viewBox="0 0 24 24"

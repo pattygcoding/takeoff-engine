@@ -42,7 +42,7 @@ export default function ColumnMappingModal({
   onTableChange,
   onConfirm,
   onCancel,
-}: {
+}: Readonly<{
   headers?: string[];
   rawRows?: Array<Record<string, string>>;
   initialMapping?: Record<string, string | number>;
@@ -58,7 +58,7 @@ export default function ColumnMappingModal({
   onTableChange?: (tableId: string) => void;
   onConfirm: (data: { items?: TakeoffItem[]; errors?: string[]; checksum?: Record<string, unknown>; detectedLaborMode?: string }) => void;
   onCancel: () => void;
-}) {
+}>) {
   const { t } = useTranslation();
   const { showConfirm } = useModal();
   const targetFields = useMemo(() => getTargetFields(t), [t]);
@@ -67,7 +67,7 @@ export default function ColumnMappingModal({
   const [currentHeaders, setCurrentHeaders] = useState<string[]>(initialHeaders || []);
   const [currentRawRows, setCurrentRawRows] = useState<Array<Record<string, string>>>(initialRawRows || []);
   const [mapping, setMapping] = useState<Record<string, string | undefined>>(
-    { ...(initialMapping || {}) } as Record<string, string | undefined>,
+    { ...initialMapping } as Record<string, string | undefined>,
   );
   const [matchConfidences, setMatchConfidences] = useState<Record<string, number>>({ ...initialMatchConfidences });
   const [overallConfidence, setOverallConfidence] = useState(initialOverallConfidence);

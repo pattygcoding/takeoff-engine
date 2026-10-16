@@ -143,7 +143,7 @@ export function useAccountCreationDisabled() {
   return Boolean(error) && !loading;
 }
 
-export function AccountCreationDisabledNotice({ className = '' }: { className?: string }) {
+export function AccountCreationDisabledNotice({ className = '' }: Readonly<{ className?: string }>) {
   const { retry } = usePricing();
   const disabled = useAccountCreationDisabled();
   const { t } = useTranslation();

@@ -27,7 +27,7 @@ export async function purgeQaArtifacts(db: Db, settings: QaSettings): Promise<Pu
   const paddleResult = await paddle.purgeQaCustomers(users.map((user) => user.paddle_customer_id));
 
   const admin = createSupabaseAdmin();
-  for (const user of users.filter((account) => account.has_auth_user)) await admin.deleteUser(user.id);
+  await Promise.all(users.filter((account) => account.has_auth_user).map((user) => admin.deleteUser(user.id)));
 
   const userIds = users.map((user) => user.id);
   await deleteQaProfiles(db, userIds);

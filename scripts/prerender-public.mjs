@@ -161,7 +161,7 @@ function prepareCapturedDom({ withContent, catalog }) {
   if (!catalog) return;
 
   const script = document.createElement('script');
-  script.textContent = `window.__PRERENDER_PRICING__ = ${JSON.stringify(catalog).replace(/</g, '\\u003c')};`;
+  script.textContent = `window.__PRERENDER_PRICING__ = ${JSON.stringify(catalog).replaceAll('<', '\\u003c')};`;
   document.head.prepend(script);
 }
 
@@ -232,7 +232,7 @@ async function main() {
   // SPA fallback (which would bake the wrong <head> into every route).
   for (const route of ROUTES) {
     if (route.out === 'index.html') continue;
-    await rm(path.dirname(path.join(distDir, route.out)), { recursive: true, force: true });
+    await rm(path.dirname(path.join(distDir, route.out)), { recursive: true, force: true }); // NOSONAR: prerender steps run one route at a time
   }
 
   const server = await preview({
@@ -247,7 +247,7 @@ async function main() {
   let count = 0;
   try {
     for (const route of ROUTES) {
-      const failure = await prerenderRoute(browser, route, { base, origin, pricingCatalog });
+      const failure = await prerenderRoute(browser, route, { base, origin, pricingCatalog }); // NOSONAR: prerender steps run one route at a time
       if (failure) failures.push(failure);
       else count += 1;
     }

@@ -365,7 +365,7 @@ function ExtraSeatsPanel({
 /** Tick glyph used in the plan benefit list. */
 function CheckBullet({ toneClassName = 'text-emerald-400' }: Readonly<{ toneClassName?: string }>) {
   return (
-    <svg className={`w-4 h-4 ${toneClassName} flex-shrink-0`} fill="currentColor" viewBox="0 0 20 20">
+    <svg aria-hidden="true" className={`w-4 h-4 ${toneClassName} flex-shrink-0`} fill="currentColor" viewBox="0 0 20 20">
       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
     </svg>
   );
@@ -781,7 +781,7 @@ export default function UpgradeModal({ isOpen, onClose }: Readonly<{ isOpen: boo
             className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-2 rounded-xl hover:bg-slate-100 transition-colors z-20 cursor-pointer"
             aria-label="Close"
           >
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg aria-hidden="true" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -789,7 +789,7 @@ export default function UpgradeModal({ isOpen, onClose }: Readonly<{ isOpen: boo
 
         <div className="text-center mb-5">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-600 mb-3 border border-amber-200 shadow-inner">
-            <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg aria-hidden="true" className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>

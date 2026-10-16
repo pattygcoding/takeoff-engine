@@ -35,7 +35,7 @@ function availableCatalog() {
 function stubInviteLookup() {
   const fetchMock = vi.fn().mockResolvedValue({
     ok: true,
-    json: async () => ({
+    json: () => Promise.resolve({
       invitation: {
         organizationName: 'Acme Construction',
         email: 'invitee@example.test',

@@ -82,9 +82,7 @@ describe('calculationsApi HTTP contract (step 2 and step 3 both depend on it)', 
       'fetch',
       vi.fn().mockResolvedValue({
         ok: false,
-        json: async () => {
-          throw new Error('not json');
-        },
+        json: () => Promise.reject(new Error('not json')),
       }),
     );
 

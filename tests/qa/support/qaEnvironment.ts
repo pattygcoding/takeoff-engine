@@ -67,7 +67,7 @@ const REQUIRED = [
 ];
 
 const csv = (value: string = ''): string[] => value.split(',').map((item) => item.trim()).filter(Boolean);
-const lower = (value: unknown): string => String(value || '').trim().toLowerCase();
+const lower = (value: unknown): string => (typeof value === 'string' || typeof value === 'number' ? String(value) : '').trim().toLowerCase();
 
 export const webhookSecretOf = (env: NodeJS.ProcessEnv = process.env): string =>
   env.PADDLE_WEBHOOK_SECRET || env.PADDLE_WEBHOOK_SECRET_KEY || '';

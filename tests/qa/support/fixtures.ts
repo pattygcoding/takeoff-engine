@@ -145,11 +145,11 @@ export const test = base.extend<QaFixtures>({
     if (testInfo.status !== testInfo.expectedStatus) {
       for (const [index, context] of contexts.entries()) {
         for (const page of context.pages()) {
-          await testInfo.attach(`persona-${index + 1}`, { body: await page.screenshot().catch(() => Buffer.alloc(0)), contentType: 'image/png' });
+          await testInfo.attach(`persona-${index + 1}`, { body: await page.screenshot().catch(() => Buffer.alloc(0)), contentType: 'image/png' }); // NOSONAR: per-persona screenshots must stay ordered
         }
       }
     }
-    for (const context of contexts) await context.close().catch(() => {});
+    await Promise.all(contexts.map((context) => context.close().catch(() => {})));
   },
 });
 
@@ -228,10 +228,10 @@ async function withRateLimitRetry(
   { timeoutMs = 120_000 }: { timeoutMs?: number } = {},
 ): Promise<Response> {
   const deadline = Date.now() + timeoutMs;
-  let response = await send();
+  let response = await send(); // NOSONAR: retry attempt must follow its backoff
   while (response.status === 429 && Date.now() < deadline) {
     const retryAfter = Number(response.headers.get('retry-after')) || 10;
-    await new Promise((resolve) => setTimeout(resolve, Math.min(retryAfter, 15) * 1000));
+    await new Promise((resolve) => setTimeout(resolve, Math.min(retryAfter, 15) * 1000)); // NOSONAR: retry backoff must be sequential
     response = await send();
   }
   return response;
@@ -249,7 +249,7 @@ export async function loginThroughUi(page: Page, customer: QaIdentity): Promise<
   await page.goto('/login?lang=en');
   await submitLoginForm(page, customer);
   // Signed-in customers are taken to their own workspace route.
-  await page.waitForURL(new RegExp(`/${customer.username}(\\?|$)`));
+  await page.waitForURL(new RegExp(String.raw`/${customer.username}(\?|$)`));
 }
 
 /** Registration -> email verification -> first login. Returns the auth user. */

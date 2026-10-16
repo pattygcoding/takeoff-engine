@@ -57,10 +57,13 @@ function StatusPill({ status }: Readonly<{ status: string }>) {
 
 function formatDate(value: unknown) {
   if (!value) return '—';
+  const text =
+    value instanceof Date ? value.toISOString() : typeof value === 'string' || typeof value === 'number' ? String(value) : '';
+  if (!text) return '—';
   // Stored as YYYY-MM-DD; parse as local date so it doesn't shift a day in negative UTC offsets.
-  const [y, m, d] = String(value).split('-').map(Number);
-  const date = y && m && d ? new Date(y, m - 1, d) : new Date(String(value));
-  return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleDateString();
+  const [y, m, d] = text.split('-').map(Number);
+  const date = y && m && d ? new Date(y, m - 1, d) : new Date(text);
+  return Number.isNaN(date.getTime()) ? text : date.toLocaleDateString();
 }
 
 function PartiesBlock({

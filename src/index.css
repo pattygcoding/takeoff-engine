@@ -58,9 +58,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 :focus-visible {
-  outline: 3px solid var(--lp-ink) !important;
+  outline: 3px solid var(--lp-ink);
   outline-offset: 3px;
-  box-shadow: 0 0 0 3px #ffffff !important;
+  box-shadow: 0 0 0 3px #ffffff;
 }
 
 .skip-link {
@@ -97,11 +97,11 @@ body:has(dialog[open]) {
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
+    animation-duration: 0.01ms !important; /* NOSONAR: universal reduced-motion reset must beat every rule */
+    animation-iteration-count: 1 !important; /* NOSONAR: see above */
     /* A tiny duration would give every element an `all` transition, so inherited colours lag a frame per nesting level. */
-    transition: none !important;
-    scroll-behavior: auto !important;
+    transition: none !important; /* NOSONAR: see above */
+    scroll-behavior: auto !important; /* NOSONAR: see above */
   }
 }
 
@@ -213,10 +213,10 @@ body:has(dialog[open]) {
 
 @media print {
   .no-print {
-    display: none !important;
+    display: none;
   }
   .print-area {
-    padding: 0 !important;
+    padding: 0;
   }
 }
 
@@ -269,11 +269,11 @@ body:has(dialog[open]) {
   /* `both` would otherwise hold the transparent/blurred start frame for the whole
      stagger delay, so drop the animation entirely instead of shortening it. */
   .lp-rise {
-    animation: none !important;
+    animation: none;
   }
 
   .lp-lift:hover {
-    transform: none !important;
+    transform: none;
   }
 }
 
@@ -285,12 +285,12 @@ body:has(dialog[open]) {
 
   html:has(body.export-print-mode),
   body.export-print-mode {
-    background: #ffffff !important;
+    background: #ffffff;
     color-scheme: light;
   }
 
   body.export-print-mode > *:not(#export-print-root) {
-    display: none !important;
+    display: none;
   }
 
   body.export-print-mode #export-print-root {

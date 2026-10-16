@@ -97,7 +97,7 @@ export default function TakeoffGrid({
     }
   };
 
-  const handleToggleSelectItem = (id: string | number | undefined) => {
+  const handleToggleSelectItem = (id: ItemId) => {
     const next = new Set(selectedItemIds);
     if (next.has(id)) {
       next.delete(id);
@@ -624,7 +624,7 @@ export default function TakeoffGrid({
                         className="text-slate-400 hover:text-red-600 dark:hover:text-red-400 cursor-pointer"
                         title={t('product.takeoffGrid.deleteRow')}
                       >
-                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg aria-hidden="true" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path
                             strokeLinecap="round"
                             strokeLinejoin="round"

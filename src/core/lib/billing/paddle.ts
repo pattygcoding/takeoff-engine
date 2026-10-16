@@ -72,7 +72,7 @@ function dispatchCheckoutEvent(
 ): void {
   console.log('[Paddle Checkout Event]', event?.name, event);
   const raw = event as unknown as Record<string, unknown>;
-  const eventName = String(raw.name || raw.type || raw.event || '');
+  const eventName = [raw.name, raw.type, raw.event].find((value): value is string => typeof value === 'string') ?? '';
 
   if (CHECKOUT_SUCCESS_EVENTS.has(eventName)) {
     if (onSuccess) onSuccess((event.data as unknown as PaddleEventData) || event);
@@ -92,7 +92,7 @@ function toPaddleCustomData(customData: Record<string, unknown> | undefined): Re
   if (!customData || typeof customData !== 'object') return {};
   const sanitized: Record<string, string> = {};
   for (const [key, value] of Object.entries(customData)) {
-    if (value !== undefined && value !== null) sanitized[key] = String(value);
+    if (value !== undefined && value !== null) sanitized[key] = typeof value === 'object' ? JSON.stringify(value) : String(value);
   }
   return sanitized;
 }

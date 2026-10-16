@@ -26,6 +26,13 @@ export interface SignatureParty {
   subtitle?: string;
 }
 
+/** Stable, non-object key for a document row. */
+function rowKeyFor(item: { id?: string | number; description?: string; name?: string }): string {
+  if (item.id !== undefined) return String(item.id);
+  const label = [item.description, item.name].find((value): value is string => typeof value === 'string');
+  return label ?? '';
+}
+
 /** Extra cell styling for a column: the explicit class wins, then emphasis, then the first column. */
 function cellExtraClass(col: DocumentColumn, ci: number): string {
   if (col.className) return col.className;
@@ -222,7 +229,7 @@ export function DocumentSystemTable({
             </td>
           </tr>
           {sys.items.map((it) => (
-            <tr key={String(it.id ?? `${it.description ?? ''}-${it.name ?? ''}`)} className="border-b border-slate-100 even:bg-slate-50/70 break-inside-avoid">
+            <tr key={rowKeyFor(it)} className="border-b border-slate-100 even:bg-slate-50/70 break-inside-avoid">
               {columns.map((col, ci) => (
                 <td key={col.header} className={cellClass(col, ci)}>
                   {col.render(it)}
@@ -250,7 +257,7 @@ export function DocumentSystemTable({
 /**
  * Right-aligned internal cost roll-up from direct costs through markups to the final bid.
  */
-export function DocumentCostSummary({ totals, accent = DEFAULT_DOC_ACCENT }: { totals: EstimateTotals; accent?: string }) {
+export function DocumentCostSummary({ totals, accent = DEFAULT_DOC_ACCENT }: Readonly<{ totals: EstimateTotals; accent?: string }>) {
   const { t } = useTranslation();
   const k = (key: string) => t(`product.templates.shared.${key}`);
 
@@ -385,7 +392,7 @@ export function DocumentFillLine({
   );
 }
 
-export function DocumentFooter({ confidential = false }: { confidential?: boolean }) {
+export function DocumentFooter({ confidential = false }: Readonly<{ confidential?: boolean }>) {
   const { t } = useTranslation();
   return (
     <footer className="mt-10 pt-3 border-t border-slate-200 flex justify-between text-[9px] uppercase tracking-wider text-slate-400">

@@ -73,7 +73,7 @@ test('document language follows the selected locale and preserves fragment links
 });
 
 test('mobile navigation exposes its expanded state', async ({ page }, testInfo) => {
-  test.skip(!testInfo.project.use.isMobile, 'Mobile navigation only');
+  test.skip(!testInfo.project.use.isMobile, 'Mobile navigation only'); // NOSONAR: intentional viewport-conditional skip
   await page.goto('/home?lang=en');
   await expect(page.getByRole('dialog')).toHaveAttribute('open', '');
   await page.keyboard.press('Escape');
@@ -197,7 +197,7 @@ const PREVIEW_LOCALES = ['en', 'fr'];
 
 for (const locale of PREVIEW_LOCALES) {
   test(`landing product preview passes axe on every screen (${locale})`, async ({ page }, testInfo) => {
-    test.skip(locale !== 'en' && testInfo.project.name !== 'desktop-light', 'The non-English scan runs once');
+    test.skip(locale !== 'en' && testInfo.project.name !== 'desktop-light', 'The non-English scan runs once'); // NOSONAR: intentional single-project skip
     await dismissLandingNotice(page, locale);
 
     const tabs = page.locator('[role="tab"]');

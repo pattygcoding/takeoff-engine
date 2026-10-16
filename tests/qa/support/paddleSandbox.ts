@@ -120,7 +120,7 @@ async function completeThreeDSecureChallenge(page: Page, timeoutMs = 60_000): Pr
         return;
       }
     }
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(500); // NOSONAR: polls the UI until the change lands
   }
   throw new Error('The 3D Secure challenge did not appear.');
 }
@@ -150,7 +150,7 @@ export function createPaddleSandboxApi({
     const items: PaddleEntity[] = [];
     let next: string | null = `${path}${path.includes('?') ? '&' : '?'}per_page=200`;
     while (next) {
-      const page = await request('GET', next.replace(baseUrl, ''));
+      const page = await request('GET', next.replace(baseUrl, '')); // NOSONAR: follows the pagination cursor page by page
       items.push(...((page.data as PaddleEntity[] | undefined) ?? []));
       const pagination = (page.meta as { pagination?: { has_more?: boolean; next?: string | null } } | undefined)?.pagination;
       next = pagination?.has_more ? (pagination.next ?? null) : null;
@@ -178,7 +178,7 @@ export function createPaddleSandboxApi({
         const subscriptions = await api.listLiveSubscriptions(customers.map((customer) => customer.id));
         const match = subscriptions.find((subscription) => subscription.items?.some((item) => item.price?.id === priceId));
         if (match) return match;
-        await new Promise((resolve) => setTimeout(resolve, 3_000));
+        await new Promise((resolve) => setTimeout(resolve, 3_000)); // NOSONAR: polls until the sandbox settles
       }
       throw new Error(`No live Paddle sandbox subscription for ${email} with price ${priceId} after ${timeoutMs}ms.`);
     },
@@ -216,9 +216,9 @@ export function createPaddleSandboxApi({
       const tagged = (await api.findQaCustomers()).map((customer) => customer.id);
       const customerIds = [...new Set([...tagged, ...extraCustomerIds.filter(Boolean)])];
       const subscriptions = await api.listLiveSubscriptions(customerIds);
-      for (const subscription of subscriptions) await api.endSubscription(subscription);
+      for (const subscription of subscriptions) await api.endSubscription(subscription); // NOSONAR: Paddle calls must not be parallelised
       for (const customerId of customerIds) {
-        await api.archiveCustomer(customerId).catch((error) => {
+        await api.archiveCustomer(customerId).catch((error) => { // NOSONAR: Paddle calls must not be parallelised
           if (!/already|archived/i.test(error.message)) throw error;
         });
       }

@@ -105,13 +105,13 @@ async function forward(
     body: ['GET', 'HEAD'].includes(req.method ?? '') ? undefined : (body as BodyInit),
   });
 
-  let response = await send();
+  let response = await send(); // NOSONAR: retry attempt must follow its backoff
   // QA sign-ins wait out Supabase's per-IP auth rate limit instead of failing the test.
   if (response.status === 429 && isQaSignIn(req, url, body)) {
     const deadline = Date.now() + RATE_LIMIT_WAIT_MS;
     while (response.status === 429 && Date.now() < deadline) {
       const retryAfter = Number(response.headers.get('retry-after')) || 10;
-      await new Promise((resolve) => setTimeout(resolve, Math.min(retryAfter, 15) * 1000));
+      await new Promise((resolve) => setTimeout(resolve, Math.min(retryAfter, 15) * 1000)); // NOSONAR: retry backoff must be sequential
       response = await send();
     }
   }
