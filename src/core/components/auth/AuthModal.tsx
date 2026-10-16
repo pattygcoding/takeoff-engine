@@ -38,8 +38,8 @@ export default function AuthModal({
   const [honeypot, setHoneypot] = useState('');
 
   const [forgotEmail, setForgotEmail] = useState('');
-  const [resetToken, setResetToken] = useState('');
-  const [newPassword, setNewPassword] = useState('');
+  const [, setResetToken] = useState('');
+  const [, setNewPassword] = useState('');
 
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');

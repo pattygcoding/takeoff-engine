@@ -1,7 +1,7 @@
 import React, { memo, useMemo, useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Lock, FileText } from 'lucide-react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { computeEstimate, formatCurrency, formatNumber } from '@/product/lib/calculations';
 import { triggerDownload } from '@/product/lib/csv';
 import { exportNodeToPdf } from '@/product/lib/pdfExport';
@@ -260,7 +260,6 @@ export default function ExportHubPage({
 }) {
   const { t } = useTranslation();
   const { username, projectId } = useParams();
-  const navigate = useNavigate();
   const { user, setUser, refreshProfile } = useAuth();
   const { showAlert } = useModal();
 
@@ -317,8 +316,6 @@ export default function ExportHubPage({
       active = false;
     };
   }, [items, rates]);
-
-  const { totals, bySystem } = estimate;
 
   // Lets print CSS hide the app shell and print only the portal-rendered document.
   useEffect(() => {
@@ -393,32 +390,6 @@ export default function ExportHubPage({
     });
   });
 
-  // 3. Word DOCX Generator
-  const handleExportWord = guard('record-export', async () => {
-    await runExportAction(async () => {
-      setExportingType('word');
-      try {
-        const isProposalMode = [
-          'client_proposal',
-          'executive_presentation',
-          'kpi_margin_summary',
-          'formal_contract_agreement',
-          'warranty_closeout_cert',
-        ].includes(currentFormat.id);
-        const { exportEstimateToWord } = await import('@/product/lib/wordExport');
-        await exportEstimateToWord(estimate, isProposalMode, branding || {}, null, currentFormat.id, currentProject, rates);
-      } catch (err) {
-        console.error('Word export failed:', err);
-        await showAlert({
-          title: t('product.exportHub.exportFailedTitle'),
-          message: t('product.exportHub.wordExportFailedMsg'),
-          variant: 'error',
-        });
-      } finally {
-        setExportingType(null);
-      }
-    });
-  });
 
   // Back link target
   const backUrl = projectId

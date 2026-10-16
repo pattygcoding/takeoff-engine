@@ -6,6 +6,41 @@ interface Language {
   label: string;
 }
 
+/** Trigger button styling for the selector's visual variant. */
+function languageTriggerClass(isLanding: boolean, isDark: boolean): string {
+  if (isLanding) return 'rounded-none border-[var(--lp-line)] bg-transparent text-[var(--lp-ink)] hover:bg-[var(--lp-ink)] hover:text-[var(--lp-paper)] h-9';
+  if (isDark) return 'rounded-xl bg-slate-800/80 hover:bg-slate-800 text-slate-200 border-slate-700/80 hover:border-slate-600 shadow-xs';
+  return 'rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 shadow-2xs';
+}
+
+/** Chevron colour for the selector's visual variant. */
+function languageChevronClass(isLanding: boolean, isDark: boolean): string {
+  if (isLanding) return '';
+  if (isDark) return 'text-slate-400';
+  return 'text-slate-500 dark:text-slate-400';
+}
+
+/** Dropdown panel styling for the selector's visual variant. */
+function languagePanelClass(isLanding: boolean, isDark: boolean): string {
+  if (isLanding) return 'bg-[var(--lp-card)] border-[var(--lp-line)] text-[var(--lp-ink)] divide-y divide-[var(--lp-rule)]';
+  if (isDark) return 'rounded-xl bg-slate-900 border-slate-700 text-slate-100 divide-y divide-slate-800';
+  return 'rounded-xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 divide-y divide-slate-100 dark:divide-slate-800';
+}
+
+/** Styling for one language option, given the selector variant and selection state. */
+function languageOptionClass(isLanding: boolean, isDark: boolean, isSelected: boolean): string {
+  if (isLanding) {
+    if (isSelected) return 'bg-[var(--lp-tint)] font-bold';
+    return 'hover:bg-[var(--lp-tint)]';
+  }
+  if (isDark) {
+    if (isSelected) return 'bg-blue-600/40 text-white font-bold';
+    return 'hover:bg-slate-800 text-slate-100 hover:text-white';
+  }
+  if (isSelected) return 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-bold';
+  return 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-100 hover:text-slate-900 dark:hover:text-white';
+}
+
 export const LANGUAGES: Language[] = [
   {
     code: 'en',
@@ -84,11 +119,7 @@ export default function LanguageSelector({ variant = 'light' }: { variant?: stri
   const isDark = variant === 'dark';
   const isLanding = variant === 'landing';
 
-  const triggerClass = isLanding
-    ? 'rounded-none border-[var(--lp-line)] bg-transparent text-[var(--lp-ink)] hover:bg-[var(--lp-ink)] hover:text-[var(--lp-paper)] h-9'
-    : isDark
-      ? 'rounded-xl bg-slate-800/80 hover:bg-slate-800 text-slate-200 border-slate-700/80 hover:border-slate-600 shadow-xs'
-      : 'rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 shadow-2xs';
+  const triggerClass = languageTriggerClass(isLanding, isDark);
 
   return (
     <div className="relative inline-block text-left" ref={dropdownRef}>
@@ -105,9 +136,7 @@ export default function LanguageSelector({ variant = 'light' }: { variant?: stri
         <span className="hidden sm:inline font-medium">{currentLang.label}</span>
         <svg
           aria-hidden="true"
-          className={`w-3.5 h-3.5 transition-transform duration-200 ${
-            isLanding ? '' : isDark ? 'text-slate-400' : 'text-slate-500 dark:text-slate-400'
-          } ${isOpen ? 'rotate-180' : ''}`}
+          className={`w-3.5 h-3.5 transition-transform duration-200 ${languageChevronClass(isLanding, isDark)} ${isOpen ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -121,13 +150,7 @@ export default function LanguageSelector({ variant = 'light' }: { variant?: stri
           id={listId}
           className={`absolute mt-1.5 w-36 max-w-[min(12rem,calc(100vw-1.5rem))] border shadow-xl z-50 py-1 overflow-hidden animate-fade-in ${
             alignLeft ? 'left-0' : 'right-0'
-          } ${
-            isLanding
-              ? 'bg-[var(--lp-card)] border-[var(--lp-line)] text-[var(--lp-ink)] divide-y divide-[var(--lp-rule)]'
-              : isDark
-                ? 'rounded-xl bg-slate-900 border-slate-700 text-slate-100 divide-y divide-slate-800'
-                : 'rounded-xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 divide-y divide-slate-100 dark:divide-slate-800'
-          }`}
+          } ${languagePanelClass(isLanding, isDark)}`}
         >
           {LANGUAGES.map((lang) => {
             const isSelected = lang.code === currentLang.code;
@@ -141,19 +164,7 @@ export default function LanguageSelector({ variant = 'light' }: { variant?: stri
                   setLanguage(lang.code);
                   setIsOpen(false);
                 }}
-                className={`w-full flex items-center justify-between px-3 py-2 text-xs font-semibold transition cursor-pointer text-left ${
-                  isLanding
-                    ? isSelected
-                      ? 'bg-[var(--lp-tint)] font-bold'
-                      : 'hover:bg-[var(--lp-tint)]'
-                    : isDark
-                    ? isSelected
-                      ? 'bg-blue-600/40 text-white font-bold'
-                      : 'hover:bg-slate-800 text-slate-100 hover:text-white'
-                    : isSelected
-                    ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-bold'
-                    : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-100 hover:text-slate-900 dark:hover:text-white'
-                }`}
+                className={`w-full flex items-center justify-between px-3 py-2 text-xs font-semibold transition cursor-pointer text-left ${languageOptionClass(isLanding, isDark, isSelected)}`}
               >
                 <div className="flex items-center gap-2">
                   <span>{lang.label}</span>

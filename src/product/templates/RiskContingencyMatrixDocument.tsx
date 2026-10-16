@@ -25,15 +25,15 @@ export default function RiskContingencyMatrixDocument({ estimate, branding, curr
   const isFixed = totals.contingencyType === 'fixed';
   const contingencyPct = rates?.contingencyPct ?? rates?.contingencyPercent ?? totals.contingencyPct ?? 5;
 
-  const rows = bySystem.map((sys, idx) => ({
-    sys,
-    isHigh: idx === 0,
-    reserve: isFixed
-      ? ((totals.directCost ?? 0) > 0
-          ? ((sys.directCost ?? 0) / (totals.directCost ?? 1)) * (totals.contingencyCost ?? 0)
-          : 0)
-      : (sys.directCost ?? 0) * ((contingencyPct || 5) / 100),
-  }));
+  const rows = bySystem.map((sys, idx) => {
+    let reserve = (sys.directCost ?? 0) * ((contingencyPct || 5) / 100);
+    if (isFixed) {
+      reserve = (totals.directCost ?? 0) > 0
+        ? ((sys.directCost ?? 0) / (totals.directCost ?? 1)) * (totals.contingencyCost ?? 0)
+        : 0;
+    }
+    return { sys, isHigh: idx === 0, reserve };
+  });
   const highCount = rows.filter((r) => r.isHigh).length;
 
   return (

@@ -278,7 +278,7 @@ export default function AdminPortal() {
   const [newCode, setNewCode] = useState('');
   const [grantTier, setGrantTier] = useState('pro');
   const [grantUnlimited, setGrantUnlimited] = useState(true);
-  const [grantCredits, setGrantCredits] = useState(10);
+  const [grantCredits] = useState(10);
   const [maxUses, setMaxUses] = useState<number | string>(10);
   const [creatingPromo, setCreatingPromo] = useState(false);
   const [promoSuccessMsg, setPromoSuccessMsg] = useState('');

@@ -1,6 +1,22 @@
 import { useTranslation } from '@/core/components/context/I18nContext';
 import { Lock } from 'lucide-react';
 
+/** Button tint for a step in the takeoff wizard. */
+function stepButtonClass(isActive: boolean, isLocked: boolean, isComplete: boolean): string {
+  if (isActive) return 'bg-blue-600 text-white shadow-xs';
+  if (isLocked) return 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed opacity-75';
+  if (isComplete) return 'bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/60 cursor-pointer';
+  return 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed';
+}
+
+/** Badge fill for a step in the takeoff wizard. */
+function stepBadgeClass(isActive: boolean, isLocked: boolean, isComplete: boolean): string {
+  if (isActive) return 'bg-white text-blue-600 font-bold';
+  if (isLocked) return 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400';
+  if (isComplete) return 'bg-blue-600 text-white font-bold';
+  return 'bg-slate-300 dark:bg-slate-700 text-white dark:text-slate-400';
+}
+
 export default function Stepper({
   step,
   onStepClick,
@@ -35,27 +51,11 @@ export default function Stepper({
                   : undefined
               }
               className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors
-                ${
-                  s.id === step
-                    ? 'bg-blue-600 text-white shadow-xs'
-                    : isStepLocked
-                    ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed opacity-75'
-                    : s.id < step
-                    ? 'bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/60 cursor-pointer'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed'
-                }`}
+                ${stepButtonClass(s.id === step, isStepLocked, s.id < step)}`}
             >
               <span
                 className={`flex items-center justify-center w-5 h-5 rounded-full text-xs
-                  ${
-                    s.id === step
-                      ? 'bg-white text-blue-600 font-bold'
-                      : isStepLocked
-                      ? 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
-                      : s.id < step
-                      ? 'bg-blue-600 text-white font-bold'
-                      : 'bg-slate-300 dark:bg-slate-700 text-white dark:text-slate-400'
-                  }`}
+                  ${stepBadgeClass(s.id === step, isStepLocked, s.id < step)}`}
               >
                 {isStepLocked ? <Lock className="w-2.5 h-2.5" /> : s.id}
               </span>

@@ -82,13 +82,9 @@ function loginSeoData(view: string, t: TranslateFunction) {
 
 export default function LoginPage({ initialView = 'login' }) {
   const { login, register, refreshProfile, user } = useAuth();
-  const { t, prices, ready } = usePricingDisplay();
+  const { t } = usePricingDisplay();
   const { retry: retryPricing } = usePricing();
   const accountCreationDisabled = useAccountCreationDisabled();
-  const {
-    STARTER_MONTHLY_PRICE, PRO_MONTHLY_PRICE, ENTERPRISE_MONTHLY_PRICE,
-    STARTER_YEARLY_PRICE, PRO_YEARLY_PRICE, ENTERPRISE_YEARLY_PRICE, EXTRA_SEAT_MONTHLY_PRICE,
-  } = prices;
   const navigate = useNavigate();
   const [view, setView] = useState(initialView); // 'login' | 'register' | 'forgot' | 'plan-select'
 
@@ -117,7 +113,7 @@ export default function LoginPage({ initialView = 'login' }) {
 
   const [forgotEmail, setForgotEmail] = useState('');
 
-  const [registeredUser, setRegisteredUser] = useState<{
+  const [registeredUser] = useState<{
     username?: string;
     email?: string;
     [key: string]: unknown;

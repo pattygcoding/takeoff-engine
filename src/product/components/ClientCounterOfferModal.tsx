@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   SCOPE_STATUS,
   DEFAULT_SCOPE_ITEMS,
-  categorizeScope,
   formatScopeAddonImpact,
   formatScopeStatusLabel,
 } from '@/product/lib/scope';
@@ -144,7 +143,6 @@ export default function ClientCounterOfferModal({
     }
   };
 
-  const { included, excluded } = categorizeScope(scopeList);
   const statusOptions = [
     { value: SCOPE_STATUS.INCLUDED, icon: <Check className="w-3 h-3" />, label: t('product.counterOfferModal.statusIncluded', 'Included') },
     { value: SCOPE_STATUS.EXCLUDED, icon: <X className="w-3 h-3" />, label: t('product.counterOfferModal.statusExcluded', 'Excluded') },

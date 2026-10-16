@@ -32,7 +32,7 @@ export default function AcceptInvitePage() {
   const [inviteData, setInviteData] = useState<InviteData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [accepting, setAccepting] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [, setSuccess] = useState(false);
 
   const guard = useSingleFlight();
   // 1. Verify invitation token on mount
@@ -147,12 +147,9 @@ export default function AcceptInvitePage() {
     );
   }
 
-  const roleLabel =
-    inviteData?.role === 'admin'
-      ? t('core.acceptInvite.roleAdmin')
-      : inviteData?.role === 'viewer'
-      ? t('core.acceptInvite.roleViewer')
-      : t('core.acceptInvite.roleEstimator');
+  let roleLabel = t('core.acceptInvite.roleEstimator');
+  if (inviteData?.role === 'admin') roleLabel = t('core.acceptInvite.roleAdmin');
+  else if (inviteData?.role === 'viewer') roleLabel = t('core.acceptInvite.roleViewer');
 
   return (
     <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">

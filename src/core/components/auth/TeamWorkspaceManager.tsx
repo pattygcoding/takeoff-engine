@@ -17,7 +17,7 @@ export default function TeamWorkspaceManager() {
   const [activeOrg, setActiveOrg] = useState<Organization | null>(null);
   const [members, setMembers] = useState<OrganizationMember[]>([]);
   const [myRole, setMyRole] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
@@ -39,9 +39,10 @@ export default function TeamWorkspaceManager() {
 
   const guard = useSingleFlight();
   const tier = user?.subscription_tier || 'free';
-  const baseSeats = tier === 'enterprise' ? 8 : tier === 'pro' ? 3 : 1;
+  let baseSeats = 1;
+  if (tier === 'enterprise') baseSeats = 8;
+  else if (tier === 'pro') baseSeats = 3;
   const currentAddSeats = user?.additional_seats || 0;
-  const currentTotalSeats = user?.seat_limit || (baseSeats + currentAddSeats);
 
   const hasActiveTeamPlan = user?.subscription_status === 'active'
     && ['pro', 'enterprise', 'team'].includes(user?.subscription_tier ?? '');
@@ -119,7 +120,7 @@ export default function TeamWorkspaceManager() {
     setSuccessMsg('');
 
     try {
-      const res = await organizationsApi.inviteMember(activeOrg.id, {
+      await organizationsApi.inviteMember(activeOrg.id, {
         email: inviteEmail.trim(),
         role: inviteRole,
       });

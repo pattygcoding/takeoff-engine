@@ -207,7 +207,7 @@ export default function AccountSettings() {
 
   // Billing & Subscription state (US-021)
   const [subDetails, setSubDetails] = useState<SubscriptionDetails | null>(null);
-  const [subLoading, setSubLoading] = useState(true);
+  const [, setSubLoading] = useState(true);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelReason, setCancelReason] = useState('Project completed');

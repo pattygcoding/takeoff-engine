@@ -29,8 +29,15 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
 const nativeFetch = window.fetch.bind(window);
 
+/** The string URL of a fetch input, whether it is a string, a URL, or a Request. */
+function urlOfFetchInput(input: RequestInfo | URL): string {
+  if (typeof input === 'string') return input;
+  if (input instanceof URL) return input.href;
+  return input.url;
+}
+
 window.fetch = (input, init = {}) => {
-  const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+  const url = urlOfFetchInput(input);
   if (!url.startsWith(API_BASE_URL)) return nativeFetch(input, init);
 
   const headers = addAuthorizationHeader(init.headers);

@@ -67,7 +67,7 @@ export default function ClientProposalView() {
   const [signerEmail, setSignerEmail] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [signSuccess, setSignSuccess] = useState(false);
+  const [, setSignSuccess] = useState(false);
   const [signError, setSignError] = useState('');
 
   // Decline Modal States

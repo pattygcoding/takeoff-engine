@@ -176,7 +176,7 @@ export default function RatesDrawer({
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [showScopeModal, setShowScopeModal] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
-  const [loadLoading, setLoadLoading] = useState(false);
+  const [, setLoadLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);

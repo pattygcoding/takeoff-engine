@@ -399,7 +399,7 @@ export default function ResultsStep({
         totalItemsCount: items.length,
       };
 
-      const savedProject = await persistEstimate(
+      await persistEstimate(
         currentProject,
         {
           name: projectNameInput.trim(),

@@ -38,7 +38,6 @@ export default function UserMenu() {
   const isExempt = hasFullAccess(user);
 
   const isAdmin = user?.role === 'admin';
-  const isPaymentExempt = user?.role === 'payment_exempt';
 
   const credits = remainingTrialCredits(user);
 

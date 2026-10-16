@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { projectsApi } from '@/product/lib/projects';
 import { useAuth } from '@/core/components/context/AuthContext';
 import { useModal } from '@/core/components/context/ModalContext';
@@ -37,10 +36,9 @@ export default function ProjectDashboard({
   onOpenProject: (project: Project, targetStep?: string) => void;
   onNewTakeoff: () => void;
 }) {
-  const { user, isAdmin } = useAuth();
+  const { isAdmin } = useAuth();
   const { showAlert, showConfirm } = useModal();
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -356,7 +354,6 @@ export default function ProjectDashboard({
             const isDraft = rawStatus === 'draft';
             const isArchived = rawStatus === 'archived';
             const isDeclined = rawStatus === 'declined';
-            const isSubmittedOrAwarded = rawStatus === 'submitted' || rawStatus === 'awarded';
             const summary = project.latestEstimate?.summary_json || {};
             const bidTotal = summary.finalBidAmount || 0;
             const isCloning = isCloningId === project.id;

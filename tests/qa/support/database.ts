@@ -139,7 +139,7 @@ export function diffSnapshots(
   before: Snapshot,
   after: Snapshot,
 ): Array<{ table: string; before: TableFingerprint | null; after: TableFingerprint | null }> {
-  const names = [...new Set([...Object.keys(before), ...Object.keys(after)])].sort();
+  const names = [...new Set([...Object.keys(before), ...Object.keys(after)])].sort((a, b) => a.localeCompare(b));
   return names
     .filter((name) => JSON.stringify(before[name]) !== JSON.stringify(after[name]))
     .map((name) => ({ table: name, before: before[name] ?? null, after: after[name] ?? null }));

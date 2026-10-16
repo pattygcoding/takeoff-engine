@@ -29,11 +29,9 @@ function equipmentUnit(durationUnit: string): string {
 
 /** Row tint: equipment rows, missing-scope rows, and selected rows each get their own highlight. */
 function takeoffRowClass(item: TakeoffItem, isSelected: boolean): string {
-  const tint = item.isEquipment
-    ? 'bg-amber-50/50 dark:bg-amber-950/25 border-l-4 border-l-amber-500'
-    : item.hasMissingScope
-    ? 'bg-amber-50/40 dark:bg-amber-950/20'
-    : '';
+  let tint = '';
+  if (item.isEquipment) tint = 'bg-amber-50/50 dark:bg-amber-950/25 border-l-4 border-l-amber-500';
+  else if (item.hasMissingScope) tint = 'bg-amber-50/40 dark:bg-amber-950/20';
   const selected = isSelected ? 'bg-blue-50/40 dark:bg-blue-950/30' : '';
   return `hover:bg-slate-50 dark:hover:bg-slate-800/50 ${tint} ${selected}`;
 }
