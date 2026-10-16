@@ -12,7 +12,7 @@ import { QA_TAG } from './qaEnvironment.ts';
  * Everything else is forwarded untouched.
  */
 
-const target = String(process.env.SUPABASE_URL || '').replace(/\/+$/, '');
+const target = String(process.env.SUPABASE_URL || '').replace(/(?<!\/)\/+$/, '');
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const port = Number(process.env.QA_SUPABASE_GATEWAY_PORT);
 if (!target || !serviceRoleKey || !port) {

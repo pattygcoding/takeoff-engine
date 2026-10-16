@@ -76,7 +76,7 @@ export default function AccountSettings() {
 
   const guard = useSingleFlight();
   useEffect(() => {
-    loadSubscriptionDetails();
+    void loadSubscriptionDetails();
   }, [user]);
 
   const loadSubscriptionDetails = async () => {
@@ -990,7 +990,7 @@ export default function AccountSettings() {
           isOpen={showUpgradeModal}
           onClose={() => {
             setShowUpgradeModal(false);
-            loadSubscriptionDetails();
+            void loadSubscriptionDetails();
           }}
         />
       )}

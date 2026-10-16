@@ -246,7 +246,6 @@ export default function ScopeInclusionsModal({
                 <form onSubmit={handleSavePreset} className="flex items-center gap-1.5">
                   <input
                     type="text"
-                    autoFocus
                     placeholder={t('product.scopeModal.presetNamePlaceholder', 'Preset name (e.g. Turnkey Civil Scope)...')}
                     value={presetNameInput}
                     onChange={(e) => setPresetNameInput(e.target.value)}

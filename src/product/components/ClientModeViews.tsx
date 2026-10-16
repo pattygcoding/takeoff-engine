@@ -453,7 +453,7 @@ export function ChangeOrdersView({
   const disabled = !canEdit || saving;
 
   const nextNumber = () => {
-    const max = changeOrders.reduce((m, co) => Math.max(m, parseInt(String(co.number).replace(/\D/g, ''), 10) || 0), 0);
+    const max = changeOrders.reduce((m, co) => Math.max(m, Number.parseInt(String(co.number).replace(/\D/g, ''), 10) || 0), 0);
     return `CO-${String(max + 1).padStart(3, '0')}`;
   };
 
@@ -462,7 +462,7 @@ export function ChangeOrdersView({
     title: (d.title ?? '').trim(),
     description: (d.description ?? '').trim(),
     amount: Number(d.amount) || 0,
-    scheduleDays: parseInt(String(d.scheduleDays ?? ''), 10) || 0,
+    scheduleDays: Number.parseInt(String(d.scheduleDays ?? ''), 10) || 0,
     status: d.status,
     date: d.date,
   });

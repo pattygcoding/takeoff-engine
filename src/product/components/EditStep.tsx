@@ -63,7 +63,7 @@ export default function EditStep({
     if (importContext?.mappingData) {
       setMappingModalData(importContext.mappingData);
     } else if (importContext?.file) {
-      handleParseForRemap(importContext.file);
+      void handleParseForRemap(importContext.file);
     } else {
       // Direct opening: construct mapping modal data directly from existing items
       const directModalData = buildMappingModalDataFromItems(items, t);
@@ -99,13 +99,13 @@ export default function EditStep({
 
   const handleSheetChange = (sheetName: string) => {
     if (importContext?.file) {
-      handleParseForRemap(importContext.file, sheetName, null);
+      void handleParseForRemap(importContext.file, sheetName, null);
     }
   };
 
   const handleTableChange = (tableId: string) => {
     if (importContext?.file) {
-      handleParseForRemap(importContext.file, mappingModalData?.activeSheetName || null, tableId);
+      void handleParseForRemap(importContext.file, mappingModalData?.activeSheetName || null, tableId);
     }
   };
 

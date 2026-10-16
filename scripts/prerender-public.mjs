@@ -99,7 +99,7 @@ async function loadPricingCatalog() {
     }
   }
 
-  const apiBase = (process.env.PRERENDER_API_URL || process.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/+$/, '');
+  const apiBase = (process.env.PRERENDER_API_URL || process.env.VITE_API_URL || 'http://localhost:5000/api').replace(/(?<!\/)\/+$/, '');
   try {
     const response = await fetch(`${apiBase}/billing/pricing`, {
       headers: { 'Content-Type': 'application/json' },

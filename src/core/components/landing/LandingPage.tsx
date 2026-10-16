@@ -496,27 +496,27 @@ export default function LandingPage() {
               <table className="w-full border-collapse text-[14.5px]">
                 <tbody>
                   <tr>
-                    <td className="py-[13px] border-b border-[var(--lp-rule)]">{t('core.landing.calculator.totalExcavation')}</td>
+                    <th scope="row" className="py-[13px] border-b border-[var(--lp-rule)] text-left font-normal">{t('core.landing.calculator.totalExcavation')}</th>
                     <td className="py-[13px] border-b border-[var(--lp-rule)] text-right font-mono tabular-nums font-semibold text-[19px]">
                       {formatNumber(totalExcavationCuYd, 1)}
                       <small className="ml-1 font-normal text-xs text-[var(--lp-muted)]">CY</small>
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-[13px] border-b border-[var(--lp-rule)]">{t('core.landing.calculator.netBackfill')}</td>
+                    <th scope="row" className="py-[13px] border-b border-[var(--lp-rule)] text-left font-normal">{t('core.landing.calculator.netBackfill')}</th>
                     <td className="py-[13px] border-b border-[var(--lp-rule)] text-right font-mono tabular-nums font-semibold text-[19px]">
                       {formatNumber(backfillCuYd, 1)}
                       <small className="ml-1 font-normal text-xs text-[var(--lp-muted)]">CY</small>
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-[13px] border-b border-[var(--lp-rule)]">{t('core.landing.calculator.machineCost')}</td>
+                    <th scope="row" className="py-[13px] border-b border-[var(--lp-rule)] text-left font-normal">{t('core.landing.calculator.machineCost')}</th>
                     <td className="py-[13px] border-b border-[var(--lp-rule)] text-right font-mono tabular-nums font-medium">{formatCurrency(estimatedExcavationCost)}</td>
                   </tr>
                   <tr>
-                    <td className="py-[13px] border-b border-[var(--lp-rule)]">
+                    <th scope="row" className="py-[13px] border-b border-[var(--lp-rule)] text-left font-normal">
                       {t('core.landing.calculator.crewProduction', { hours: formatNumber(estimatedCrewHours, 1) })}
-                    </td>
+                    </th>
                     <td className="py-[13px] border-b border-[var(--lp-rule)] text-right font-mono tabular-nums font-medium">{formatCurrency(estimatedLaborCost)}</td>
                   </tr>
                 </tbody>
@@ -562,7 +562,7 @@ export default function LandingPage() {
             description={t('core.landing.comparison.subtitle')}
           />
 
-          <div tabIndex={0} role="region" aria-label={t('core.landing.comparison.title')} className="overflow-x-auto">
+          <div role="region" aria-label={t('core.landing.comparison.title')} tabIndex={0 /* NOSONAR: a horizontally scrollable region must stay keyboard reachable (WCAG 2.1.1; axe scrollable-region-focusable). */} className="overflow-x-auto">
             <table className="w-full min-w-[760px] border-collapse bg-[var(--lp-card)] border-2 border-[var(--lp-ink)] text-[15px]">
               <thead>
                 <tr className="text-xs tracking-[0.06em] uppercase font-bold">

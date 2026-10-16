@@ -5,11 +5,14 @@
     <link rel="icon" type="image/png" href="/favicon.png?v=2" />
     <link rel="shortcut icon" href="/favicon.png?v=2" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Takeoff Engine — Civil &amp; Utility Estimating Platform</title>
 
     <!--
       Route metadata (title, description, keywords, canonical, OpenGraph, Twitter, hreflang and
       JSON-LD) is owned by SeoHead / react-helmet-async so there is a single source of truth.
-      Static copies here would be duplicated the moment the app mounts. Build-time prerendering
+      The <title> above is a default for the brief window before the app mounts and for non-JS
+      crawlers hitting a non-prerendered route; SeoHead replaces it and headMetadata de-duplicates
+      the pair. Build-time prerendering
       (`npm run prerender`) bakes SeoHead's output into the public routes' raw HTML.
     -->
 

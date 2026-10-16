@@ -150,6 +150,14 @@ export default function UploadStep({
         onDragLeave={() => setIsDragging(false)}
         onDrop={onDrop}
         onClick={() => inputRef.current?.click()}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            inputRef.current?.click();
+          }
+        }}
         className={`cursor-pointer rounded-2xl border-2 border-dashed p-12 text-center transition duration-200
           ${isDragging
             ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/40'

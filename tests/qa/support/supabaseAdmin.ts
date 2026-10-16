@@ -11,7 +11,7 @@ export function createSupabaseAdmin({
   url = process.env.SUPABASE_URL,
   serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY,
 }: { url?: string; serviceRoleKey?: string } = {}): SupabaseAdmin {
-  const baseUrl = (url ?? '').replace(/\/+$/, '');
+  const baseUrl = (url ?? '').replace(/(?<!\/)\/+$/, '');
 
   async function request(method: string, path: string, body?: unknown) {
     const res = await fetch(`${baseUrl}/auth/v1/admin${path}`, {

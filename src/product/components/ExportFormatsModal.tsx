@@ -258,6 +258,14 @@ function FormatCard({
   return (
     <div
       onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      }}
       className={`group relative flex flex-col justify-between rounded-2xl border-2 p-3 text-left transition-all duration-200 cursor-pointer select-none bg-white dark:bg-slate-800 ${
         isSelected
           ? 'border-blue-600 ring-4 ring-blue-50 dark:ring-blue-950 shadow-md transform -translate-y-0.5'

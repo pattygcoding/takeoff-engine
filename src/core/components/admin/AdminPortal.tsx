@@ -77,7 +77,7 @@ export default function AdminPortal() {
       navigate('/');
       return;
     }
-    loadAdminData();
+    void loadAdminData();
   }, [user]);
 
   const loadAdminData = async () => {
@@ -141,7 +141,7 @@ export default function AdminPortal() {
 
     if (input === null) return;
     const num = Number(input);
-    if (isNaN(num) || num < 0) {
+    if (Number.isNaN(num) || num < 0) {
       await showAlert({
         title: 'Invalid Input',
         message: 'Please provide a valid non-negative number of credits.',
@@ -893,8 +893,8 @@ export default function AdminPortal() {
             {/* New Promo Form */}
             <form onSubmit={handleCreatePromo} className="bg-slate-800/40 p-4 rounded-2xl border border-slate-800 grid grid-cols-1 sm:grid-cols-5 gap-3 items-end">
               <div>
-                <label className="block text-[11px] font-semibold text-slate-400 mb-1">Code String</label>
-                <input
+                <label htmlFor="promo-code" className="block text-[11px] font-semibold text-slate-400 mb-1">Code String</label>
+                <input id="promo-code"
                   type="text"
                   required
                   placeholder="e.g. VIP2026"
@@ -905,8 +905,8 @@ export default function AdminPortal() {
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-slate-400 mb-1">Grant Tier</label>
-                <select
+                <label htmlFor="promo-grant-tier" className="block text-[11px] font-semibold text-slate-400 mb-1">Grant Tier</label>
+                <select id="promo-grant-tier"
                   value={grantTier}
                   onChange={(e) => setGrantTier(e.target.value)}
                   className="w-full px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -918,8 +918,8 @@ export default function AdminPortal() {
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-slate-400 mb-1">Max Redemptions</label>
-                <input
+                <label htmlFor="promo-max-uses" className="block text-[11px] font-semibold text-slate-400 mb-1">Max Redemptions</label>
+                <input id="promo-max-uses"
                   type="number"
                   min="1"
                   value={maxUses}
@@ -1084,10 +1084,10 @@ export default function AdminPortal() {
             <form onSubmit={handleCreateUser} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  <label htmlFor="admin-user-username" className="block text-xs font-semibold text-slate-300 mb-1">
                     Username <span className="text-red-400">*</span>
                   </label>
-                  <input
+                  <input id="admin-user-username"
                     type="text"
                     required
                     placeholder="e.g. john_doe"
@@ -1097,10 +1097,10 @@ export default function AdminPortal() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  <label htmlFor="admin-user-email" className="block text-xs font-semibold text-slate-300 mb-1">
                     Email Address <span className="text-red-400">*</span>
                   </label>
-                  <input
+                  <input id="admin-user-email"
                     type="email"
                     required
                     placeholder="e.g. john@company.com"
@@ -1112,10 +1112,10 @@ export default function AdminPortal() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                <label htmlFor="admin-user-password" className="block text-xs font-semibold text-slate-300 mb-1">
                   Password <span className="text-red-400">*</span> (8+ chars, upper/lowercase, number, special character)
                 </label>
-                <input
+                <input id="admin-user-password"
                   type="password"
                   required
                   minLength={PASSWORD_MIN_LENGTH}
@@ -1128,8 +1128,8 @@ export default function AdminPortal() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">First Name</label>
-                  <input
+                  <label htmlFor="admin-user-first-name" className="block text-xs font-semibold text-slate-300 mb-1">First Name</label>
+                  <input id="admin-user-first-name"
                     type="text"
                     placeholder="e.g. John"
                     value={userFormData.firstName}
@@ -1138,8 +1138,8 @@ export default function AdminPortal() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Last Name</label>
-                  <input
+                  <label htmlFor="admin-user-last-name" className="block text-xs font-semibold text-slate-300 mb-1">Last Name</label>
+                  <input id="admin-user-last-name"
                     type="text"
                     placeholder="e.g. Doe"
                     value={userFormData.lastName}
@@ -1151,8 +1151,8 @@ export default function AdminPortal() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Company Name</label>
-                  <input
+                  <label htmlFor="admin-user-company" className="block text-xs font-semibold text-slate-300 mb-1">Company Name</label>
+                  <input id="admin-user-company"
                     type="text"
                     placeholder="e.g. Acme Construction"
                     value={userFormData.companyName}
@@ -1161,8 +1161,8 @@ export default function AdminPortal() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Phone Number</label>
-                  <input
+                  <label htmlFor="admin-user-phone" className="block text-xs font-semibold text-slate-300 mb-1">Phone Number</label>
+                  <input id="admin-user-phone"
                     type="tel"
                     placeholder="e.g. (555) 000-0000"
                     value={userFormData.phoneNumber}
@@ -1174,8 +1174,8 @@ export default function AdminPortal() {
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-slate-800">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Account Role</label>
-                  <select
+                  <label htmlFor="admin-user-role" className="block text-xs font-semibold text-slate-300 mb-1">Account Role</label>
+                  <select id="admin-user-role"
                     value={userFormData.role}
                     onChange={(e) => setUserFormData({ ...userFormData, role: e.target.value })}
                     className="w-full px-3 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -1186,8 +1186,8 @@ export default function AdminPortal() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Subscription Tier</label>
-                  <select
+                  <label htmlFor="admin-user-tier" className="block text-xs font-semibold text-slate-300 mb-1">Subscription Tier</label>
+                  <select id="admin-user-tier"
                     value={userFormData.subscriptionTier}
                     onChange={(e) => setUserFormData({ ...userFormData, subscriptionTier: e.target.value })}
                     className="w-full px-3 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -1200,8 +1200,8 @@ export default function AdminPortal() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Trial Credits</label>
-                  <input
+                  <label htmlFor="admin-user-trial-credits" className="block text-xs font-semibold text-slate-300 mb-1">Trial Credits</label>
+                  <input id="admin-user-trial-credits"
                     type="number"
                     min="0"
                     max="999"
@@ -1239,8 +1239,8 @@ export default function AdminPortal() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Audit Log Reason</label>
-                <input
+                <label htmlFor="admin-user-reason" className="block text-xs font-semibold text-slate-300 mb-1">Audit Log Reason</label>
+                <input id="admin-user-reason"
                   type="text"
                   placeholder="Reason for creating this account"
                   value={userFormData.reason}

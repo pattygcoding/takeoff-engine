@@ -52,7 +52,7 @@ export default function RatesDrawer({
   const guard = useSingleFlight();
   useEffect(() => {
     if (open && user) {
-      loadRates();
+      void loadRates();
     }
   }, [open, user]);
 
@@ -274,7 +274,7 @@ export default function RatesDrawer({
         console.error('Failed to compute blended crew rate:', err);
       }
     };
-    computeCrew();
+    void computeCrew();
     return () => {
       active = false;
     };
@@ -452,7 +452,7 @@ export default function RatesDrawer({
 
   return (
     <>
-      {open && <div className="fixed inset-0 bg-black/40 backdrop-blur-xs z-20" onClick={onClose} />}
+      {open && <div aria-hidden="true" className="fixed inset-0 bg-black/40 backdrop-blur-xs z-20" onClick={onClose} />}
       <aside
         className={`fixed top-0 right-0 h-full w-full sm:w-[440px] bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 shadow-2xl z-30 transform transition-transform flex flex-col text-slate-900 dark:text-slate-100
           ${open ? 'translate-x-0' : 'translate-x-full'}`}
@@ -1114,7 +1114,6 @@ export default function RatesDrawer({
                     value={templateNameInput}
                     onChange={(e) => setTemplateNameInput(e.target.value)}
                     className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                    autoFocus
                   />
                 </div>
 

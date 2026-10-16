@@ -54,7 +54,7 @@ export default function TeamWorkspaceManager() {
   const canManageSeats = canCreateOrganization;
 
   useEffect(() => {
-    loadOrganizations();
+    void loadOrganizations();
   }, []);
 
   /** Reload the workspace list and show `preferredOrgId` (falls back to the first workspace). */

@@ -722,10 +722,10 @@ function FormatCard({
   const { t } = useTranslation();
   const isLocked = format.isProOnly && !isPro;
 
-  const handlePreviewClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleCardActivate = () => {
     onClick();
-    if (onScrollToPreview) {
+    // "See Preview" is part of this card: activating an already-selected card scrolls to its preview.
+    if (isSelected && onScrollToPreview) {
       setTimeout(() => {
         onScrollToPreview();
       }, 50);
@@ -734,7 +734,15 @@ function FormatCard({
 
   return (
     <div
-      onClick={onClick}
+      onClick={handleCardActivate}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleCardActivate();
+        }
+      }}
       className={`group relative flex flex-col justify-between rounded-2xl border-2 p-3 text-left transition-all duration-200 cursor-pointer select-none bg-white dark:bg-slate-800 ${
         isSelected
           ? 'border-blue-600 ring-4 ring-blue-50 dark:ring-blue-950 shadow-md transform -translate-y-0.5'
@@ -770,17 +778,15 @@ function FormatCard({
           
           <div className="flex items-center gap-1 shrink-0">
             {isSelected && (
-              <button
-                type="button"
-                onClick={handlePreviewClick}
-                className="px-1.5 py-0.5 bg-blue-50 dark:bg-blue-950/80 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-700 dark:text-blue-300 hover:text-blue-900 border border-blue-200 dark:border-blue-800 rounded-md text-[9px] font-extrabold tracking-tight transition cursor-pointer shadow-2xs flex items-center gap-0.5"
+              <span
+                className="px-1.5 py-0.5 bg-blue-50 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 rounded-md text-[9px] font-extrabold tracking-tight shadow-2xs flex items-center gap-0.5"
                 title={t('product.exportHub.jumpToPreviewTitle')}
               >
                 <span>{t('product.exportHub.seePreviewBtn')}</span>
                 <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                 </svg>
-              </button>
+              </span>
             )}
 
             {isSelected && (

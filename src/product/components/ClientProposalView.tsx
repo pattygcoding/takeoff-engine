@@ -82,7 +82,7 @@ export default function ClientProposalView() {
   const guard = useSingleFlight();
   useEffect(() => {
     if (publicToken) {
-      loadProposal();
+      void loadProposal();
     }
   }, [publicToken]);
 
@@ -108,7 +108,7 @@ export default function ClientProposalView() {
       setSignError(t('product.clientProposal.legalNameRequired'));
       return;
     }
-    if (!signerEmail.trim() || !/^\S+@\S+\.\S+$/.test(signerEmail.trim())) {
+    if (!signerEmail.trim() || !/^\S+@[^\s@.]+(?:\.[^\s@.]+)+$/.test(signerEmail.trim())) {
       setSignError(t('product.clientProposal.emailRequired'));
       return;
     }

@@ -78,7 +78,7 @@ export default function ProjectDashboard({
   };
 
   useEffect(() => {
-    fetchProjects();
+    void fetchProjects();
   }, []);
 
   // Filter projects
@@ -372,7 +372,7 @@ export default function ProjectDashboard({
                 {/* Card Header */}
                 <div className="p-5 pb-3">
                   <div className="flex items-start justify-between gap-3 mb-2">
-                    <span
+                    <button type="button"
                       onClick={() => {
                         setStatusModalProject(project);
                         setNewStatusInput(project.status || 'draft');
@@ -381,7 +381,7 @@ export default function ProjectDashboard({
                       title={t('product.projectDashboard.clickToChangeStatus')}
                     >
                       {statusStyle.label}
-                    </span>
+                    </button>
 
                     {/* Action Dropdown Menu */}
                     <div className="relative">
@@ -404,7 +404,7 @@ export default function ProjectDashboard({
 
                       {actionMenuOpenId === project.id && (
                         <>
-                          <div
+                          <div aria-hidden="true"
                             className="fixed inset-0 z-10"
                             onClick={() => setActionMenuOpenId(null)}
                           />
@@ -589,7 +589,6 @@ export default function ProjectDashboard({
                 onChange={(e) => setRenameInput(e.target.value)}
                 className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
                 placeholder={t('product.projectDashboard.projectNamePlaceholder')}
-                autoFocus
               />
               <div className="flex items-center justify-end gap-2">
                 <button

@@ -107,7 +107,7 @@ export default function LoginPage({ initialView = 'login' }) {
     if (loading || accountCreationDisabled) return;
     setError('');
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/;
     if (!emailRegex.test(registerEmail.trim())) {
       setError(t('core.loginPage.errValidEmail'));
       return;

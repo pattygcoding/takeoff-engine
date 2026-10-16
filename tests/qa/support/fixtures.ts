@@ -209,7 +209,7 @@ export async function verifyEmail(
     expect(tokenRes.ok, 'the signup produced no verification token').toBeTruthy();
     const { tokenHash } = await tokenRes.json();
 
-    const verifyRes = await withRateLimitRetry(() => fetch(`${(process.env.SUPABASE_URL ?? '').replace(/\/+$/, '')}/auth/v1/verify`, {
+    const verifyRes = await withRateLimitRetry(() => fetch(`${(process.env.SUPABASE_URL ?? '').replace(/(?<!\/)\/+$/, '')}/auth/v1/verify`, {
       method: 'POST',
       headers: { apikey: process.env.SUPABASE_ANON_KEY ?? '', 'Content-Type': 'application/json' },
       body: JSON.stringify({ type: 'signup', token_hash: tokenHash }),

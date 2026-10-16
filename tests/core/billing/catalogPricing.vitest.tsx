@@ -62,7 +62,7 @@ describe('catalog response validation', () => {
     expect(() => validateCatalogPricing(data)).toThrow();
   });
 
-  it.each([NaN, Infinity, -1, String(prices.STARTER_MONTHLY_PRICE), null, undefined])('rejects invalid amount %s', (amount: unknown) => {
+  it.each([Number.NaN, Infinity, -1, String(prices.STARTER_MONTHLY_PRICE), null, undefined])('rejects invalid amount %s', (amount: unknown) => {
     const data = catalog();
     data.prices.STARTER_MONTHLY_PRICE = amount as number;
     expect(() => validateCatalogPricing(data)).toThrow();

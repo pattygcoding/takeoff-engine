@@ -151,7 +151,7 @@ export default function ResultsStep({
         if (active) setIsCalculating(false);
       }
     };
-    fetchEstimate();
+    void fetchEstimate();
     return () => {
       active = false;
     };
@@ -245,7 +245,7 @@ export default function ResultsStep({
           summary: summaryPayload,
         });
         if (onProjectSaved) onProjectSaved(savedProject);
-        if (refreshProfile) refreshProfile();
+        if (refreshProfile) void refreshProfile();
       }
 
       setShowSaveModal(false);
@@ -255,7 +255,7 @@ export default function ResultsStep({
     } catch (err) {
       if ((err as { code?: string }).code === 'TRIAL_EXHAUSTED') {
         setShowSaveModal(false);
-        if (refreshProfile) refreshProfile();
+        if (refreshProfile) void refreshProfile();
         setShowUpgradeModal(true);
         return null;
       }
@@ -305,7 +305,7 @@ export default function ResultsStep({
         summary: summaryPayload,
       });
 
-      const shareBase = (import.meta.env.VITE_PUBLIC_PROPOSAL_BASE_URL || window.location.origin).replace(/\/+$/, '');
+      const shareBase = (import.meta.env.VITE_PUBLIC_PROPOSAL_BASE_URL || window.location.origin).replace(/(?<!\/)\/+$/, '');
       const url = `${shareBase}/p/${res.proposal.public_token}`;
       setPublicShareUrl(url);
       setShareProposalData(res.proposal);
@@ -438,7 +438,7 @@ export default function ResultsStep({
         setPdfView(null);
       }
     };
-    generate();
+    void generate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pdfView]);
 
@@ -715,7 +715,6 @@ export default function ResultsStep({
                     onChange={(e) => setProjectNameInput(e.target.value)}
                     placeholder={t('product.resultsStep.projectNamePlaceholder')}
                     className="w-full px-3.5 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    autoFocus
                   />
                 </div>
                 <div>
@@ -869,7 +868,7 @@ export default function ResultsStep({
                   <button
                     type="button"
                     onClick={() => {
-                      navigator.clipboard.writeText(publicShareUrl);
+                      void navigator.clipboard.writeText(publicShareUrl);
                       setShareCopied(true);
                       setTimeout(() => setShareCopied(false), 3000);
                     }}

@@ -16,6 +16,6 @@ export const WORKSPACE_PATHS = [
 ];
 
 export function isWorkspacePath(subPath = '') {
-  const pathname = `/${subPath}`.replace(/\/+$/, '') || '/';
+  const pathname = `/${subPath}`.replace(/(?<!\/)\/+$/, '') || '/';
   return WORKSPACE_PATHS.some((pattern) => matchPath({ path: pattern, end: true }, pathname));
 }

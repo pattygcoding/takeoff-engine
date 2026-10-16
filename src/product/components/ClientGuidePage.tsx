@@ -46,7 +46,7 @@ function MarkdownRenderer({ content }: { content?: string }) {
     const dataRows = tableRows.slice(2);
 
     elements.push(
-      <div key={`table-${key++}`} tabIndex={0} className="overflow-x-auto my-5 rounded-xl border border-slate-200 dark:border-slate-800">
+      <div key={`table-${key++}`} tabIndex={0 /* NOSONAR: a horizontally scrollable region must stay keyboard reachable (WCAG 2.1.1; axe scrollable-region-focusable). */} className="overflow-x-auto my-5 rounded-xl border border-slate-200 dark:border-slate-800">
         <table className="w-full text-left text-xs border-collapse">
           <thead className="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-b border-slate-200 dark:border-slate-700">
             <tr>
@@ -207,7 +207,7 @@ function renderInlineMarkdown(text: string): React.ReactNode {
 
     let str = part.content;
     const formattedElements: React.ReactNode[] = [];
-    const formattingRegex = /(\*\*([^*]+)\*\*|\*([^*]+)\*|\[([^\]]+)\]\(([^)]+)\))/g;
+    const formattingRegex = /(\*\*([^*]+)\*\*|\*([^*]+)\*|\[([^\]\[]+)\]\(([^()]+)\))/g;
     let fLastIdx = 0;
     let fMatch;
 
@@ -274,7 +274,7 @@ export default function ClientGuidePage() {
         setLoading(false);
       }
     };
-    loadGuide();
+    void loadGuide();
   }, [t, language]);
 
   const handleBack = () => {

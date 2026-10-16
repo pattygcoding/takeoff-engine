@@ -10,7 +10,7 @@
 
 /** Strips trailing slashes so `/home/` and `/home` compare equal (`/` stays `/`). */
 export function normalizePathname(pathname: string): string {
-  const withoutTrailingSlash = pathname.replace(/\/+$/, '');
+  const withoutTrailingSlash = pathname.replace(/(?<!\/)\/+$/, '');
   return withoutTrailingSlash === '' ? '/' : withoutTrailingSlash;
 }
 

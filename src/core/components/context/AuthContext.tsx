@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setLoading(false);
       }
     };
-    initAuth();
+    void initAuth();
   }, []);
 
   const login = async (credentials: { usernameOrEmail: string; password: string }) => {
@@ -134,7 +134,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     // Also re-check immediately whenever window gains focus
     const handleFocus = () => {
-      refreshProfile();
+      void refreshProfile();
     };
     window.addEventListener('focus', handleFocus);
 

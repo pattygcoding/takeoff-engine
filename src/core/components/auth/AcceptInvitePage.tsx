@@ -60,7 +60,7 @@ export default function AcceptInvitePage() {
       }
     }
 
-    verifyToken();
+    void verifyToken();
   }, [token, t]);
 
   // 2. Handle accepting invitation
