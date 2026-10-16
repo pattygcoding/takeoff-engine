@@ -83,21 +83,16 @@ The optimized static build is generated in the `dist/` directory.
 For Paddle catalog pricing and frontend/backend configuration ownership,
 see the [backend environment variable reference](../takeoff-engine-backend/docs/environment_variables_reference.md).
 
-### 4. Locale & Translation Generation
-Generate multilingual locale translation files (`es.json`, `fr.json`, `pt.json`) from `en.json`:
-```powershell
-# 1. Install deep-translator (prerequisite Python package)
-pip install deep-translator
+### 4. Locales
 
-# 2. Run translation script via npm
-npm run translate
+English strings live in `src/lang/en.json` and are the **single source of truth**.
+The non-English locale files (`es.json`, `fr.json`, `pt.json`) ship with the app and
+are loaded on demand by `src/core/lib/shared/i18n.ts`.
 
-# Optional: To reuse existing translated keys and only translate new additions:
-npm run translate:skip
-
-# Optional: To retry failed translations for existing keys:
-npm run translate:retry
-```
+> [!WARNING]
+> The automated translation script (`src/lang/lang.py`) and its `npm run translate`,
+> `npm run translate:skip`, and `npm run translate:retry` commands have been **removed
+> for security reasons**. Do not re-add or invoke any locale-generation tooling.
 
 ---
 
