@@ -1,0 +1,1 @@
+function e(){return typeof document<`u`&&document.documentElement.hasAttribute(`data-prerendered`)}function t(){return typeof window>`u`?null:window.__PRERENDER_PRICING__??null}export{t as n,e as t};
