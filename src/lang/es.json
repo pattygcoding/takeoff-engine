@@ -620,10 +620,12 @@
       "errPasswordRequirements": "La contraseña debe tener al menos 8 caracteres e incluir mayúsculas, minúsculas, números y un carácter especial.",
       "errValidPhone": "Ingrese un número de teléfono válido de 10 dígitos.",
       "errMustAcceptTerms": "Debe aceptar los Términos de servicio y la Política de privacidad para crear una cuenta.",
+      "errMustConfirmAge": "Debe confirmar que tiene al menos 18 años para crear una cuenta.",
       "agreeToTermsPrefix": "He leído y acepto los",
       "agreeToTermsAnd": "y",
       "termsOfServiceLink": "Términos de servicio",
       "privacyPolicyLink": "Política de privacidad",
+      "ageConfirmation": "Confirmo que tengo al menos 18 años y que tengo capacidad legal para celebrar un contrato vinculante.",
       "errLoginFailed": "Error al iniciar sesión",
       "errRegisterFailed": "Error de registro",
       "emailVerificationSent": "Cuenta creada. Revise su correo para verificar su dirección antes de iniciar sesión.",
@@ -716,10 +718,12 @@
       "errResetFailed": "Error al solicitar el restablecimiento",
       "errValidPhone": "Ingrese un número de teléfono válido de 10 dígitos.",
       "errMustAcceptTerms": "Debe aceptar los Términos de servicio y la Política de privacidad para crear una cuenta.",
+      "errMustConfirmAge": "Debe confirmar que tiene al menos 18 años para crear una cuenta.",
       "agreeToTermsPrefix": "He leído y acepto los",
       "agreeToTermsAnd": "y",
       "termsOfServiceLink": "Términos de servicio",
       "privacyPolicyLink": "Política de privacidad",
+      "ageConfirmation": "Confirmo que tengo al menos 18 años y que tengo capacidad legal para celebrar un contrato vinculante.",
       "resetLinkSent": "Enlace de restablecimiento de contraseña enviado a su correo."
     },
     "acceptInvite": {
@@ -800,7 +804,8 @@
     },
     "paddle": {
       "tokenNotConfiguredWarn": "VITE_PADDLE_CLIENT_TOKEN no está configurado. La superposición de pago de Paddle funcionará en modo simulado de respaldo.",
-      "initFailed": "No se pudo inicializar Paddle.js:"
+      "initFailed": "No se pudo inicializar Paddle.js:",
+      "pwCustomerUpdateFailed": "No se pudo asignar el cliente de Paddle a la instancia de Paddle.js (Paddle Retain):"
     },
     "footer": {
       "brandName": "Takeoff Engine",
@@ -949,6 +954,10 @@
       "landing": {
         "title": "Takeoff Engine | Software de takeoff y estimación de construcción",
         "description": "Convierta takeoffs en CSV y exportaciones de Bluebeam en ofertas y propuestas profesionales en segundos con costos de mano de obra, materiales y equipos en tiempo real."
+      },
+      "pricing": {
+        "title": "Precios y planes | Takeoff Engine",
+        "description": "Precios sencillos y transparentes para el software de takeoff, estimación y propuestas para clientes. Planes Nivel inicial, Nivel Pro y Empresarial con facturación mensual o anual."
       },
       "guide": {
         "title": "Guía para clientes y estimadores | Documentación de Takeoff Engine",

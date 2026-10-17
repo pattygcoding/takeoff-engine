@@ -38,6 +38,7 @@ const LoginPage = lazy(() => import('@/core/components/auth/LoginPage'));
 const PlanOnboardingPage = lazy(() => import('@/core/components/billing/PlanOnboardingPage'));
 const AcceptInvitePage = lazy(() => import('@/core/components/auth/AcceptInvitePage'));
 const LandingPage = lazy(() => import('@/core/components/landing/LandingPage'));
+const PricingPage = lazy(() => import('@/core/components/landing/PricingPage'));
 const AdminPortal = lazy(() => import('@/core/components/admin/AdminPortal'));
 const UsagePolicyPage = lazy(() => import('@/core/components/legal/UsagePolicyPage'));
 const LegalDisclaimerPage = lazy(() => import('@/core/components/legal/LegalDisclaimerPage'));
@@ -157,6 +158,9 @@ function AppRoutes() {
 
       {/* Core Landing Page */}
       <Route path="/home" element={<LandingPage />} />
+
+      {/* Standalone public pricing page (the landing page keeps its own #pricing section) */}
+      <Route path="/pricing" element={<PricingPage />} />
 
       {/* Core Super-Admin Portal */}
       <Route

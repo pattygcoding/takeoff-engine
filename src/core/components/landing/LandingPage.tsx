@@ -861,7 +861,7 @@ export default function LandingPage() {
                 <li><Link to="/home" className="hover:text-white">{t('core.footer.home')}</Link></li>
                 <li><a href="#calculator" className="hover:text-white">{t('core.landing.footer.trenchCalculator')}</a></li>
                 <li><Link to="/guide" className="hover:text-white">{t('core.footer.documentation')}</Link></li>
-                <li><a href="#pricing" className="hover:text-white">{t('core.footer.pricing')}</a></li>
+                <li><Link to="/pricing" className="hover:text-white">{t('core.footer.pricing')}</Link></li>
                 <li><Link to="/login" className="hover:text-white">{t('core.landing.footer.signIn')}</Link></li>
                 <li>
                   {accountCreationDisabled ? (

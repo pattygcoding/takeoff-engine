@@ -42,6 +42,7 @@ const PRICE_FIELDS = [
  *  (`/p/:token`) paths are deliberately excluded. */
 const ROUTES = [
   { path: '/home', out: 'home/index.html', content: true },
+  { path: '/pricing', out: 'pricing/index.html', content: true },
   { path: '/accessibility', out: 'accessibility/index.html', content: true },
   { path: '/privacy', out: 'privacy/index.html', content: true },
   { path: '/privacy-policy', out: 'privacy-policy/index.html', content: true },

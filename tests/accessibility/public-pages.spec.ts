@@ -3,7 +3,7 @@ import type { Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { createCatalogFixture } from '../helpers/paddleCatalogFixture';
 
-const routes = ['/home', '/login', '/register', '/forgot-password', '/terms', '/privacy', '/refund', '/acceptable-use', '/disclaimer', '/guide', '/accessibility', '/someone/not-a-real-page'];
+const routes = ['/home', '/pricing', '/login', '/register', '/forgot-password', '/terms', '/privacy', '/refund', '/acceptable-use', '/disclaimer', '/guide', '/accessibility', '/someone/not-a-real-page'];
 
 // No backend runs during this suite; serve a generated catalog so pricing-gated controls stay enabled.
 test.beforeEach(async ({ page }) => {

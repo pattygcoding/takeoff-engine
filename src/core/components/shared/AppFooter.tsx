@@ -81,15 +81,8 @@ export default function AppFooter() {
                 <button
                   type="button"
                   onClick={() => {
-                    if (isAuthenticated) {
-                      navigate('/onboarding');
-                    } else {
-                      navigate('/home');
-                      setTimeout(() => {
-                        const el = document.getElementById('pricing');
-                        if (el) el.scrollIntoView({ behavior: 'smooth' });
-                      }, 100);
-                    }
+                    // Signed-in users get the in-app plan chooser; visitors get the public page.
+                    navigate(isAuthenticated ? '/onboarding' : '/pricing');
                   }}
                   className="hover:text-white transition cursor-pointer"
                 >

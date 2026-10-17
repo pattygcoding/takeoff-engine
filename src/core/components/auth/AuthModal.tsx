@@ -340,9 +340,9 @@ export default function AuthModal({
                   required
                   checked={registerConfirmedAge}
                   onChange={(e) => setRegisterConfirmedAge(e.target.checked)}
-                  className="mt-1 h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                  className="mt-1 h-4 w-4 shrink-0 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 cursor-pointer"
                 />
-                <span className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                <span className="min-w-0 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                   {t('core.authModal.ageConfirmation')}
                 </span>
               </label>
@@ -353,9 +353,9 @@ export default function AuthModal({
                   required
                   checked={registerAcceptedTerms}
                   onChange={(e) => setRegisterAcceptedTerms(e.target.checked)}
-                  className="mt-1 h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                  className="mt-1 h-4 w-4 shrink-0 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 cursor-pointer"
                 />
-                <span className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                <span className="min-w-0 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                   {t('core.authModal.agreeToTermsPrefix')}{' '}
                   <Link to="/terms-of-service" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
                     {t('core.authModal.termsOfServiceLink')}

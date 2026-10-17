@@ -955,6 +955,10 @@
         "title": "Takeoff Engine | Construction Takeoff & Estimating Software",
         "description": "Turn CSV takeoffs and Bluebeam exports into professional bids and proposals in seconds with real-time labor, material, and equipment costing."
       },
+      "pricing": {
+        "title": "Pricing & Plans | Takeoff Engine",
+        "description": "Simple, transparent pricing for construction takeoff, estimating and client proposal software. Starter, Pro and Enterprise plans billed monthly or annually."
+      },
       "guide": {
         "title": "Client & Estimator Guide | Takeoff Engine Documentation",
         "description": "Master construction takeoff import, rate libraries, material assemblies, margin calculation, and professional proposal generation."

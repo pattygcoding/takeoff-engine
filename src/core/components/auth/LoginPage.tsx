@@ -13,6 +13,7 @@ import {
 } from '@/core/components/context/PricingContext';
 import SeoHead from '@/core/components/shared/SeoHead';
 import PlanSelectionView from '@/core/components/billing/PlanSelectionView';
+import AuthBrandPanel from '@/core/components/auth/AuthBrandPanel';
 import { ArrowLeft, AlertTriangle } from 'lucide-react';
 import { isValidPassword, isValidPhoneNumber, PASSWORD_MIN_LENGTH } from '@/core/lib/shared/validators';
 import { CURRENT_TERMS_VERSION } from '@/core/constants';
@@ -265,7 +266,7 @@ export default function LoginPage({ initialView = 'login' }) {
         canonicalUrl={seoData.canonicalUrl}
       />
       {/* Back to Home / Public site navigation banner */}
-      <div className={`w-full mb-4 flex items-center justify-between text-xs font-medium text-slate-600 dark:text-slate-400 ${view === 'plan-select' ? 'max-w-5xl' : 'max-w-md'}`}>
+      <div className="w-full mb-4 flex items-center justify-between text-xs font-medium text-slate-600 dark:text-slate-400 max-w-6xl">
         <button
           type="button"
           onClick={() => navigate('/home')}
@@ -305,11 +306,15 @@ export default function LoginPage({ initialView = 'login' }) {
         </div>
       </div>
 
-      <div className={`rounded-3xl shadow-2xl w-full transition-all duration-300 ${
+      <div className={`w-full transition-all duration-300 ${
         view === 'plan-select'
-          ? 'max-w-6xl p-6 sm:p-10 bg-slate-950 border border-slate-800 text-white'
-          : 'max-w-md p-6 sm:p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl text-slate-900 dark:text-slate-100'
+          ? 'max-w-6xl rounded-3xl shadow-2xl p-6 sm:p-10 bg-slate-950 border border-slate-800 text-white'
+          : 'max-w-6xl lg:grid lg:grid-cols-[minmax(0,1fr)_28rem] border-2 border-[var(--lp-ink)] bg-[var(--lp-card)] text-[var(--lp-ink)] shadow-[var(--lp-shadow-frame)]'
       }`}>
+        {/* Desktop-only brand half of the split layout; the form column below keeps its own padding. */}
+        {view !== 'plan-select' && <AuthBrandPanel />}
+
+        <div className={view === 'plan-select' ? '' : 'p-6 sm:p-8 lg:border-l-2 lg:border-[var(--lp-ink)]'}>
         {error && (
           <div id="auth-error" role="alert" className="mb-4 p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 text-sm text-red-700 dark:text-red-300 space-y-2">
             <div className="flex items-start gap-2">
@@ -418,7 +423,7 @@ export default function LoginPage({ initialView = 'login' }) {
               <button
                 type="submit"
                 aria-disabled={loading}
-                className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 aria-disabled:cursor-wait text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm"
+                className="lp-btn w-full mt-2 aria-disabled:opacity-50 aria-disabled:cursor-wait"
               >
                 {loading ? t('core.loginPage.loggingIn') : t('core.loginPage.logIn')}
               </button>
@@ -572,9 +577,9 @@ export default function LoginPage({ initialView = 'login' }) {
                   required
                   checked={registerConfirmedAge}
                   onChange={(e) => setRegisterConfirmedAge(e.target.checked)}
-                  className="mt-1 h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                  className="mt-1 h-4 w-4 shrink-0 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 cursor-pointer"
                 />
-                <span className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                <span className="min-w-0 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                   {t('core.loginPage.ageConfirmation')}
                 </span>
               </label>
@@ -586,9 +591,9 @@ export default function LoginPage({ initialView = 'login' }) {
                   required
                   checked={registerAcceptedTerms}
                   onChange={(e) => setRegisterAcceptedTerms(e.target.checked)}
-                  className="mt-1 h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                  className="mt-1 h-4 w-4 shrink-0 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 cursor-pointer"
                 />
-                <span className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                <span className="min-w-0 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                   {t('core.loginPage.agreeToTermsPrefix')}{' '}
                   <Link to="/terms-of-service" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
                     {t('core.loginPage.termsOfServiceLink')}
@@ -605,7 +610,7 @@ export default function LoginPage({ initialView = 'login' }) {
                 type="submit"
                 aria-disabled={loading}
                 disabled={accountCreationDisabled}
-                className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 aria-disabled:cursor-wait disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-600 text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm"
+                className="lp-btn w-full mt-2 aria-disabled:opacity-50 aria-disabled:cursor-wait"
               >
                 {loading ? t('core.loginPage.creatingAccount') : t('core.loginPage.createAccount')}
               </button>
@@ -654,7 +659,7 @@ export default function LoginPage({ initialView = 'login' }) {
               <button
                 type="submit"
                 aria-disabled={loading}
-                className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 aria-disabled:cursor-wait text-white font-medium rounded-lg shadow-sm transition mt-2 text-sm"
+                className="lp-btn w-full mt-2 aria-disabled:opacity-50 aria-disabled:cursor-wait"
               >
                 {loading ? t('core.loginPage.submitting') : t('core.loginPage.sendResetInstructions')}
               </button>
@@ -671,6 +676,7 @@ export default function LoginPage({ initialView = 'login' }) {
             </form>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

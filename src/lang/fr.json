@@ -619,10 +619,12 @@
       "errPasswordRequirements": "Le mot de passe doit comporter au moins 8 caractères et inclure une majuscule, une minuscule, un chiffre et un caractère spécial.",
       "errValidPhone": "Veuillez saisir un numéro de téléphone valide à 10 chiffres.",
       "errMustAcceptTerms": "Vous devez accepter les Conditions d'utilisation et la Politique de confidentialité pour créer un compte.",
+      "errMustConfirmAge": "Vous devez confirmer que vous avez au moins 18 ans pour créer un compte.",
       "agreeToTermsPrefix": "J'ai lu et j'accepte les",
       "agreeToTermsAnd": "et",
       "termsOfServiceLink": "Conditions d'utilisation",
       "privacyPolicyLink": "Politique de confidentialité",
+      "ageConfirmation": "Je confirme avoir au moins 18 ans et être juridiquement capable de conclure un contrat contraignant.",
       "errLoginFailed": "Échec de la connexion",
       "errRegisterFailed": "Échec de l'inscription",
       "emailVerificationSent": "Compte créé. Vérifiez votre e-mail pour confirmer votre adresse avant de vous connecter.",
@@ -715,10 +717,12 @@
       "errResetFailed": "Échec de la demande de réinitialisation",
       "errValidPhone": "Veuillez saisir un numéro de téléphone valide à 10 chiffres.",
       "errMustAcceptTerms": "Vous devez accepter les Conditions d'utilisation et la Politique de confidentialité pour créer un compte.",
+      "errMustConfirmAge": "Vous devez confirmer que vous avez au moins 18 ans pour créer un compte.",
       "agreeToTermsPrefix": "J'ai lu et j'accepte les",
       "agreeToTermsAnd": "et",
       "termsOfServiceLink": "Conditions d'utilisation",
       "privacyPolicyLink": "Politique de confidentialité",
+      "ageConfirmation": "Je confirme avoir au moins 18 ans et être juridiquement capable de conclure un contrat contraignant.",
       "resetLinkSent": "Lien de réinitialisation de mot de passe envoyé à votre e-mail."
     },
     "acceptInvite": {
@@ -799,7 +803,8 @@
     },
     "paddle": {
       "tokenNotConfiguredWarn": "VITE_PADDLE_CLIENT_TOKEN n'est pas configuré. La superposition de paiement Paddle fonctionnera en mode simulé de secours.",
-      "initFailed": "Échec de l'initialisation de Paddle.js :"
+      "initFailed": "Échec de l'initialisation de Paddle.js :",
+      "pwCustomerUpdateFailed": "Échec de la définition du client Paddle sur l'instance Paddle.js (Paddle Retain) :"
     },
     "footer": {
       "brandName": "Takeoff Engine",
@@ -948,6 +953,10 @@
       "landing": {
         "title": "Takeoff Engine | Logiciel de métré et d'estimation de construction",
         "description": "Transformez les métrés CSV et les exports Bluebeam en soumissions et devis professionnels en quelques secondes avec des coûts de main-d'œuvre, de matériaux et d'équipement en temps réel."
+      },
+      "pricing": {
+        "title": "Tarifs et plans | Takeoff Engine",
+        "description": "Tarifs simples et transparents pour le logiciel de métré, d'estimation et de devis clients. Plans Niveau de démarrage, Niveau Pro et Entreprise facturés mensuellement ou annuellement."
       },
       "guide": {
         "title": "Guide client et estimateur | Documentation Takeoff Engine",
