@@ -5,6 +5,65 @@ import { useAuth } from '@/core/components/context/AuthContext';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import SeoHead from '@/core/components/shared/SeoHead';
 
+type SectionVariant = 'default' | 'guarantee' | 'warning' | 'highlight' | 'contact' | 'closing';
+
+interface RefundSection {
+  n: number;
+  title: string;
+  body: string;
+  variant: SectionVariant;
+}
+
+const REFUND_SECTIONS: RefundSection[] = [
+  { n: 1, title: 's1Title', body: 's1Body', variant: 'default' },
+  { n: 2, title: 's2Title', body: 's2Body', variant: 'guarantee' },
+  { n: 3, title: 's3Title', body: 's3Body', variant: 'default' },
+  { n: 4, title: 's4Title', body: 's4Body', variant: 'default' },
+  { n: 5, title: 's5Title', body: 's5Body', variant: 'warning' },
+  { n: 6, title: 's6Title', body: 's6Body', variant: 'highlight' },
+  { n: 7, title: 's7Title', body: 's7Body', variant: 'contact' },
+  { n: 8, title: 's8Title', body: 's8Body', variant: 'closing' },
+];
+
+const SECTION_CLASSES: Record<SectionVariant, string> = {
+  default: '',
+  guarantee:
+    'rounded-xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 p-5',
+  warning:
+    'rounded-xl bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/60 p-5',
+  highlight:
+    'rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 p-5',
+  contact: 'pt-4',
+  closing: 'pt-4 border-t border-slate-100 dark:border-slate-800',
+};
+
+const TITLE_CLASSES: Record<SectionVariant, string> = {
+  default: 'text-slate-900 dark:text-white',
+  guarantee: 'text-emerald-950 dark:text-emerald-200',
+  warning: 'text-amber-950 dark:text-amber-200',
+  highlight: 'text-slate-900 dark:text-white',
+  contact: 'text-slate-900 dark:text-white',
+  closing: 'text-slate-900 dark:text-white',
+};
+
+const BADGE_CLASSES: Record<SectionVariant, string> = {
+  default: 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400',
+  guarantee: 'bg-emerald-600 text-white',
+  warning: 'bg-amber-200/80 dark:bg-amber-900/60 text-amber-900 dark:text-amber-300',
+  highlight: 'bg-slate-700 dark:bg-slate-600 text-white',
+  contact: 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400',
+  closing: 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400',
+};
+
+const BODY_CLASSES: Record<SectionVariant, string> = {
+  default: 'text-slate-600 dark:text-slate-300',
+  guarantee: 'text-emerald-900 dark:text-emerald-300 font-medium',
+  warning: 'text-slate-700 dark:text-slate-300 font-medium',
+  highlight: 'text-slate-700 dark:text-slate-300 font-medium',
+  contact: 'text-slate-600 dark:text-slate-300',
+  closing: 'text-slate-600 dark:text-slate-300',
+};
+
 export default function RefundPolicyPage() {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
@@ -64,61 +123,15 @@ export default function RefundPolicyPage() {
             </p>
           </div>
 
-          {[
-            { n: 1, title: 's1Title', body: 's1Body', variant: 'default' },
-            { n: 2, title: 's2Title', body: 's2Body', variant: 'guarantee' },
-            { n: 3, title: 's3Title', body: 's3Body', variant: 'default' },
-            { n: 4, title: 's4Title', body: 's4Body', variant: 'default' },
-            { n: 5, title: 's5Title', body: 's5Body', variant: 'warning' },
-            { n: 6, title: 's6Title', body: 's6Body', variant: 'highlight' },
-            { n: 7, title: 's7Title', body: 's7Body', variant: 'contact' },
-            { n: 8, title: 's8Title', body: 's8Body', variant: 'closing' },
-          ].map(({ n, title, body, variant }) => (
-            <section
-              key={n}
-              className={`space-y-3 ${
-                variant === 'guarantee'
-                  ? 'rounded-xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 p-5'
-                  : variant === 'warning'
-                    ? 'rounded-xl bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/60 p-5'
-                    : variant === 'highlight'
-                      ? 'rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 p-5'
-                      : variant === 'contact'
-                        ? 'pt-4'
-                        : variant === 'closing'
-                          ? 'pt-4 border-t border-slate-100 dark:border-slate-800'
-                          : ''
-              }`}
-            >
-              <h3 className={`text-lg font-bold flex items-center gap-2 ${
-                variant === 'guarantee'
-                  ? 'text-emerald-950 dark:text-emerald-200'
-                  : variant === 'warning'
-                    ? 'text-amber-950 dark:text-amber-200'
-                    : 'text-slate-900 dark:text-white'
-              }`}>
-                <span className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-black ${
-                  variant === 'guarantee'
-                    ? 'bg-emerald-600 text-white'
-                    : variant === 'warning'
-                      ? 'bg-amber-200/80 dark:bg-amber-900/60 text-amber-900 dark:text-amber-300'
-                      : variant === 'highlight'
-                        ? 'bg-slate-700 dark:bg-slate-600 text-white'
-                        : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400'
-                }`}>
+          {REFUND_SECTIONS.map(({ n, title, body, variant }) => (
+            <section key={n} className={`space-y-3 ${SECTION_CLASSES[variant]}`}>
+              <h3 className={`text-lg font-bold flex items-center gap-2 ${TITLE_CLASSES[variant]}`}>
+                <span className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-black ${BADGE_CLASSES[variant]}`}>
                   {variant === 'guarantee' ? <Check className="w-3.5 h-3.5" /> : n}
                 </span>
                 {t(`core.refundPolicy.${title}`)}
               </h3>
-              <p className={`text-xs sm:text-sm leading-relaxed ${
-                variant === 'guarantee'
-                  ? 'text-emerald-900 dark:text-emerald-300 font-medium'
-                  : variant === 'warning'
-                    ? 'text-slate-700 dark:text-slate-300 font-medium'
-                    : variant === 'highlight'
-                      ? 'text-slate-700 dark:text-slate-300 font-medium'
-                      : 'text-slate-600 dark:text-slate-300'
-              }`}>
+              <p className={`text-xs sm:text-sm leading-relaxed ${BODY_CLASSES[variant]}`}>
                 {t(`core.refundPolicy.${body}`)}
               </p>
               {variant === 'contact' && (

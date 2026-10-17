@@ -69,7 +69,7 @@ export default function PrivacyPolicyPage() {
               key={n}
               className={`space-y-3 ${n === 6 ? 'rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 p-5' : ''} ${n === 13 ? 'pt-4 border-t border-slate-100 dark:border-slate-800' : ''}`}
             >
-              <h3 className={`text-lg font-bold flex items-center gap-2 ${n === 6 ? 'text-slate-900 dark:text-white' : 'text-slate-900 dark:text-white'}`}>
+              <h3 className="text-lg font-bold flex items-center gap-2 text-slate-900 dark:text-white">
                 <span className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-black ${n === 6 ? 'bg-blue-600 text-white' : 'bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400'}`}>
                   {n}
                 </span>
