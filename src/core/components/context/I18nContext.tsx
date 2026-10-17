@@ -36,7 +36,7 @@ function getInitialLanguage(): string {
 export function I18nProvider({ children, defaultLanguage = 'en' }: Readonly<{ children: ReactNode; defaultLanguage?: string }>) {
   const location = useLocation();
   const navigate = useNavigate();
-  const [language, setLanguageState] = useState<string>(getInitialLanguage());
+  const [language, setLanguage] = useState<string>(() => getInitialLanguage());
   const [loadedLanguage, setLoadedLanguage] = useState<string>(() => (isLanguageLoaded(language) ? language : 'en'));
 
   useEffect(() => {
@@ -69,7 +69,7 @@ export function I18nProvider({ children, defaultLanguage = 'en' }: Readonly<{ ch
     if (currentParam && SUPPORTED_LANGUAGES.includes(currentParam)) {
       if (currentParam !== language) {
         i18n.setLanguage(currentParam);
-        setLanguageState(currentParam);
+        setLanguage(currentParam);
         try {
           localStorage.setItem('takeoff-engine.lang', currentParam);
         } catch (e) {
@@ -93,7 +93,7 @@ export function I18nProvider({ children, defaultLanguage = 'en' }: Readonly<{ ch
     (lang: string) => {
       if (!SUPPORTED_LANGUAGES.includes(lang)) return;
       i18n.setLanguage(lang);
-      setLanguageState(lang);
+      setLanguage(lang);
       try {
         localStorage.setItem('takeoff-engine.lang', lang);
       } catch (e) {

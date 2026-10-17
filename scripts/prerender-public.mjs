@@ -161,7 +161,10 @@ function prepareCapturedDom({ withContent, catalog }) {
   if (!catalog) return;
 
   const script = document.createElement('script');
-  script.textContent = `window.__PRERENDER_PRICING__ = ${JSON.stringify(catalog).replaceAll('<', String.raw`\u003c`)};`;
+  // `String.raw` keeps the `\u003c` escape single-escaped (S7780) and hoisting it keeps this template
+  // free of a nested template literal (S4624).
+  const pricingJson = JSON.stringify(catalog).replaceAll('<', String.raw`\u003c`);
+  script.textContent = `window.__PRERENDER_PRICING__ = ${pricingJson};`;
   document.head.prepend(script);
 }
 
