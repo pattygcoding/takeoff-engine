@@ -256,17 +256,10 @@ function FormatCard({
   const isLocked = format.isLocked;
 
   return (
-    <div
+    <button
+      type="button"
       onClick={onClick}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onClick();
-        }
-      }}
-      className={`group relative flex flex-col justify-between rounded-2xl border-2 p-3 text-left transition-all duration-200 cursor-pointer select-none bg-white dark:bg-slate-800 ${
+      className={`group relative flex w-full flex-col justify-between rounded-2xl border-2 p-3 text-left transition-all duration-200 cursor-pointer select-none bg-white dark:bg-slate-800 ${
         isSelected
           ? 'border-blue-600 ring-4 ring-blue-50 dark:ring-blue-950 shadow-md transform -translate-y-0.5'
           : 'border-slate-200/80 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-xs'
@@ -318,7 +311,7 @@ function FormatCard({
         </div>
         <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-2 mt-1 leading-tight">{format.description}</p>
       </div>
-    </div>
+    </button>
   );
 }
 

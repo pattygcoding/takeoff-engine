@@ -55,10 +55,16 @@ function StatusPill({ status }: Readonly<{ status: string }>) {
   );
 }
 
+/** Text form of a stored date cell; '' when the value cannot be represented as text. */
+function dateText(value: unknown): string {
+  if (value instanceof Date) return value.toISOString();
+  if (typeof value === 'string' || typeof value === 'number') return String(value);
+  return '';
+}
+
 function formatDate(value: unknown) {
   if (!value) return '—';
-  const text =
-    value instanceof Date ? value.toISOString() : typeof value === 'string' || typeof value === 'number' ? String(value) : '';
+  const text = dateText(value);
   if (!text) return '—';
   // Stored as YYYY-MM-DD; parse as local date so it doesn't shift a day in negative UTC offsets.
   const [y, m, d] = text.split('-').map(Number);

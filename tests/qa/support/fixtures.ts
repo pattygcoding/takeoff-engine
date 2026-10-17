@@ -232,7 +232,7 @@ async function withRateLimitRetry(
   while (response.status === 429 && Date.now() < deadline) {
     const retryAfter = Number(response.headers.get('retry-after')) || 10;
     await new Promise((resolve) => setTimeout(resolve, Math.min(retryAfter, 15) * 1000)); // NOSONAR: retry backoff must be sequential
-    response = await send();
+    response = await send(); // NOSONAR: the retry must observe the previous response before re-sending
   }
   return response;
 }

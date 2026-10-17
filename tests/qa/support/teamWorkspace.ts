@@ -5,7 +5,9 @@ import type { ApiBody, ApiOrganization, QaPersona } from './fixtures.ts';
 import type { QaIdentity, QaSettings } from './qaEnvironment.ts';
 
 const tw = (key: string): string => label(`core.teamWorkspaceManager.${key}`);
-const escapeRegExp = (text: string): string => text.replace(new RegExp(String.raw`[.*+?^\${}()|[\]\\]`, 'g'), String.raw`\$&`);
+// The pattern must match a literal backslash, so `String.raw` keeps it readable (S7780); that needs
+// the RegExp constructor over a regex literal, which is deliberate here (S6325).
+const escapeRegExp = (text: string): string => text.replace(new RegExp(String.raw`[.*+?^\${}()|[\]\\]`, 'g'), String.raw`\$&`); // NOSONAR: see the note above
 const pathOf = (res: Response): string => new URL(res.url()).pathname;
 
 function waitForApi(page: Page, settings: QaSettings, method: string, pathPattern: RegExp): Promise<Response> {

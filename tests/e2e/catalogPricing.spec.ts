@@ -59,8 +59,11 @@ test('catalog outage blocks paid choices and account creation but leaves free to
   await expect(pricing.getByRole('button', { name: 'Choose Starter' })).toBeDisabled();
   await expect(pricing.getByRole('button', { name: 'Get Started Free' })).toBeDisabled();
   await expect(page.getByRole('button', { name: 'Start Free Trial (5 Free Takeoffs)' })).toBeDisabled();
-  await expect(page.locator('#features').getByRole('alert'))
-    .toContainText('Account creation is disabled because pricing is unavailable');
+  // The notice is owned by the pricing layer, not by a particular landing section, so assert it by
+  // role + copy instead of by ancestor id (it renders in the hero, above #features).
+  await expect(
+    page.getByRole('alert').filter({ hasText: 'Account creation is disabled because pricing is unavailable' }),
+  ).toBeVisible();
   await expect(page.locator('#calculator input').first()).toBeEnabled();
   await expect(pricing).not.toContainText('NaN');
   await expect(pricing).not.toContainText('{{price}}');

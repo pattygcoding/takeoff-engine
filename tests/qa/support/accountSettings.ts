@@ -12,7 +12,9 @@ const TIER_LABEL_KEYS: Record<string, string> = {
   enterprise: 'core.upgradeModal.enterpriseTier',
 };
 
-const escapeRegExp = (text: string): string => text.replace(new RegExp(String.raw`[.*+?^\${}()|[\]\\]`, 'g'), String.raw`\$&`);
+// The pattern must match a literal backslash, so `String.raw` keeps it readable (S7780); that needs
+// the RegExp constructor over a regex literal, which is deliberate here (S6325).
+const escapeRegExp = (text: string): string => text.replace(new RegExp(String.raw`[.*+?^\${}()|[\]\\]`, 'g'), String.raw`\$&`); // NOSONAR: see the note above
 const templatePrefix = (key: string): string => label(key).split('{{')[0];
 
 export const cancelButton = (page: Page) => page.getByRole('button', { name: label('core.accountSettings.cancelSubscription'), exact: true });

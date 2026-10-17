@@ -47,7 +47,7 @@ export function translateCatalogPrice(
   let text = t(key, interpolation);
   for (const { marker, text: formatted } of tokens) {
     // Locale files retain their interpolation structure; catalog currency replaces legacy symbols.
-    text = text.replace(new RegExp(`(?:R\\$\\s*|[$\\u20ac\\u00a3]\\s*)?${marker}(?:\\s*[$\\u20ac\\u00a3])?`, 'g'),
+    text = text.replace(new RegExp(String.raw`(?:R\$\s*|[$\u20ac\u00a3]\s*)?${marker}(?:\s*[$\u20ac\u00a3])?`, 'g'),
       () => formatted);
   }
   return text;

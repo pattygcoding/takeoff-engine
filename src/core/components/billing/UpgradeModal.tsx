@@ -774,7 +774,9 @@ export default function UpgradeModal({ isOpen, onClose }: Readonly<{ isOpen: boo
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto p-4 sm:p-6 bg-slate-900/80 backdrop-blur-sm animate-fade-in flex min-h-full items-center justify-center">
-      <div role="dialog" aria-modal="true" aria-labelledby="upgrade-modal-title" className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-2xl w-full p-6 sm:p-8 relative my-auto">
+      {/* Native <dialog> only enters the top layer via showModal(); using it with the `open` attribute would
+          drop that modality while adding UA margins/borders, so the ARIA dialog pattern is kept instead. */}
+      <div role="dialog" aria-modal="true" aria-labelledby="upgrade-modal-title" className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-2xl w-full p-6 sm:p-8 relative my-auto">{/* NOSONAR: see the note above */}
         {!isOutOfCredits && (
           <button
             onClick={onClose}
@@ -804,7 +806,9 @@ export default function UpgradeModal({ isOpen, onClose }: Readonly<{ isOpen: boo
 
         {/* Plan Switcher - 3 Tiers */}
         <PricingStatus />
-        <div role="group" aria-label={t('core.upgradeModal.planOptionsLabel')} className="grid grid-cols-3 gap-2.5 mb-4">
+        {/* A <fieldset> would need the label rendered as a <legend> and brings UA border/padding/min-inline-size
+            that this 3-column grid would have to fight on every engine; the labelled group role conveys the same. */}
+        <div role="group" aria-label={t('core.upgradeModal.planOptionsLabel')} className="grid grid-cols-3 gap-2.5 mb-4">{/* NOSONAR: see the note above */}
           <StarterTierButton
             activePlan={activePlan}
             currentTier={currentTier}

@@ -161,7 +161,7 @@ function prepareCapturedDom({ withContent, catalog }) {
   if (!catalog) return;
 
   const script = document.createElement('script');
-  script.textContent = `window.__PRERENDER_PRICING__ = ${JSON.stringify(catalog).replaceAll('<', '\\u003c')};`;
+  script.textContent = `window.__PRERENDER_PRICING__ = ${JSON.stringify(catalog).replaceAll('<', String.raw`\u003c`)};`;
   document.head.prepend(script);
 }
 

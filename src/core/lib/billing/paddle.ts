@@ -92,7 +92,10 @@ function toPaddleCustomData(customData: Record<string, unknown> | undefined): Re
   if (!customData || typeof customData !== 'object') return {};
   const sanitized: Record<string, string> = {};
   for (const [key, value] of Object.entries(customData)) {
-    if (value !== undefined && value !== null) sanitized[key] = typeof value === 'object' ? JSON.stringify(value) : String(value);
+    if (value !== undefined && value !== null) {
+      const isPrimitive = typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean';
+      sanitized[key] = isPrimitive ? String(value) : JSON.stringify(value);
+    }
   }
   return sanitized;
 }

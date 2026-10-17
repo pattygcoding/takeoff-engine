@@ -149,16 +149,7 @@ export default function UploadStep({
         }}
         onDragLeave={() => setIsDragging(false)}
         onDrop={onDrop}
-        onClick={() => inputRef.current?.click()}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            inputRef.current?.click();
-          }
-        }}
-        className={`cursor-pointer rounded-2xl border-2 border-dashed p-12 text-center transition duration-200
+        className={`rounded-2xl border-2 border-dashed p-12 text-center transition duration-200
           ${isDragging
             ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/40'
             : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-blue-400 dark:hover:border-blue-500 shadow-sm'}`}
@@ -183,7 +174,14 @@ export default function UploadStep({
             t('product.uploadStep.parsingMessage')
           ) : (
             <>
-              {t('product.uploadStep.dragDropMessage')} <span className="text-blue-600 dark:text-blue-400 underline">{t('product.uploadStep.browseLink')}</span>
+              {t('product.uploadStep.dragDropMessage')}{' '}
+              <button
+                type="button"
+                onClick={() => inputRef.current?.click()}
+                className="text-blue-600 dark:text-blue-400 underline cursor-pointer"
+              >
+                {t('product.uploadStep.browseLink')}
+              </button>
             </>
           )}
         </p>
