@@ -54,7 +54,7 @@ export default function AccessibilityPage() {
         </a>
         <p className="leading-relaxed text-slate-700 dark:text-slate-300">{t('core.accessibility.statement.details')}</p>
       </section>
-      <p className="mt-8 text-sm text-slate-500 dark:text-slate-500">{t('core.accessibility.statement.updated')}</p>
+      <p className="mt-8 text-sm text-slate-500 dark:text-slate-400">{t('core.accessibility.statement.updated')}</p>
     </article>
   );
 }

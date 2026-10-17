@@ -228,6 +228,23 @@ export async function findProfile(db: Db, userId: string): Promise<ProfileRow | 
 }
 
 /**
+ * Epoch milliseconds for a timestamp read from the database (or reported by Paddle).
+ *
+ * `pg` returns `timestamptz` columns as `Date` objects, and coercing one of those with `String()`
+ * (i.e. `Date.prototype.toString()`) silently drops the milliseconds. Paddle timestamps carry
+ * microseconds, so that round-trip would break exact comparisons against them. This reads the
+ * instant from a `Date` or an ISO 8601 string, and returns null for a missing or unparsable value.
+ */
+export function epochMillisOf(value: unknown): number | null {
+  if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value.getTime();
+  if (typeof value === 'string' && value.trim()) {
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? null : parsed.getTime();
+  }
+  return null;
+}
+
+/**
  * Rows anywhere in the given schemas whose content mentions any marker (QA tag, QA user IDs,
  * Paddle IDs). After cleanup this must be empty: nothing the run created may survive.
  */

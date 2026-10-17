@@ -18,7 +18,7 @@ import {
   purchasePlanThroughUi,
   test,
 } from '../../support/fixtures.ts';
-import { findProfile } from '../../support/database.ts';
+import { epochMillisOf, findProfile } from '../../support/database.ts';
 import type { PaddleEntity } from '../../support/paddleSandbox.ts';
 import { cancelThroughSettings, changePlanThroughSettings } from '../../support/accountSettings.ts';
 
@@ -115,7 +115,9 @@ test.describe('downgrades', () => {
         // The customer keeps the current plan until the renewal, which is when the downgrade is scheduled.
         const scheduled = await expectProfile(db, authUser.id, (row) => row.scheduled_tier === to, `downgrade to ${to} scheduled`);
         expect(scheduled.subscription_tier).toBe(from);
-        expect(new Date(String(scheduled.scheduled_change_effective_at)).getTime()).toBe(new Date(String(paddleSubscription.next_billed_at)).getTime());
+        // The row's `timestamptz` arrives as a `Date`, so compare instants: Paddle reports
+        // microsecond precision, which a string round-trip through the `Date` would drop.
+        expect(epochMillisOf(scheduled.scheduled_change_effective_at)).toBe(epochMillisOf(paddleSubscription.next_billed_at));
         await expect(page.getByRole('heading', { name: label('core.accountSettings.downgradeScheduledTitle') })).toBeVisible();
         expect(await getJson(page, `${settings.apiUrl}/billing/subscription-details`)).toMatchObject({ subscriptionTier: from, scheduledTier: to });
 
