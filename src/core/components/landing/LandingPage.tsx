@@ -132,7 +132,9 @@ export default function LandingPage() {
     STARTER_YEARLY_PRICE, PRO_YEARLY_PRICE, ENTERPRISE_YEARLY_PRICE, EXTRA_SEAT_MONTHLY_PRICE,
   } = prices;
   const { isDark, toggleTheme } = useTheme();
-  const [showDevDisclaimer, setShowDevDisclaimer] = useState(true);
+  // The "Work in Progress" notice is for local development only. Production builds — and the
+  // prerendered HTML published to GitHub Pages — must not tell visitors the product is unfinished.
+  const [showDevDisclaimer, setShowDevDisclaimer] = useState(() => import.meta.env.DEV);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Warm the sign-in chunk (plus any chunks product registers — see ProductRoutes) while the
