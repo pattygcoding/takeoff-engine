@@ -24,12 +24,14 @@
           } else {
             document.documentElement.classList.remove('dark');
           }
-        } catch (e) {}
+        } catch (e) {
+          // Best-effort only: private-mode/blocked storage must not stop the page from rendering.
+        }
       })();
       (function(l) {
         if (l.search[1] === '/' ) {
           var decoded = l.search.slice(1).split('&').map(function(s) { 
-            return s.replace(/~and~/g, '&')
+            return s.replaceAll('~and~', '&')
           }).join('?');
           window.history.replaceState(null, null,
               l.pathname.slice(0, -1) + decoded + l.hash
@@ -37,16 +39,15 @@
         }
       }(window.location))
     </script>
-    <script type="module" crossorigin="" src="/assets/index-B_m0sGW_.js"></script>
-    <link rel="modulepreload" crossorigin="" href="/assets/rolldown-runtime-Dd_uD5pT.js">
+    <script type="module" crossorigin="" src="/assets/index-Cof0ek-c.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/rolldown-runtime-hePW80VL.js">
     <link rel="modulepreload" crossorigin="" href="/assets/preload-helper-Czpn1I53.js">
-    <link rel="modulepreload" crossorigin="" href="/assets/i18n-B73tegQD.js">
-    <link rel="modulepreload" crossorigin="" href="/assets/I18nContext-CLhSCo7J.js">
-    <link rel="modulepreload" crossorigin="" href="/assets/createLucideIcon-BzvcgYkj.js">
-    <link rel="modulepreload" crossorigin="" href="/assets/check-1uzWRWyH.js">
-    <link rel="modulepreload" crossorigin="" href="/assets/prerender-LcOhN5qy.js">
-    <link rel="stylesheet" crossorigin="" href="/assets/index-DoFvsSUr.css">
-  <link rel="dns-prefetch" href="https://takeoff-engine-backend.onrender.com"><link rel="preconnect" href="https://takeoff-engine-backend.onrender.com"><link rel="modulepreload" as="script" crossorigin="" href="/assets/ClientGuidePage-E5oMO4B0.js"><link rel="modulepreload" as="script" crossorigin="" href="/assets/SeoHead-DwZXN4nG.js"><link rel="modulepreload" as="script" crossorigin="" href="/assets/csv-DMCGF1Ba.js"><meta name="description" content="Master construction takeoff import, rate libraries, material assemblies, margin calculation, and professional proposal generation."><meta property="og:type" content="website"><meta property="og:title" content="Client &amp; Estimator Guide | Takeoff Engine Documentation"><meta property="og:description" content="Master construction takeoff import, rate libraries, material assemblies, margin calculation, and professional proposal generation."><meta property="og:url" content="https://takeoffengine.com/guide?lang=en"><meta property="og:image" content="https://takeoffengine.com/og-preview.png"><meta property="og:image:type" content="image/png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Client &amp; Estimator Guide | Takeoff Engine Documentation"><meta property="og:site_name" content="Takeoff Engine"><meta property="og:locale" content="en_US"><meta property="og:locale:alternate" content="es_ES"><meta property="og:locale:alternate" content="fr_FR"><meta property="og:locale:alternate" content="pt_BR"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Client &amp; Estimator Guide | Takeoff Engine Documentation"><meta name="twitter:description" content="Master construction takeoff import, rate libraries, material assemblies, margin calculation, and professional proposal generation."><meta name="twitter:image" content="https://takeoffengine.com/og-preview.png"><meta name="twitter:image:alt" content="Client &amp; Estimator Guide | Takeoff Engine Documentation"><link rel="canonical" href="https://takeoffengine.com/guide?lang=en"><link rel="alternate" hreflang="en" href="https://takeoffengine.com/guide?lang=en"><link rel="alternate" hreflang="es" href="https://takeoffengine.com/guide?lang=es"><link rel="alternate" hreflang="fr" href="https://takeoffengine.com/guide?lang=fr"><link rel="alternate" hreflang="pt" href="https://takeoffengine.com/guide?lang=pt"><link rel="alternate" hreflang="x-default" href="https://takeoffengine.com/guide?lang=en"></head>
+    <link rel="modulepreload" crossorigin="" href="/assets/I18nContext-CzErxD9s.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/createLucideIcon-GNdM1K73.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/check-QLJzBlcb.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/prerender-4l7oWCmv.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-mE4wkEnM.css">
+  <link rel="dns-prefetch" href="https://takeoff-engine-backend.onrender.com"><link rel="preconnect" href="https://takeoff-engine-backend.onrender.com"><link rel="modulepreload" as="script" crossorigin="" href="/assets/ClientGuidePage-Df5M9MNH.js"><link rel="modulepreload" as="script" crossorigin="" href="/assets/SeoHead-BnCNWQTW.js"><link rel="modulepreload" as="script" crossorigin="" href="/assets/csv-ByxIsrL_.js"><meta name="description" content="Master construction takeoff import, rate libraries, material assemblies, margin calculation, and professional proposal generation."><meta property="og:type" content="website"><meta property="og:title" content="Client &amp; Estimator Guide | Takeoff Engine Documentation"><meta property="og:description" content="Master construction takeoff import, rate libraries, material assemblies, margin calculation, and professional proposal generation."><meta property="og:url" content="https://takeoffengine.com/guide?lang=en"><meta property="og:image" content="https://takeoffengine.com/og-preview.png"><meta property="og:image:type" content="image/png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Client &amp; Estimator Guide | Takeoff Engine Documentation"><meta property="og:site_name" content="Takeoff Engine"><meta property="og:locale" content="en_US"><meta property="og:locale:alternate" content="es_ES"><meta property="og:locale:alternate" content="fr_FR"><meta property="og:locale:alternate" content="pt_BR"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Client &amp; Estimator Guide | Takeoff Engine Documentation"><meta name="twitter:description" content="Master construction takeoff import, rate libraries, material assemblies, margin calculation, and professional proposal generation."><meta name="twitter:image" content="https://takeoffengine.com/og-preview.png"><meta name="twitter:image:alt" content="Client &amp; Estimator Guide | Takeoff Engine Documentation"><link rel="canonical" href="https://takeoffengine.com/guide?lang=en"><link rel="alternate" hreflang="en" href="https://takeoffengine.com/guide?lang=en"><link rel="alternate" hreflang="es" href="https://takeoffengine.com/guide?lang=es"><link rel="alternate" hreflang="fr" href="https://takeoffengine.com/guide?lang=fr"><link rel="alternate" hreflang="pt" href="https://takeoffengine.com/guide?lang=pt"><link rel="alternate" hreflang="x-default" href="https://takeoffengine.com/guide?lang=en"></head>
   <body>
     <div id="root"></div>
 
