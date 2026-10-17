@@ -76,3 +76,91 @@ export default function PricingPage() {
       ],
     },
   ];
+
+  return (
+    <div className="pb-[72px] pt-[56px] sm:pb-[104px] sm:pt-[72px]">
+      <SeoHead
+        title={t('core.seo.pricing.title', 'Pricing & Plans | Takeoff Engine')}
+        description={t('core.seo.pricing.description', 'Simple, transparent pricing for construction takeoff, estimating and client proposal software.')}
+        canonicalUrl="https://takeoffengine.com/pricing"
+      />
+
+      <div className="max-w-[1160px] mx-auto px-5 sm:px-7">
+        {/* Section header inlined from the landing page's SectionHeader, promoted to the page's h1. */}
+        <div className="mb-12">
+          <p className="inline-flex items-center border border-current px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.07em]">
+            {t('core.landing.pricing.tag')}
+          </p>
+          <h1 className="mt-4 text-[32px] sm:text-[42px] leading-[1.08] tracking-[-0.035em] font-extrabold max-w-[19em]">
+            {t('core.landing.pricing.title')}
+          </h1>
+          <p className="mt-4 text-[17px] max-w-[46em] text-[var(--lp-muted)]">
+            {t('core.landing.pricing.subtitle')}
+          </p>
+        </div>
+
+        <PricingStatus />
+
+        <div className="border-2 border-[var(--lp-ink)] bg-[var(--lp-card)]">
+          <div className="hidden lg:grid grid-cols-[1.15fr_minmax(160px,.85fr)_1.9fr_auto] gap-9 px-[30px] py-[13px] bg-[var(--lp-paper)] border-b-2 border-[var(--lp-ink)] text-xs font-bold tracking-[0.06em] uppercase text-[var(--lp-muted)]">
+            <span>{t('core.landing.pricing.colPlan')}</span>
+            <span>{t('core.landing.pricing.colPrice')}</span>
+            <span>{t('core.landing.pricing.colIncluded')}</span>
+            <span className="min-w-[170px]" />
+          </div>
+
+          {plans.map((plan, idx) => (
+            <div
+              key={plan.key}
+              className={`relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.15fr_minmax(160px,.85fr)_1.9fr_auto] gap-x-9 gap-y-5 p-6 sm:p-[30px] items-center ${
+                idx < plans.length - 1 ? 'border-b border-[var(--lp-ink)]' : ''
+              } ${plan.highlight ? 'bg-[var(--lp-tint)] pl-9 sm:pl-[38px]' : ''}`}
+            >
+              {plan.highlight && (
+                <span aria-hidden="true" className="absolute left-0 top-0 bottom-0 w-2 bg-[var(--lp-accent)] border-r-2 border-[var(--lp-ink)]" />
+              )}
+              <div>
+                <h2 className="text-[22px] font-extrabold tracking-[-0.025em] flex items-center gap-3 flex-wrap">
+                  {t(`core.landing.pricing.${plan.key}.tier`)}
+                  {plan.highlight && (
+                    <span className="text-[11px] font-semibold tracking-[0.06em] uppercase bg-[var(--lp-accent)] text-white px-2 py-1">
+                      {t('core.landing.pricing.pro.mostPopular')}
+                    </span>
+                  )}
+                </h2>
+                <p className="text-sm text-[var(--lp-muted)] mt-1.5 max-w-[19em]">{t(`core.landing.pricing.${plan.key}.description`)}</p>
+              </div>
+              <div>
+                <div className={`flex items-baseline gap-1 font-mono font-semibold text-[30px] lg:text-[26px] xl:text-[30px] tracking-[-0.04em] tabular-nums ${ready || plan.key === 'freeTrial' ? 'flex-nowrap whitespace-nowrap' : 'flex-wrap'}`}>
+                  <span data-price-amount>{plan.price}</span>
+                  <small data-price-cadence className="shrink-0 whitespace-nowrap font-sans font-normal text-[13px] tracking-normal text-[var(--lp-muted)]">
+                    {t(`core.landing.pricing.${plan.key}.cadence`)}
+                  </small>
+                </div>
+                <div className="text-[12.5px] text-[var(--lp-muted)] mt-1">{plan.sub}</div>
+              </div>
+              <ul className="sm:col-span-2 lg:col-span-1 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-[9px] text-sm">
+                {plan.features.map((feature) => (
+                  <li key={feature} className="flex items-baseline gap-2.5">
+                    <span aria-hidden="true" className="w-[7px] h-[7px] bg-[var(--lp-ink)] shrink-0 translate-y-[-1px]" />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <button
+                type="button"
+                disabled={accountCreationDisabled || (plan.key !== 'freeTrial' && !ready)}
+                title={accountCreationTitle}
+                onClick={() => navigate('/register')}
+                className={`lp-btn sm:col-span-2 lg:col-span-1 lg:min-w-[170px] ${plan.highlight ? '' : 'lp-btn-outline'}`}
+              >
+                {t(`core.landing.pricing.${plan.key}.cta`)}
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
