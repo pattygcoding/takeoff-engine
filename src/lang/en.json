@@ -82,7 +82,7 @@
       "bento": {
         "tag": "Capabilities",
         "title": "Every estimating step, in one workspace",
-        "description": "From the spreadsheet your estimator already has to the signed proposal in your client's inbox — without leaving the browser.",
+        "description": "From the spreadsheet your estimator already has to the signed proposal in your client's inbox - without leaving the browser.",
         "t1Title": "Import any takeoff sheet",
         "t1Desc": "Bluebeam, PlanSwift or Trimble exports land as a clean multi-line takeoff, with headers matched by intelligent aliases.",
         "t2Title": "Client-ready proposals in 60 seconds",
