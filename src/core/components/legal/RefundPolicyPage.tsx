@@ -64,68 +64,75 @@ export default function RefundPolicyPage() {
             </p>
           </div>
 
-          {/* Section 1: Cancellations */}
-          <section className="space-y-3">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs font-black">1</span>
-              {t('core.refundPolicy.s1Title')}
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              {t('core.refundPolicy.s1Body')}
-            </p>
-          </section>
-
-          {/* Section 2: 14-Day Guarantee */}
-          <section className="space-y-3 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 p-5">
-            <h3 className="text-lg font-bold text-emerald-950 dark:text-emerald-200 flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center"><Check className="w-3.5 h-3.5" /></span>
-              {t('core.refundPolicy.s2Title')}
-            </h3>
-            <p className="text-xs sm:text-sm text-emerald-900 dark:text-emerald-300 leading-relaxed font-medium">
-              {t('core.refundPolicy.s2Body')}
-            </p>
-          </section>
-
-          {/* Section 3: Renewals */}
-          <section className="space-y-3">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs font-black">2</span>
-              {t('core.refundPolicy.s3Title')}
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              {t('core.refundPolicy.s3Body')}
-            </p>
-          </section>
-
-          {/* Section 4: Merchant of Record */}
-          <section className="space-y-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 p-5">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-slate-700 dark:bg-slate-600 text-white flex items-center justify-center text-xs font-black">3</span>
-              {t('core.refundPolicy.s4Title')}
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
-              {t('core.refundPolicy.s4Body')}
-            </p>
-          </section>
-
-          {/* Section 5: Support */}
-          <section className="space-y-3 pt-4 border-t border-slate-100 dark:border-slate-800">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs font-black">4</span>
-              {t('core.refundPolicy.s5Title')}
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              {t('core.refundPolicy.s5Body')}
-            </p>
-            <div className="pt-2">
-              <a
-                href="mailto:pattygsocials@gmail.com"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl transition cursor-pointer"
-              >
-                <Mail className="w-4 h-4" /> pattygsocials@gmail.com
-              </a>
-            </div>
-          </section>
+          {[
+            { n: 1, title: 's1Title', body: 's1Body', variant: 'default' },
+            { n: 2, title: 's2Title', body: 's2Body', variant: 'guarantee' },
+            { n: 3, title: 's3Title', body: 's3Body', variant: 'default' },
+            { n: 4, title: 's4Title', body: 's4Body', variant: 'default' },
+            { n: 5, title: 's5Title', body: 's5Body', variant: 'warning' },
+            { n: 6, title: 's6Title', body: 's6Body', variant: 'highlight' },
+            { n: 7, title: 's7Title', body: 's7Body', variant: 'contact' },
+            { n: 8, title: 's8Title', body: 's8Body', variant: 'closing' },
+          ].map(({ n, title, body, variant }) => (
+            <section
+              key={n}
+              className={`space-y-3 ${
+                variant === 'guarantee'
+                  ? 'rounded-xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 p-5'
+                  : variant === 'warning'
+                    ? 'rounded-xl bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/60 p-5'
+                    : variant === 'highlight'
+                      ? 'rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 p-5'
+                      : variant === 'contact'
+                        ? 'pt-4'
+                        : variant === 'closing'
+                          ? 'pt-4 border-t border-slate-100 dark:border-slate-800'
+                          : ''
+              }`}
+            >
+              <h3 className={`text-lg font-bold flex items-center gap-2 ${
+                variant === 'guarantee'
+                  ? 'text-emerald-950 dark:text-emerald-200'
+                  : variant === 'warning'
+                    ? 'text-amber-950 dark:text-amber-200'
+                    : 'text-slate-900 dark:text-white'
+              }`}>
+                <span className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-black ${
+                  variant === 'guarantee'
+                    ? 'bg-emerald-600 text-white'
+                    : variant === 'warning'
+                      ? 'bg-amber-200/80 dark:bg-amber-900/60 text-amber-900 dark:text-amber-300'
+                      : variant === 'highlight'
+                        ? 'bg-slate-700 dark:bg-slate-600 text-white'
+                        : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400'
+                }`}>
+                  {variant === 'guarantee' ? <Check className="w-3.5 h-3.5" /> : n}
+                </span>
+                {t(`core.refundPolicy.${title}`)}
+              </h3>
+              <p className={`text-xs sm:text-sm leading-relaxed ${
+                variant === 'guarantee'
+                  ? 'text-emerald-900 dark:text-emerald-300 font-medium'
+                  : variant === 'warning'
+                    ? 'text-slate-700 dark:text-slate-300 font-medium'
+                    : variant === 'highlight'
+                      ? 'text-slate-700 dark:text-slate-300 font-medium'
+                      : 'text-slate-600 dark:text-slate-300'
+              }`}>
+                {t(`core.refundPolicy.${body}`)}
+              </p>
+              {variant === 'contact' && (
+                <div className="pt-2">
+                  <a
+                    href="mailto:pattygsocials@gmail.com"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl transition cursor-pointer"
+                  >
+                    <Mail className="w-4 h-4" /> pattygsocials@gmail.com
+                  </a>
+                </div>
+              )}
+            </section>
+          ))}
         </div>
       </div>
     </div>

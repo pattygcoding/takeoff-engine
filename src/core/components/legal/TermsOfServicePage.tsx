@@ -108,13 +108,13 @@ export default function TermsOfServicePage() {
             </p>
           </section>
 
-          {/* Section 5 */}
-          <section className="space-y-3">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-black">5</span>
+          {/* Section 5 - Estimating Disclaimer (highlighted) */}
+          <section className="space-y-3 rounded-xl bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/60 p-5">
+            <h3 className="text-lg font-bold text-amber-950 dark:text-amber-200 flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-amber-200/80 dark:bg-amber-900/60 text-amber-900 dark:text-amber-300 flex items-center justify-center text-xs font-black">5</span>
               {t('core.termsOfService.s5Title')}
             </h3>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
               {t('core.termsOfService.s5Body')}
             </p>
           </section>
@@ -168,6 +168,61 @@ export default function TermsOfServicePage() {
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
               {t('core.termsOfService.s9Body')}
+            </p>
+          </section>
+
+          {/* Section 10 - Disclaimer of Warranties (ALL CAPS conspicuous) */}
+          <section className="space-y-3 rounded-xl border-2 border-red-300 bg-red-50 p-5 dark:border-red-800/60 dark:bg-red-950/30">
+            <h3 className="text-lg font-bold text-red-950 dark:text-red-200 flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-red-600 text-white flex items-center justify-center text-xs font-black">10</span>
+              {t('core.termsOfService.s10Title')}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium uppercase">
+              {t('core.termsOfService.s10Body')}
+            </p>
+          </section>
+
+          {/* Section 11 - Limitation of Liability (ALL CAPS conspicuous) */}
+          <section className="space-y-3 rounded-xl border-2 border-red-300 bg-red-50 p-5 dark:border-red-800/60 dark:bg-red-950/30">
+            <h3 className="text-lg font-bold text-red-950 dark:text-red-200 flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-red-600 text-white flex items-center justify-center text-xs font-black">11</span>
+              {t('core.termsOfService.s11Title')}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium uppercase">
+              {t('core.termsOfService.s11Body')}
+            </p>
+          </section>
+
+          {/* Section 12 */}
+          <section className="space-y-3">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-black">12</span>
+              {t('core.termsOfService.s12Title')}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              {t('core.termsOfService.s12Body')}
+            </p>
+          </section>
+
+          {/* Section 13 */}
+          <section className="space-y-3">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-black">13</span>
+              {t('core.termsOfService.s13Title')}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              {t('core.termsOfService.s13Body')}
+            </p>
+          </section>
+
+          {/* Section 14 - General Provisions */}
+          <section className="space-y-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-black">14</span>
+              {t('core.termsOfService.s14Title')}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              {t('core.termsOfService.s14Body')}
             </p>
           </section>
         </div>

@@ -115,6 +115,7 @@ export default function LegalDisclaimerPage() {
               <li>{t('core.legalDisclaimer.s4Item1')}</li>
               <li>{t('core.legalDisclaimer.s4Item2')}</li>
               <li>{t('core.legalDisclaimer.s4Item3')}</li>
+              <li>{t('core.legalDisclaimer.s4Item4')}</li>
             </ul>
           </section>
 
@@ -137,6 +138,94 @@ export default function LegalDisclaimerPage() {
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
               {t('core.legalDisclaimer.s6Body')}
+            </p>
+          </section>
+
+          {/* Section 7: Assumption of Risk (Highlighted) */}
+          <section className="space-y-4 rounded-xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/90 dark:border-amber-800/60 p-5">
+            <h3 className="text-lg font-bold text-amber-950 dark:text-amber-200 flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-amber-200/80 dark:bg-amber-900/60 text-amber-900 dark:text-amber-300 flex items-center justify-center text-xs font-black">7</span>
+              {t('core.legalDisclaimer.s7Title')}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
+              {t('core.legalDisclaimer.s7Body')}
+            </p>
+          </section>
+
+          {/* Section 8: Indemnification (Highlighted) */}
+          <section className="space-y-4 rounded-xl bg-red-50/60 dark:bg-red-950/30 border border-red-200/80 dark:border-red-900/60 p-5">
+            <h3 className="text-lg font-bold text-red-950 dark:text-red-200 flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-red-200/80 dark:bg-red-900/60 text-red-900 dark:text-red-300 flex items-center justify-center text-xs font-black">8</span>
+              {t('core.legalDisclaimer.s8Title')}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
+              {t('core.legalDisclaimer.s8Body')}
+            </p>
+          </section>
+
+          {/* Section 9: Regulatory Compliance & Building Codes */}
+          <section className="space-y-3">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-black">9</span>
+              {t('core.legalDisclaimer.s9Title')}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              {t('core.legalDisclaimer.s9Body')}
+            </p>
+          </section>
+
+          {/* Section 10: No Professional Relationship */}
+          <section className="space-y-3">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-black">10</span>
+              {t('core.legalDisclaimer.s10Title')}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              {t('core.legalDisclaimer.s10Body')}
+            </p>
+          </section>
+
+          {/* Section 11: Force Majeure */}
+          <section className="space-y-3">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-black">11</span>
+              {t('core.legalDisclaimer.s11Title')}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              {t('core.legalDisclaimer.s11Body')}
+            </p>
+          </section>
+
+          {/* Section 12: Statute of Limitations */}
+          <section className="space-y-3">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-black">12</span>
+              {t('core.legalDisclaimer.s12Title')}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              {t('core.legalDisclaimer.s12Body')}
+            </p>
+          </section>
+
+          {/* Section 13: Changes to This Disclaimer */}
+          <section className="space-y-3">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-black">13</span>
+              {t('core.legalDisclaimer.s13Title')}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              {t('core.legalDisclaimer.s13Body')}
+            </p>
+          </section>
+
+          {/* Section 14: Severability & Governing Law */}
+          <section className="space-y-3">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-black">14</span>
+              {t('core.legalDisclaimer.s14Title')}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              {t('core.legalDisclaimer.s14Body')}
             </p>
           </section>
         </div>

@@ -21,9 +21,30 @@ export default function AccessibilityPage() {
           {t('core.accessibility.statement.standard')}
         </a>
       </section>
+      <section className="mt-8 space-y-3">
+        <h2 className="text-xl font-bold">{t('core.accessibility.statement.ongoingTitle')}</h2>
+        <p className="leading-relaxed text-slate-700 dark:text-slate-300">{t('core.accessibility.statement.ongoing')}</p>
+      </section>
+      <section className="mt-8 space-y-3">
+        <h2 className="text-xl font-bold">{t('core.accessibility.statement.scopeTitle')}</h2>
+        <p className="leading-relaxed text-slate-700 dark:text-slate-300">{t('core.accessibility.statement.scope')}</p>
+      </section>
+      <section className="mt-8 space-y-3">
+        <h2 className="text-xl font-bold">{t('core.accessibility.statement.thirdPartyTitle')}</h2>
+        <p className="leading-relaxed text-slate-700 dark:text-slate-300">{t('core.accessibility.statement.thirdParty')}</p>
+      </section>
+      <section className="mt-8 space-y-3">
+        <h2 className="text-xl font-bold">{t('core.accessibility.statement.compatibilityTitle')}</h2>
+        <p className="leading-relaxed text-slate-700 dark:text-slate-300">{t('core.accessibility.statement.compatibility')}</p>
+      </section>
       <section className="mt-8 space-y-3 rounded-xl border border-amber-200 bg-amber-50 p-5 dark:border-amber-800/60 dark:bg-amber-950/30">
         <h2 className="text-xl font-bold">{t('core.accessibility.statement.noticeTitle')}</h2>
         <p className="leading-relaxed text-slate-700 dark:text-slate-300">{t('core.accessibility.statement.notice')}</p>
+      </section>
+      <section className="mt-8 space-y-3 rounded-xl border border-slate-300 bg-slate-50 p-5 dark:border-slate-700/60 dark:bg-slate-900/40">
+        <h2 className="text-xl font-bold">{t('core.accessibility.statement.liabilityTitle')}</h2>
+        <p className="leading-relaxed text-sm uppercase text-slate-600 dark:text-slate-400">{t('core.accessibility.statement.noWarranty')}</p>
+        <p className="leading-relaxed text-sm uppercase text-slate-600 dark:text-slate-400">{t('core.accessibility.statement.liability')}</p>
       </section>
       <section className="mt-8 space-y-3">
         <h2 className="text-xl font-bold">{t('core.accessibility.statement.contactTitle')}</h2>
@@ -33,6 +54,7 @@ export default function AccessibilityPage() {
         </a>
         <p className="leading-relaxed text-slate-700 dark:text-slate-300">{t('core.accessibility.statement.details')}</p>
       </section>
+      <p className="mt-8 text-sm text-slate-500 dark:text-slate-500">{t('core.accessibility.statement.updated')}</p>
     </article>
   );
 }

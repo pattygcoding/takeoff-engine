@@ -89,6 +89,8 @@ export default function UsagePolicyPage() {
               <li>{t('core.usagePolicy.s2Item3')}</li>
               <li>{t('core.usagePolicy.s2Item4')}</li>
               <li>{t('core.usagePolicy.s2Item5')}</li>
+              <li>{t('core.usagePolicy.s2Item6')}</li>
+              <li>{t('core.usagePolicy.s2Item7')}</li>
             </ul>
           </section>
 
@@ -109,6 +111,8 @@ export default function UsagePolicyPage() {
               <li>{t('core.usagePolicy.s3Item2')}</li>
               <li>{t('core.usagePolicy.s3Item3')}</li>
               <li>{t('core.usagePolicy.s3Item4')}</li>
+              <li>{t('core.usagePolicy.s3Item5')}</li>
+              <li>{t('core.usagePolicy.s3Item6')}</li>
             </ul>
           </section>
 
@@ -124,6 +128,9 @@ export default function UsagePolicyPage() {
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
               {t('core.usagePolicy.s4Body2')}
             </p>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              {t('core.usagePolicy.s4Body3')}
+            </p>
           </section>
 
           {/* Section 5: Copyright Enforcement */}
@@ -138,13 +145,57 @@ export default function UsagePolicyPage() {
           </section>
 
           {/* Section 6: Contact & Reporting Inquiries */}
-          <section className="space-y-3 border-t border-slate-100 dark:border-slate-800 pt-6">
+          <section className="space-y-3">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <span className="w-6 h-6 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-black">6</span>
               {t('core.usagePolicy.s6Title')}
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
               {t('core.usagePolicy.s6Body')}
+            </p>
+          </section>
+
+          {/* Section 7: Prohibited Uses (highlighted) */}
+          <section className="space-y-3 rounded-xl bg-red-50/60 dark:bg-red-950/30 border border-red-200/80 dark:border-red-800/60 p-5">
+            <h3 className="text-lg font-bold text-red-950 dark:text-red-200 flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-red-200/80 dark:bg-red-900/60 text-red-900 dark:text-red-300 flex items-center justify-center text-xs font-black">7</span>
+              {t('core.usagePolicy.s7Title')}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
+              {t('core.usagePolicy.s7Body')}
+            </p>
+          </section>
+
+          {/* Section 8: Data & Privacy Obligations */}
+          <section className="space-y-3">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-black">8</span>
+              {t('core.usagePolicy.s8Title')}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              {t('core.usagePolicy.s8Body')}
+            </p>
+          </section>
+
+          {/* Section 9: No Monitoring Obligation */}
+          <section className="space-y-3">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-black">9</span>
+              {t('core.usagePolicy.s9Title')}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              {t('core.usagePolicy.s9Body')}
+            </p>
+          </section>
+
+          {/* Section 10: Policy Changes */}
+          <section className="space-y-3 border-t border-slate-100 dark:border-slate-800 pt-6">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-black">10</span>
+              {t('core.usagePolicy.s10Title')}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              {t('core.usagePolicy.s10Body')}
             </p>
           </section>
         </div>
