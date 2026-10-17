@@ -203,6 +203,7 @@ export default function PlanOnboardingPage() {
         priceId: checkoutParams.priceId,
         items: checkoutParams.items,
         customerEmail: user?.email,
+        pwCustomerId: user?.paddle_customer_id,
         customData: checkoutParams.customData,
         onSuccess: async () => {
           await syncCheckoutSubscription(planKey, billingInterval);

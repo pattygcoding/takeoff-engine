@@ -248,6 +248,8 @@ export interface UserProfile {
   license_number?: string;
   brand_color?: string;
   paddle_subscription_id?: string;
+  /** Paddle customer id (`ctm_...`); passed to Paddle.js as `pwCustomer` for Paddle Retain. */
+  paddle_customer_id?: string;
   [key: string]: unknown;
 }
 

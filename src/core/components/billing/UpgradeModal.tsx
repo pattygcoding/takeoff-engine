@@ -594,6 +594,7 @@ async function launchNewCheckout(selectedPlan: string, seatsToAdd: number, ctx: 
     priceId: checkoutParams.priceId,
     items: checkoutParams.items,
     customerEmail: ctx.user?.email,
+    pwCustomerId: ctx.user?.paddle_customer_id,
     customData: checkoutParams.customData,
     onSuccess: async () => {
       try {

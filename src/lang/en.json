@@ -804,7 +804,8 @@
     },
     "paddle": {
       "tokenNotConfiguredWarn": "VITE_PADDLE_CLIENT_TOKEN is not configured. Paddle checkout overlay will operate in fallback mock mode.",
-      "initFailed": "Failed to initialize Paddle.js:"
+      "initFailed": "Failed to initialize Paddle.js:",
+      "pwCustomerUpdateFailed": "Failed to set the Paddle customer on the Paddle.js instance (Paddle Retain):"
     },
     "footer": {
       "brandName": "Takeoff Engine",

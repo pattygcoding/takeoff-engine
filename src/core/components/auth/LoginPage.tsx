@@ -215,6 +215,9 @@ export default function LoginPage({ initialView = 'login' }) {
         priceId: checkoutParams.priceId,
         items: checkoutParams.items,
         customerEmail: currentUser.email,
+        // `currentUser` may be the loose registration fallback, which never carries a Paddle id.
+        // paddle.ts only forwards a real `ctm_...` value to Paddle.js as `pwCustomer`.
+        pwCustomerId: (currentUser as { paddle_customer_id?: string }).paddle_customer_id,
         customData: checkoutParams.customData,
         onSuccess: async () => {
           await syncCheckoutSubscription(planKey);

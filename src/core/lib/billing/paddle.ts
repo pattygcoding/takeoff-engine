@@ -7,15 +7,56 @@ type PaddleEventHandler = (event: PaddleEventData) => void;
 
 let paddleInstance: PaddleClient | null | undefined = null;
 let activeEventCallback: PaddleEventHandler | null = null;
+/** Paddle customer id (`ctm_...`) last pushed to Paddle.js, used to avoid redundant updates. */
+let appliedPwCustomerId: string | null = null;
 
 /**
- * Get or initialize Paddle.js singleton
+ * The Paddle environment the browser talks to. Live (`production`) is the default so a plain
+ * build points at the real account; an explicit `VITE_PADDLE_ENVIRONMENT=sandbox` opts a
+ * local/staging build back into Paddle sandbox.
  */
-export async function getPaddleInstance() {
-  if (paddleInstance) return paddleInstance;
+function resolvePaddleEnvironment(): 'production' | 'sandbox' {
+  return import.meta.env.VITE_PADDLE_ENVIRONMENT === 'sandbox' ? 'sandbox' : 'production';
+}
+
+/**
+ * Only a non-empty Paddle customer id is usable as `pwCustomer`. Anything else (internal user
+ * id, email, undefined) is ignored so Paddle.js never receives a wrong identifier.
+ */
+function normalizePwCustomerId(value: unknown): string | null {
+  return typeof value === 'string' && value.startsWith('ctm_') ? value : null;
+}
+
+/** Pushes `pwCustomer` onto an already-initialized Paddle.js instance (Paddle Retain reads it). */
+function applyPwCustomer(paddle: PaddleClient, pwCustomerId?: string) {
+  const id = normalizePwCustomerId(pwCustomerId);
+  if (!id || id === appliedPwCustomerId) return;
+  try {
+    paddle.Update({ pwCustomer: { id } });
+    appliedPwCustomerId = id;
+  } catch (err) {
+    console.error(getTranslation('core.paddle.pwCustomerUpdateFailed'), err);
+  }
+}
+
+/**
+ * Get or initialize Paddle.js singleton.
+ *
+ * `pwCustomerId` is the signed-in customer's Paddle customer id (`ctm_...`), which Paddle Retain
+ * uses to associate the browser session with the customer. It is optional: Paddle.js works without
+ * it, but Retain cancellation flows cannot be started for a session that never received it.
+ */
+export async function getPaddleInstance(pwCustomerId?: string) {
+  if (paddleInstance) {
+    // Paddle.js may only be initialized once, yet the customer id is usually only known after the
+    // account subscribes. `Update` applies it to the live instance instead of re-initializing.
+    applyPwCustomer(paddleInstance, pwCustomerId);
+    return paddleInstance;
+  }
 
   const clientToken = import.meta.env.VITE_PADDLE_CLIENT_TOKEN;
-  const environment = import.meta.env.VITE_PADDLE_ENVIRONMENT || 'sandbox';
+  const environment = resolvePaddleEnvironment();
+  const normalizedPwCustomerId = normalizePwCustomerId(pwCustomerId);
 
   if (!clientToken) {
     console.warn(getTranslation('core.paddle.tokenNotConfiguredWarn'));
@@ -24,8 +65,9 @@ export async function getPaddleInstance() {
 
   try {
     paddleInstance = await initializePaddle({
-      environment: environment === 'production' ? 'production' : 'sandbox',
+      environment,
       token: clientToken,
+      ...(normalizedPwCustomerId ? { pwCustomer: { id: normalizedPwCustomerId } } : {}),
       eventCallback: (event) => {
         console.log('[Paddle Global Event Callback]', event?.name, event);
         if (activeEventCallback) {
@@ -33,6 +75,7 @@ export async function getPaddleInstance() {
         }
       },
     });
+    appliedPwCustomerId = normalizedPwCustomerId;
     return paddleInstance;
   } catch (err) {
     console.error(getTranslation('core.paddle.initFailed'), err);
@@ -49,6 +92,8 @@ export interface OpenPaddleCheckoutOptions {
   priceId?: string;
   items?: PaddleCheckoutItem[];
   customerEmail?: string;
+  /** Signed-in customer's Paddle customer id (`ctm_...`), forwarded to Paddle Retain via `pwCustomer`. */
+  pwCustomerId?: string;
   customData?: Record<string, unknown>;
   onSuccess?: (event: PaddleEventData) => void;
   onClose?: () => void;
@@ -112,11 +157,12 @@ export async function openPaddleCheckout({
   priceId,
   items,
   customerEmail,
+  pwCustomerId,
   customData,
   onSuccess,
   onClose,
 }: OpenPaddleCheckoutOptions): Promise<boolean> {
-  const paddle = await getPaddleInstance();
+  const paddle = await getPaddleInstance(pwCustomerId);
 
   let checkoutItems = items ?? [];
   if (checkoutItems.length === 0 && priceId) {
