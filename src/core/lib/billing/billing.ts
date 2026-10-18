@@ -8,14 +8,23 @@ const getAuthHeaders = () => {
   };
 };
 
+/**
+ * The backend sleeps when idle, so the first request after a lull waits for the container to boot
+ * before the server's own eight-second catalog lookup even starts. Ten seconds (the previous value)
+ * could not cover that, so the request was aborted and pricing rendered as unavailable until the
+ * visitor retried. This window fits a cold start plus the lookup.
+ */
+const PRICING_TIMEOUT_MS = 30_000;
+
 export const billingApi = {
   async getPricing() {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 10_000);
+    const timer = setTimeout(() => controller.abort(), PRICING_TIMEOUT_MS);
     try {
       const res = await fetch(`${API_BASE_URL}/billing/pricing`, {
         method: 'GET',
-        headers: getAuthHeaders(),
+        // Deliberately no `Content-Type`: it is meaningless on a body-less GET and makes the request
+        // non-simple, which forces a CORS preflight round trip to the same sleeping host.
         signal: controller.signal,
       });
       if (!res.ok) {

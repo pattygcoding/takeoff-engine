@@ -150,6 +150,43 @@ describe('shared frontend pricing state', () => {
     expect(screen.getByTestId('translated').textContent).toBe('Pricing unavailable');
     expect((screen.getByRole('button', { name: 'Paid checkout' }) as HTMLButtonElement).disabled).toBe(true);
   });
+
+  it('keeps the prices on screen while a refresh is in flight', async () => {
+    vi.useFakeTimers();
+    let resolveRefresh!: (value?: unknown) => void;
+    vi.spyOn(billingApi, 'getPricing')
+      .mockResolvedValueOnce(catalog())
+      .mockImplementationOnce(() => new Promise((done) => { resolveRefresh = done; }));
+    await act(() => render(<PricingProvider><PricingHarness /></PricingProvider>));
+    await act(async () => { await vi.advanceTimersByTimeAsync(300_000); });
+
+    // The refresh is running: prices stay put instead of flashing loading (and then unavailable).
+    expect(billingApi.getPricing).toHaveBeenCalledTimes(2);
+    expect(screen.queryByRole('alert')).toBeNull();
+    expect(screen.getByTestId('translated').textContent).toBe(formatMoney(prices.STARTER_MONTHLY_PRICE));
+    expect((screen.getByRole('button', { name: 'Paid checkout' }) as HTMLButtonElement).disabled).toBe(false);
+
+    await act(() => resolveRefresh(catalog()));
+    expect(billingApi.getPricing).toHaveBeenCalledTimes(2);
+    expect(screen.queryByRole('alert')).toBeNull();
+    expect((screen.getByRole('button', { name: 'Paid checkout' }) as HTMLButtonElement).disabled).toBe(false);
+  });
+
+  it('repeats an unanswered request instead of failing the first paint', async () => {
+    vi.useFakeTimers();
+    const stalled = Object.assign(new Error('The operation was aborted.'), { name: 'AbortError' });
+    vi.spyOn(billingApi, 'getPricing')
+      .mockRejectedValueOnce(stalled)
+      .mockResolvedValueOnce(catalog());
+    await act(() => render(<PricingProvider><PricingHarness /></PricingProvider>));
+    expect(billingApi.getPricing).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('alert')).toBeNull();
+
+    await act(async () => { await vi.advanceTimersByTimeAsync(2_000); });
+    expect(billingApi.getPricing).toHaveBeenCalledTimes(2);
+    expect((screen.getByRole('button', { name: 'Paid checkout' }) as HTMLButtonElement).disabled).toBe(false);
+    expect(screen.getByTestId('translated').textContent).toBe(formatMoney(prices.STARTER_MONTHLY_PRICE));
+  });
 });
 
 describe('pricing API client', () => {
@@ -167,13 +204,13 @@ describe('pricing API client', () => {
     await expect(billingApi.getPricing()).rejects.toThrow('Pricing is temporarily unavailable');
   });
 
-  it('aborts an unresponsive pricing request after ten seconds', async () => {
+  it('aborts an unresponsive pricing request after thirty seconds', async () => {
     vi.useFakeTimers();
     vi.stubGlobal('fetch', vi.fn((_, { signal }) => new Promise((_, reject) => {
       signal.addEventListener('abort', () => reject(new Error('aborted')));
     })));
     const result = expect(billingApi.getPricing()).rejects.toThrow('aborted');
-    await vi.advanceTimersByTimeAsync(10_000);
+    await vi.advanceTimersByTimeAsync(30_000);
     await result;
   });
 });

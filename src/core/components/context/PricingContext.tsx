@@ -34,6 +34,38 @@ function refreshDelayMs(expiresAt: string): number {
   return Math.min(Math.max(0, Date.parse(expiresAt) - Date.now()), MAX_TIMEOUT_MS);
 }
 
+/**
+ * An inlined build-time catalog is normally already past its expiry when the page loads, which would
+ * schedule its refresh at 0 ms and re-fetch synchronously with the rest of boot on every visit. Let
+ * the seeded prices stand for a moment first instead.
+ */
+const SEEDED_REFRESH_DELAY_MS = 1_500;
+
+/** How long to wait before re-asking after a request that never reached the server. */
+const TRANSIENT_RETRY_DELAY_MS = 2_000;
+
+/**
+ * A sleeping host can stall or drop the first request instead of answering it, which says nothing
+ * about the catalog itself, so that attempt is worth repeating once. A server *answer* — including
+ * the 503 the backend returns while it is in its own failure cooldown — is authoritative and is
+ * surfaced immediately.
+ */
+function isUnansweredRequest(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  return error.name === 'AbortError' || error.name === 'TimeoutError' || error instanceof TypeError;
+}
+
+/** Fetch the catalog, repeating once when the first attempt never got an answer. */
+async function fetchPricingCatalog(): Promise<PricingCatalog> {
+  try {
+    return validateCatalogPricing(await billingApi.getPricing());
+  } catch (error) {
+    if (!isUnansweredRequest(error)) throw error;
+    await new Promise((resolve) => setTimeout(resolve, TRANSIENT_RETRY_DELAY_MS));
+    return validateCatalogPricing(await billingApi.getPricing());
+  }
+}
+
 export function PricingProvider({ children }: Readonly<{ children: ReactNode }>) {
   // Trusting the inlined catalog keeps the first client render identical to the prerendered HTML.
   // Refetching on mount would flip to a loading state and break hydration, so a refresh is
@@ -55,16 +87,23 @@ export function PricingProvider({ children }: Readonly<{ children: ReactNode }>)
     const seeded = seededCatalog.current;
     if (seeded) {
       seededCatalog.current = null;
-      refreshTimer = setTimeout(retry, refreshDelayMs(seeded.expiresAt));
+      // An inlined build-time catalog is normally already past its expiry, so this would otherwise
+      // fire at 0 ms and re-fetch on every page load, racing the rest of boot.
+      refreshTimer = setTimeout(retry, Math.max(refreshDelayMs(seeded.expiresAt), SEEDED_REFRESH_DELAY_MS));
       return () => {
         active = false;
         clearTimeout(refreshTimer);
       };
     }
 
-    setState({ catalog: null, loading: true, error: false });
+    // Keep whatever catalog is already on screen: blanking it here would flash the loading state
+    // over prices we already have, and a failed background refresh would replace real prices with
+    // "pricing unavailable" for a visitor who was just reading them. Only a first load — when there
+    // is nothing to show — enters the loading state. A catalog that expires without a replacement
+    // is still dropped by the failure handler below, so no expired price is ever served.
+    setState((previous) => ({ catalog: previous.catalog, loading: !previous.catalog, error: false }));
     if (!pending.current) {
-      const request = billingApi.getPricing().then(validateCatalogPricing);
+      const request = fetchPricingCatalog();
       pending.current = request;
       request.then(
         () => { if (pending.current === request) pending.current = null; },
@@ -79,7 +118,7 @@ export function PricingProvider({ children }: Readonly<{ children: ReactNode }>)
       },
       (error) => {
         if (!active) return;
-        console.error('[Pricing catalog]', error.message);
+        console.error('[Pricing catalog]', error instanceof Error ? error.message : error);
         setState({ catalog: null, loading: false, error: true });
       },
     );
