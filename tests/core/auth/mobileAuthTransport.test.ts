@@ -74,4 +74,17 @@ test('frontend login, redirect exchange, logout, and deletion preserve the token
   assert.equal((authApiSource.match(/clearAccessToken\(\);/g) || []).length, 2);
   assert.match(mainSource, /const headers = addAuthorizationHeader\(init\.headers\);/);
   assert.match(mainSource, /credentials: 'include'/);
+
+  // The CSRF header token lives in sessionStorage and must be refreshed every time the server rotates
+  // it (bootstrap, login, session exchange, logout). Missing this is the "Invalid or missing CSRF
+  // token" bug: a tab that logs in - or logs out and back in - without a reload keeps a header token
+  // that no longer matches the HttpOnly cookie until a full page refresh re-runs bootstrap.
+  assert.match(mainSource, /const csrfToken = getCsrfToken\(\);/);
+  assert.match(mainSource, /const CSRF_ERROR_CODE = 'CSRF_TOKEN_INVALID';/);
+  assert.match(mainSource, /if \(code === CSRF_ERROR_CODE\)/);
+  assert.match(mainSource, /refreshCsrfToken\(\)/);
+  assert.match(authApiSource, /storeCsrfToken\(data\.csrfToken\);/);
+  assert.match(authApiSource, /storeCsrfToken\(rotatedCsrfToken\);/);
+  assert.equal((authApiSource.match(/clearCsrfToken\(\);/g) || []).length, 2);
+  assert.match(authApiSource, /return data\.csrfToken as string;/);
 });

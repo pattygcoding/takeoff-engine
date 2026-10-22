@@ -1,5 +1,5 @@
 import { getTranslation } from '@/core/lib/shared/i18n';
-import { clearAccessToken, setAccessToken } from '@/core/lib/auth/sessionToken';
+import { clearAccessToken, clearCsrfToken, setAccessToken, storeCsrfToken } from '@/core/lib/auth/sessionToken';
 import { ApiError } from '@/types/api';
 import type { RegisterPayload } from '@/types/api';
 
@@ -16,7 +16,8 @@ export const authApi = {
     const res = await fetch(`${API_BASE_URL}/auth/csrf-token`);
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Unable to initialize the secure session.');
-    sessionStorage.setItem('takeoff_csrf', data.csrfToken);
+    storeCsrfToken(data.csrfToken);
+    return data.csrfToken as string;
   },
 
   async register({
@@ -69,6 +70,8 @@ export const authApi = {
       throw new Error(data.error || getTranslation('core.apiErrors.loginFailed'));
     }
     setAccessToken(data.accessToken);
+    // Login rotates the CSRF pair server-side; keep the header token in lockstep with the new cookie.
+    storeCsrfToken(data.csrfToken);
     return data;
   },
 
@@ -81,20 +84,28 @@ export const authApi = {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Unable to establish a secure session.');
     setAccessToken(data.accessToken || accessToken);
+    // Exchange rotates the CSRF pair server-side; keep the header token in lockstep.
+    storeCsrfToken(data.csrfToken);
     return data;
   },
 
   async logout() {
+    let rotatedCsrfToken: string | null = null;
     try {
-      await fetch(`${API_BASE_URL}/auth/logout`, {
+      const res = await fetch(`${API_BASE_URL}/auth/logout`, {
         method: 'POST',
         headers: getAuthHeaders(),
       });
+      // The server rotates the CSRF pair on logout; keep the tab's copy in lockstep so the next
+      // state-changing request is not rejected. Falls back to clearing if the response is unusable.
+      const data = await res.json().catch(() => ({}));
+      rotatedCsrfToken = data?.csrfToken ?? null;
     } catch {
-      // Ignore network errors on logout
+      // Ignore network errors on logout; the next request self-heals via the CSRF retry.
     }
+    if (rotatedCsrfToken) storeCsrfToken(rotatedCsrfToken);
+    else clearCsrfToken();
     localStorage.removeItem('takeoff_user');
-    sessionStorage.removeItem('takeoff_csrf');
     clearAccessToken();
   },
 
@@ -174,7 +185,7 @@ export const authApi = {
       throw new Error(data.error || getTranslation('core.apiErrors.accountDeletionFailed'));
     }
     localStorage.removeItem('takeoff_user');
-    sessionStorage.removeItem('takeoff_csrf');
+    clearCsrfToken();
     clearAccessToken();
     return data;
   },

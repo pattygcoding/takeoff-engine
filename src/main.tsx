@@ -4,7 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { HelmetProvider } from 'react-helmet-async'
 import '@/index.css'
 import App from '@/App'
-import { addAuthorizationHeader } from '@/core/lib/auth/sessionToken'
+import { addAuthorizationHeader, getCsrfToken, storeCsrfToken } from '@/core/lib/auth/sessionToken';
 import { installHeadMetadataDedupe } from '@/core/lib/shared/headMetadata'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -29,6 +29,10 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
 const nativeFetch = window.fetch.bind(window);
 
+/** Methods that never mutate server state, so they are exempt from the CSRF requirement. */
+const SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS'];
+const CSRF_ERROR_CODE = 'CSRF_TOKEN_INVALID';
+
 /** The string URL of a fetch input, whether it is a string, a URL, or a Request. */
 function urlOfFetchInput(input: RequestInfo | URL): string {
   if (typeof input === 'string') return input;
@@ -36,16 +40,57 @@ function urlOfFetchInput(input: RequestInfo | URL): string {
   return input.url;
 }
 
-window.fetch = (input, init = {}) => {
+/**
+ * Re-issue the CSRF cookie/token pair and store the fresh token for the next request. Single-flight
+ * so a burst of parallel 403s only triggers one token fetch. Uses `nativeFetch` directly to avoid
+ * recursing back through the wrapper below.
+ */
+let csrfRefreshInFlight: Promise<string | null> | null = null;
+function refreshCsrfToken(): Promise<string | null> {
+  if (!csrfRefreshInFlight) {
+    csrfRefreshInFlight = nativeFetch(`${API_BASE_URL}/auth/csrf-token`, { credentials: 'include' })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        const token: string | null = data?.csrfToken ?? null;
+        if (token) storeCsrfToken(token);
+        return token;
+      })
+      .catch(() => null)
+      .finally(() => { csrfRefreshInFlight = null; });
+  }
+  return csrfRefreshInFlight;
+}
+
+window.fetch = async (input, init = {}) => {
   const url = urlOfFetchInput(input);
   if (!url.startsWith(API_BASE_URL)) return nativeFetch(input, init);
 
+  const method = (init.method || 'GET').toUpperCase();
+  const isMutating = !SAFE_METHODS.includes(method);
   const headers = addAuthorizationHeader(init.headers);
-  const csrfToken = sessionStorage.getItem('takeoff_csrf');
-  if (csrfToken && !['GET', 'HEAD', 'OPTIONS'].includes((init.method || 'GET').toUpperCase())) {
+  const csrfToken = getCsrfToken();
+  if (csrfToken && isMutating) {
     headers.set('X-CSRF-Token', csrfToken);
   }
-  return nativeFetch(input, { ...init, headers, credentials: 'include' });
+
+  const response = await nativeFetch(input, { ...init, headers, credentials: 'include' });
+
+  // The token/cookie pair is refreshed at bootstrap, login and logout; if it is ever stale (e.g. a
+  // tab that logged in without a reload, or a blocked/failed bootstrap fetch) recover it and replay
+  // the request exactly once instead of surfacing "Invalid or missing CSRF token".
+  if (isMutating && response.status === 403) {
+    const code = await response.clone().json().then((body) => body?.code).catch(() => null);
+    if (code === CSRF_ERROR_CODE) {
+      const freshToken = await refreshCsrfToken();
+      if (freshToken) {
+        const retryHeaders = addAuthorizationHeader(init.headers);
+        retryHeaders.set('X-CSRF-Token', freshToken);
+        return nativeFetch(input, { ...init, headers: retryHeaders, credentials: 'include' });
+      }
+    }
+  }
+
+  return response;
 };
 
 // Public routes ship their SEO tags in the HTML, while React 19 hoists the same tags rendered by
