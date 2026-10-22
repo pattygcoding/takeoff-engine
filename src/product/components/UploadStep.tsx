@@ -5,7 +5,7 @@ import { useTranslation } from '@/core/components/context/I18nContext';
 import ColumnMappingModal from './ColumnMappingModal';
 import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
 import type { TakeoffFileLike } from '@/product/lib/csv';
-import type { ImportContext, TakeoffItem } from '@/types/models';
+import type { ImportContext, QuoteMetadata, QuoteSections, ScopeItem, TakeoffItem } from '@/types/models';
 
 interface MappingModalData {
   headers?: string[];
@@ -20,6 +20,9 @@ interface MappingModalData {
   activeSheetName?: string;
   activeTableId?: string | null;
   subTables?: Array<{ id: string; label: string }>;
+  quoteMeta?: QuoteMetadata;
+  quoteSections?: QuoteSections;
+  scopeItems?: ScopeItem[];
   [key: string]: unknown;
 }
 
@@ -77,6 +80,10 @@ export default function UploadStep({
             detectedLaborMode,
             file,
             mappingData: result,
+            // Quote sheets carry customer/document metadata and their own scope boundaries.
+            quoteMeta: result.quoteMeta,
+            quoteSections: result.quoteSections,
+            scopeItems: result.scopeItems,
           });
         }
       } catch (err) {
@@ -122,6 +129,9 @@ export default function UploadStep({
         detectedLaborMode,
         file: currentUploadedFile,
         mappingData: mappingModalData,
+        quoteMeta: mappingModalData?.quoteMeta,
+        quoteSections: mappingModalData?.quoteSections,
+        scopeItems: mappingModalData?.scopeItems,
       });
     }
   };

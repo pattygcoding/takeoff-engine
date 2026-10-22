@@ -1851,6 +1851,8 @@
         "metaProject": "Proyecto",
         "metaClient": "Cliente",
         "metaSite": "Sitio",
+        "metaContact": "Estimador",
+        "metaPhone": "Teléfono",
         "metaDate": "Fecha",
         "internalBadge": "Solo uso interno"
       },
@@ -2250,6 +2252,20 @@
         "csvUploadSheet": "Subida CSV",
         "takeoffSheet": "Takeoff"
       }
+    },
+    "quoteContact": {
+      "title": "Datos de contacto encontrados en esta cotización",
+      "subtitle": "La cotización indica una dirección y un teléfono del contratista que difieren de la configuración de su cuenta. Elija cuáles deben usar los documentos.",
+      "addressLabel": "Dirección del contratista",
+      "phoneLabel": "Teléfono",
+      "fromQuote": "En la cotización",
+      "savedInAccount": "En su configuración",
+      "notSet": "Sin definir",
+      "useForProject": "Usar los datos de la cotización en este proyecto",
+      "alsoUpdateAccount": "Actualizar también la configuración de mi cuenta",
+      "keepSaved": "Mantener mi configuración guardada",
+      "applying": "Actualizando...",
+      "updateFailed": "No se pudo actualizar la configuración de su cuenta."
     },
     "scopeSummary": {
       "title": "Alcance del trabajo: inclusiones y exclusiones",

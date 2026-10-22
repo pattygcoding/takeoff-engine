@@ -1851,6 +1851,8 @@
         "metaProject": "Projeto",
         "metaClient": "Cliente",
         "metaSite": "Canteiro",
+        "metaContact": "Orçamentista",
+        "metaPhone": "Telefone",
         "metaDate": "Data",
         "internalBadge": "Somente uso interno"
       },
@@ -2250,6 +2252,20 @@
         "csvUploadSheet": "Envio CSV",
         "takeoffSheet": "Takeoff"
       }
+    },
+    "quoteContact": {
+      "title": "Dados de contato encontrados neste orçamento",
+      "subtitle": "O orçamento indica um endereço e telefone do contratante diferentes das configurações da sua conta. Escolha quais os documentos devem usar.",
+      "addressLabel": "Endereço do contratante",
+      "phoneLabel": "Telefone",
+      "fromQuote": "No orçamento",
+      "savedInAccount": "Nas suas configurações",
+      "notSet": "Não definido",
+      "useForProject": "Usar os dados do orçamento neste projeto",
+      "alsoUpdateAccount": "Atualizar também as configurações da minha conta",
+      "keepSaved": "Manter minhas configurações salvas",
+      "applying": "Atualizando...",
+      "updateFailed": "Não foi possível atualizar as configurações da sua conta."
     },
     "scopeSummary": {
       "title": "Escopo do trabalho: inclusões e exclusões",

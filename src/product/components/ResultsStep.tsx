@@ -29,7 +29,18 @@ import {
 } from './ClientModeViews';
 import Papa from 'papaparse';
 import type { ReactNode } from 'react';
-import type { Branding, ChangeOrder, Estimate, Project, Rates, TakeoffItem, WarrantyItem } from '@/types/models';
+import type {
+  Branding,
+  ChangeOrder,
+  Estimate,
+  ImportContext,
+  Project,
+  QuoteMetadata,
+  Rates,
+  TakeoffItem,
+  WarrantyItem,
+} from '@/types/models';
+import QuoteContactPanel from './QuoteContactPanel';
 
 /** Payload of a generated public proposal link. */
 interface ShareProposalData {
@@ -53,7 +64,7 @@ const CLIENT_PDF_FORMAT_IDS: Record<string, string> = {
 /** Persists the estimate as a cloud project, preferring an update once the project exists. */
 async function persistEstimate(
   currentProject: Project | null,
-  fields: { name: string; clientName: string; location: string },
+  fields: { name: string; clientName: string; location: string; quoteMeta?: QuoteMetadata | null },
   summary: Record<string, unknown>,
   items: TakeoffItem[],
   rates: Rates,
@@ -111,6 +122,41 @@ function docBrandingFor(branding: Branding | null): Branding | null {
   if (!branding) return null;
   if (branding.brandColor?.toLowerCase() !== '#0284c7') return branding;
   return { ...branding, brandColor: '' };
+}
+
+/** What the estimator chose to do with a quote's contractor contact details. */
+export type QuoteContactChoice = 'project' | 'account' | 'saved';
+
+/**
+ * Layers a quote's own contractor address/phone over the account branding.
+ *
+ * The values apply to the project whose documents are being produced; the account settings are only
+ * changed when the estimator explicitly chooses to, so importing a sub's quote can never silently
+ * rewrite someone else's company address.
+ */
+export function brandingWithQuoteContact(
+  branding: Branding | null,
+  quoteMeta?: QuoteMetadata | null,
+): Branding | null {
+  if (!branding || !quoteMeta) return branding;
+
+  const next: Branding = { ...branding };
+  if (quoteMeta.contractorAddress) next.companyAddress = quoteMeta.contractorAddress;
+  if (quoteMeta.contactPhone) next.companyPhone = quoteMeta.contactPhone;
+  return next;
+}
+
+/** True when a quote's contact details differ from the account's saved ones. */
+export function quoteContactConflicts(quoteMeta: QuoteMetadata | undefined, user: AuthUser): boolean {
+  if (!quoteMeta) return false;
+  const savedAddress = (user?.company_address || '').trim().toLowerCase();
+  const savedPhone = (user?.phone_number || '').replace(/\D/g, '');
+  const sheetAddress = (quoteMeta.contractorAddress || '').trim().toLowerCase();
+  const sheetPhone = (quoteMeta.contactPhone || '').replace(/\D/g, '');
+
+  const addressDiffers = Boolean(sheetAddress) && sheetAddress !== savedAddress;
+  const phoneDiffers = Boolean(sheetPhone) && sheetPhone !== savedPhone;
+  return addressDiffers || phoneDiffers;
 }
 
 /** Locked client views: everything outside the free formats, for accounts without Pro entitlements. */
@@ -261,6 +307,7 @@ export default function ResultsStep({
   readOnly = false,
   projectStatus = 'awarded',
   onDuplicate,
+  importContext,
 }: Readonly<{
   items: TakeoffItem[];
   rates: Rates;
@@ -270,6 +317,8 @@ export default function ResultsStep({
   readOnly?: boolean;
   projectStatus?: string;
   onDuplicate?: () => void;
+  /** Import context of the current takeoff, carrying a client quote's cover block. */
+  importContext?: ImportContext;
 }>) {
   const { username, projectId } = useParams();
   const navigate = useNavigate();
@@ -288,9 +337,13 @@ export default function ResultsStep({
   const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const [projectNameInput, setProjectNameInput] = useState(currentProject?.name || '');
-  const [clientNameInput, setClientNameInput] = useState(currentProject?.client_name || '');
-  const [locationInput, setLocationInput] = useState(currentProject?.location || '');
+  // Cover block of an imported client quote: prefills the project details and the documents below.
+  const quoteMeta = importContext?.quoteMeta;
+  const [projectNameInput, setProjectNameInput] = useState(
+    currentProject?.name || quoteMeta?.projectAddress || quoteMeta?.documentTitle || '',
+  );
+  const [clientNameInput, setClientNameInput] = useState(currentProject?.client_name || quoteMeta?.builder || '');
+  const [locationInput, setLocationInput] = useState(currentProject?.location || quoteMeta?.projectAddress || '');
 
   // Proposal Portal Sharing States
   const [isGeneratingShareLink, setIsGeneratingShareLink] = useState(false);
@@ -306,8 +359,42 @@ export default function ResultsStep({
   const guard = useSingleFlight();
   const isProOrExempt = hasTierAccess(user, ['pro', 'enterprise']);
 
+  // A quote's own contractor contact details are used for this project only; account settings are
+  // rewritten only when the estimator explicitly opts in from the contact panel.
+  const storedQuoteMeta = currentProject?.quote_meta_json;
+  const projectQuoteMeta: QuoteMetadata | undefined = storedQuoteMeta || importContext?.quoteMeta;
+  const [quoteContactChoice, setQuoteContactChoice] = useState<QuoteContactChoice>('project');
+  const [isApplyingContactChoice, setIsApplyingContactChoice] = useState(false);
+
   const branding = brandingFor(user, isProOrExempt);
-  const docBranding = docBrandingFor(branding);
+  const docBranding = docBrandingFor(
+    brandingWithQuoteContact(branding, quoteContactChoice === 'saved' ? undefined : projectQuoteMeta),
+  );
+
+  const [quoteContactDismissed, setQuoteContactDismissed] = useState(false);
+  const showQuoteContactAsk =
+    Boolean(projectQuoteMeta) && !quoteContactDismissed && quoteContactConflicts(projectQuoteMeta, user);
+
+  /** Opt-in path: also write the quote's contact details into the account settings. */
+  const handleApplyQuoteContactToAccount = guard<[], void>('apply-quote-contact', async () => {
+    setIsApplyingContactChoice(true);
+    try {
+      await authApi.updateProfile({
+        companyAddress: projectQuoteMeta?.contractorAddress,
+        phoneNumber: projectQuoteMeta?.contactPhone,
+      });
+      setQuoteContactChoice('account');
+      setQuoteContactDismissed(true);
+      if (refreshProfile) void refreshProfile();
+    } catch (err) {
+      await showAlert({
+        title: t('product.quoteContact.title'),
+        message: (err as Error).message || t('product.quoteContact.updateFailed'),
+      });
+    } finally {
+      setIsApplyingContactChoice(false);
+    }
+  });
 
   const lockedPdfViews = lockedPdfViewsFor(isProOrExempt);
   const isPdfLocked = lockedPdfViews.includes(clientView);
@@ -405,6 +492,8 @@ export default function ResultsStep({
           name: projectNameInput.trim(),
           clientName: clientNameInput.trim(),
           location: locationInput.trim(),
+          // Kept with the project so its documents keep the quote's own contact details.
+          quoteMeta: projectQuoteMeta ?? null,
         },
         summaryPayload,
         items,
@@ -773,6 +862,22 @@ export default function ResultsStep({
           </button>
         </div>
       </div>
+
+      {showQuoteContactAsk && projectQuoteMeta && (
+        <QuoteContactPanel
+          quoteMeta={projectQuoteMeta}
+          savedAddress={user?.company_address || ''}
+          savedPhone={user?.phone_number || ''}
+          choice={quoteContactChoice}
+          busy={isApplyingContactChoice}
+          onSelect={setQuoteContactChoice}
+          onApplyToAccount={handleApplyQuoteContactToAccount}
+          onDismiss={() => {
+            setQuoteContactChoice('saved');
+            setQuoteContactDismissed(true);
+          }}
+        />
+      )}
 
       {proposalMode && (
         <div className="no-print flex flex-wrap items-start justify-between gap-x-3">

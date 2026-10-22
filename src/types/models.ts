@@ -96,6 +96,77 @@ export interface ScopePreset {
   [key: string]: unknown;
 }
 
+/**
+ * Label/value block found above the table header of a client quote spreadsheet
+ * (quote date, builder, job address, contractor address, estimator, phone).
+ */
+export interface QuoteMetadata {
+  documentTitle?: string;
+  quoteDate?: string;
+  builder?: string;
+  projectAddress?: string;
+  contractorAddress?: string;
+  contactName?: string;
+  contactPhone?: string;
+  [key: string]: unknown;
+}
+
+/** One entry of a quote sheet's fixture list, e.g. `{ name: 'Toilets (floor-mount)', quantity: 8 }`. */
+export interface QuoteFixtureRow {
+  name: string;
+  quantity: number;
+  [key: string]: unknown;
+}
+
+/** One numbered entry of a quote sheet's terms & conditions block. */
+export interface QuoteTerm {
+  number: string;
+  text: string;
+  [key: string]: unknown;
+}
+
+/** Tables stacked below the priced table of a quote sheet. */
+export interface QuoteSections {
+  fixtureSchedule?: QuoteFixtureRow[];
+  terms?: QuoteTerm[];
+  notes?: string[];
+  [key: string]: unknown;
+}
+
+/** Result of `POST /api/takeoffs/parse` (permissive: the mapping-modal payload omits some fields). */
+export interface TakeoffParseResult {
+  requiresMappingModal?: boolean;
+  items?: TakeoffItem[];
+  errors?: string[];
+  checksum?: Record<string, unknown>;
+  detectedLaborMode?: string;
+  headers?: string[];
+  mapping?: Record<string, string | number>;
+  currentMapping?: Record<string, string | number>;
+  unmappedRequired?: string[];
+  matchConfidences?: Record<string, number>;
+  overallConfidence?: number;
+  confidence?: number;
+  sheetNames?: string[];
+  activeSheetName?: string;
+  activeTableId?: string | null;
+  headerRowIndex?: number;
+  /** Row preview for the mapping modal (cell values are surfaced as text). */
+  rawRows?: Array<Record<string, string>>;
+  rawMatrix?: string[][];
+  sampleMatrix?: string[][];
+  unlabeledColumns?: number[];
+  /** Cover block of a quote sheet, when one was detected. */
+  quoteMeta?: QuoteMetadata;
+  /** Fixture list / terms / notes stacked below the priced table. */
+  quoteSections?: QuoteSections;
+  /** Inclusions & exclusions read from the sheet itself (replaces the generic defaults). */
+  scopeItems?: ScopeItem[];
+  /** Total printed on the quote sheet, when it could be read from the priced column. */
+  listedQuoteTotal?: number;
+  [key: string]: unknown;
+}
+
 /** A user row shown in the super-admin portal. */
 export interface AdminUser {
   id: string;
@@ -205,6 +276,12 @@ export interface MappingModalData {
   activeSheetName?: string;
   activeTableId?: string | null;
   subTables?: Array<{ id: string; label: string }>;
+  /** Cover block of a quote sheet, when one was detected. */
+  quoteMeta?: QuoteMetadata;
+  /** Fixture list / terms / notes stacked below the priced table. */
+  quoteSections?: QuoteSections;
+  /** Inclusions & exclusions read from the sheet itself. */
+  scopeItems?: ScopeItem[];
   [key: string]: unknown;
 }
 
@@ -221,6 +298,12 @@ export interface ImportContext {
   file?: TakeoffFileLike | null;
   mappingData?: MappingModalData | null;
   detectedLaborMode?: string;
+  /** Cover block read from an imported client quote, e.g. builder and job address. */
+  quoteMeta?: QuoteMetadata;
+  /** Fixture list / terms / notes read from a stacked section of an imported quote. */
+  quoteSections?: QuoteSections;
+  /** Inclusions & exclusions read from the imported sheet. */
+  scopeItems?: ScopeItem[];
   [key: string]: unknown;
 }
 
@@ -266,6 +349,8 @@ export interface Project {
   latestEstimate?: EstimateRecord | null;
   change_orders_json?: ChangeOrder[];
   warranty_items_json?: WarrantyItem[];
+  /** Cover block of the quote this project was imported from (builder, addresses, estimator, phone). */
+  quote_meta_json?: QuoteMetadata;
   created_at?: string;
   updated_at?: string;
   [key: string]: unknown;

@@ -1,6 +1,6 @@
 import { getTranslation } from '@/core/lib/shared/i18n';
 import { ApiError } from '@/types/api';
-import type { Rates, TakeoffItem } from '@/types/models';
+import type { QuoteMetadata, Rates, TakeoffItem } from '@/types/models';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -64,6 +64,7 @@ export const projectsApi = {
     items = [],
     rates = {},
     summary = {},
+    quoteMeta = null,
   }: {
     name: string;
     clientName?: string;
@@ -72,6 +73,8 @@ export const projectsApi = {
     items?: TakeoffItem[];
     rates?: Rates;
     summary?: Record<string, unknown>;
+    /** Cover block read from an imported quote (kept for that project's documents). */
+    quoteMeta?: QuoteMetadata | null;
   }) {
     const res = await fetch(`${API_BASE_URL}/projects`, {
       method: 'POST',
@@ -84,6 +87,7 @@ export const projectsApi = {
         items,
         rates,
         summary,
+        quoteMeta,
       }),
     });
     const data = await res.json();

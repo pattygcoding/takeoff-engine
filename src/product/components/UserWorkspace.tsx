@@ -90,13 +90,21 @@ export default function UserWorkspace() {
     setImportContext({
       file: options?.file || null,
       mappingData: options?.mappingData || null,
+      quoteMeta: options?.quoteMeta,
+      quoteSections: options?.quoteSections,
+      scopeItems: options?.scopeItems,
     });
-    if (options?.detectedLaborMode) {
-      setRates((prevRates) => ({
-        ...prevRates,
-        laborMode: options.detectedLaborMode,
-      }));
-    }
+
+    // A sheet that states its own inclusions/exclusions replaces the generic default scope list;
+    // every other upload keeps the standard defaults.
+    setRates((prevRates) => ({
+      ...prevRates,
+      ...(options?.detectedLaborMode ? { laborMode: options.detectedLaborMode } : {}),
+      ...(Array.isArray(options?.scopeItems) && options.scopeItems.length > 0
+        ? { scopeItems: options.scopeItems }
+        : {}),
+    }));
+
     navigate(`/${username}/edit`);
   };
 

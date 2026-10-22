@@ -271,6 +271,7 @@ export default function ProjectWorkspace({
           items={items}
           rates={rates}
           currentProject={currentProject}
+          importContext={importContext}
           onProjectSaved={handleProjectSaved}
           onBack={handleBackToEdit}
           readOnly={isLocked}

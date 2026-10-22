@@ -98,6 +98,19 @@ const CSV_SAMPLES: SampleSheet[] = [
     ],
   },
   {
+    // Client quote sheet: cover block, `Includes:`/`Excludes:` text beside the priced columns and
+    // stacked fixture/terms tables. Its trade comes from the sheet title, and units are inferred
+    // per row because the sheet has no unit column.
+    file: 'client-sample-1.csv',
+    expectedItemCount: 11,
+    expectedItems: [
+      { system: '22 - Plumbing', descriptionIncludes: 'Refrigerator ice maker water line', quantity: 1, unit: 'EA' },
+      { system: '22 - Plumbing', descriptionIncludes: 'Exterior hose bibs', quantity: 5, unit: 'EA' },
+      { system: '22 - Plumbing', descriptionIncludes: 'Fixture shutoff valves', quantity: 33, unit: 'EA' },
+      { system: '22 - Plumbing', descriptionIncludes: 'Bath vent', quantity: 1, unit: 'HR' },
+    ],
+  },
+  {
     // Ambiguous custom headers plus two side-by-side scope tables: the engine must ask the user to
     // confirm the column mapping instead of guessing.
     file: 'sample_edge_cases_takeoff.csv',

@@ -65,11 +65,20 @@ export function DocumentLetterhead({
   const { t } = useTranslation();
   const today = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
 
+  // A project imported from a client quote keeps that quote's own metadata: its date, and the
+  // estimator/phone printed on the cover block.
+  const quoteMeta = project?.quote_meta_json;
+
   const metaRows = [
     [t('product.templates.header.metaProject'), project?.name || t('product.templates.header.defaultProjectName')],
+    !project?.client_name && quoteMeta?.builder
+      ? [t('product.templates.header.metaClient'), quoteMeta.builder]
+      : null,
     project?.client_name && [t('product.templates.header.metaClient'), project.client_name],
     project?.location && [t('product.templates.header.metaSite'), project.location],
-    [t('product.templates.header.metaDate'), today],
+    quoteMeta?.contactName && [t('product.templates.header.metaContact'), quoteMeta.contactName],
+    quoteMeta?.contactPhone && [t('product.templates.header.metaPhone'), quoteMeta.contactPhone],
+    [t('product.templates.header.metaDate'), quoteMeta?.quoteDate || today],
   ].filter(Boolean) as Array<[string, ReactNode]>;
 
   return (

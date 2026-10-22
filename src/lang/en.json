@@ -1852,6 +1852,8 @@
         "metaProject": "Project",
         "metaClient": "Client",
         "metaSite": "Site",
+        "metaContact": "Estimator",
+        "metaPhone": "Phone",
         "metaDate": "Date",
         "internalBadge": "Internal Use Only"
       },
@@ -2251,6 +2253,20 @@
         "csvUploadSheet": "CSV Upload",
         "takeoffSheet": "Takeoff"
       }
+    },
+    "quoteContact": {
+      "title": "Contact details found on this quote",
+      "subtitle": "The quote lists a contractor address and phone that differ from your account settings. Choose which the documents should use.",
+      "addressLabel": "Contractor address",
+      "phoneLabel": "Phone",
+      "fromQuote": "On the quote",
+      "savedInAccount": "In your settings",
+      "notSet": "Not set",
+      "useForProject": "Use the quote's details for this project",
+      "alsoUpdateAccount": "Also update my account settings",
+      "keepSaved": "Keep my saved settings",
+      "applying": "Updating...",
+      "updateFailed": "Could not update your account settings."
     },
     "scopeSummary": {
       "title": "Scope of Work: Inclusions & Exclusions",

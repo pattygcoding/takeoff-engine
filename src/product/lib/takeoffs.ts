@@ -2,6 +2,7 @@
  * Takeoffs & Ingestion API Client
  */
 import { ApiError } from '@/types/api';
+import type { TakeoffParseResult } from '@/types/models';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -35,7 +36,7 @@ export const takeoffsApi = {
     customMapping,
     customPreset,
     defaultLaborRate,
-  }: ParseTakeoffPayloadParams) {
+  }: ParseTakeoffPayloadParams): Promise<TakeoffParseResult> {
     const res = await fetch(`${API_BASE_URL}/takeoffs/parse`, {
       method: 'POST',
       headers: getAuthHeaders(),

@@ -1851,6 +1851,8 @@
         "metaProject": "Projet",
         "metaClient": "Client",
         "metaSite": "Chantier",
+        "metaContact": "Estimateur",
+        "metaPhone": "Téléphone",
         "metaDate": "Date",
         "internalBadge": "Usage interne uniquement"
       },
@@ -2250,6 +2252,20 @@
         "csvUploadSheet": "Téléchargement CSV",
         "takeoffSheet": "Métré"
       }
+    },
+    "quoteContact": {
+      "title": "Coordonnées trouvées sur ce devis",
+      "subtitle": "Le devis indique une adresse et un téléphone d'entrepreneur différents de vos paramètres de compte. Choisissez ceux que les documents doivent utiliser.",
+      "addressLabel": "Adresse de l'entrepreneur",
+      "phoneLabel": "Téléphone",
+      "fromQuote": "Sur le devis",
+      "savedInAccount": "Dans vos paramètres",
+      "notSet": "Non défini",
+      "useForProject": "Utiliser les coordonnées du devis pour ce projet",
+      "alsoUpdateAccount": "Mettre aussi à jour mes paramètres de compte",
+      "keepSaved": "Conserver mes paramètres enregistrés",
+      "applying": "Mise à jour...",
+      "updateFailed": "Impossible de mettre à jour les paramètres de votre compte."
     },
     "scopeSummary": {
       "title": "Périmètre des travaux : inclusions et exclusions",
