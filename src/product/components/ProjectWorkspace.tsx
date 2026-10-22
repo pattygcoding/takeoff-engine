@@ -9,7 +9,7 @@ import { projectsApi } from '@/product/lib/projects';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
 import type { Dispatch, SetStateAction } from 'react';
-import type { ImportContext, Project, Rates, TakeoffItem } from '@/types/models';
+import type { ColumnDefinition, ImportContext, Project, Rates, TakeoffItem } from '@/types/models';
 
 export default function ProjectWorkspace({
   step = 2,
@@ -21,6 +21,8 @@ export default function ProjectWorkspace({
   setCurrentProject,
   importContext = { file: null, mappingData: null },
   setImportContext,
+  columns = [],
+  setColumns,
 }: Readonly<{
   step?: number;
   items: TakeoffItem[];
@@ -31,6 +33,10 @@ export default function ProjectWorkspace({
   setCurrentProject: Dispatch<SetStateAction<Project | null>>;
   importContext?: ImportContext;
   setImportContext: Dispatch<SetStateAction<ImportContext>>;
+  /** Ordered column schema (canonical + passthrough columns) shared with the grid and exporters. */
+  columns?: ColumnDefinition[];
+  /** Persists a column schema change made in the takeoff grid. */
+  setColumns?: Dispatch<SetStateAction<ColumnDefinition[]>>;
 }>) {
   const { username, projectId } = useParams();
   const { t } = useTranslation();
@@ -60,6 +66,11 @@ export default function ProjectWorkspace({
             setRates(est.rates_json);
           } else if (fullProject.rates && typeof fullProject.rates === 'object' && Object.keys(fullProject.rates).length > 0) {
             setRates(fullProject.rates);
+          }
+          // Restore the saved column schema so renamed/added/deleted passthrough columns come back.
+          if (setColumns) {
+            const savedColumns = est?.columns_json ?? fullProject.columns;
+            if (Array.isArray(savedColumns)) setColumns(savedColumns);
           }
           // If project is locked (awarded, declined, submitted, archived) and user navigated directly to step 2 (edit) or step 1, redirect to results (step 3)
           if (['awarded', 'declined', 'submitted', 'archived'].includes(fullProject?.status) && step === 2) {
@@ -263,6 +274,8 @@ export default function ProjectWorkspace({
           onDuplicate={isLocked ? handleDuplicate : undefined}
           importContext={importContext}
           onImportContextChange={setImportContext}
+          columns={columns}
+          onColumnsChange={setColumns}
         />
       )}
 
@@ -277,6 +290,7 @@ export default function ProjectWorkspace({
           readOnly={isLocked}
           projectStatus={currentProject?.status}
           onDuplicate={isLocked ? handleDuplicate : undefined}
+          columns={columns}
         />
       )}
 
@@ -285,6 +299,7 @@ export default function ProjectWorkspace({
           items={items}
           rates={rates}
           currentProject={currentProject}
+          columns={columns}
         />
       )}
     </>

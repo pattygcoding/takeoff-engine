@@ -5,7 +5,13 @@
 import Papa from 'papaparse';
 import { getTranslation } from '@/core/lib/shared/i18n';
 import { takeoffsApi } from '@/product/lib/takeoffs';
-import type { TakeoffFileLike, TakeoffItem } from '@/types/models';
+import {
+  canonicalColumnDefinitions,
+  customColumnsOf,
+  getCustomFieldValue,
+  inferTypeFromValues,
+} from '@/product/lib/takeoffColumns';
+import type { ColumnDefinition, TakeoffFileLike, TakeoffItem } from '@/types/models';
 import {
   CSV_COLUMNS,
   EXCEL_EXTENSIONS,
@@ -124,6 +130,7 @@ export async function parseTakeoffFile(
   sheetName: string | null = null,
   tableId: string | null = null,
   customPreset: Record<string, string | undefined> | null = null,
+  customColumns: ColumnDefinition[] | null = null,
 ) {
   if (typeof file !== 'string' && file?.size && file.size > MAX_FILE_SIZE_BYTES) {
     throw new Error(getTranslation('product.uploadStep.fileTooLarge'));
@@ -150,6 +157,7 @@ export async function parseTakeoffFile(
     sheetName,
     tableId,
     customPreset: appliedPreset,
+    customColumns,
   });
 }
 
@@ -160,11 +168,15 @@ export async function normalizeRowsWithMapping(
   rawRows: unknown[] = [],
   mapping: Record<string, unknown> = {},
   defaultLaborRate: number | null = null,
+  headers: string[] | null = null,
+  customColumns: ColumnDefinition[] | null = null,
 ) {
   return takeoffsApi.normalizeMapping({
     rawRows,
     mapping,
     defaultLaborRate,
+    headers: headers ?? undefined,
+    customColumns,
   });
 }
 
@@ -249,8 +261,15 @@ export function createBlankItem(customT: TranslateFn | null = null) {
 
 /**
  * Builds ColumnMappingModal data directly from existing takeoff items in state.
+ *
+ * Passthrough columns are reconstructed from the items' `customFields` (or taken from an explicit
+ * `columns` schema) so re-opening the modal never drops imported extra data.
  */
-export function buildMappingModalDataFromItems(items: TakeoffItem[] = [], customT: TranslateFn | null = null) {
+export function buildMappingModalDataFromItems(
+  items: TakeoffItem[] = [],
+  customT: TranslateFn | null = null,
+  columns: ColumnDefinition[] | null = null,
+) {
   const t = customT || getTranslation;
   const targetFields = getTargetFields(t);
   const headers = targetFields.map((f) => f.label);
@@ -265,6 +284,14 @@ export function buildMappingModalDataFromItems(items: TakeoffItem[] = [], custom
     matchConfidences[f.key] = 1.0;
   });
 
+  const customColumns = resolveCustomColumnsForModal(items, columns);
+  const headerForCustomKey: Record<string, string> = {};
+  customColumns.forEach((column) => {
+    const header = column.label;
+    headerForCustomKey[column.key] = header;
+    headers.push(header);
+  });
+
   const rawRows = (items || []).map((it) => {
     const row: Record<string, string> = {};
     row[keyToHeader['system']] = it.system || '';
@@ -276,6 +303,10 @@ export function buildMappingModalDataFromItems(items: TakeoffItem[] = [], custom
     row[keyToHeader['material_cost_per_unit']] = it.materialCostPerUnit !== undefined && it.materialCostPerUnit !== null ? String(it.materialCostPerUnit) : '';
     row[keyToHeader['labor_hours_per_unit']] = it.laborHoursPerUnit !== undefined && it.laborHoursPerUnit !== null ? String(it.laborHoursPerUnit) : '';
     row[keyToHeader['labor_unit_cost']] = it.laborUnitCost !== undefined && it.laborUnitCost !== null ? String(it.laborUnitCost) : '';
+    customColumns.forEach((column) => {
+      const value = getCustomFieldValue(it, column.key);
+      row[headerForCustomKey[column.key]] = value === null ? '' : String(value);
+    });
     return row;
   });
 
@@ -288,6 +319,7 @@ export function buildMappingModalDataFromItems(items: TakeoffItem[] = [], custom
     requiresMappingModal: true,
     headers,
     rawRows,
+    columns: [...canonicalColumnDefinitions((key, fallback) => t(key) || fallback), ...customColumns],
     mapping: currentMapping,
     currentMapping,
     matchConfidences,
@@ -299,4 +331,38 @@ export function buildMappingModalDataFromItems(items: TakeoffItem[] = [], custom
     subTables: [],
     activeTableId: null,
   };
+}
+
+/** Prettifies a generated `col_*` key into a readable header label. */
+function prettifyColumnKey(key: string): string {
+  const stripped = key.replace(/^col_/, '').replace(/_\d+$/, '').replace(/[_-]+/g, ' ').trim();
+  if (!stripped) return key;
+  return stripped.replace(/\b[a-z]/g, (letter) => letter.toUpperCase());
+}
+
+/**
+ * The passthrough columns to carry into the mapping modal: an explicit schema when the caller has
+ * one, otherwise the keys actually present in the items' `customFields`.
+ */
+function resolveCustomColumnsForModal(
+  items: TakeoffItem[],
+  columns: ColumnDefinition[] | null,
+): ColumnDefinition[] {
+  if (Array.isArray(columns) && columns.length > 0) {
+    return customColumnsOf(columns);
+  }
+
+  const keys = new Set<string>();
+  for (const item of items || []) {
+    for (const key of Object.keys(item.customFields ?? {})) keys.add(key);
+  }
+
+  return [...keys].map((key) => ({
+    key,
+    label: prettifyColumnKey(key),
+    type: inferTypeFromValues((items || []).map((item) => getCustomFieldValue(item, key))),
+    field: null,
+    source: 'user' as const,
+    includeInDocuments: false,
+  }));
 }

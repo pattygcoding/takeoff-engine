@@ -11,6 +11,7 @@ import {
   DocumentTotalRow,
   DocumentSignatureBlock,
   DocumentFooter,
+  customDocumentColumns,
 } from './DocumentHeaderSignoff';
 
 const KEY = 'product.templates.clientProposal';
@@ -25,6 +26,7 @@ export default function ClientProposalDocument({ estimate, branding, currentProj
   const accent = branding?.brandColor || ACCENT;
 
   const columns: DocumentColumn[] = [
+    ...customDocumentColumns(estimate),
     { header: t(`${KEY}.colDescription`), render: (it) => it.description },
     { header: t(`${KEY}.colSpec`), muted: true, render: (it) => it.sizeSpec },
     { header: t(`${KEY}.colPlanQty`), align: 'right', render: (it) => formatNumber(it.quantity, 0) },

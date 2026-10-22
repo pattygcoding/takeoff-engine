@@ -9,7 +9,7 @@ import { useAuth } from '@/core/components/context/AuthContext';
 import { DEFAULT_RATES } from '@/product/lib/calculations';
 import { useLocalStorageState } from '@/core/lib/shared/useLocalStorageState';
 import { projectsApi } from '@/product/lib/projects';
-import type { ImportContext, Project, Rates, TakeoffItem } from '@/types/models';
+import type { ColumnDefinition, ImportContext, Project, Rates, TakeoffItem } from '@/types/models';
 
 const ProjectWorkspace = lazy(() => import('@/product/components/ProjectWorkspace'));
 const AccountSettings = lazy(() => import('@/core/components/auth/AccountSettings'));
@@ -41,6 +41,7 @@ export default function UserWorkspace() {
     null,
   );
   const [rates, setRates] = useLocalStorageState<Rates>('takeoff-engine.rates', DEFAULT_RATES);
+  const [columns, setColumns] = useLocalStorageState<ColumnDefinition[]>('takeoff-engine.columns', []);
   const [importContext, setImportContext] = useState<ImportContext>({ file: null, mappingData: null });
 
   // Redirect if URL username doesn't match authenticated username
@@ -75,21 +76,28 @@ export default function UserWorkspace() {
     const projectRates = firstNonEmptyObject<Rates>(est?.rates_json, activeProject.rates);
     if (projectRates) setRates(projectRates);
 
+    // The saved column schema restores any renamed/added/deleted passthrough columns.
+    const projectColumns = est?.columns_json ?? activeProject.columns;
+    if (Array.isArray(projectColumns)) setColumns(projectColumns);
+
     navigate(`/${username}/takeoff/${project.id}/${targetStep === 'results' ? 'results' : 'edit'}`);
   };
 
   const handleNewTakeoff = () => {
     setCurrentProject(null);
     setItems([]);
+    setColumns([]);
     setImportContext({ file: null, mappingData: null });
     navigate(`/${username}/upload`);
   };
 
   const handleItemsParsed = (parsedItems: TakeoffItem[], options: ImportContext = {}) => {
     setItems(parsedItems);
+    if (Array.isArray(options?.columns)) setColumns(options.columns);
     setImportContext({
       file: options?.file || null,
       mappingData: options?.mappingData || null,
+      columns: options?.columns,
       quoteMeta: options?.quoteMeta,
       quoteSections: options?.quoteSections,
       scopeItems: options?.scopeItems,
@@ -169,6 +177,8 @@ export default function UserWorkspace() {
             setCurrentProject={setCurrentProject}
             importContext={importContext}
             setImportContext={setImportContext}
+            columns={columns}
+            setColumns={setColumns}
           />
         }
       />
@@ -185,6 +195,8 @@ export default function UserWorkspace() {
             setCurrentProject={setCurrentProject}
             importContext={importContext}
             setImportContext={setImportContext}
+            columns={columns}
+            setColumns={setColumns}
           />
         }
       />
@@ -201,6 +213,8 @@ export default function UserWorkspace() {
             setCurrentProject={setCurrentProject}
             importContext={importContext}
             setImportContext={setImportContext}
+            columns={columns}
+            setColumns={setColumns}
           />
         }
       />
@@ -219,6 +233,8 @@ export default function UserWorkspace() {
             setCurrentProject={setCurrentProject}
             importContext={importContext}
             setImportContext={setImportContext}
+            columns={columns}
+            setColumns={setColumns}
           />
         }
       />
@@ -236,6 +252,8 @@ export default function UserWorkspace() {
             setCurrentProject={setCurrentProject}
             importContext={importContext}
             setImportContext={setImportContext}
+            columns={columns}
+            setColumns={setColumns}
           />
         }
       />

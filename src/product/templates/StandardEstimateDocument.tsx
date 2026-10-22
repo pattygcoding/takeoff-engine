@@ -12,6 +12,7 @@ import {
   DocumentCostSummary,
   DocumentSignatureBlock,
   DocumentFooter,
+  customDocumentColumns,
 } from './DocumentHeaderSignoff';
 
 const KEY = 'product.templates.standardEstimate';
@@ -27,6 +28,7 @@ export default function StandardEstimateDocument({ estimate, branding, currentPr
   const markupTotal = (totals.overheadAmount || 0) + (totals.contingencyAmount || 0) + (totals.profitAmount || 0);
 
   const columns: DocumentColumn[] = [
+    ...customDocumentColumns(estimate),
     { header: t(`${KEY}.colDescription`), render: (it) => it.description },
     { header: t(`${KEY}.colSpec`), muted: true, render: (it) => it.sizeSpec },
     { header: t(`${KEY}.colQty`), align: 'right', render: (it) => formatNumber(it.quantity, 0) },

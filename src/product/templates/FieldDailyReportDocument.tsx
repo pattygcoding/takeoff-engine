@@ -10,6 +10,7 @@ import {
   DocumentFillLine,
   DocumentSignatureBlock,
   DocumentFooter,
+  customDocumentColumns,
 } from './DocumentHeaderSignoff';
 
 const KEY = 'product.templates.fieldDailyReport';
@@ -25,6 +26,7 @@ export default function FieldDailyReportDocument({ estimate, branding, currentPr
   const accent = branding?.brandColor || ACCENT;
 
   const columns: DocumentColumn[] = [
+    ...customDocumentColumns(estimate),
     {
       header: t(`${KEY}.colItemDescription`),
       render: (it) => (

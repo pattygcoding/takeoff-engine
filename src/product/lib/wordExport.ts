@@ -17,7 +17,8 @@ import type { IImageOptions } from 'docx';
 import { formatCurrency, formatNumber } from './calculations';
 import { formatMarkupBasisNote, formatMarkupLine } from './markupFormatting';
 import { getTranslation } from '@/core/lib/shared/i18n';
-import type { Branding, Estimate, Project, Rates } from '@/types/models';
+import { formatColumnValue, getCustomFieldValue } from '@/product/lib/takeoffColumns';
+import type { Branding, Estimate, Project, Rates, TakeoffItem } from '@/types/models';
 
 /** Translate function shape accepted by the exporter (defaults to `getTranslation`). */
 type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
@@ -52,6 +53,28 @@ function bodyCell(text: string | number | null | undefined, alignRight = false, 
       }),
     ],
   });
+}
+
+/** Value kinds rendered as right-aligned figures in the Word tables. */
+const NUMERIC_DOC_COLUMN_TYPES = new Set(['number', 'currency', 'percent']);
+
+/**
+ * Header cells and per-item cells for the passthrough columns the estimator flagged for client
+ * documents. Returns empty lists when nothing is flagged, so untouched tables render as before.
+ */
+export function customDocumentColumnCells(estimate: Estimate) {
+  const flagged = estimate.documentColumns ?? [];
+  return {
+    count: flagged.length,
+    headerCells: flagged.map((column) => headerCell(column.label, NUMERIC_DOC_COLUMN_TYPES.has(column.type))),
+    bodyCells: (item: TakeoffItem) =>
+      flagged.map((column) =>
+        bodyCell(
+          formatColumnValue(column.type, getCustomFieldValue(item, column.key)),
+          NUMERIC_DOC_COLUMN_TYPES.has(column.type),
+        ),
+      ),
+  };
 }
 
 function summaryRow(label: string, value: string, highlight = false, highlightColor = 'EEF2FF') {
@@ -225,6 +248,8 @@ export async function exportEstimateToWord(
 ) {
   const t = customT || getTranslation;
   const { totals, bySystem } = estimate;
+  // Passthrough columns the estimator flagged for client documents (empty when none are flagged).
+  const docCells = customDocumentColumnCells(estimate);
   const brandColorHex = hexColorWithoutHash(branding?.brandColor || '#0284c7');
   const hasBranding = hasBrandingInfo(branding);
 
@@ -263,6 +288,7 @@ export async function exportEstimateToWord(
         headerCell(t('product.templates.materialProcurement.colUnit')),
         headerCell(t('product.templates.materialProcurement.colEstUnitMat'), true),
         headerCell(t('product.templates.materialProcurement.colTotalMaterial'), true, '0C4A6E', 'FFFFFF'),
+        ...docCells.headerCells,
       ],
     });
 
@@ -277,6 +303,7 @@ export async function exportEstimateToWord(
           bodyCell(it.unit),
           bodyCell(formatCurrency(unitMat), true),
           bodyCell(formatCurrency(it.materialCost), true, true),
+          ...docCells.bodyCells(it as unknown as TakeoffItem),
         ],
       });
     });
@@ -285,7 +312,7 @@ export async function exportEstimateToWord(
       children: [
         new TableCell({
           borders: CELL_BORDERS,
-          columnSpan: 5,
+          columnSpan: 5 + docCells.count,
           shading: { fill: 'F8FAFC' },
           children: [
             new Paragraph({
@@ -335,6 +362,7 @@ export async function exportEstimateToWord(
         headerCell(t('product.templates.aiaBidSchedule.colUnit')),
         headerCell(t('product.templates.aiaBidSchedule.colUnitPrice'), true),
         headerCell(t('product.templates.aiaBidSchedule.colTotalItemBid'), true),
+        ...docCells.headerCells,
       ],
     });
 
@@ -349,6 +377,7 @@ export async function exportEstimateToWord(
           bodyCell(it.unit),
           bodyCell(formatCurrency(unitBid), true),
           bodyCell(formatCurrency(it.directCost), true, true),
+          ...docCells.bodyCells(it as unknown as TakeoffItem),
         ],
       });
     });
@@ -357,7 +386,7 @@ export async function exportEstimateToWord(
       children: [
         new TableCell({
           borders: CELL_BORDERS,
-          columnSpan: 5,
+          columnSpan: 5 + docCells.count,
           shading: { fill: 'F8FAFC' },
           children: [
             new Paragraph({
@@ -459,6 +488,7 @@ export async function exportEstimateToWord(
           headerCell(t('product.wordExport.colQty'), true),
           headerCell(t('product.wordExport.colUnit')),
           headerCell(t('product.wordExport.colLineTotal'), true),
+          ...docCells.headerCells,
         ],
       });
 
@@ -471,6 +501,7 @@ export async function exportEstimateToWord(
               bodyCell(formatNumber(item.quantity, 0), true),
               bodyCell(item.unit),
               bodyCell(formatCurrency(item.directCost), true),
+              ...docCells.bodyCells(item),
             ],
           })
       );
@@ -479,7 +510,7 @@ export async function exportEstimateToWord(
         children: [
           new TableCell({
             borders: CELL_BORDERS,
-            columnSpan: 4,
+            columnSpan: 4 + docCells.count,
             children: [new Paragraph({ children: [new TextRun({ text: t('product.wordExport.subtotal'), bold: true, size: 20 })] })],
           }),
           bodyCell(formatCurrency(sys.directCost), true, true),
@@ -574,9 +605,12 @@ export async function exportEstimateToWord(
 
       const headerRow = new TableRow({
         tableHeader: true,
-        children: headerCells.map((h, i) =>
-          headerCell(h, i >= headerCells.length - 1, 'F1F5F9', '334155')
-        ),
+        children: [
+          ...headerCells.map((h, i) =>
+            headerCell(h, i >= headerCells.length - 1, 'F1F5F9', '334155')
+          ),
+          ...docCells.headerCells,
+        ],
       });
 
       const itemRows = sys.items.map(
@@ -591,6 +625,7 @@ export async function exportEstimateToWord(
               bodyCell(formatNumber(item.laborHours), true),
               bodyCell(formatCurrency(item.laborCost), true),
               bodyCell(formatCurrency(item.directCost), true, true),
+              ...docCells.bodyCells(item),
             ],
           })
       );
@@ -599,7 +634,7 @@ export async function exportEstimateToWord(
         children: [
           new TableCell({
             borders: CELL_BORDERS,
-            columnSpan: 7,
+            columnSpan: 7 + docCells.count,
             children: [new Paragraph({ children: [new TextRun({ text: t('product.wordExport.subtotal'), bold: true, size: 20 })] })],
           }),
           bodyCell(formatCurrency(sys.directCost), true, true),

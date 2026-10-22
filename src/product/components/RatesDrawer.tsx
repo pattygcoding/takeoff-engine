@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useId } from 'react';
 import { Settings, Globe, Library, HardHat, Truck, Ruler, Coins, Check, X, Trash2, Users } from 'lucide-react';
 import { ratesApi } from '@/product/lib/rates';
 import { useAuth } from '@/core/components/context/AuthContext';
@@ -21,6 +21,15 @@ import type { CrewMember, EquipmentCatalogItem, LaborRole, MiscItem, RateTemplat
 /** Rounds to cents, matching the drawer's inline rate math. */
 function round2(value: number): number {
   return Math.round(value * 100) / 100;
+}
+
+/**
+ * Accessible name for a repeating inline editor: the field label plus the row it belongs to, so a
+ * screen reader distinguishes `Hourly rate: Foreman` from `Hourly rate: Helper`.
+ */
+function fieldLabel(label: string, name?: string | number | null): string {
+  const suffix = String(name ?? '').trim();
+  return suffix ? `${label}: ${suffix}` : label;
 }
 
 /** A role's effective hours per workday: its own override when enabled, else the drawer default. */
@@ -567,7 +576,7 @@ export default function RatesDrawer({
                 <p className="text-xs text-slate-500 dark:text-slate-400">{t('product.ratesDrawer.subtitle')}</p>
               </div>
             </div>
-            <button onClick={onClose} className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition" type="button">
+            <button onClick={onClose} className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition" type="button" aria-label={t('core.common.close', 'Close')}>
               <svg aria-hidden="true" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -668,6 +677,7 @@ export default function RatesDrawer({
                 value={selectedTemplateId}
                 onChange={(e) => handleApplyTemplate(e.target.value)}
                 disabled={readOnly}
+                aria-label={t('product.ratesDrawer.chooseRateTemplate')}
                 className="w-full px-3 py-2 text-sm border border-blue-300/80 dark:border-blue-700/80 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:opacity-80 disabled:cursor-not-allowed cursor-pointer"
               >
                 <option value="">{t('product.ratesDrawer.chooseRateTemplate')}</option>
@@ -841,6 +851,7 @@ export default function RatesDrawer({
                           value={role.title}
                           disabled={readOnly}
                           onChange={(e) => handleUpdateRole(role.id!, 'title', e.target.value)}
+                          aria-label={t('product.ratesDrawer.roleNameLabel', 'Labor role name')}
                           className="flex-1 min-w-0 font-semibold text-xs text-slate-900 dark:text-slate-100 bg-transparent border-b border-transparent focus:border-blue-500 focus:outline-none"
                         />
                         {!readOnly && laborRoles.length > 1 && (
@@ -849,15 +860,16 @@ export default function RatesDrawer({
                             onClick={() => handleRemoveRole(role.id!)}
                             className="text-slate-400 hover:text-red-500 dark:hover:text-red-400 text-xs p-1 cursor-pointer"
                             title={t('product.ratesDrawer.removeRole', 'Remove Role')}
+                            aria-label={fieldLabel(t('product.ratesDrawer.removeRole', 'Remove Role'), role.title)}
                           >
-                            <X className="w-3.5 h-3.5" />
+                            <X className="w-3.5 h-3.5" aria-hidden="true" />
                           </button>
                         )}
                       </div>
                       <div className={`grid ${workdayHoursMode === 'perRole' ? 'grid-cols-3' : 'grid-cols-2'} gap-2 text-xs`}>
                         {workdayHoursMode === 'perRole' && (
                           <div className="flex items-center bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1">
-                            <input type="number" min="0.1" step="any" value={role.workdayHours ?? ''} disabled={readOnly} onChange={(e) => handleUpdateRole(role.id!, 'workdayHours', e.target.value)} className="w-full bg-transparent text-right outline-none text-slate-900 dark:text-slate-100" placeholder={String(workdayHours)} />
+                            <input type="number" min="0.1" step="any" value={role.workdayHours ?? ''} disabled={readOnly} onChange={(e) => handleUpdateRole(role.id!, 'workdayHours', e.target.value)} aria-label={fieldLabel(t('product.ratesDrawer.roleHoursPerDay'), role.title)} className="w-full bg-transparent text-right outline-none text-slate-900 dark:text-slate-100" placeholder={String(workdayHours)} />
                             <span className="text-[10px] text-slate-400 dark:text-slate-500 ml-1">{t('product.ratesDrawer.roleHoursPerDay')}</span>
                           </div>
                         )}
@@ -869,6 +881,7 @@ export default function RatesDrawer({
                             value={role.hourlyRate}
                             disabled={readOnly}
                             onChange={(e) => handleUpdateRole(role.id!, 'hourlyRate', e.target.value)}
+                            aria-label={fieldLabel(t('product.ratesDrawer.roleHourlyRate', 'Hourly rate'), role.title)}
                             className="w-full bg-transparent text-right outline-none text-slate-900 dark:text-slate-100"
                             placeholder="0.00"
                           />
@@ -882,6 +895,7 @@ export default function RatesDrawer({
                             value={role.dailyRate}
                             disabled={readOnly}
                             onChange={(e) => handleUpdateRole(role.id!, 'dailyRate', e.target.value)}
+                            aria-label={fieldLabel(t('product.ratesDrawer.roleDailyRate', 'Daily rate'), role.title)}
                             className="w-full bg-transparent text-right outline-none text-slate-900 dark:text-slate-100"
                             placeholder="0.00"
                           />
@@ -932,6 +946,7 @@ export default function RatesDrawer({
                         value={eq.title}
                         disabled={readOnly}
                         onChange={(e) => handleUpdateEquipmentCatalogItem(eq.id, 'title', e.target.value)}
+                        aria-label={t('product.ratesDrawer.equipmentNameLabel', 'Equipment name')}
                         className="flex-1 min-w-0 font-semibold text-xs text-slate-900 dark:text-slate-100 bg-transparent border-b border-transparent focus:border-blue-500 focus:outline-none"
                       />
                       {!readOnly && equipmentCatalog.length > 1 && (
@@ -940,8 +955,9 @@ export default function RatesDrawer({
                           onClick={() => handleRemoveEquipmentCatalogItem(eq.id)}
                           className="text-slate-400 hover:text-red-500 dark:hover:text-red-400 text-xs p-1 cursor-pointer"
                           title={t('product.ratesDrawer.removeEquipment', 'Remove Equipment')}
+                          aria-label={fieldLabel(t('product.ratesDrawer.removeEquipment', 'Remove Equipment'), eq.title)}
                         >
-                          <X className="w-3.5 h-3.5" />
+                          <X className="w-3.5 h-3.5" aria-hidden="true" />
                         </button>
                       )}
                     </div>
@@ -956,6 +972,7 @@ export default function RatesDrawer({
                             value={eq.dailyRate}
                             disabled={readOnly}
                             onChange={(e) => handleUpdateEquipmentCatalogItem(eq.id, 'dailyRate', e.target.value)}
+                            aria-label={fieldLabel(t('product.ratesDrawer.equipmentDailyRate', 'Daily rate'), eq.title)}
                             className="w-full bg-transparent text-center outline-none text-slate-900 dark:text-slate-100 text-xs"
                           />
                         </div>
@@ -970,6 +987,7 @@ export default function RatesDrawer({
                             value={eq.weeklyRate}
                             disabled={readOnly}
                             onChange={(e) => handleUpdateEquipmentCatalogItem(eq.id, 'weeklyRate', e.target.value)}
+                            aria-label={fieldLabel(t('product.ratesDrawer.equipmentWeeklyRate', 'Weekly rate'), eq.title)}
                             className="w-full bg-transparent text-center outline-none text-slate-900 dark:text-slate-100 text-xs"
                           />
                         </div>
@@ -984,6 +1002,7 @@ export default function RatesDrawer({
                             value={eq.monthlyRate}
                             disabled={readOnly}
                             onChange={(e) => handleUpdateEquipmentCatalogItem(eq.id, 'monthlyRate', e.target.value)}
+                            aria-label={fieldLabel(t('product.ratesDrawer.equipmentMonthlyRate', 'Monthly rate'), eq.title)}
                             className="w-full bg-transparent text-center outline-none text-slate-900 dark:text-slate-100 text-xs"
                           />
                         </div>
@@ -1000,6 +1019,7 @@ export default function RatesDrawer({
                             value={eq.deliveryFee}
                             disabled={readOnly}
                             onChange={(e) => handleUpdateEquipmentCatalogItem(eq.id, 'deliveryFee', e.target.value)}
+                            aria-label={fieldLabel(t('product.ratesDrawer.equipmentDeliveryFee', 'Delivery fee'), eq.title)}
                             className="w-14 bg-transparent text-right outline-none text-slate-900 dark:text-slate-100 text-xs"
                           />
                         </div>
@@ -1013,6 +1033,7 @@ export default function RatesDrawer({
                             value={eq.fuelSurchargePct}
                             disabled={readOnly}
                             onChange={(e) => handleUpdateEquipmentCatalogItem(eq.id, 'fuelSurchargePct', e.target.value)}
+                            aria-label={fieldLabel(t('product.ratesDrawer.equipmentFuelSurcharge', 'Fuel surcharge %'), eq.title)}
                             className="w-10 bg-transparent text-right outline-none text-slate-900 dark:text-slate-100 text-xs"
                           />
                           <span className="text-slate-400 dark:text-slate-500 text-[11px] ml-0.5">%</span>
@@ -1122,6 +1143,7 @@ export default function RatesDrawer({
                           value={item.title || ''}
                           disabled={readOnly}
                           onChange={(e) => handleUpdateMiscItem(item.id, 'title', e.target.value)}
+                          aria-label={t('product.ratesDrawer.miscItemTitleLabel', 'Misc item title')}
                           className="flex-1 min-w-0 px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-blue-500 focus:outline-none"
                         />
                         <div className="flex items-center bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden w-28 shrink-0 focus-within:ring-1 focus-within:ring-blue-500">
@@ -1132,6 +1154,7 @@ export default function RatesDrawer({
                             value={item.amount === 0 ? 0 : item.amount || ''}
                             disabled={readOnly}
                             onChange={(e) => handleUpdateMiscItem(item.id, 'amount', e.target.value)}
+                            aria-label={fieldLabel(t('product.ratesDrawer.miscItemAmountLabel', 'Misc item amount'), item.title)}
                             className="w-full px-2 py-1.5 text-xs text-right outline-none bg-transparent text-slate-900 dark:text-slate-100"
                             step="any"
                           />
@@ -1172,10 +1195,14 @@ export default function RatesDrawer({
 
               <form onSubmit={handleSaveCurrentAsTemplate} className="space-y-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <label
+                    className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+                    htmlFor="rates-template-name"
+                  >
                     {t('product.ratesDrawer.templateName')}
                   </label>
                   <input
+                    id="rates-template-name"
                     type="text"
                     required
                     placeholder={t('product.ratesDrawer.templateNamePlaceholder')}
@@ -1186,10 +1213,14 @@ export default function RatesDrawer({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <label
+                    className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+                    htmlFor="rates-template-description"
+                  >
                     {t('product.ratesDrawer.templateDescription')}
                   </label>
                   <input
+                    id="rates-template-description"
                     type="text"
                     placeholder={t('product.ratesDrawer.templateDescriptionPlaceholder')}
                     value={templateDescInput}
@@ -1238,9 +1269,10 @@ export default function RatesDrawer({
                 <button
                   type="button"
                   onClick={() => setShowCrewCalculator(false)}
+                  aria-label={t('core.common.close', 'Close')}
                   className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer p-1"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-4 h-4" aria-hidden="true" />
                 </button>
               </div>
 
@@ -1406,10 +1438,12 @@ function DualModeField({
   disabled?: boolean;
 }>) {
   const isPercent = type === 'percent';
+  // The visible field name is rendered in a <span>, so it is wired up as the input's label.
+  const labelId = `${useId()}-label`;
   return (
     <div className="mb-4">
       <div className="flex items-center justify-between mb-1">
-        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{label}</span>
+        <span id={labelId} className="text-sm font-medium text-slate-700 dark:text-slate-300">{label}</span>
         <div className="inline-flex rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 p-0.5">
           <button
             type="button"
@@ -1444,6 +1478,7 @@ function DualModeField({
           value={value}
           onChange={onChange}
           disabled={disabled}
+          aria-labelledby={labelId}
           className="w-full px-3 py-2 text-sm outline-none bg-transparent text-slate-900 dark:text-slate-100 disabled:cursor-not-allowed"
           step="any"
         />

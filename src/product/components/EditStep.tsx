@@ -8,7 +8,7 @@ import RatesDrawer from './RatesDrawer';
 import ColumnMappingModal from './ColumnMappingModal';
 import ScopeInclusionsModal from './ScopeInclusionsModal';
 import type { TakeoffFileLike } from '@/product/lib/csv';
-import type { ImportContext, MappingModalData, Rates, TakeoffItem } from '@/types/models';
+import type { ColumnDefinition, ImportContext, MappingModalData, Rates, TakeoffItem } from '@/types/models';
 
 /** Per-status copy for the project banner, keyed by project status. */
 const STATUS_COPY: Record<string, { label: string; description: string }> = {
@@ -41,6 +41,8 @@ export default function EditStep({
   onDuplicate,
   importContext = { file: null, mappingData: null },
   onImportContextChange,
+  columns = [],
+  onColumnsChange,
 }: Readonly<{
   items: TakeoffItem[];
   onItemsChange: (items: TakeoffItem[]) => void;
@@ -52,6 +54,10 @@ export default function EditStep({
   onDuplicate?: () => void;
   importContext?: ImportContext;
   onImportContextChange?: (context: ImportContext) => void;
+  /** Ordered column schema (canonical + passthrough columns) shared with the grid. */
+  columns?: ColumnDefinition[];
+  /** Applies column add/rename/retype/delete changes made in the grid. */
+  onColumnsChange?: (columns: ColumnDefinition[]) => void;
 }>) {
   const { t } = useTranslation();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -72,7 +78,7 @@ export default function EditStep({
       void handleParseForRemap(importContext.file);
     } else {
       // Direct opening: construct mapping modal data directly from existing items
-      const directModalData = buildMappingModalDataFromItems(items, t);
+      const directModalData = buildMappingModalDataFromItems(items, t, columns);
       setMappingModalData(directModalData);
     }
   };
@@ -85,18 +91,19 @@ export default function EditStep({
     if (!file) return;
     setIsReparsing(true);
     try {
-      const result = await parseTakeoffFile(file, explicitSheetName, explicitTableId);
+      const result = await parseTakeoffFile(file, explicitSheetName, explicitTableId, null, columns);
       setMappingModalData(result);
       if (onImportContextChange) {
         onImportContextChange({
           file,
           mappingData: result,
+          columns: result.columns ?? columns,
         });
       }
     } catch (err) {
       console.error('Failed to parse file for remapping:', err);
       // Fallback: open directly using item rows
-      const directModalData = buildMappingModalDataFromItems(items, t);
+      const directModalData = buildMappingModalDataFromItems(items, t, columns);
       setMappingModalData(directModalData);
     } finally {
       setIsReparsing(false);
@@ -118,11 +125,16 @@ export default function EditStep({
   const handleMappingConfirm = ({
     items: newItems,
     detectedLaborMode,
+    columns: newColumns,
   }: {
     items?: TakeoffItem[];
     detectedLaborMode?: string;
+    columns?: ColumnDefinition[];
   }) => {
     setMappingModalData(null);
+    if (newColumns && newColumns.length > 0 && onColumnsChange) {
+      onColumnsChange(newColumns);
+    }
     if (newItems && newItems.length > 0) {
       onItemsChange(newItems);
       if (detectedLaborMode && onRatesChange) {
@@ -230,6 +242,8 @@ export default function EditStep({
         readOnly={readOnly}
         rates={rates}
         onRatesChange={onRatesChange}
+        columns={columns}
+        onColumnsChange={readOnly ? undefined : onColumnsChange}
       />
 
       <div className="mt-6">
@@ -269,6 +283,7 @@ export default function EditStep({
         <ColumnMappingModal
           headers={mappingModalData.headers}
           rawRows={mappingModalData.rawRows}
+          columns={mappingModalData.columns}
           initialMapping={mappingModalData.mapping}
           matchConfidences={mappingModalData.matchConfidences}
           overallConfidence={mappingModalData.overallConfidence}

@@ -8,8 +8,9 @@ import {
   getSavedVendorPresets,
   extractHeadersAndRowsAtHeaderRow,
 } from '@/product/lib/csv';
+import { customColumnsOf } from '@/product/lib/takeoffColumns';
 import { useTranslation } from '@/core/components/context/I18nContext';
-import type { TakeoffItem } from '@/types/models';
+import type { ColumnDefinition, TakeoffItem } from '@/types/models';
 import { useModal } from '@/core/components/context/ModalContext';
 
 /** Badge styling for a mapping-confidence score. */
@@ -29,6 +30,7 @@ function columnSelectClass(isMapped: boolean, isRequired: boolean): string {
 export default function ColumnMappingModal({
   headers: initialHeaders,
   rawRows: initialRawRows,
+  columns: initialColumns = [],
   initialMapping,
   matchConfidences: initialMatchConfidences = {},
   overallConfidence: initialOverallConfidence = 0,
@@ -45,6 +47,8 @@ export default function ColumnMappingModal({
 }: Readonly<{
   headers?: string[];
   rawRows?: Array<Record<string, string>>;
+  /** Passthrough column schema carried from the parse, so renames/types survive a confirm. */
+  columns?: ColumnDefinition[];
   initialMapping?: Record<string, string | number>;
   matchConfidences?: Record<string, number>;
   overallConfidence?: number;
@@ -56,7 +60,14 @@ export default function ColumnMappingModal({
   activeTableId?: string | null;
   onSheetChange?: (name: string) => void;
   onTableChange?: (tableId: string) => void;
-  onConfirm: (data: { items?: TakeoffItem[]; errors?: string[]; checksum?: Record<string, unknown>; detectedLaborMode?: string }) => void;
+  onConfirm: (data: {
+    items?: TakeoffItem[];
+    errors?: string[];
+    checksum?: Record<string, unknown>;
+    detectedLaborMode?: string;
+    /** Refreshed column schema (canonical + passthrough) for the confirmed mapping. */
+    columns?: ColumnDefinition[];
+  }) => void;
   onCancel: () => void;
 }>) {
   const { t } = useTranslation();
@@ -149,13 +160,32 @@ export default function ColumnMappingModal({
       return;
     }
 
-    const { items = [], errors = [], checksum, detectedLaborMode } = await normalizeRowsWithMapping(currentRawRows, mapping);
+    const {
+      items = [],
+      errors = [],
+      checksum,
+      detectedLaborMode,
+      columns: normalizedColumns,
+    } = await normalizeRowsWithMapping(
+      currentRawRows,
+      mapping,
+      null,
+      currentHeaders,
+      customColumnsOf(initialColumns),
+    );
     if (items.length === 0 && errors.length > 0) {
       setValidationError(t('product.columnMappingModal.validationErrorParsing', { error: errors[0] }));
       return;
     }
 
-    onConfirm({ items, errors, checksum, detectedLaborMode });
+    onConfirm({
+      items,
+      errors,
+      checksum,
+      detectedLaborMode,
+      // Prefer the schema the server rebuilt for this mapping, else keep what we were handed.
+      columns: Array.isArray(normalizedColumns) && normalizedColumns.length > 0 ? normalizedColumns : initialColumns,
+    });
   };
 
   // Compute live 5-row preview with current mapping
@@ -199,6 +229,7 @@ export default function ColumnMappingModal({
                   <select
                     value={headerRowIndex}
                     onChange={(e) => handleHeaderRowChange(e.target.value)}
+                    aria-label={t('product.columnMappingModal.headerRowLabel', 'Headers start on Row:')}
                     className="w-full text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-1.5 font-semibold text-slate-800 dark:text-slate-200 shadow-xs focus:ring-2 focus:ring-slate-400 focus:outline-none"
                   >
                     {headerRowOptions.map((r) => {
@@ -231,6 +262,7 @@ export default function ColumnMappingModal({
                   <select
                     value={activeTableId || subTables[0]?.id}
                     onChange={(e) => onTableChange(e.target.value)}
+                    aria-label={t('product.columnMappingModal.subTableSelect', 'Table Area:')}
                     className="w-full text-xs bg-white dark:bg-slate-800 border border-blue-300 dark:border-blue-700 rounded-xl px-2.5 py-1.5 font-bold text-blue-950 dark:text-blue-200 shadow-xs focus:ring-2 focus:ring-blue-500 focus:outline-none truncate"
                   >
                     {subTables.map((tb) => (
@@ -254,6 +286,7 @@ export default function ColumnMappingModal({
                   <select
                     value={activeSheetName}
                     onChange={(e) => onSheetChange(e.target.value)}
+                    aria-label={t('product.columnMappingModal.sheetTab')}
                     className="w-full text-xs bg-white dark:bg-slate-800 border border-sky-300 dark:border-sky-700 rounded-xl px-2.5 py-1.5 font-semibold text-sky-950 dark:text-sky-200 shadow-xs focus:ring-2 focus:ring-sky-500 focus:outline-none"
                   >
                     {sheetNames.map((s) => (
@@ -336,6 +369,7 @@ export default function ColumnMappingModal({
                     <select
                       value={mapping[field.key] || ''}
                       onChange={(e) => handleChange(field.key, e.target.value)}
+                      aria-label={field.label}
                       className={`w-full px-3 py-1.5 text-xs bg-white dark:bg-slate-800 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer ${columnSelectClass(Boolean(mapping[field.key]), Boolean(field.required))}`}
                     >
                       <option value="">{t('product.columnMappingModal.selectFileColumn')}</option>
@@ -408,6 +442,7 @@ export default function ColumnMappingModal({
               placeholder={t('product.columnMappingModal.presetPlaceholder')}
               value={presetName}
               onChange={(e) => setPresetName(e.target.value)}
+              aria-label={t('product.columnMappingModal.saveAsVendorPreset')}
               className="px-2.5 py-1 text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-1 focus:ring-blue-500 outline-none w-44"
             />
             <button

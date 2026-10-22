@@ -6,6 +6,44 @@
  * build while still documenting the fields the UI relies on.
  */
 
+/** The value kind of a grid column, which picks its cell editor and export format. */
+export type ColumnType = 'text' | 'number' | 'currency' | 'percent' | 'date' | 'boolean';
+
+/** Where a column came from: a canonical field, the imported sheet, or a manual user action. */
+export type ColumnSource = 'canonical' | 'imported' | 'user';
+
+/**
+ * One column of the takeoff grid.
+ *
+ * The canonical fields drive calculations and documents. Any spreadsheet column that does not map to
+ * one of them is carried through as a passthrough column, so no imported data is dropped, and the
+ * user may add, rename, retype or delete columns in the grid.
+ */
+export interface ColumnDefinition {
+  /** Stable identifier: the canonical key, or a generated `col_<slug>`. */
+  key: string;
+  /** Display header. Defaults to the source column name. */
+  label: string;
+  type: ColumnType;
+  /** Canonical field this column is bound to, or null for a passthrough column. */
+  field?: string | null;
+  source: ColumnSource;
+  /** When true, the column also renders in client-facing PDF/Word documents. */
+  includeInDocuments?: boolean;
+  /** Rendered width in px, or null/absent to let the column size itself to its content. */
+  width?: number | null;
+  /**
+   * True when the user removed the column from the grid view.
+   *
+   * Only canonical columns use this: the engine-bound set has to stay complete across reloads, so an
+   * optional canonical column is hidden rather than dropped. A passthrough column is deleted outright.
+   */
+  hidden?: boolean;
+}
+
+/** Passthrough column values carried by one takeoff row, keyed by {@link ColumnDefinition.key}. */
+export type CustomFieldValues = Record<string, string | number | boolean | null>;
+
 /** A single takeoff line item (spreadsheet row → estimate line). */
 export interface TakeoffItem {
   id?: string | number;
@@ -37,6 +75,8 @@ export interface TakeoffItem {
   calculatedBaseAmount?: number | string;
   originalCostImpactType?: string;
   isStandard?: boolean;
+  /** Values of passthrough (imported/user) columns, keyed by {@link ColumnDefinition.key}. */
+  customFields?: CustomFieldValues;
   [key: string]: unknown;
 }
 
@@ -143,6 +183,8 @@ export interface TakeoffParseResult {
   headers?: string[];
   mapping?: Record<string, string | number>;
   currentMapping?: Record<string, string | number>;
+  /** Column schema (canonical + imported passthrough columns) produced by the parser. */
+  columns?: ColumnDefinition[];
   unmappedRequired?: string[];
   matchConfidences?: Record<string, number>;
   overallConfidence?: number;
@@ -164,6 +206,12 @@ export interface TakeoffParseResult {
   scopeItems?: ScopeItem[];
   /** Total printed on the quote sheet, when it could be read from the priced column. */
   listedQuoteTotal?: number;
+  /**
+   * Whether the priced column was read as per-unit prices or as extended line amounts (a quote
+   * `Cost` column often holds the amount for the whole row, which the parser converts to a unit
+   * price so `quantity x materialCostPerUnit` reproduces the printed total).
+   */
+  pricedColumnBasis?: 'unit' | 'line_total';
   [key: string]: unknown;
 }
 
@@ -267,6 +315,8 @@ export interface MappingModalData {
   rawRows?: Array<Record<string, string>>;
   mapping?: Record<string, string | number>;
   currentMapping?: Record<string, string | number>;
+  /** Column schema (canonical + imported passthrough columns) behind this parse. */
+  columns?: ColumnDefinition[];
   matchConfidences?: Record<string, number>;
   overallConfidence?: number;
   rawMatrix?: string[][];
@@ -298,6 +348,8 @@ export interface ImportContext {
   file?: TakeoffFileLike | null;
   mappingData?: MappingModalData | null;
   detectedLaborMode?: string;
+  /** Column schema (canonical + imported passthrough columns) carried from the parse. */
+  columns?: ColumnDefinition[];
   /** Cover block read from an imported client quote, e.g. builder and job address. */
   quoteMeta?: QuoteMetadata;
   /** Fixture list / terms / notes read from a stacked section of an imported quote. */
@@ -345,6 +397,8 @@ export interface Project {
   status?: string;
   items?: TakeoffItem[];
   rates?: Rates;
+  /** Ordered takeoff column schema stored with the project's latest estimate. */
+  columns?: ColumnDefinition[];
   summary?: Record<string, unknown>;
   latestEstimate?: EstimateRecord | null;
   change_orders_json?: ChangeOrder[];
@@ -435,6 +489,8 @@ export interface Estimate {
   totals: EstimateTotals;
   bySystem: EstimateSystem[];
   rates?: Rates;
+  /** Passthrough columns the estimator flagged for client-facing documents. */
+  documentColumns?: ColumnDefinition[];
   [key: string]: unknown;
 }
 
@@ -470,6 +526,8 @@ export interface EstimateRecord extends Estimate {
   items_json?: TakeoffItem[];
   rates_json?: Rates;
   summary_json?: EstimateSummary;
+  /** Ordered takeoff column schema stored beside the items. */
+  columns_json?: ColumnDefinition[];
   [key: string]: unknown;
 }
 

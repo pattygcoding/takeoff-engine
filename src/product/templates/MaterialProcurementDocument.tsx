@@ -11,6 +11,7 @@ import {
   DocumentSignatureBlock,
   DocumentFillLine as FillLine,
   DocumentFooter,
+  customDocumentColumns,
 } from './DocumentHeaderSignoff';
 
 const KEY = 'product.templates.materialProcurement';
@@ -32,6 +33,7 @@ export default function MaterialProcurementDocument({ estimate, branding, curren
   ].join('') + (currentProject?.id ? `-${String(currentProject.id).slice(-4).toUpperCase()}` : '');
 
   const columns: DocumentColumn[] = [
+    ...customDocumentColumns(estimate),
     { header: t(`${KEY}.colItemDescription`), render: (it) => it.description },
     { header: t(`${KEY}.colMaterialSpec`), muted: true, render: (it) => it.sizeSpec },
     { header: t(`${KEY}.colOrderQty`), align: 'right', className: 'font-semibold text-slate-900', render: (it) => formatNumber(it.quantity, 0) },

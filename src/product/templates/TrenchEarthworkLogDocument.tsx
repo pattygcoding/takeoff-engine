@@ -10,6 +10,7 @@ import {
   DocumentSystemTable,
   DocumentSignatureBlock,
   DocumentFooter,
+  customDocumentColumns,
 } from './DocumentHeaderSignoff';
 
 const KEY = 'product.templates.trenchEarthwork';
@@ -58,6 +59,7 @@ export default function TrenchEarthworkLogDocument({ estimate, branding, current
   ];
 
   const columns: DocumentColumn[] = [
+    ...customDocumentColumns(estimate),
     {
       header: t(`${KEY}.colTrenchLine`),
       render: (it) => (

@@ -2,7 +2,17 @@ import React from 'react';
 import type { ReactNode } from 'react';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import { formatCurrency, formatNumber } from '@/product/lib/calculations';
-import type { Branding, EstimateLineItem, EstimateSystem, EstimateTotals, Project } from '@/types/models';
+import { formatColumnValue, getCustomFieldValue } from '@/product/lib/takeoffColumns';
+import type {
+  Branding,
+  ColumnType,
+  Estimate,
+  EstimateLineItem,
+  EstimateSystem,
+  EstimateTotals,
+  Project,
+  TakeoffItem,
+} from '@/types/models';
 
 export const DEFAULT_DOC_ACCENT = '#1e3a8a';
 
@@ -19,6 +29,24 @@ export interface DocumentColumn {
   strong?: boolean;
   muted?: boolean;
   className?: string;
+}
+
+/** Value kinds that read as figures, so their document cells align right. */
+const NUMERIC_COLUMN_TYPES = new Set<ColumnType>(['number', 'currency', 'percent']);
+
+/**
+ * Columns the estimator flagged for client-facing documents, appended to every item table so the
+ * same data appears in the on-screen package, the PDF export and the Word export.
+ */
+export function customDocumentColumns(estimate: Estimate | null | undefined): DocumentColumn[] {
+  const flagged = estimate?.documentColumns ?? [];
+  return flagged.map((column) => ({
+    header: column.label,
+    align: NUMERIC_COLUMN_TYPES.has(column.type) ? 'right' : 'left',
+    muted: true,
+    render: (item: EstimateLineItem) =>
+      formatColumnValue(column.type, getCustomFieldValue(item as TakeoffItem, column.key)),
+  }));
 }
 
 export interface SignatureParty {

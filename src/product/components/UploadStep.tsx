@@ -5,12 +5,14 @@ import { useTranslation } from '@/core/components/context/I18nContext';
 import ColumnMappingModal from './ColumnMappingModal';
 import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
 import type { TakeoffFileLike } from '@/product/lib/csv';
-import type { ImportContext, QuoteMetadata, QuoteSections, ScopeItem, TakeoffItem } from '@/types/models';
+import type { ColumnDefinition, ImportContext, QuoteMetadata, QuoteSections, ScopeItem, TakeoffItem } from '@/types/models';
 
 interface MappingModalData {
   headers?: string[];
   rawRows?: Array<Record<string, string>>;
   currentMapping?: Record<string, string | number>;
+  /** Column schema (canonical + imported passthrough columns) produced by the parser. */
+  columns?: ColumnDefinition[];
   matchConfidences?: Record<string, number>;
   overallConfidence?: number;
   rawMatrix?: string[][];
@@ -80,6 +82,7 @@ export default function UploadStep({
             detectedLaborMode,
             file,
             mappingData: result,
+            columns: result.columns,
             // Quote sheets carry customer/document metadata and their own scope boundaries.
             quoteMeta: result.quoteMeta,
             quoteSections: result.quoteSections,
@@ -113,11 +116,13 @@ export default function UploadStep({
     errors: mappingErrors,
     checksum,
     detectedLaborMode,
+    columns,
   }: {
     items?: TakeoffItem[];
     errors?: string[];
     checksum?: ChecksumSummary;
     detectedLaborMode?: string;
+    columns?: ColumnDefinition[];
   }) => {
     setMappingModalData(null);
     setErrors(mappingErrors || []);
@@ -129,6 +134,7 @@ export default function UploadStep({
         detectedLaborMode,
         file: currentUploadedFile,
         mappingData: mappingModalData,
+        columns: columns ?? mappingModalData?.columns,
         quoteMeta: mappingModalData?.quoteMeta,
         quoteSections: mappingModalData?.quoteSections,
         scopeItems: mappingModalData?.scopeItems,
@@ -420,6 +426,7 @@ export default function UploadStep({
         <ColumnMappingModal
           headers={mappingModalData.headers}
           rawRows={mappingModalData.rawRows}
+          columns={mappingModalData.columns}
           initialMapping={mappingModalData.currentMapping}
           matchConfidences={mappingModalData.matchConfidences}
           overallConfidence={mappingModalData.overallConfidence}

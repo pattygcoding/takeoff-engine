@@ -2,7 +2,7 @@
  * Takeoffs & Ingestion API Client
  */
 import { ApiError } from '@/types/api';
-import type { TakeoffParseResult } from '@/types/models';
+import type { ColumnDefinition, TakeoffParseResult } from '@/types/models';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -15,6 +15,8 @@ interface ParseTakeoffPayloadParams {
   customMapping?: Record<string, unknown> | null;
   customPreset?: Record<string, string | undefined> | null;
   defaultLaborRate?: number | null;
+  /** Passthrough columns already held by the client, so a re-parse keeps user renames/types. */
+  customColumns?: ColumnDefinition[] | null;
 }
 
 const getAuthHeaders = () => {
@@ -36,6 +38,7 @@ export const takeoffsApi = {
     customMapping,
     customPreset,
     defaultLaborRate,
+    customColumns,
   }: ParseTakeoffPayloadParams): Promise<TakeoffParseResult> {
     const res = await fetch(`${API_BASE_URL}/takeoffs/parse`, {
       method: 'POST',
@@ -49,6 +52,7 @@ export const takeoffsApi = {
         customMapping,
         customPreset,
         defaultLaborRate,
+        customColumns,
       }),
     });
 
@@ -67,10 +71,16 @@ export const takeoffsApi = {
     rawRows,
     mapping,
     defaultLaborRate,
+    headers,
+    customColumns,
   }: {
     rawRows: unknown[];
     mapping: Record<string, unknown>;
     defaultLaborRate?: number | null;
+    /** Source headers of `rawRows`, so passthrough columns can be re-detected on confirm. */
+    headers?: string[];
+    /** Passthrough columns already held by the client, so renames/types survive a confirm. */
+    customColumns?: ColumnDefinition[] | null;
   }) {
     const res = await fetch(`${API_BASE_URL}/takeoffs/normalize-mapping`, {
       method: 'POST',
@@ -79,6 +89,8 @@ export const takeoffsApi = {
         rawRows,
         mapping,
         defaultLaborRate,
+        headers,
+        customColumns,
       }),
     });
 

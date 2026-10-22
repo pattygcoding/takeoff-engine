@@ -22,6 +22,8 @@ interface ExpectedItem {
   descriptionIncludes?: string;
   quantity?: number;
   unit?: string;
+  /** Per-unit material cost (the parsed item's `materialCostPerUnit`). */
+  materialCostPerUnit?: number;
 }
 
 /** The parser payload as read by this harness (permissive: not every shape is present). */
@@ -47,6 +49,10 @@ interface SampleSheet {
   expectedItemCount?: number;
   /** Representative items covering each logical table in the sheet. */
   expectedItems?: ExpectedItem[];
+  /** Total printed on the sheet, when it prints one (`TOTAL QUOTE`, ...). */
+  expectedListedQuoteTotal?: number;
+  /** True when the printed total must reconcile against the imported rows. */
+  expectsVerifiedChecksum?: boolean;
 }
 
 // Appended to every CSV sample in commit f57d74a as a second, stacked table. A correct parse
@@ -100,14 +106,17 @@ const CSV_SAMPLES: SampleSheet[] = [
   {
     // Client quote sheet: cover block, `Includes:`/`Excludes:` text beside the priced columns and
     // stacked fixture/terms tables. Its trade comes from the sheet title, and units are inferred
-    // per row because the sheet has no unit column.
+    // per row because the sheet has no unit column. `Cost` holds the amount for the whole row, so
+    // the printed TOTAL QUOTE ($22,914.00) reconciles with quantity x unit cost.
     file: 'client-sample-1.csv',
     expectedItemCount: 11,
+    expectedListedQuoteTotal: 22914,
+    expectsVerifiedChecksum: true,
     expectedItems: [
-      { system: '22 - Plumbing', descriptionIncludes: 'Refrigerator ice maker water line', quantity: 1, unit: 'EA' },
-      { system: '22 - Plumbing', descriptionIncludes: 'Exterior hose bibs', quantity: 5, unit: 'EA' },
-      { system: '22 - Plumbing', descriptionIncludes: 'Fixture shutoff valves', quantity: 33, unit: 'EA' },
-      { system: '22 - Plumbing', descriptionIncludes: 'Bath vent', quantity: 1, unit: 'HR' },
+      { system: '22 - Plumbing', descriptionIncludes: 'Refrigerator ice maker water line', quantity: 1, unit: 'EA', materialCostPerUnit: 400 },
+      { system: '22 - Plumbing', descriptionIncludes: 'Exterior hose bibs', quantity: 5, unit: 'EA', materialCostPerUnit: 112.5 },
+      { system: '22 - Plumbing', descriptionIncludes: 'Fixture shutoff valves', quantity: 33, unit: 'EA', materialCostPerUnit: 60 },
+      { system: '22 - Plumbing', descriptionIncludes: 'Bath vent', quantity: 1, unit: 'HR', materialCostPerUnit: 75 },
     ],
   },
   {
@@ -147,11 +156,23 @@ function matches(item: Record<string, unknown>, expected: ExpectedItem): boolean
   if (expected.descriptionIncludes && !normalize(item.description).includes(normalize(expected.descriptionIncludes))) return false;
   if (expected.quantity !== undefined && Math.abs(Number(item.quantity) - expected.quantity) > 1e-6) return false;
   if (expected.unit !== undefined && normalize(item.unit) !== normalize(expected.unit)) return false;
+  if (
+    expected.materialCostPerUnit !== undefined &&
+    Math.abs(Number(item.materialCostPerUnit) - expected.materialCostPerUnit) > 1e-6
+  ) {
+    return false;
+  }
   return true;
 }
 
 const describeItem = (expected: ExpectedItem): string =>
-  [expected.system, expected.descriptionIncludes && `"${expected.descriptionIncludes}"`, expected.quantity, expected.unit]
+  [
+    expected.system,
+    expected.descriptionIncludes && `"${expected.descriptionIncludes}"`,
+    expected.quantity,
+    expected.unit,
+    expected.materialCostPerUnit !== undefined && `$${expected.materialCostPerUnit}`,
+  ]
     .filter((part) => part !== undefined && part !== '')
     .join(' / ');
 
@@ -196,6 +217,36 @@ function assertSheetParsed(parsed: ParsedPayload, sample: SampleSheet): void {
       items.length,
       `${summary}\nExpected ${sample.expectedItemCount} line items across every table in the sheet.`,
     ).toBe(sample.expectedItemCount);
+  }
+
+  if (sample.expectedListedQuoteTotal !== undefined) {
+    expect(
+      Number(parsed.listedQuoteTotal),
+      `${summary}\nThe total printed on the sheet must be read from the priced column of the TOTAL row.`,
+    ).toBeCloseTo(sample.expectedListedQuoteTotal, 2);
+  }
+
+  if (sample.expectsVerifiedChecksum) {
+    const checksum = (parsed.checksum ?? {}) as Record<string, unknown>;
+    expect(
+      Boolean(checksum.checksumMatches),
+      `${summary}\nThe imported rows must reconcile with the total printed on the sheet (checksum: ${JSON.stringify(checksum)}).`,
+    ).toBe(true);
+    expect(
+      Number(checksum.detectedSubtotals),
+      `${summary}\nThe detected subtotal must be the printed quote total.`,
+    ).toBeCloseTo(Number(sample.expectedListedQuoteTotal), 2);
+
+    // The app prices with `quantity x materialCostPerUnit`, so the imported rows must add up too.
+    const pricedRows = items.filter((item) => Number(item.quantity) > 0 && item.unit !== 'HR');
+    const extendedTotal = pricedRows.reduce(
+      (sum, item) => sum + Number(item.quantity) * Number(item.materialCostPerUnit ?? 0),
+      0,
+    );
+    expect(
+      Math.round(extendedTotal * 100) / 100,
+      `${summary}\nQuantity x unit cost of the imported rows must equal the printed total.`,
+    ).toBeCloseTo(Number(sample.expectedListedQuoteTotal), 2);
   }
 }
 

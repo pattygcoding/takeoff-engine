@@ -29,7 +29,8 @@ import {
   FieldDailyReportDocument,
   WarrantyCloseoutCertDocument,
 } from '@/product/templates';
-import type { Branding, DocumentTemplateProps, Estimate, Project, Rates, TakeoffItem } from '@/types/models';
+import { documentColumns } from '@/product/lib/takeoffColumns';
+import type { Branding, ColumnDefinition, DocumentTemplateProps, Estimate, Project, Rates, TakeoffItem } from '@/types/models';
 
 /**
  * 17 Distinct Estimating, Engineering & Proposal Layout Formats
@@ -252,10 +253,13 @@ export default function ExportHubPage({
   items,
   rates,
   currentProject,
+  columns = [],
 }: Readonly<{
   items: TakeoffItem[];
   rates: Rates;
   currentProject: Project | null;
+  /** Ordered column schema, used to surface flagged passthrough columns in the documents. */
+  columns?: ColumnDefinition[];
 }>) {
   const { t } = useTranslation();
   const { username, projectId } = useParams();
@@ -294,13 +298,19 @@ export default function ExportHubPage({
 
   const [estimate, setEstimate] = useState<Estimate>({ totals: {}, bySystem: [], items: [], rates });
 
+  // The flagged passthrough columns ride on the estimate so every document renderer can show them.
+  const estimateWithColumns = useMemo(
+    () => ({ ...estimate, documentColumns: documentColumns(columns) }),
+    [estimate, columns]
+  );
+
   // Thumbnails only show the top of page 1, so trim line items to keep 17 live renders cheap.
   const thumbnailEstimate = useMemo(
     () => ({
-      ...estimate,
-      bySystem: (estimate.bySystem || []).slice(0, 3).map((sys) => ({ ...sys, items: sys.items.slice(0, 4) })),
+      ...estimateWithColumns,
+      bySystem: (estimateWithColumns.bySystem || []).slice(0, 3).map((sys) => ({ ...sys, items: sys.items.slice(0, 4) })),
     }),
-    [estimate]
+    [estimateWithColumns]
   );
   const thumbnailProps = { estimate: thumbnailEstimate, branding, currentProject, rates };
 
@@ -331,7 +341,7 @@ export default function ExportHubPage({
 
   const DocumentComponent = DOCUMENT_COMPONENTS[currentFormat.id];
   const documentContent = (
-    <DocumentComponent estimate={estimate} branding={branding} currentProject={currentProject} rates={rates} />
+    <DocumentComponent estimate={estimateWithColumns} branding={branding} currentProject={currentProject} rates={rates} />
   );
 
   // Metering & export wrapper

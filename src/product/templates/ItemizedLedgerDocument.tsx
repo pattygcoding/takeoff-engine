@@ -11,6 +11,7 @@ import {
   DocumentCostSummary,
   DocumentSignatureBlock,
   DocumentFooter,
+  customDocumentColumns,
 } from './DocumentHeaderSignoff';
 
 const KEY = 'product.templates.itemizedLedger';
@@ -27,6 +28,7 @@ export default function ItemizedLedgerDocument({ estimate, branding, currentProj
   const equipmentCost = (it: EstimateLineItem) => (rates?.excavatorHourlyRate || 0) * ((it.laborHours ?? 0) * 0.4);
 
   const columns: DocumentColumn[] = [
+    ...customDocumentColumns(estimate),
     { header: t(`${KEY}.colItem`), render: (it) => it.description },
     { header: t(`${KEY}.colSpec`), muted: true, render: (it) => it.sizeSpec },
     { header: t(`${KEY}.colQty`), align: 'right', render: (it) => formatNumber(it.quantity, 0) },

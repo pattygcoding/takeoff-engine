@@ -11,6 +11,7 @@ import {
   DocumentTotalRow,
   DocumentSignatureBlock,
   DocumentFooter,
+  customDocumentColumns,
 } from './DocumentHeaderSignoff';
 
 const KEY = 'product.templates.scopeMatrix';
@@ -25,6 +26,7 @@ export default function ScopeMatrixDocument({ estimate, branding, currentProject
   const accent = branding?.brandColor || ACCENT;
 
   const columns: DocumentColumn[] = [
+    ...customDocumentColumns(estimate),
     { header: t(`${KEY}.colScopeItem`), render: (it) => it.description },
     { header: t(`${KEY}.colSpec`), muted: true, render: (it) => it.sizeSpec },
     { header: t(`${KEY}.colQty`), align: 'right', className: 'font-semibold text-slate-900', render: (it) => formatNumber(it.quantity, 0) },

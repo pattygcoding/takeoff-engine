@@ -10,6 +10,7 @@ import {
   DocumentTotalRow,
   DocumentSignatureBlock,
   DocumentFooter,
+  customDocumentColumns,
 } from './DocumentHeaderSignoff';
 
 const KEY = 'product.templates.aiaBidSchedule';
@@ -33,6 +34,7 @@ export default function AiaBidScheduleDocument({ estimate, branding, currentProj
   const extended = (it: EstimateLineItem) => it.factoredPrice ?? it.directCost ?? 0;
 
   const columns: DocumentColumn[] = [
+    ...customDocumentColumns(estimate),
     {
       header: t(`${KEY}.colItemNumber`),
       className: 'font-bold text-slate-500 w-12',

@@ -223,6 +223,7 @@ export default function ScopeInclusionsModal({
               <select
                 value={selectedPresetId}
                 onChange={(e) => handleApplyPreset(e.target.value)}
+                aria-label={t('product.scopeModal.presetsLabel', 'Presets')}
                 className="px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 font-medium cursor-pointer"
               >
                 <option value="">{t('product.scopeModal.selectPreset', '-- Select Preset Template --')}</option>
@@ -269,6 +270,7 @@ export default function ScopeInclusionsModal({
                     placeholder={t('product.scopeModal.presetNamePlaceholder', 'Preset name (e.g. Turnkey Civil Scope)...')}
                     value={presetNameInput}
                     onChange={(e) => setPresetNameInput(e.target.value)}
+                    aria-label={t('product.scopeModal.presetNameLabel', 'Preset name')}
                     className="px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none"
                   />
                   <button
@@ -284,9 +286,10 @@ export default function ScopeInclusionsModal({
                       setShowSavePresetInput(false);
                       setPresetNameInput('');
                     }}
+                    aria-label={t('core.common.cancel', 'Cancel')}
                     className="px-2 py-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl"
                   >
-                    <X className="w-3.5 h-3.5" />
+                    <X className="w-3.5 h-3.5" aria-hidden="true" />
                   </button>
                 </form>
               )}
@@ -418,6 +421,7 @@ export default function ScopeInclusionsModal({
                           min="0"
                           value={item.costImpact ?? 0}
                           onChange={(e) => handleCostImpactChange(item.id, e.target.value)}
+                          aria-label={`${t('product.scopeModal.costImpactAmount', 'Cost impact amount')}: ${item.title}`}
                           className="w-24 px-2 py-1 text-xs bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
                         />
                       </div>
@@ -509,11 +513,13 @@ export default function ScopeInclusionsModal({
                 placeholder={t('product.scopeModal.customTitlePlaceholder', 'Item title (e.g., ADA Sink Carriers, Trench Dewatering)')}
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
+                aria-label={t('product.scopeModal.customTitleLabel', 'New scope item title')}
                 className="flex-1 text-xs px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none"
               />
               <select
                 value={newCategory}
                 onChange={(e) => setNewCategory(e.target.value)}
+                aria-label={t('product.scopeModal.categoryLabel', 'Category')}
                 className="text-xs px-2.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none font-semibold text-slate-700 dark:text-slate-200 cursor-pointer"
               >
                 <option value="fixtures">Fixtures</option>
@@ -528,6 +534,7 @@ export default function ScopeInclusionsModal({
                 placeholder={t('product.scopeModal.customDescPlaceholder', 'Item description / spec notes (e.g., Owner furnishes, contractor installs per drawing P-102)...')}
                 value={newDesc}
                 onChange={(e) => setNewDesc(e.target.value)}
+                aria-label={t('product.scopeModal.customDescLabel', 'New scope item description')}
                 className="flex-1 text-xs px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none"
               />
               <button

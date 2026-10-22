@@ -15,6 +15,7 @@ import {
   DocumentTotalRow,
   DocumentSignatureBlock,
   DocumentFooter,
+  customDocumentColumns,
 } from './DocumentHeaderSignoff';
 
 /**
@@ -175,6 +176,7 @@ export function InvoiceDocument({
   const amountDue = (totals.finalBidAmount || 0) + approvedTotal + warrantyTotal;
 
   const columns: DocumentColumn[] = [
+    ...customDocumentColumns(estimate),
     { header: t('product.resultsStep.colDescription'), render: (it) => (it.sizeSpec ? `${it.description} — ${it.sizeSpec}` : it.description) },
     { header: t('product.resultsStep.colQty'), align: 'right', render: (it) => formatNumber(it.quantity, 0) },
     { header: t('product.resultsStep.colUnit'), muted: true, render: (it) => it.unit },
@@ -295,6 +297,7 @@ export function ProposalPackageDocument({ estimate, branding, currentProject, ra
   const accent = branding?.brandColor || ACCENTS.proposal;
 
   const columns: DocumentColumn[] = [
+    ...customDocumentColumns(estimate),
     { header: t('product.resultsStep.colDescription'), render: (it) => it.description },
     { header: t('product.resultsStep.colSizeSpec'), muted: true, render: (it) => it.sizeSpec },
     { header: t('product.resultsStep.colQty'), align: 'right', render: (it) => formatNumber(it.quantity, 0) },

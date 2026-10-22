@@ -29,9 +29,16 @@ import {
 } from './ClientModeViews';
 import Papa from 'papaparse';
 import type { ReactNode } from 'react';
+import {
+  customColumnsOf,
+  documentColumns,
+  formatColumnValue,
+  getCustomFieldValue,
+} from '@/product/lib/takeoffColumns';
 import type {
   Branding,
   ChangeOrder,
+  ColumnDefinition,
   Estimate,
   ImportContext,
   Project,
@@ -68,10 +75,11 @@ async function persistEstimate(
   summary: Record<string, unknown>,
   items: TakeoffItem[],
   rates: Rates,
+  columns: ColumnDefinition[] = [],
   onSaved?: (project: Project) => void,
   refresh?: () => Promise<unknown>,
 ): Promise<Project | null> {
-  const payload = { ...fields, items, rates, summary };
+  const payload = { ...fields, items, rates, summary, columns };
 
   if (currentProject?.id) {
     const updated = await projectsApi.update(String(currentProject.id), payload);
@@ -157,6 +165,44 @@ export function quoteContactConflicts(quoteMeta: QuoteMetadata | undefined, user
   const addressDiffers = Boolean(sheetAddress) && sheetAddress !== savedAddress;
   const phoneDiffers = Boolean(sheetPhone) && sheetPhone !== savedPhone;
   return addressDiffers || phoneDiffers;
+}
+
+/**
+ * Builds the rows for the takeoff CSV export.
+ *
+ * The canonical columns always appear. Any passthrough (imported/user) column of the takeoff schema is
+ * appended, in schema order, so an export carries the same extra data the grid shows.
+ */
+export function buildTakeoffExportRows(
+  bySystem: Estimate['bySystem'] = [],
+  proposalMode: boolean,
+  columns: ColumnDefinition[] = [],
+): Array<Record<string, unknown>> {
+  const customExportColumns = customColumnsOf(columns);
+
+  return bySystem.flatMap((sys) =>
+    (sys.items ?? []).map((item) => ({
+      System: item.system,
+      Description: item.description,
+      'Size/Spec': item.sizeSpec,
+      Quantity: item.quantity,
+      Unit: item.unit,
+      ...Object.fromEntries(
+        customExportColumns.map((column) => [
+          column.label,
+          formatColumnValue(column.type, getCustomFieldValue(item as unknown as TakeoffItem, column.key)),
+        ]),
+      ),
+      ...(proposalMode
+        ? { 'Line Total': (item.directCost ?? 0).toFixed(2) }
+        : {
+            'Material Cost': (item.materialCost ?? 0).toFixed(2),
+            'Labor Hours': (item.laborHours ?? 0).toFixed(2),
+            'Labor Cost': (item.laborCost ?? 0).toFixed(2),
+            'Direct Cost': (item.directCost ?? 0).toFixed(2),
+          }),
+    })),
+  );
 }
 
 /** Locked client views: everything outside the free formats, for accounts without Pro entitlements. */
@@ -308,6 +354,7 @@ export default function ResultsStep({
   projectStatus = 'awarded',
   onDuplicate,
   importContext,
+  columns = [],
 }: Readonly<{
   items: TakeoffItem[];
   rates: Rates;
@@ -319,6 +366,8 @@ export default function ResultsStep({
   onDuplicate?: () => void;
   /** Import context of the current takeoff, carrying a client quote's cover block. */
   importContext?: ImportContext;
+  /** Ordered column schema (canonical + passthrough columns) used by the CSV export. */
+  columns?: ColumnDefinition[];
 }>) {
   const { username, projectId } = useParams();
   const navigate = useNavigate();
@@ -498,6 +547,7 @@ export default function ResultsStep({
         summaryPayload,
         items,
         rates,
+        columns,
         onProjectSaved,
         refreshProfile,
       );
@@ -700,23 +750,7 @@ export default function ResultsStep({
 
   const exportCsv = guard('record-export', async () => {
     await processExportWithCreditCheck(() => {
-      const rows = bySystem.flatMap((sys) =>
-        sys.items.map((item) => ({
-          System: item.system,
-          Description: item.description,
-          'Size/Spec': item.sizeSpec,
-          Quantity: item.quantity,
-          Unit: item.unit,
-          ...(proposalMode
-            ? { 'Line Total': (item.directCost ?? 0).toFixed(2) }
-            : {
-                'Material Cost': (item.materialCost ?? 0).toFixed(2),
-                'Labor Hours': (item.laborHours ?? 0).toFixed(2),
-                'Labor Cost': (item.laborCost ?? 0).toFixed(2),
-                'Direct Cost': (item.directCost ?? 0).toFixed(2),
-              }),
-        }))
-      );
+      const rows = buildTakeoffExportRows(bySystem, proposalMode, columns);
       const csv = Papa.unparse(rows);
       triggerDownload(csv, proposalMode ? 'proposal_summary.csv' : 'internal_cost_breakdown.csv', 'text/csv');
     });
@@ -791,6 +825,7 @@ export default function ResultsStep({
               type="button"
               role="switch"
               aria-checked={proposalMode}
+              aria-label={t('product.resultsStep.clientFacingProposalMode')}
               onClick={() => setProposalMode((v) => !v)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${toggleTrackClass(proposalMode)}`}
             >
@@ -924,7 +959,12 @@ export default function ResultsStep({
           <div aria-hidden="true" className="no-print" style={{ position: 'fixed', top: 0, left: '-10000px', width: '720px', pointerEvents: 'none' }}>
             <div id="client-pdf-canvas" style={{ width: '720px', background: '#ffffff', colorScheme: 'light' }}>
               <PdfDocument
-                estimate={{ totals, bySystem }}
+                estimate={{
+        totals,
+        bySystem,
+        // Columns the estimator flagged for client documents ride along into PDF/Word exports.
+        documentColumns: documentColumns(columns),
+      }}
                 branding={docBranding}
                 currentProject={currentProject}
                 rates={rates}
@@ -950,10 +990,14 @@ export default function ResultsStep({
             <form onSubmit={handleSaveToCloud}>
               <div className="space-y-3 mb-5">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <label
+                    className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+                    htmlFor="results-project-name"
+                  >
                     {t('product.resultsStep.projectNameLabel')}
                   </label>
                   <input
+                    id="results-project-name"
                     type="text"
                     required
                     value={projectNameInput}
@@ -963,10 +1007,14 @@ export default function ResultsStep({
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <label
+                    className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+                    htmlFor="results-client-name"
+                  >
                     {t('product.resultsStep.clientNameLabel')}
                   </label>
                   <input
+                    id="results-client-name"
                     type="text"
                     value={clientNameInput}
                     onChange={(e) => setClientNameInput(e.target.value)}
@@ -975,10 +1023,14 @@ export default function ResultsStep({
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <label
+                    className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+                    htmlFor="results-location"
+                  >
                     {t('product.resultsStep.locationLabel')}
                   </label>
                   <input
+                    id="results-location"
                     type="text"
                     value={locationInput}
                     onChange={(e) => setLocationInput(e.target.value)}
@@ -1026,9 +1078,10 @@ export default function ResultsStep({
               <button
                 type="button"
                 onClick={() => setShareProposalModalOpen(false)}
+                aria-label={t('core.common.close', 'Close')}
                 className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
 
@@ -1051,8 +1104,14 @@ export default function ResultsStep({
                 <div className="space-y-2">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div>
-                      <label className="block text-[11px] font-medium text-slate-600 dark:text-slate-300 mb-1">{t('product.resultsStep.clientAttentionLabel')}</label>
+                      <label
+                        className="block text-[11px] font-medium text-slate-600 dark:text-slate-300 mb-1"
+                        htmlFor="results-client-attention"
+                      >
+                        {t('product.resultsStep.clientAttentionLabel')}
+                      </label>
                       <input
+                        id="results-client-attention"
                         type="text"
                         value={clientRecipientName}
                         onChange={(e) => setClientRecipientName(e.target.value)}
@@ -1061,8 +1120,14 @@ export default function ResultsStep({
                       />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-medium text-slate-600 dark:text-slate-300 mb-1">{t('product.resultsStep.clientEmailLabel')}</label>
+                      <label
+                        className="block text-[11px] font-medium text-slate-600 dark:text-slate-300 mb-1"
+                        htmlFor="results-client-email"
+                      >
+                        {t('product.resultsStep.clientEmailLabel')}
+                      </label>
                       <input
+                        id="results-client-email"
                         type="email"
                         required
                         value={clientRecipientEmail}
@@ -1076,6 +1141,7 @@ export default function ResultsStep({
                   <button
                     type="submit"
                     disabled={isSendingEmail}
+                    aria-label={t('product.resultsStep.sendProposalAndLock')}
                     className="w-full mt-2 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
                   >
                     <SendProposalButtonContent sending={isSendingEmail} t={t} />
@@ -1095,6 +1161,7 @@ export default function ResultsStep({
                     type="text"
                     readOnly
                     value={publicShareUrl}
+                    aria-label={t('product.resultsStep.publicShareLinkLabel', 'Public proposal link')}
                     className="w-full bg-white dark:bg-slate-800 px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-800 dark:text-slate-100 focus:outline-none"
                     onClick={(e) => (e.target as HTMLInputElement).select()}
                   />

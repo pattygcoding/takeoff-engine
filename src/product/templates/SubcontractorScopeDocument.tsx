@@ -11,6 +11,7 @@ import {
   DocumentTotalRow,
   DocumentSignatureBlock,
   DocumentFooter,
+  customDocumentColumns,
 } from './DocumentHeaderSignoff';
 
 const KEY = 'product.templates.subcontractorScope';
@@ -26,6 +27,7 @@ export default function SubcontractorScopeDocument({ estimate, branding, current
   const packageTotal = bySystem.reduce((sum, sys) => sum + (sys.directCost || 0), 0);
 
   const columns: DocumentColumn[] = [
+    ...customDocumentColumns(estimate),
     { header: t(`${KEY}.colScopeDescription`), render: (it) => it.description },
     { header: t(`${KEY}.colSpecAstm`), muted: true, render: (it) => it.sizeSpec },
     { header: t(`${KEY}.colTakeoffQty`), align: 'right', render: (it) => formatNumber(it.quantity, 0) },
