@@ -1156,6 +1156,26 @@
       "footerTagline": "Takeoff Engine - Plataforma de estimación y takeoff de construcción",
       "license": "Licencia: #{{license}}"
     },
+    "aiAssist": {
+      "button": "Corregir con IA",
+      "buttonHint": "Deja que la IA elija la fila de encabezados y las columnas. Tú revisas antes de importar.",
+      "upgradeHint": "La asignación de columnas con IA está disponible en los planes Starter, Pro y Enterprise.",
+      "quotaHint": "Has usado las {{max}} asignaciones con IA de este mes.",
+      "runningChip": "La IA está asignando…",
+      "runningTitle": "Pidiendo a la IA que asigne esta hoja",
+      "runningBody": "Solo se envían las primeras filas. Nada se importa hasta que confirmes.",
+      "appliedTitle": "Asignación de IA aplicada",
+      "appliedBody": "{{count}} partidas listas · {{confidence}}% de confianza",
+      "reviewHint": "Revisa los encabezados y la vista previa y luego confirma la importación.",
+      "failedTitle": "La IA no pudo asignar esta hoja",
+      "failedFallback": "La IA no pudo asignar esta hoja. Asigna las columnas manualmente abajo.",
+      "uploadCta": "¿No es correcto? Deja que la IA lo asigne",
+      "uploadHint": "¿Columnas equivocadas o una fila de encabezados que el analizador no detectó? La IA puede elegirlas.",
+      "remapBtn": "Reasignar con IA",
+      "remapHint": "Deja que la IA relea la hoja original y reasigne las columnas.",
+      "remapNeedsUpload": "Vuelve a subir la hoja para reasignarla con IA.",
+      "disabledOnDeployment": "La reasignación con IA no está habilitada en esta instalación."
+    },
     "columnMappingModal": {
       "title": "Emparejar columnas de la hoja de cálculo",
       "confidenceLabel": "Confianza de la detección automática:",

@@ -1156,6 +1156,26 @@
       "footerTagline": "Takeoff Engine - Plataforma de estimativa e takeoff de construção",
       "license": "Licença: #{{license}}"
     },
+    "aiAssist": {
+      "button": "Corrigir com IA",
+      "buttonHint": "Deixe a IA escolher a linha de cabeçalho e as colunas. Você revisa antes de importar.",
+      "upgradeHint": "O mapeamento de colunas por IA está disponível nos planos Starter, Pro e Enterprise.",
+      "quotaHint": "Você usou todos os {{max}} mapeamentos com IA deste mês.",
+      "runningChip": "A IA está mapeando…",
+      "runningTitle": "Pedindo à IA para mapear esta planilha",
+      "runningBody": "Apenas as primeiras linhas são enviadas. Nada é importado até você confirmar.",
+      "appliedTitle": "Mapeamento de IA aplicado",
+      "appliedBody": "{{count}} itens prontos · {{confidence}}% de confiança",
+      "reviewHint": "Verifique os cabeçalhos e a prévia e confirme a importação.",
+      "failedTitle": "A IA não conseguiu mapear esta planilha",
+      "failedFallback": "A IA não conseguiu mapear esta planilha. Mapeie as colunas manualmente abaixo.",
+      "uploadCta": "Não ficou certo? Deixe a IA mapear",
+      "uploadHint": "Colunas erradas ou linha de cabeçalho não detectada? A IA pode escolhê-las.",
+      "remapBtn": "Remapear com IA",
+      "remapHint": "Deixe a IA reler a planilha original e remapear as colunas.",
+      "remapNeedsUpload": "Envie a planilha novamente para remapeá-la com IA.",
+      "disabledOnDeployment": "O remapeamento com IA não está habilitado nesta instalação."
+    },
     "columnMappingModal": {
       "title": "Combinar colunas da planilha",
       "confidenceLabel": "Confiança da detecção automática:",

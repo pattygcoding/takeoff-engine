@@ -1156,6 +1156,26 @@
       "footerTagline": "Takeoff Engine - Plateforme d'estimation et de métré de construction",
       "license": "Licence : #{{license}}"
     },
+    "aiAssist": {
+      "button": "Corriger avec l'IA",
+      "buttonHint": "Laissez l'IA choisir la ligne d'en-tête et les colonnes. Vous vérifiez avant d'importer.",
+      "upgradeHint": "Le mappage des colonnes par IA est disponible avec les offres Starter, Pro et Enterprise.",
+      "quotaHint": "Vous avez utilisé les {{max}} mappages IA de ce mois.",
+      "runningChip": "L'IA analyse…",
+      "runningTitle": "L'IA analyse cette feuille",
+      "runningBody": "Seules les premières lignes sont envoyées. Rien n'est importé tant que vous ne confirmez pas.",
+      "appliedTitle": "Mappage IA appliqué",
+      "appliedBody": "{{count}} lignes prêtes · {{confidence}} % de confiance",
+      "reviewHint": "Vérifiez les en-têtes et l'aperçu, puis confirmez l'import.",
+      "failedTitle": "L'IA n'a pas pu mapper cette feuille",
+      "failedFallback": "L'IA n'a pas pu mapper cette feuille. Mappez les colonnes manuellement ci-dessous.",
+      "uploadCta": "Pas correct ? Laissez l'IA le mapper",
+      "uploadHint": "Colonnes erronées ou ligne d'en-tête manquée par l'analyseur ? L'IA peut les choisir.",
+      "remapBtn": "Remapper avec l'IA",
+      "remapHint": "Laissez l'IA relire la feuille d'origine et remapper les colonnes.",
+      "remapNeedsUpload": "Rechargez la feuille pour la remapper avec l'IA.",
+      "disabledOnDeployment": "Le remappage par IA n'est pas activé sur ce déploiement."
+    },
     "columnMappingModal": {
       "title": "Associer les colonnes de la feuille de calcul",
       "confidenceLabel": "Confiance de la détection automatique :",

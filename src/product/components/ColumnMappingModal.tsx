@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { Shuffle, X } from 'lucide-react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { Shuffle, X, Sparkles, Loader2, Lock } from 'lucide-react';
 import {
   getTargetFields,
   normalizeRowsWithMapping,
@@ -10,7 +10,7 @@ import {
 } from '@/product/lib/csv';
 import { customColumnsOf } from '@/product/lib/takeoffColumns';
 import { useTranslation } from '@/core/components/context/I18nContext';
-import type { ColumnDefinition, TakeoffItem } from '@/types/models';
+import type { AiAssistResult, AiAssistUsage, ColumnDefinition, TakeoffItem } from '@/types/models';
 import { useModal } from '@/core/components/context/ModalContext';
 
 /** Badge styling for a mapping-confidence score. */
@@ -40,6 +40,10 @@ export default function ColumnMappingModal({
   activeSheetName = '',
   subTables = [],
   activeTableId = null,
+  aiAvailable = false,
+  aiUsage = null,
+  aiAutoRun = false,
+  onAiAssist,
   onSheetChange,
   onTableChange,
   onConfirm,
@@ -58,6 +62,17 @@ export default function ColumnMappingModal({
   activeSheetName?: string;
   subTables?: Array<{ id: string; label: string }>;
   activeTableId?: string | null;
+  /** True when this deployment can offer the AI fallback at all (an OpenRouter key is configured). */
+  aiAvailable?: boolean;
+  /** The signed-in user's monthly allowance; `max: 0` means their plan does not include the feature. */
+  aiUsage?: AiAssistUsage | null;
+  /**
+   * Runs the assist as soon as the modal opens. Used by Step 2's "Remap Using AI", where opening the
+   * modal *is* the request to remap.
+   */
+  aiAutoRun?: boolean;
+  /** Runs the AI mapping for the uploaded file. Omit to hide the fallback entirely. */
+  onAiAssist?: () => Promise<AiAssistResult | null>;
   onSheetChange?: (name: string) => void;
   onTableChange?: (tableId: string) => void;
   onConfirm: (data: {
@@ -86,6 +101,75 @@ export default function ColumnMappingModal({
   const [presetName, setPresetName] = useState('');
   const [showPresetSaved, setShowPresetSaved] = useState(false);
   const [savedPresets, setSavedPresets] = useState(() => getSavedVendorPresets());
+
+  // AI fallback: the model chooses the header row and column mapping, a human still confirms.
+  const [aiRunning, setAiRunning] = useState(false);
+  const [aiApplied, setAiApplied] = useState<{ confidence: number; notes: string; itemCount: number } | null>(null);
+  const [aiError, setAiError] = useState('');
+  // Seeded from the prop, then replaced by whatever the backend returns for the assist we just spent.
+  // The prop is re-read too: UploadStep fetches the allowance when it opens this modal, which lands
+  // after the first render.
+  const [aiUsageState, setAiUsageState] = useState<AiAssistUsage | null>(aiUsage ?? null);
+  const usage = aiUsageState ?? aiUsage;
+
+  /** Only lock when we positively know the plan excludes the feature or the allowance is spent. */
+  const aiBlockedByPlan = Boolean(usage) && !usage?.unlimited && (usage?.max ?? 0) <= 0;
+  const aiExhausted = Boolean(usage) && !usage?.unlimited && (usage?.remaining ?? 0) <= 0;
+  const aiLocked = aiBlockedByPlan || aiExhausted || !aiAvailable;
+  const showAiButton = Boolean(onAiAssist) && !aiRunning;
+
+  /** Why the fallback cannot run, most specific reason first. */
+  const aiDisabledHint = !aiAvailable
+    ? t('product.aiAssist.disabledOnDeployment')
+    : aiBlockedByPlan
+      ? t('product.aiAssist.upgradeHint')
+      : aiExhausted
+        ? t('product.aiAssist.quotaHint', { max: usage?.max ?? 0 })
+        : t('product.aiAssist.buttonHint');
+
+  const handleAiAssist = async () => {
+    if (!onAiAssist || aiRunning) return;
+    setAiError('');
+    setAiApplied(null);
+    setValidationError('');
+    setAiRunning(true);
+
+    try {
+      const result = await onAiAssist();
+      if (!result) return;
+
+      // One batched update, so the header row, preview grid and selects never disagree.
+      setHeaderRowIndex(result.headerRowIndex);
+      setCurrentHeaders(result.headers || []);
+      setCurrentRawRows(result.rawRows || []);
+      setMapping(result.mapping || {});
+      setMatchConfidences(result.matchConfidences || {});
+      setOverallConfidence(result.confidence ?? 0);
+      setAiApplied({
+        confidence: result.confidence ?? 0,
+        notes: result.notes || '',
+        itemCount: result.itemCount ?? 0,
+      });
+      if (result.usage) setAiUsageState(result.usage);
+    } catch (err) {
+      setAiError((err as Error)?.message || t('product.aiAssist.failedFallback'));
+    } finally {
+      setAiRunning(false);
+    }
+  };
+
+  // Step 2's "Remap Using AI" opens the modal *as* the request, so run once on open. The ref guard
+  // keeps React 19's development double-invoke from spending two assists.
+  const aiAutoRan = useRef(false);
+  const runAiAssist = useRef(handleAiAssist);
+  runAiAssist.current = handleAiAssist;
+
+  useEffect(() => {
+    if (!aiAutoRun || aiAutoRan.current || !onAiAssist) return;
+    if (!aiAvailable) return;
+    aiAutoRan.current = true;
+    void runAiAssist.current();
+  }, [aiAutoRun, aiAvailable, onAiAssist]);
 
   // Allow choosing header row among available matrix rows (up to 30 rows)
   const maxHeaderOptions = Math.min(sampleMatrix?.length || 1, 30);
@@ -307,6 +391,52 @@ export default function ColumnMappingModal({
           </div>
         )}
 
+        {/* AI fallback status: running, applied, or why it could not run */}
+        {(aiRunning || aiApplied || aiError) && (
+          <div
+            className={`mt-4 p-3 rounded-xl border text-xs flex items-start gap-2 ${
+              aiError
+                ? 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-900/60 text-red-700 dark:text-red-300'
+                : aiApplied
+                  ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900/60 text-emerald-800 dark:text-emerald-200'
+                  : 'bg-violet-50 dark:bg-violet-950/40 border-violet-200 dark:border-violet-900/60 text-violet-800 dark:text-violet-200'
+            }`}
+            role="status"
+            aria-live="polite"
+          >
+            {aiRunning ? (
+              <Loader2 className="w-4 h-4 shrink-0 animate-spin" aria-hidden="true" />
+            ) : aiApplied ? (
+              <Sparkles className="w-4 h-4 shrink-0" aria-hidden="true" />
+            ) : (
+              <X className="w-4 h-4 shrink-0" aria-hidden="true" />
+            )}
+            <div className="space-y-0.5">
+              <p className="font-semibold">
+                {aiRunning
+                  ? t('product.aiAssist.runningTitle')
+                  : aiApplied
+                    ? t('product.aiAssist.appliedTitle')
+                    : t('product.aiAssist.failedTitle')}
+              </p>
+              <p>
+                {aiRunning
+                  ? t('product.aiAssist.runningBody')
+                  : aiApplied
+                    ? t('product.aiAssist.appliedBody', {
+                        count: aiApplied.itemCount,
+                        confidence: Math.round(aiApplied.confidence * 100),
+                      })
+                    : aiError}
+              </p>
+              {aiApplied?.notes && <p className="italic opacity-80">{aiApplied.notes}</p>}
+              {aiApplied && (
+                <p className="font-medium">{t('product.aiAssist.reviewHint')}</p>
+              )}
+            </div>
+          </div>
+        )}
+
         <div className="overflow-y-auto flex-1 my-4 pr-1 space-y-6">
           {/* Presets Bar */}
           {Object.keys(savedPresets).length > 0 && (
@@ -458,14 +588,45 @@ export default function ColumnMappingModal({
           </div>
         </div>
 
-        <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition cursor-pointer"
-          >
-            {t('core.common.cancel')}
-          </button>
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition cursor-pointer"
+            >
+              {t('core.common.cancel')}
+            </button>
+
+            {showAiButton && (
+              <button
+                type="button"
+                onClick={handleAiAssist}
+                disabled={aiLocked}
+                title={aiDisabledHint}
+                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl border border-violet-300 dark:border-violet-700 text-violet-700 dark:text-violet-300 bg-violet-50 dark:bg-violet-950/40 hover:bg-violet-100 dark:hover:bg-violet-900/40 transition cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {aiLocked ? (
+                  <Lock className="w-3.5 h-3.5" aria-hidden="true" />
+                ) : (
+                  <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
+                )}
+                {t('product.aiAssist.button')}
+                {usage && !usage.unlimited && (
+                  <span className="font-mono text-[10px] opacity-75">
+                    {usage.used}/{usage.max}
+                  </span>
+                )}
+              </button>
+            )}
+
+            {aiRunning && (
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-violet-700 dark:text-violet-300">
+                <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" />
+                {t('product.aiAssist.runningChip')}
+              </span>
+            )}
+          </div>
 
           <button
             type="button"

@@ -198,6 +198,8 @@ export interface TakeoffParseResult {
   rawMatrix?: string[][];
   sampleMatrix?: string[][];
   unlabeledColumns?: number[];
+  /** Whether this deployment can offer the AI mapping fallback for the uploaded sheet. */
+  aiAssist?: { enabled: boolean };
   /** Cover block of a quote sheet, when one was detected. */
   quoteMeta?: QuoteMetadata;
   /** Fixture list / terms / notes stacked below the priced table. */
@@ -213,6 +215,40 @@ export interface TakeoffParseResult {
    */
   pricedColumnBasis?: 'unit' | 'line_total';
   [key: string]: unknown;
+}
+
+/** Monthly AI mapping allowance for the signed-in user (per seat, UTC calendar month). */
+export interface AiAssistUsage {
+  used: number;
+  max: number;
+  /** Uses left this period; `null` for unlimited (admin / bypass) accounts. */
+  remaining: number | null;
+  /** First day of the current period, `YYYY-MM-01`. */
+  periodStart: string;
+  /** First day of the next period, when the counters reset. */
+  resetsAt: string;
+  unlimited: boolean;
+}
+
+/**
+ * Result of `POST /api/takeoffs/ai-assist`.
+ *
+ * The AI only chooses the layout (header row + column mapping); the rows, items and column schema
+ * below are produced by the same deterministic engine the manual mapping uses.
+ */
+export interface AiAssistResult extends TakeoffParseResult {
+  aiApplied: true;
+  headerRowIndex: number;
+  headers: string[];
+  rawRows: Array<Record<string, string>>;
+  mapping: Record<string, string>;
+  matchConfidences: Record<string, number>;
+  /** The model's own confidence in its layout decision (0-1). */
+  confidence: number;
+  notes: string;
+  itemCount: number;
+  model: string;
+  usage: AiAssistUsage;
 }
 
 /** A user row shown in the super-admin portal. */

@@ -162,6 +162,52 @@ export async function parseTakeoffFile(
 }
 
 /**
+ * AI mapping fallback entrypoint.
+ *
+ * Sends the same bytes the parser receives, so the server ingests the sheet itself and asks the model
+ * only *where* the data is (header row + column mapping). Kept beside `parseTakeoffFile` because both
+ * are the only two ways a spreadsheet enters the app.
+ *
+ * From Step 2 there is usually no `File` any more, so the caller can pass the `matrix` it already
+ * holds (`mappingData.rawMatrix`) instead — the server samples and validates it exactly the same way.
+ */
+export async function requestAiMapping(
+  file: TakeoffFileLike | string | null,
+  sheetName: string | null = null,
+  tableId: string | null = null,
+  matrixContext: {
+    matrix?: string[][] | null;
+    sheetNames?: string[];
+    activeSheetName?: string;
+    headerRowIndex?: number;
+  } | null = null,
+) {
+  if (typeof file !== 'string' && file?.size && file.size > MAX_FILE_SIZE_BYTES) {
+    throw new Error(getTranslation('product.uploadStep.fileTooLarge'));
+  }
+
+  const isExcel = isExcelFile(typeof file === 'string' ? null : file);
+  const fileContent = isExcel ? null : await readCsvContent(file);
+  const fileBase64 = isExcel ? await readExcelAsBase64(file) : null;
+
+  return takeoffsApi.aiAssist({
+    fileContent,
+    fileBase64,
+    fileName: (typeof file === 'string' ? null : file?.name) || (isExcel ? 'takeoff.xlsx' : 'takeoff.csv'),
+    sheetName,
+    tableId,
+    ...(matrixContext ?? {}),
+  });
+}
+
+/**
+ * Current AI mapping allowance for the signed-in user (per seat, UTC calendar month).
+ */
+export async function getAiAssistUsage() {
+  return takeoffsApi.getAiAssistUsage();
+}
+
+/**
  * Server-side row normalization with user mapping
  */
 export async function normalizeRowsWithMapping(

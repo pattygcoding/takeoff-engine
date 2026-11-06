@@ -1,14 +1,15 @@
 import { useState } from 'react';
-import { Check } from 'lucide-react';
+import { Check, Sparkles, Lock } from 'lucide-react';
 import { useTranslation } from '@/core/components/context/I18nContext';
-import { parseTakeoffFile, buildMappingModalDataFromItems } from '@/product/lib/csv';
+import { parseTakeoffFile, buildMappingModalDataFromItems, requestAiMapping } from '@/product/lib/csv';
+import { useAiAssist } from '@/product/lib/useAiAssist';
 import { DEFAULT_SCOPE_ITEMS } from '@/product/lib/scope';
 import TakeoffGrid from './TakeoffGrid';
 import RatesDrawer from './RatesDrawer';
 import ColumnMappingModal from './ColumnMappingModal';
 import ScopeInclusionsModal from './ScopeInclusionsModal';
 import type { TakeoffFileLike } from '@/product/lib/csv';
-import type { ColumnDefinition, ImportContext, MappingModalData, Rates, TakeoffItem } from '@/types/models';
+import type { AiAssistResult, ColumnDefinition, ImportContext, MappingModalData, Rates, TakeoffItem } from '@/types/models';
 
 /** Per-status copy for the project banner, keyed by project status. */
 const STATUS_COPY: Record<string, { label: string; description: string }> = {
@@ -65,10 +66,88 @@ export default function EditStep({
   const [mappingModalData, setMappingModalData] = useState<MappingModalData | null>(null);
   const [successToast, setSuccessToast] = useState('');
   const [isReparsing, setIsReparsing] = useState(false);
+  // Opening the modal from "Remap Using AI" *is* the request, so the modal runs the assist on mount.
+  const [aiAutoRun, setAiAutoRun] = useState(false);
+  const ai = useAiAssist();
 
   const statusCopy = STATUS_COPY[projectStatus] ?? STATUS_COPY.awarded;
   const statusLabel = t(statusCopy.label);
   const statusDescription = t(statusCopy.description);
+
+  /** Where a remap could read the sheet from: the uploaded file, or a matrix already in memory. */
+  const remapMatrix = importContext?.mappingData?.rawMatrix;
+  const hasRemapSource = Boolean(importContext?.file) || Boolean(remapMatrix && remapMatrix.length > 0);
+
+  const aiPlanMissing = Boolean(ai.usage) && !ai.usage?.unlimited && (ai.usage?.max ?? 0) <= 0;
+  const aiSpent = Boolean(ai.usage) && !ai.usage?.unlimited && (ai.usage?.remaining ?? 0) <= 0;
+
+  /**
+   * Everything that stops the AI remap, most specific first. The button is always shown (so the
+   * affordance is discoverable and stays a "second chance"), and disabled with the reason why.
+   */
+  const aiRemapDisabledReason = readOnly
+    ? t('product.editStep.projectLockedTitle', { status: statusLabel })
+    : isReparsing
+      ? null
+      : !ai.enabled && ai.loaded
+        ? t('product.aiAssist.disabledOnDeployment')
+        : aiPlanMissing
+          ? t('product.aiAssist.upgradeHint')
+          : aiSpent
+            ? t('product.aiAssist.quotaHint', { max: ai.usage?.max ?? 0 })
+            : !hasRemapSource
+              ? t('product.aiAssist.remapNeedsUpload')
+              : null;
+  const aiRemapDisabled = Boolean(aiRemapDisabledReason) || isReparsing;
+
+  const closeMappingModal = () => {
+    setMappingModalData(null);
+    setAiAutoRun(false);
+  };
+
+  /** Opens the mapping modal with the AI armed, so the model does the remap instead of the user. */
+  const handleOpenAiRemap = () => {
+    if (aiRemapDisabled) return;
+    setAiAutoRun(true);
+    if (importContext?.mappingData) {
+      setMappingModalData(importContext.mappingData);
+      return;
+    }
+    if (importContext?.file) void handleParseForRemap(importContext.file);
+  };
+
+  /**
+   * Runs the AI remap for the modal. Uses the uploaded file when it is still in memory, otherwise the
+   * matrix the mapping payload already carries, so Step 2 works without re-uploading.
+   */
+  const handleAiAssist = async (): Promise<AiAssistResult | null> => {
+    const file = importContext?.file ?? null;
+    const matrixContext =
+      !file && remapMatrix && remapMatrix.length > 0
+        ? {
+            matrix: remapMatrix,
+            sheetNames: importContext?.mappingData?.sheetNames,
+            activeSheetName: mappingModalData?.activeSheetName,
+            headerRowIndex: mappingModalData?.headerRowIndex,
+          }
+        : null;
+
+    if (!file && !matrixContext) return null;
+
+    try {
+      const result = await requestAiMapping(
+        file,
+        mappingModalData?.activeSheetName ?? null,
+        mappingModalData?.activeTableId ?? null,
+        matrixContext,
+      );
+      ai.recordUsage(result.usage);
+      return result;
+    } catch (err) {
+      void ai.refresh();
+      throw err;
+    }
+  };
 
   const handleOpenRemapModal = () => {
     if (readOnly) return;
@@ -103,6 +182,7 @@ export default function EditStep({
     } catch (err) {
       console.error('Failed to parse file for remapping:', err);
       // Fallback: open directly using item rows
+      setAiAutoRun(false);
       const directModalData = buildMappingModalDataFromItems(items, t, columns);
       setMappingModalData(directModalData);
     } finally {
@@ -132,6 +212,7 @@ export default function EditStep({
     columns?: ColumnDefinition[];
   }) => {
     setMappingModalData(null);
+    setAiAutoRun(false);
     if (newColumns && newColumns.length > 0 && onColumnsChange) {
       onColumnsChange(newColumns);
     }
@@ -218,6 +299,28 @@ export default function EditStep({
               <span>{isReparsing ? '...' : t('product.editStep.remapColumnsBtn', 'Match Columns')}</span>
             </button>
           )}
+          {/* Always shown so it stays a discoverable second chance; disabled with the reason why. */}
+          {!readOnly && (
+            <button
+              type="button"
+              onClick={handleOpenAiRemap}
+              disabled={aiRemapDisabled}
+              className="inline-flex items-center gap-2 rounded-md border border-violet-300 dark:border-violet-700 bg-violet-50 dark:bg-violet-950/40 px-3.5 py-2 text-sm font-medium text-violet-700 dark:text-violet-300 hover:bg-violet-100 dark:hover:bg-violet-900/40 transition shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              title={aiRemapDisabledReason ?? t('product.aiAssist.remapHint')}
+            >
+              {aiRemapDisabled ? (
+                <Lock className="h-4 w-4 shrink-0" aria-hidden="true" />
+              ) : (
+                <Sparkles className="h-4 w-4 shrink-0" aria-hidden="true" />
+              )}
+              <span>{t('product.aiAssist.remapBtn')}</span>
+              {ai.usage && !ai.usage.unlimited && (
+                <span className="font-mono text-[11px] opacity-75">
+                  {ai.usage.used}/{ai.usage.max}
+                </span>
+              )}
+            </button>
+          )}
           <button
             type="button"
             onClick={() => setDrawerOpen(true)}
@@ -293,10 +396,14 @@ export default function EditStep({
           activeSheetName={mappingModalData.activeSheetName}
           subTables={mappingModalData.subTables}
           activeTableId={mappingModalData.activeTableId}
+          aiAvailable={ai.enabled}
+          aiUsage={ai.usage}
+          aiAutoRun={aiAutoRun}
+          onAiAssist={handleAiAssist}
           onSheetChange={handleSheetChange}
           onTableChange={handleTableChange}
           onConfirm={handleMappingConfirm}
-          onCancel={() => setMappingModalData(null)}
+          onCancel={closeMappingModal}
         />
       )}
     </div>

@@ -1,11 +1,18 @@
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { downloadSampleCsv, downloadSampleExcel, parseTakeoffFile } from '@/product/lib/csv';
+import { Sparkles, Loader2 } from 'lucide-react';
+import {
+  downloadSampleCsv,
+  downloadSampleExcel,
+  getAiAssistUsage,
+  parseTakeoffFile,
+  requestAiMapping,
+} from '@/product/lib/csv';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import ColumnMappingModal from './ColumnMappingModal';
 import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
 import type { TakeoffFileLike } from '@/product/lib/csv';
-import type { ColumnDefinition, ImportContext, QuoteMetadata, QuoteSections, ScopeItem, TakeoffItem } from '@/types/models';
+import type { AiAssistResult, AiAssistUsage, ColumnDefinition, ImportContext, QuoteMetadata, QuoteSections, ScopeItem, TakeoffItem } from '@/types/models';
 
 interface MappingModalData {
   headers?: string[];
@@ -50,7 +57,23 @@ export default function UploadStep({
   const [mappingModalData, setMappingModalData] = useState<MappingModalData | null>(null);
   const [currentUploadedFile, setCurrentUploadedFile] = useState<TakeoffFileLike | null>(null);
   const [checksumSummary, setChecksumSummary] = useState<ChecksumSummary | null>(null);
+  // AI mapping fallback: offered as an optional rescue when the deterministic parse disappoints.
+  const [aiEnabled, setAiEnabled] = useState(false);
+  const [aiUsage, setAiUsage] = useState<AiAssistUsage | null>(null);
+  const [aiRunning, setAiRunning] = useState(false);
+  const [aiNotice, setAiNotice] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+
+  /** Read the allowance once per page visit (cheap, and only once the feature is known to exist). */
+  const refreshAiUsage = async () => {
+    try {
+      const { enabled, usage } = await getAiAssistUsage();
+      setAiEnabled(enabled);
+      setAiUsage(usage);
+    } catch {
+      // An unreadable allowance must never block the manual upload path.
+    }
+  };
 
   const guard = useSingleFlight();
   const handleFile = guard(
@@ -65,9 +88,12 @@ export default function UploadStep({
 
       try {
         const result = await parseTakeoffFile(file, explicitSheetName, explicitTableId);
+        if (typeof result.aiAssist?.enabled === 'boolean') setAiEnabled(result.aiAssist.enabled);
+        setAiNotice('');
 
         if (result.requiresMappingModal) {
           setMappingModalData(result);
+          void refreshAiUsage();
           return;
         }
 
@@ -139,6 +165,65 @@ export default function UploadStep({
         quoteSections: mappingModalData?.quoteSections,
         scopeItems: mappingModalData?.scopeItems,
       });
+    }
+  };
+
+  /**
+   * AI mapping from inside the mapping modal: the user reviews the result and confirms.
+   * Errors propagate so the modal can show the backend's reason (quota, plan, upstream).
+   */
+  const handleAiAssistFromModal = async (): Promise<AiAssistResult | null> => {
+    if (!currentUploadedFile) return null;
+    try {
+      const result = await requestAiMapping(
+        currentUploadedFile,
+        mappingModalData?.activeSheetName || null,
+        mappingModalData?.activeTableId || null,
+      );
+      setAiUsage(result.usage);
+      return result;
+    } catch (err) {
+      void refreshAiUsage();
+      throw err;
+    }
+  };
+
+  /**
+   * AI mapping straight from the upload error state: no mapping modal, the AI's result goes to step 2.
+   * This is the "the parse did not work, just do it for me" path.
+   */
+  const handleAiRescue = async () => {
+    if (!currentUploadedFile || aiRunning) return;
+    setAiRunning(true);
+    setAiNotice('');
+    setErrors([]);
+
+    try {
+      const result = await requestAiMapping(currentUploadedFile);
+      setAiUsage(result.usage);
+      setAiNotice(
+        t('product.aiAssist.appliedBody', {
+          count: result.itemCount,
+          confidence: Math.round((result.confidence ?? 0) * 100),
+        }),
+      );
+
+      if (result.items && result.items.length > 0) {
+        onItemsParsed(result.items, {
+          detectedLaborMode: result.detectedLaborMode,
+          file: currentUploadedFile,
+          mappingData: result,
+          columns: result.columns,
+          quoteMeta: result.quoteMeta,
+          quoteSections: result.quoteSections,
+          scopeItems: result.scopeItems,
+        });
+      }
+    } catch (err) {
+      setAiNotice((err as Error)?.message || t('product.aiAssist.failedFallback'));
+      void refreshAiUsage();
+    } finally {
+      setAiRunning(false);
     }
   };
 
@@ -231,6 +316,51 @@ export default function UploadStep({
             ))}
           </ul>
         </div>
+      )}
+
+      {/* Optional AI rescue: the parser could not read this sheet, so let the AI set up step 2. */}
+      {aiEnabled && currentUploadedFile && errors.length > 0 && (
+        <div className="mt-4 rounded-2xl border border-violet-200 dark:border-violet-800 bg-violet-50 dark:bg-violet-950/40 p-4">
+          <p className="flex items-center gap-1.5 font-semibold text-violet-800 dark:text-violet-200">
+            <Sparkles className="w-4 h-4" aria-hidden="true" />
+            {t('product.aiAssist.uploadCta')}
+          </p>
+          <p className="mt-1 text-xs text-violet-700 dark:text-violet-300">{t('product.aiAssist.uploadHint')}</p>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={handleAiRescue}
+              disabled={
+                aiRunning ||
+                (aiUsage !== null &&
+                  !aiUsage.unlimited &&
+                  ((aiUsage.max ?? 0) <= 0 || (aiUsage.remaining ?? 0) <= 0))
+              }
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl bg-violet-600 hover:bg-violet-700 text-white shadow-xs transition cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {aiRunning ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" />
+                  {t('product.aiAssist.runningChip')}
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
+                  {t('product.aiAssist.button')}
+                </>
+              )}
+            </button>
+            {aiUsage && !aiUsage.unlimited && (
+              <span className="font-mono text-[11px] text-violet-700 dark:text-violet-300">
+                {aiUsage.used}/{aiUsage.max}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {aiNotice && (
+        <p className="mt-3 text-xs font-medium text-slate-600 dark:text-slate-300">{aiNotice}</p>
       )}
 
       <div className="mt-8 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm text-slate-500 dark:text-slate-400">
@@ -436,6 +566,9 @@ export default function UploadStep({
           activeSheetName={mappingModalData.activeSheetName}
           subTables={mappingModalData.subTables || []}
           activeTableId={mappingModalData.activeTableId}
+          aiAvailable={aiEnabled}
+          aiUsage={aiUsage}
+          onAiAssist={handleAiAssistFromModal}
           onSheetChange={handleSheetChange}
           onTableChange={handleTableChange}
           onConfirm={handleMappingConfirm}
