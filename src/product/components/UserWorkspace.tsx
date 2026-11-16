@@ -9,6 +9,7 @@ import { useAuth } from '@/core/components/context/AuthContext';
 import { DEFAULT_RATES } from '@/product/lib/calculations';
 import { useLocalStorageState } from '@/core/lib/shared/useLocalStorageState';
 import { projectsApi } from '@/product/lib/projects';
+import { isLocalDraftDirty, recordSavedFingerprint } from '@/product/lib/useProjectAutosave';
 import type { ColumnDefinition, ImportContext, Project, Rates, TakeoffItem } from '@/types/models';
 
 const ProjectWorkspace = lazy(() => import('@/product/components/ProjectWorkspace'));
@@ -68,17 +69,29 @@ export default function UserWorkspace() {
     }
     setCurrentProject(activeProject);
 
+    // Never replace edits this browser has not pushed to the cloud yet.
+    const keepLocalDraft = isLocalDraftDirty(activeProject.id, items, rates, columns);
+
     // Prefer the estimate payload, falling back to the project columns when it is empty.
     const est = activeProject.latestEstimate;
     const projectItems = firstNonEmptyArray<TakeoffItem>(est?.items_json, activeProject.items);
-    if (projectItems.length > 0) setItems(projectItems);
+    if (!keepLocalDraft && projectItems.length > 0) setItems(projectItems);
 
     const projectRates = firstNonEmptyObject<Rates>(est?.rates_json, activeProject.rates);
-    if (projectRates) setRates(projectRates);
+    if (!keepLocalDraft && projectRates) setRates(projectRates);
 
     // The saved column schema restores any renamed/added/deleted passthrough columns.
     const projectColumns = est?.columns_json ?? activeProject.columns;
-    if (Array.isArray(projectColumns)) setColumns(projectColumns);
+    if (!keepLocalDraft && Array.isArray(projectColumns)) setColumns(projectColumns);
+
+    if (!keepLocalDraft) {
+      recordSavedFingerprint(
+        activeProject.id,
+        projectItems.length > 0 ? projectItems : items,
+        projectRates ?? rates,
+        Array.isArray(projectColumns) ? projectColumns : columns,
+      );
+    }
 
     navigate(`/${username}/takeoff/${project.id}/${targetStep === 'results' ? 'results' : 'edit'}`);
   };

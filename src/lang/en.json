@@ -1802,6 +1802,11 @@
       "errStatusUpdateMessage": "Failed to update project status."
     },
     "projectWorkspace": {
+      "saveDraft": "Save draft",
+      "savingDraft": "Saving…",
+      "draftSaved": "Saved {{time}}",
+      "draftSaveFailed": "Couldn't save — retry",
+      "untitledTakeoff": "Untitled takeoff",
       "loadingTakeoff": "Loading Takeoff #{{id}}...",
       "couldNotLoadTitle": "Could Not Load Takeoff",
       "backToProjects": "← Back to Projects Dashboard",

@@ -3,13 +3,15 @@ import { Check, Sparkles, Lock } from 'lucide-react';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import { parseTakeoffFile, buildMappingModalDataFromItems, requestAiMapping } from '@/product/lib/csv';
 import { useAiAssist } from '@/product/lib/useAiAssist';
-import { useLiveEstimate } from '@/product/lib/useLiveEstimate';
 import { DEFAULT_SCOPE_ITEMS } from '@/product/lib/scope';
 import TakeoffGrid from './TakeoffGrid';
 import RatesDrawer from './RatesDrawer';
 import ColumnMappingModal from './ColumnMappingModal';
 import ScopeInclusionsModal from './ScopeInclusionsModal';
+import SaveStatusChip from './SaveStatusChip';
 import StepTotalsBar from './StepTotalsBar';
+import type { LiveEstimate } from '@/product/lib/useLiveEstimate';
+import type { ProjectAutosave } from '@/product/lib/useProjectAutosave';
 import type { TakeoffFileLike } from '@/product/lib/csv';
 import type { AiAssistResult, ColumnDefinition, ImportContext, MappingModalData, Rates, TakeoffItem } from '@/types/models';
 
@@ -33,6 +35,9 @@ const STATUS_COPY: Record<string, { label: string; description: string }> = {
   },
 };
 
+/** Totals shown before the workspace's live estimate has landed (and in tests). */
+const EMPTY_LIVE: LiveEstimate = { totals: {}, loading: false, ready: true, stale: false };
+
 export default function EditStep({
   items,
   onItemsChange,
@@ -46,6 +51,8 @@ export default function EditStep({
   onImportContextChange,
   columns = [],
   onColumnsChange,
+  live = EMPTY_LIVE,
+  saveState,
 }: Readonly<{
   items: TakeoffItem[];
   onItemsChange: (items: TakeoffItem[]) => void;
@@ -61,6 +68,10 @@ export default function EditStep({
   columns?: ColumnDefinition[];
   /** Applies column add/rename/retype/delete changes made in the grid. */
   onColumnsChange?: (columns: ColumnDefinition[]) => void;
+  /** Live totals owned by the workspace, so the bar and the autosaved summary agree. */
+  live?: LiveEstimate;
+  /** Draft autosave state; omitted in tests and read-only surfaces. */
+  saveState?: ProjectAutosave;
 }>) {
   const { t } = useTranslation();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -71,8 +82,6 @@ export default function EditStep({
   // Opening the modal from "Remap Using AI" *is* the request, so the modal runs the assist on mount.
   const [aiAutoRun, setAiAutoRun] = useState(false);
   const ai = useAiAssist();
-  // Real-time totals: same backend engine Step 3 uses, debounced so grid typing stays smooth.
-  const live = useLiveEstimate(items, rates);
 
   const statusCopy = STATUS_COPY[projectStatus] ?? STATUS_COPY.awarded;
   const statusLabel = t(statusCopy.label);
@@ -283,7 +292,21 @@ export default function EditStep({
               : t('product.editStep.editDesc')}
           </p>
         </div>
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
+          {saveState && <SaveStatusChip state={saveState} />}
+          {!readOnly && saveState && (
+            <button
+              type="button"
+              onClick={() => void saveState.flush()}
+              disabled={saveState.status === 'saving'}
+              className="inline-flex items-center gap-2 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <svg aria-hidden="true" className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+              </svg>
+              {t('product.projectWorkspace.saveDraft', 'Save draft')}
+            </button>
+          )}
           {!readOnly && (
             <button
               type="button"

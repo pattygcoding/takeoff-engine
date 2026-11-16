@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Lock } from 'lucide-react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Stepper from './Stepper';
@@ -6,6 +6,13 @@ import EditStep from './EditStep';
 import ResultsStep from './ResultsStep';
 import ExportHubPage from './ExportHubPage';
 import { projectsApi } from '@/product/lib/projects';
+import { useLiveEstimate } from '@/product/lib/useLiveEstimate';
+import {
+  isLocalDraftDirty,
+  recordSavedFingerprint,
+  useProjectAutosave,
+} from '@/product/lib/useProjectAutosave';
+import { buildEstimateSummary } from '@/product/lib/estimateSummary';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
 import type { Dispatch, SetStateAction } from 'react';
@@ -45,6 +52,10 @@ export default function ProjectWorkspace({
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const guard = useSingleFlight();
+  // The load effect runs only when the project id changes, so it reads the local draft through a
+  // ref instead of re-running (and re-fetching) on every grid edit.
+  const localDraft = useRef({ items, rates, columns });
+  localDraft.current = { items, rates, columns };
   // When projectId is in the URL, only fetch if current project is not loaded or does not match
   useEffect(() => {
     let isMounted = true;
@@ -57,20 +68,32 @@ export default function ProjectWorkspace({
           if (!isMounted) return;
           setCurrentProject(fullProject);
           const est = fullProject.latestEstimate;
-          if (est?.items_json && Array.isArray(est.items_json)) {
-            setItems(est.items_json);
-          } else if (fullProject.items && Array.isArray(fullProject.items)) {
-            setItems(fullProject.items);
-          }
-          if (est?.rates_json && typeof est.rates_json === 'object' && Object.keys(est.rates_json).length > 0) {
-            setRates(est.rates_json);
-          } else if (fullProject.rates && typeof fullProject.rates === 'object' && Object.keys(fullProject.rates).length > 0) {
-            setRates(fullProject.rates);
-          }
+          const cloudItems = Array.isArray(est?.items_json)
+            ? est.items_json
+            : Array.isArray(fullProject.items)
+              ? fullProject.items
+              : null;
+          const cloudRates =
+            est?.rates_json && typeof est.rates_json === 'object' && Object.keys(est.rates_json).length > 0
+              ? est.rates_json
+              : fullProject.rates && typeof fullProject.rates === 'object' && Object.keys(fullProject.rates).length > 0
+                ? fullProject.rates
+                : null;
           // Restore the saved column schema so renamed/added/deleted passthrough columns come back.
-          if (setColumns) {
-            const savedColumns = est?.columns_json ?? fullProject.columns;
-            if (Array.isArray(savedColumns)) setColumns(savedColumns);
+          const cloudColumns = est?.columns_json ?? fullProject.columns;
+
+          // Never replace edits this browser has not pushed to the cloud yet.
+          const draft = localDraft.current;
+          if (!isLocalDraftDirty(fullProject.id, draft.items, draft.rates, draft.columns)) {
+            if (cloudItems) setItems(cloudItems);
+            if (cloudRates) setRates(cloudRates);
+            if (setColumns && Array.isArray(cloudColumns)) setColumns(cloudColumns);
+            recordSavedFingerprint(
+              fullProject.id,
+              cloudItems ?? draft.items,
+              cloudRates ?? draft.rates,
+              Array.isArray(cloudColumns) ? cloudColumns : draft.columns,
+            );
           }
           // If project is locked (awarded, declined, submitted, archived) and user navigated directly to step 2 (edit) or step 1, redirect to results (step 3)
           if (['awarded', 'declined', 'submitted', 'archived'].includes(fullProject?.status) && step === 2) {
@@ -150,6 +173,27 @@ export default function ProjectWorkspace({
       navigate(`/${username}/takeoff/${savedProj.id}/${step === 3 ? 'results' : 'edit'}`, { replace: true });
     }
   };
+
+  // One live estimate feeds both the Step 2 totals bar and the autosaved `summary_json`.
+  const live = useLiveEstimate(items, rates);
+  const draftName =
+    importContext?.quoteMeta?.projectAddress ||
+    importContext?.quoteMeta?.documentTitle ||
+    currentProject?.name ||
+    importContext?.file?.name?.replace(/\.[^.]+$/, '') ||
+    t('product.projectWorkspace.untitledTakeoff', 'Untitled takeoff');
+
+  // Drafts save themselves: the first Step 2 edit creates the project, later edits update it.
+  const autosave = useProjectAutosave({
+    project: currentProject,
+    items,
+    rates,
+    columns,
+    summary: live.ready ? buildEstimateSummary(live.totals, items.length) : undefined,
+    draftName,
+    enabled: !isLocked,
+    onSaved: handleProjectSaved,
+  });
 
   // If new draft takeoff without items and without a projectId, redirect to projects dashboard
   useEffect(() => {
@@ -276,6 +320,8 @@ export default function ProjectWorkspace({
           onImportContextChange={setImportContext}
           columns={columns}
           onColumnsChange={setColumns}
+          live={live}
+          saveState={autosave}
         />
       )}
 
@@ -291,6 +337,7 @@ export default function ProjectWorkspace({
           projectStatus={currentProject?.status}
           onDuplicate={isLocked ? handleDuplicate : undefined}
           columns={columns}
+          saveState={autosave}
         />
       )}
 

@@ -9,13 +9,16 @@ import { exportNodeToPdf, pdfFileName } from '@/product/lib/pdfExport';
 import { CLIENT_VIEW_DOCUMENTS } from '@/product/templates/ClientViewDocuments';
 import { projectsApi } from '@/product/lib/projects';
 import { proposalsApi } from '@/product/lib/proposals';
+import { buildEstimateSummary } from '@/product/lib/estimateSummary';
 import { authApi } from '@/core/lib/auth/auth';
 import { useAuth } from '@/core/components/context/AuthContext';
 import { useModal } from '@/core/components/context/ModalContext';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import UpgradeModal from '@/core/components/billing/UpgradeModal';
 import ScopeSummaryDisplay from './ScopeSummaryDisplay';
+import SaveStatusChip from './SaveStatusChip';
 import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
+import type { ProjectAutosave } from '@/product/lib/useProjectAutosave';
 import {
   CLIENT_VIEWS,
   defaultInvoiceNumber,
@@ -355,6 +358,7 @@ export default function ResultsStep({
   onDuplicate,
   importContext,
   columns = [],
+  saveState,
 }: Readonly<{
   items: TakeoffItem[];
   rates: Rates;
@@ -368,6 +372,8 @@ export default function ResultsStep({
   importContext?: ImportContext;
   /** Ordered column schema (canonical + passthrough columns) used by the CSV export. */
   columns?: ColumnDefinition[];
+  /** Draft autosave owned by the workspace; flushed before the proposal is sent. */
+  saveState?: ProjectAutosave;
 }>) {
   const { username, projectId } = useParams();
   const navigate = useNavigate();
@@ -523,17 +529,7 @@ export default function ResultsStep({
       setIsSavingProject(true);
       setSaveSuccessMsg('');
 
-      const summaryPayload = {
-        totalMaterialCost: totals.materialCost,
-        totalLaborCost: totals.laborCost,
-        totalDirectCost: totals.directCost,
-        overheadCost: totals.overheadCost,
-        contingencyCost: totals.contingencyCost,
-        profitAmount: totals.profitAmount,
-        equipmentCost: totals.equipmentCost,
-        finalBidAmount: totals.finalBidAmount,
-        totalItemsCount: items.length,
-      };
+      const summaryPayload = buildEstimateSummary(totals, items.length);
 
       await persistEstimate(
         currentProject,
@@ -552,6 +548,8 @@ export default function ResultsStep({
         refreshProfile,
       );
 
+      // The estimate is already in the cloud, so the autosave must not repeat it.
+      saveState?.markSaved();
       setShowSaveModal(false);
       setSaveSuccessMsg(t('product.resultsStep.estimateSavedSuccess'));
       setTimeout(() => setSaveSuccessMsg(''), 4000);
@@ -587,17 +585,7 @@ export default function ResultsStep({
     try {
       setIsGeneratingShareLink(true);
 
-      const summaryPayload = {
-        totalMaterialCost: totals.materialCost,
-        totalLaborCost: totals.laborCost,
-        totalDirectCost: totals.directCost,
-        overheadCost: totals.overheadCost,
-        contingencyCost: totals.contingencyCost,
-        profitAmount: totals.profitAmount,
-        equipmentCost: totals.equipmentCost,
-        finalBidAmount: totals.finalBidAmount,
-        totalItemsCount: items.length,
-      };
+      const summaryPayload = buildEstimateSummary(totals, items.length);
 
       const res = await proposalsApi.generateProposal({
         projectId: currentProject?.id ? String(currentProject.id) : undefined,
@@ -608,6 +596,10 @@ export default function ResultsStep({
         rates,
         summary: summaryPayload,
       });
+
+      // The backend creates the parent project when there wasn't one yet; adopt it so a later
+      // save updates that project instead of creating a duplicate draft.
+      if (res.project && onProjectSaved) onProjectSaved(res.project);
 
       const shareBase = (import.meta.env.VITE_PUBLIC_PROPOSAL_BASE_URL || window.location.origin).replace(/(?<!\/)\/+$/, '');
       const url = `${shareBase}/p/${res.proposal.public_token}`;
@@ -641,6 +633,8 @@ export default function ResultsStep({
     try {
       setIsSendingEmail(true);
       setEmailSentSuccess('');
+      // Submitting snapshots the SAVED estimate and locks the project, so push the draft first.
+      await saveState?.flush();
       const res = await proposalsApi.sendProposalEmail({
         projectId: String(currentProject?.id ?? shareProposalData?.project_id ?? ''),
         recipientEmail: clientRecipientEmail.trim(),
@@ -857,6 +851,7 @@ export default function ResultsStep({
               {saveButtonLabel(t, isSavingProject, Boolean(currentProject?.id))}
             </button>
           )}
+          {saveState && <SaveStatusChip state={saveState} />}
 
           <button
             type="button"

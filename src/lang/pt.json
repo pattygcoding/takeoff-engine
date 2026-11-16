@@ -1763,6 +1763,11 @@
       "errStatusUpdateMessage": "Falha ao atualizar o status do projeto."
     },
     "projectWorkspace": {
+      "saveDraft": "Salvar rascunho",
+      "savingDraft": "Salvando…",
+      "draftSaved": "Salvo {{time}}",
+      "draftSaveFailed": "Não foi possível salvar — tentar novamente",
+      "untitledTakeoff": "Takeoff sem título",
       "loadingTakeoff": "Carregando takeoff #{{id}}...",
       "couldNotLoadTitle": "Não foi possível carregar o takeoff",
       "backToProjects": "← Voltar ao painel de projetos",
