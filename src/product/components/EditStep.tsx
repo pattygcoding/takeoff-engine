@@ -13,7 +13,17 @@ import StepTotalsBar from './StepTotalsBar';
 import type { LiveEstimate } from '@/product/lib/useLiveEstimate';
 import type { ProjectAutosave } from '@/product/lib/useProjectAutosave';
 import type { TakeoffFileLike } from '@/product/lib/csv';
-import type { AiAssistResult, ColumnDefinition, ImportContext, MappingModalData, Rates, TakeoffItem } from '@/types/models';
+import type {
+  AiAssistResult,
+  ColumnDefinition,
+  ImportContext,
+  MappingModalData,
+  QuoteMetadata,
+  QuoteSections,
+  Rates,
+  ScopeItem,
+  TakeoffItem,
+} from '@/types/models';
 
 /** Per-status copy for the project banner, keyed by project status. */
 const STATUS_COPY: Record<string, { label: string; description: string }> = {
@@ -81,6 +91,8 @@ export default function EditStep({
   const [isReparsing, setIsReparsing] = useState(false);
   // Opening the modal from "Remap Using AI" *is* the request, so the modal runs the assist on mount.
   const [aiAutoRun, setAiAutoRun] = useState(false);
+  const [explicitSheetChosen, setExplicitSheetChosen] = useState(false);
+  const [explicitTableChosen, setExplicitTableChosen] = useState(false);
   const ai = useAiAssist();
 
   const statusCopy = STATUS_COPY[projectStatus] ?? STATUS_COPY.awarded;
@@ -116,11 +128,15 @@ export default function EditStep({
   const closeMappingModal = () => {
     setMappingModalData(null);
     setAiAutoRun(false);
+    setExplicitSheetChosen(false);
+    setExplicitTableChosen(false);
   };
 
   /** Opens the mapping modal with the AI armed, so the model does the remap instead of the user. */
   const handleOpenAiRemap = () => {
     if (aiRemapDisabled) return;
+    setExplicitSheetChosen(false);
+    setExplicitTableChosen(false);
     setAiAutoRun(true);
     if (importContext?.mappingData) {
       setMappingModalData(importContext.mappingData);
@@ -135,6 +151,7 @@ export default function EditStep({
    */
   const handleAiAssist = async (): Promise<AiAssistResult | null> => {
     const file = importContext?.file ?? null;
+    const hasExplicitPick = explicitSheetChosen || explicitTableChosen;
     const matrixContext =
       !file && remapMatrix && remapMatrix.length > 0
         ? {
@@ -142,16 +159,27 @@ export default function EditStep({
             sheetNames: importContext?.mappingData?.sheetNames,
             activeSheetName: mappingModalData?.activeSheetName,
             headerRowIndex: mappingModalData?.headerRowIndex,
+            ...(hasExplicitPick
+              ? {
+                  explicitSheetSelection: explicitSheetChosen,
+                  explicitTableSelection: explicitTableChosen,
+                }
+              : {}),
           }
-        : null;
+        : hasExplicitPick
+          ? {
+              explicitSheetSelection: explicitSheetChosen,
+              explicitTableSelection: explicitTableChosen,
+            }
+          : null;
 
-    if (!file && !matrixContext) return null;
+    if (!file && (!remapMatrix || remapMatrix.length === 0)) return null;
 
     try {
       const result = await requestAiMapping(
         file,
-        mappingModalData?.activeSheetName ?? null,
-        mappingModalData?.activeTableId ?? null,
+        explicitSheetChosen ? mappingModalData?.activeSheetName ?? null : null,
+        explicitTableChosen ? mappingModalData?.activeTableId ?? null : null,
         matrixContext,
       );
       ai.recordUsage(result.usage);
@@ -205,12 +233,15 @@ export default function EditStep({
 
   const handleSheetChange = (sheetName: string) => {
     if (importContext?.file) {
+      setExplicitSheetChosen(true);
+      setExplicitTableChosen(false);
       void handleParseForRemap(importContext.file, sheetName, null);
     }
   };
 
   const handleTableChange = (tableId: string) => {
     if (importContext?.file) {
+      setExplicitTableChosen(true);
       void handleParseForRemap(importContext.file, mappingModalData?.activeSheetName || null, tableId);
     }
   };
@@ -219,20 +250,76 @@ export default function EditStep({
     items: newItems,
     detectedLaborMode,
     columns: newColumns,
+    quoteMeta,
+    quoteSections,
+    scopeItems,
+    listedQuoteTotal,
+    pricedColumnBasis,
+    aiMappingData,
   }: {
     items?: TakeoffItem[];
     detectedLaborMode?: string;
     columns?: ColumnDefinition[];
+    quoteMeta?: QuoteMetadata;
+    quoteSections?: QuoteSections;
+    scopeItems?: ScopeItem[];
+    listedQuoteTotal?: number;
+    pricedColumnBasis?: 'unit' | 'line_total';
+    aiMappingData?: AiAssistResult;
   }) => {
+    const prevModalData = mappingModalData;
     setMappingModalData(null);
     setAiAutoRun(false);
+    setExplicitSheetChosen(false);
+    setExplicitTableChosen(false);
     if (newColumns && newColumns.length > 0 && onColumnsChange) {
       onColumnsChange(newColumns);
     }
     if (newItems && newItems.length > 0) {
       onItemsChange(newItems);
-      if (detectedLaborMode && onRatesChange) {
-        onRatesChange({ ...rates, laborMode: detectedLaborMode });
+      if (onRatesChange && (detectedLaborMode || (scopeItems && scopeItems.length > 0))) {
+        onRatesChange({
+          ...rates,
+          ...(detectedLaborMode ? { laborMode: detectedLaborMode } : {}),
+          ...(scopeItems && scopeItems.length > 0 ? { scopeItems } : {}),
+        });
+      }
+      if (onImportContextChange) {
+        const resolvedQuoteMeta = quoteMeta ?? importContext?.quoteMeta;
+        const resolvedQuoteSections = quoteSections ?? importContext?.quoteSections;
+        const resolvedScopeItems = scopeItems ?? importContext?.scopeItems;
+        onImportContextChange({
+          ...importContext,
+          columns: newColumns ?? aiMappingData?.columns ?? importContext?.columns ?? columns,
+          quoteMeta: resolvedQuoteMeta,
+          quoteSections: resolvedQuoteSections,
+          scopeItems: resolvedScopeItems,
+          mappingData: {
+            ...(importContext?.mappingData ?? prevModalData ?? {}),
+            ...(aiMappingData
+              ? {
+                  headers: aiMappingData.headers,
+                  rawRows: aiMappingData.rawRows,
+                  mapping: aiMappingData.mapping,
+                  currentMapping: aiMappingData.mapping,
+                  matchConfidences: aiMappingData.matchConfidences,
+                  overallConfidence: aiMappingData.confidence,
+                  headerRowIndex: aiMappingData.headerRowIndex,
+                  ...(aiMappingData.rawMatrix ? { rawMatrix: aiMappingData.rawMatrix } : {}),
+                  ...(aiMappingData.sampleMatrix ? { sampleMatrix: aiMappingData.sampleMatrix } : {}),
+                  sheetNames: aiMappingData.sheetNames,
+                  activeSheetName: aiMappingData.activeSheetName,
+                  subTables: aiMappingData.subTables,
+                  activeTableId: aiMappingData.activeTableId,
+                }
+              : {}),
+            ...(resolvedQuoteMeta ? { quoteMeta: resolvedQuoteMeta } : {}),
+            ...(resolvedQuoteSections ? { quoteSections: resolvedQuoteSections } : {}),
+            ...(resolvedScopeItems ? { scopeItems: resolvedScopeItems } : {}),
+            ...(listedQuoteTotal !== undefined ? { listedQuoteTotal } : {}),
+            ...(pricedColumnBasis ? { pricedColumnBasis } : {}),
+          },
+        });
       }
       setSuccessToast(t('product.editStep.remapSuccessToast', 'Column mappings successfully applied!'));
       setTimeout(() => setSuccessToast(''), 3500);

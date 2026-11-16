@@ -109,7 +109,7 @@ const MAPPING_DATA: MappingModalData = {
   activeTableId: null,
 };
 
-function aiResult(): AiAssistResult {
+function aiResult(overrides: Partial<AiAssistResult> = {}): AiAssistResult {
   return {
     aiApplied: true,
     headerRowIndex: 0,
@@ -122,6 +122,7 @@ function aiResult(): AiAssistResult {
     itemCount: 1,
     model: 'anthropic/claude-haiku-5.5',
     usage: { ...STARTER, used: 4, remaining: 26 },
+    ...overrides,
   } as AiAssistResult;
 }
 
@@ -218,5 +219,57 @@ describe('Step 2 "Remap Using AI"', () => {
     await waitFor(() => expect(requestAiMapping).toHaveBeenCalledTimes(1));
     const [, , , matrixContext] = vi.mocked(requestAiMapping).mock.calls[0];
     expect(matrixContext).toMatchObject({ matrix: MAPPING_DATA.rawMatrix });
+  });
+
+  it('updates items, columns, scope items, and importContext when an AI rescue is confirmed on Step 2', async () => {
+    vi.mocked(getAiAssistUsage).mockResolvedValue({ enabled: true, model: 'anthropic/claude-haiku-5.5', usage: STARTER });
+    const rescuedItems: TakeoffItem[] = [
+      { id: 'r-1', system: '22 - Plumbing', description: 'Water service', quantity: 1, unit: 'EA', materialCostPerUnit: 3950 },
+    ];
+    const rescuedScope = [{ id: 'sc-1', title: 'Fixtures excluded', status: 'excluded', category: 'fixtures' }];
+    vi.mocked(requestAiMapping).mockResolvedValue(
+      aiResult({
+        items: rescuedItems,
+        itemCount: 1,
+        columns: [{ key: 'system', label: 'System', type: 'text', field: 'system', source: 'canonical' }],
+        quoteMeta: { documentTitle: 'PLUMBING QUOTE', builder: 'Hillcrest' },
+        scopeItems: rescuedScope,
+      }),
+    );
+
+    const onItemsChange = vi.fn();
+    const onColumnsChange = vi.fn();
+    const onRatesChange = vi.fn();
+    const onImportContextChange = vi.fn();
+
+    render(
+      <EditStep
+        items={[{ id: 'old-1', system: 'General Scope', description: 'Bad parse', quantity: 1, unit: 'LF' }]}
+        onItemsChange={onItemsChange}
+        rates={DEFAULT_RATES as unknown as Rates}
+        onRatesChange={onRatesChange}
+        onCalculate={vi.fn()}
+        importContext={{ file: { name: 'quote.csv' }, mappingData: MAPPING_DATA }}
+        onImportContextChange={onImportContextChange}
+        columns={[]}
+        onColumnsChange={onColumnsChange}
+      />,
+    );
+
+    await waitFor(() => expect(remapButton().disabled).toBe(false));
+    fireEvent.click(remapButton());
+
+    await waitFor(() => expect(screen.getByText('AI mapping applied')).toBeTruthy());
+    fireEvent.click(screen.getByRole('button', { name: /confirmImportTakeoff/i }));
+
+    await waitFor(() => expect(onItemsChange).toHaveBeenCalledWith(rescuedItems));
+    expect(onColumnsChange).toHaveBeenCalledTimes(1);
+    expect(onRatesChange).toHaveBeenCalledWith(expect.objectContaining({ scopeItems: rescuedScope }));
+    expect(onImportContextChange).toHaveBeenCalledWith(
+      expect.objectContaining({
+        quoteMeta: { documentTitle: 'PLUMBING QUOTE', builder: 'Hillcrest' },
+        scopeItems: rescuedScope,
+      }),
+    );
   });
 });

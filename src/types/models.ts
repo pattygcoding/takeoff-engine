@@ -249,6 +249,13 @@ export interface AiAssistResult extends TakeoffParseResult {
   itemCount: number;
   model: string;
   usage: AiAssistUsage;
+  defaultSystem?: string;
+  rawMatrix?: string[][];
+  sampleMatrix?: string[][];
+  sheetNames?: string[];
+  activeSheetName?: string;
+  subTables?: Array<{ id: string; label: string }>;
+  activeTableId?: string | null;
 }
 
 /** A user row shown in the super-admin portal. */

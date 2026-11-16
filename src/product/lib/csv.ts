@@ -180,6 +180,8 @@ export async function requestAiMapping(
     sheetNames?: string[];
     activeSheetName?: string;
     headerRowIndex?: number;
+    explicitSheetSelection?: boolean;
+    explicitTableSelection?: boolean;
   } | null = null,
 ) {
   if (typeof file !== 'string' && file?.size && file.size > MAX_FILE_SIZE_BYTES) {
@@ -216,6 +218,11 @@ export async function normalizeRowsWithMapping(
   defaultLaborRate: number | null = null,
   headers: string[] | null = null,
   customColumns: ColumnDefinition[] | null = null,
+  options: {
+    defaultSystem?: string | null;
+    pricedColumnBasis?: 'unit' | 'line_total' | null;
+    listedQuoteTotal?: number | null;
+  } = {},
 ) {
   return takeoffsApi.normalizeMapping({
     rawRows,
@@ -223,6 +230,9 @@ export async function normalizeRowsWithMapping(
     defaultLaborRate,
     headers: headers ?? undefined,
     customColumns,
+    defaultSystem: options.defaultSystem ?? undefined,
+    pricedColumnBasis: options.pricedColumnBasis ?? undefined,
+    listedQuoteTotal: options.listedQuoteTotal ?? undefined,
   });
 }
 

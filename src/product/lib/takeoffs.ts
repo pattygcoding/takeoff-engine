@@ -73,6 +73,9 @@ export const takeoffsApi = {
     defaultLaborRate,
     headers,
     customColumns,
+    defaultSystem,
+    pricedColumnBasis,
+    listedQuoteTotal,
   }: {
     rawRows: unknown[];
     mapping: Record<string, unknown>;
@@ -81,6 +84,9 @@ export const takeoffsApi = {
     headers?: string[];
     /** Passthrough columns already held by the client, so renames/types survive a confirm. */
     customColumns?: ColumnDefinition[] | null;
+    defaultSystem?: string | null;
+    pricedColumnBasis?: 'unit' | 'line_total' | null;
+    listedQuoteTotal?: number | null;
   }) {
     const res = await fetch(`${API_BASE_URL}/takeoffs/normalize-mapping`, {
       method: 'POST',
@@ -91,6 +97,9 @@ export const takeoffsApi = {
         defaultLaborRate,
         headers,
         customColumns,
+        defaultSystem,
+        pricedColumnBasis,
+        listedQuoteTotal,
       }),
     });
 
@@ -137,6 +146,8 @@ export const takeoffsApi = {
     fileName,
     sheetName,
     tableId,
+    explicitSheetSelection,
+    explicitTableSelection,
     matrix,
     sheetNames,
     activeSheetName,
@@ -147,6 +158,8 @@ export const takeoffsApi = {
     fileName?: string | null;
     sheetName?: string | null;
     tableId?: string | null;
+    explicitSheetSelection?: boolean;
+    explicitTableSelection?: boolean;
     /** A sheet matrix the client already holds, so Step 2 can remap without re-uploading. */
     matrix?: string[][] | null;
     sheetNames?: string[];
@@ -162,6 +175,8 @@ export const takeoffsApi = {
         fileName,
         sheetName,
         tableId,
+        explicitSheetSelection,
+        explicitTableSelection,
         matrix,
         sheetNames,
         activeSheetName,

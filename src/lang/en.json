@@ -1175,12 +1175,12 @@
     },
     "aiAssist": {
       "button": "Fix with AI",
-      "buttonHint": "Let the AI choose the header row and columns. You review before importing.",
+      "buttonHint": "Let the AI rescue and map both the columns and rows across the spreadsheet. You review before importing.",
       "upgradeHint": "AI column mapping is available on the Starter, Pro and Enterprise plans.",
       "quotaHint": "You have used all {{max}} AI mapping assists for this month.",
       "runningChip": "AI is mapping…",
       "runningTitle": "Asking the AI to map this sheet",
-      "runningBody": "Only the first rows are sent. Nothing is imported until you confirm.",
+      "runningBody": "Analyzing columns, row structure, and totals across the spreadsheet. Nothing is imported until you confirm.",
       "appliedTitle": "AI mapping applied",
       "appliedBody": "{{count}} line items ready · {{confidence}}% confidence",
       "reviewHint": "Check the headers and preview below, then confirm the import.",
@@ -1189,7 +1189,7 @@
       "uploadCta": "Not right? Let the AI map it",
       "uploadHint": "Wrong columns, or a header row the parser missed? The AI can pick them for you.",
       "remapBtn": "Remap Using AI",
-      "remapHint": "Let the AI re-read the original spreadsheet and remap the columns.",
+      "remapHint": "Let the AI re-read the original spreadsheet and rescue both columns and rows.",
       "remapNeedsUpload": "Re-upload the spreadsheet to remap it with AI.",
       "disabledOnDeployment": "AI remapping is not enabled on this deployment."
     },

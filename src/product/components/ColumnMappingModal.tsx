@@ -100,6 +100,7 @@ export default function ColumnMappingModal({
     scopeItems?: ScopeItem[];
     listedQuoteTotal?: number;
     pricedColumnBasis?: 'unit' | 'line_total';
+    aiMappingData?: AiAssistResult;
   }) => void;
   onCancel: () => void;
 }>) {
@@ -110,6 +111,7 @@ export default function ColumnMappingModal({
   const [headerRowIndex, setHeaderRowIndex] = useState(initialHeaderRowIndex);
   const [currentHeaders, setCurrentHeaders] = useState<string[]>(initialHeaders || []);
   const [currentRawRows, setCurrentRawRows] = useState<Array<Record<string, string>>>(initialRawRows || []);
+  const [currentSampleMatrix, setCurrentSampleMatrix] = useState<string[][]>(sampleMatrix || []);
   const [mapping, setMapping] = useState<Record<string, string | undefined>>(
     { ...initialMapping } as Record<string, string | undefined>,
   );
@@ -120,11 +122,13 @@ export default function ColumnMappingModal({
   const [showPresetSaved, setShowPresetSaved] = useState(false);
   const [savedPresets, setSavedPresets] = useState(() => getSavedVendorPresets());
 
-  // AI fallback: the model chooses the header row and column mapping, a human still confirms.
+  // AI fallback: rescues both columns and rows, and a human still confirms.
   const [aiRunning, setAiRunning] = useState(false);
   const [aiApplied, setAiApplied] = useState<{ confidence: number; notes: string; itemCount: number } | null>(null);
-  /** The full assist payload, kept so its quote metadata survives the confirm re-normalize. */
+  /** The full assist payload, kept so rescued items, columns, and quote metadata survive confirm. */
   const [aiResult, setAiResult] = useState<AiAssistResult | null>(null);
+  /** Tracks whether the user manually altered any column select or preset after AI rescue ran. */
+  const [userEditedAfterAi, setUserEditedAfterAi] = useState(false);
   const [aiError, setAiError] = useState('');
   // Seeded from the prop, then replaced by whatever the backend returns for the assist we just spent.
   // The prop is re-read too: UploadStep fetches the allowance when it opens this modal, which lands
@@ -162,9 +166,13 @@ export default function ColumnMappingModal({
       setHeaderRowIndex(result.headerRowIndex);
       setCurrentHeaders(result.headers || []);
       setCurrentRawRows(result.rawRows || []);
+      if (result.sampleMatrix || result.rawMatrix) {
+        setCurrentSampleMatrix(result.sampleMatrix || result.rawMatrix || []);
+      }
       setMapping(result.mapping || {});
       setMatchConfidences(result.matchConfidences || {});
       setOverallConfidence(result.confidence ?? 0);
+      setUserEditedAfterAi(false);
       setAiApplied({
         confidence: result.confidence ?? 0,
         notes: result.notes || '',
@@ -193,18 +201,21 @@ export default function ColumnMappingModal({
   }, [aiAutoRun, aiAvailable, onAiAssist]);
 
   // Allow choosing header row among available matrix rows (up to 30 rows)
-  const maxHeaderOptions = Math.min(sampleMatrix?.length || 1, 30);
+  const activeMatrix = currentSampleMatrix.length > 0 ? currentSampleMatrix : sampleMatrix;
+  const maxHeaderOptions = Math.min(activeMatrix?.length || 1, 30);
   const headerRowOptions = Array.from({ length: maxHeaderOptions }, (_, i) => i);
 
   const handleHeaderRowChange = async (newRowIndex: string | number) => {
     const rIdx = Number(newRowIndex);
     setHeaderRowIndex(rIdx);
     // A different header row invalidates the assist's cover block and stacked sections.
+    setAiApplied(null);
     setAiResult(null);
+    setUserEditedAfterAi(true);
 
-    if (sampleMatrix && sampleMatrix.length > 0) {
+    if (activeMatrix && activeMatrix.length > 0) {
       const { headers: newHeaders, rows: newRows, mapping: newAutoMapping, matchConfidences: newConfidences, confidence: newOverallConf } =
-        await extractHeadersAndRowsAtHeaderRow(sampleMatrix, rIdx);
+        await extractHeadersAndRowsAtHeaderRow(activeMatrix, rIdx);
       setCurrentHeaders(newHeaders || []);
       setCurrentRawRows(newRows || []);
 
@@ -221,6 +232,7 @@ export default function ColumnMappingModal({
   };
 
   const handleChange = (targetKey: string, selectedCol: string) => {
+    setUserEditedAfterAi(true);
     setMapping((prev) => ({
       ...prev,
       [targetKey]: selectedCol || undefined,
@@ -229,6 +241,7 @@ export default function ColumnMappingModal({
 
   const handleApplyPreset = (name: string) => {
     if (savedPresets[name]) {
+      setUserEditedAfterAi(true);
       setMapping((prev) => ({ ...prev, ...savedPresets[name] }));
     }
   };
@@ -267,6 +280,29 @@ export default function ColumnMappingModal({
       return;
     }
 
+    // When the user confirms an unmodified AI rescue directly, preserve the backend's exact rescued
+    // items, columns, checksum, multi-region rows, and quote metadata without clobbering them.
+    if (aiResult && !userEditedAfterAi && Array.isArray(aiResult.items) && aiResult.items.length > 0) {
+      onConfirm({
+        items: aiResult.items,
+        errors: aiResult.errors || [],
+        checksum: aiResult.checksum,
+        detectedLaborMode: aiResult.detectedLaborMode,
+        columns:
+          Array.isArray(aiResult.columns) && aiResult.columns.length > 0 ? aiResult.columns : initialColumns,
+        quoteMeta: aiResult.quoteMeta,
+        quoteSections: aiResult.quoteSections,
+        scopeItems: aiResult.scopeItems,
+        listedQuoteTotal: aiResult.listedQuoteTotal,
+        pricedColumnBasis: aiResult.pricedColumnBasis,
+        aiMappingData: aiResult,
+      });
+      return;
+    }
+
+    const baseColumns =
+      Array.isArray(aiResult?.columns) && aiResult.columns.length > 0 ? aiResult.columns : initialColumns;
+
     const {
       items = [],
       errors = [],
@@ -278,7 +314,12 @@ export default function ColumnMappingModal({
       mapping,
       null,
       currentHeaders,
-      customColumnsOf(initialColumns),
+      customColumnsOf(baseColumns),
+      {
+        defaultSystem: aiResult?.defaultSystem ?? null,
+        pricedColumnBasis: aiResult?.pricedColumnBasis ?? null,
+        listedQuoteTotal: aiResult?.listedQuoteTotal ?? null,
+      },
     );
     if (items.length === 0 && errors.length > 0) {
       setValidationError(t('product.columnMappingModal.validationErrorParsing', { error: errors[0] }));
@@ -290,22 +331,20 @@ export default function ColumnMappingModal({
       errors,
       checksum,
       detectedLaborMode,
-      // Prefer the schema the server rebuilt for this mapping, else keep what we were handed.
-      columns: Array.isArray(normalizedColumns) && normalizedColumns.length > 0 ? normalizedColumns : initialColumns,
-      // Quote metadata read by the assist: re-normalizing rows cannot rediscover the cover block or
-      // the stacked fixture/terms sections, so hand them through from the assist result.
+      columns: Array.isArray(normalizedColumns) && normalizedColumns.length > 0 ? normalizedColumns : baseColumns,
       quoteMeta: aiResult?.quoteMeta,
       quoteSections: aiResult?.quoteSections,
       scopeItems: aiResult?.scopeItems,
       listedQuoteTotal: aiResult?.listedQuoteTotal,
       pricedColumnBasis: aiResult?.pricedColumnBasis,
+      ...(aiResult ? { aiMappingData: { ...aiResult, headers: currentHeaders, rawRows: currentRawRows, mapping: mapping as Record<string, string> } } : {}),
     });
   };
 
   // Compute live 5-row preview with current mapping
   const previewRows = (currentRawRows || []).slice(0, 5);
 
-  const hasRowSelector = sampleMatrix && sampleMatrix.length > 1;
+  const hasRowSelector = activeMatrix && activeMatrix.length > 1;
   const hasSubTables = subTables.length > 1 && onTableChange;
   const hasMultipleSheets = sheetNames.length > 1 && onSheetChange;
   const hasConfigurationBar = hasRowSelector || hasSubTables || hasMultipleSheets;
@@ -347,7 +386,7 @@ export default function ColumnMappingModal({
                     className="w-full text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-1.5 font-semibold text-slate-800 dark:text-slate-200 shadow-xs focus:ring-2 focus:ring-slate-400 focus:outline-none"
                   >
                     {headerRowOptions.map((r) => {
-                      const previewText = (sampleMatrix[r] || [])
+                      const previewText = (activeMatrix[r] || [])
                         .filter(Boolean)
                         .slice(0, 3)
                         .join(', ');

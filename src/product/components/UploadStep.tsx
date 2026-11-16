@@ -64,6 +64,9 @@ export default function UploadStep({
   const [mode, setMode] = useState<ImportMode>('parser');
   // Opening the mapping modal *as* the AI request, so it runs the assist on mount.
   const [aiAutoRun, setAiAutoRun] = useState(false);
+  // Tracks whether the user explicitly picked a sheet tab or sub-table dropdown.
+  const [explicitSheetChosen, setExplicitSheetChosen] = useState(false);
+  const [explicitTableChosen, setExplicitTableChosen] = useState(false);
   // AI mapping fallback: also offered as an optional rescue when the deterministic parse disappoints.
   const [aiRunning, setAiRunning] = useState(false);
   const [aiNotice, setAiNotice] = useState('');
@@ -150,6 +153,10 @@ export default function UploadStep({
       const activeMode = modeOverride ?? mode;
       if (activeMode === 'manual') return;
 
+      if (explicitSheetName === null && explicitTableId === null) {
+        setExplicitSheetChosen(false);
+        setExplicitTableChosen(false);
+      }
       setFileName(file.name || '');
       setCurrentUploadedFile(file);
       setIsParsing(true);
@@ -209,12 +216,15 @@ export default function UploadStep({
 
   const handleSheetChange = (sheetName: string) => {
     if (currentUploadedFile) {
+      setExplicitSheetChosen(true);
+      setExplicitTableChosen(false);
       handleFile(currentUploadedFile, sheetName, null, mode);
     }
   };
 
   const handleTableChange = (tableId: string) => {
     if (currentUploadedFile) {
+      setExplicitTableChosen(true);
       handleFile(currentUploadedFile, mappingModalData?.activeSheetName || null, tableId, mode);
     }
   };
@@ -230,6 +240,7 @@ export default function UploadStep({
     scopeItems,
     listedQuoteTotal,
     pricedColumnBasis,
+    aiMappingData,
   }: {
     items?: TakeoffItem[];
     errors?: string[];
@@ -241,6 +252,7 @@ export default function UploadStep({
     scopeItems?: ScopeItem[];
     listedQuoteTotal?: number;
     pricedColumnBasis?: 'unit' | 'line_total';
+    aiMappingData?: AiAssistResult;
   }) => {
     setMappingModalData(null);
     setAiAutoRun(false);
@@ -248,8 +260,6 @@ export default function UploadStep({
     if (checksum?.hasSubtotals) {
       setChecksumSummary(checksum);
     }
-    // An AI assist can read a cover block and stacked sections the original parse missed, so its
-    // values win; otherwise keep what the parse found.
     const resolvedQuoteMeta = quoteMeta ?? mappingModalData?.quoteMeta;
     const resolvedQuoteSections = quoteSections ?? mappingModalData?.quoteSections;
     const resolvedScopeItems = scopeItems ?? mappingModalData?.scopeItems;
@@ -259,13 +269,30 @@ export default function UploadStep({
         file: currentUploadedFile,
         mappingData: {
           ...mappingModalData,
+          ...(aiMappingData
+            ? {
+                headers: aiMappingData.headers,
+                rawRows: aiMappingData.rawRows,
+                mapping: aiMappingData.mapping,
+                currentMapping: aiMappingData.mapping,
+                matchConfidences: aiMappingData.matchConfidences,
+                overallConfidence: aiMappingData.confidence,
+                headerRowIndex: aiMappingData.headerRowIndex,
+                ...(aiMappingData.rawMatrix ? { rawMatrix: aiMappingData.rawMatrix } : {}),
+                ...(aiMappingData.sampleMatrix ? { sampleMatrix: aiMappingData.sampleMatrix } : {}),
+                sheetNames: aiMappingData.sheetNames,
+                activeSheetName: aiMappingData.activeSheetName,
+                subTables: aiMappingData.subTables,
+                activeTableId: aiMappingData.activeTableId,
+              }
+            : {}),
           ...(resolvedQuoteMeta ? { quoteMeta: resolvedQuoteMeta } : {}),
           ...(resolvedQuoteSections ? { quoteSections: resolvedQuoteSections } : {}),
           ...(resolvedScopeItems ? { scopeItems: resolvedScopeItems } : {}),
           ...(listedQuoteTotal !== undefined ? { listedQuoteTotal } : {}),
           ...(pricedColumnBasis ? { pricedColumnBasis } : {}),
         },
-        columns: columns ?? mappingModalData?.columns,
+        columns: columns ?? aiMappingData?.columns ?? mappingModalData?.columns,
         quoteMeta: resolvedQuoteMeta,
         quoteSections: resolvedQuoteSections,
         scopeItems: resolvedScopeItems,
@@ -280,10 +307,17 @@ export default function UploadStep({
   const handleAiAssistFromModal = async (): Promise<AiAssistResult | null> => {
     if (!currentUploadedFile) return null;
     try {
+      const hasExplicitPick = explicitSheetChosen || explicitTableChosen;
       const result = await requestAiMapping(
         currentUploadedFile,
-        mappingModalData?.activeSheetName || null,
-        mappingModalData?.activeTableId || null,
+        explicitSheetChosen ? mappingModalData?.activeSheetName || null : null,
+        explicitTableChosen ? mappingModalData?.activeTableId || null : null,
+        hasExplicitPick
+          ? {
+              explicitSheetSelection: explicitSheetChosen,
+              explicitTableSelection: explicitTableChosen,
+            }
+          : null,
       );
       ai.recordUsage(result.usage);
       return result;

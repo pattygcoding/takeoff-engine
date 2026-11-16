@@ -186,4 +186,46 @@ describe('AI mapping fallback in the column mapping modal', () => {
     const systemSelect = screen.getByLabelText(SYSTEM_SELECT) as HTMLSelectElement;
     expect(systemSelect.value).toBe('');
   });
+
+  it('passes rescued AI items, columns, and metadata directly on confirm without clobbering them', async () => {
+    const rescuedItems = [
+      {
+        id: 'rescued-1',
+        system: '22 - Plumbing',
+        description: 'Sanitary sewer tap',
+        quantity: 1,
+        unit: 'EA',
+        materialCostPerUnit: 1450,
+      },
+    ];
+    const rescuedColumns = [
+      { key: 'system', label: 'System', type: 'text' as const, field: 'system', source: 'canonical' as const },
+    ];
+    const onConfirm = vi.fn();
+    const onAiAssist = vi.fn(async () =>
+      aiResult({
+        items: rescuedItems,
+        columns: rescuedColumns,
+        quoteMeta: { documentTitle: 'PLUMBING QUOTE', builder: 'Glenmore Homes' },
+        listedQuoteTotal: 1450,
+        pricedColumnBasis: 'line_total',
+      }),
+    );
+
+    renderModal({ onAiAssist, onConfirm });
+
+    fireEvent.click(screen.getByText('Fix with AI'));
+    await waitFor(() => expect(screen.getByText('AI mapping applied')).toBeTruthy());
+
+    fireEvent.click(screen.getByRole('button', { name: /confirmImportTakeoff/i }));
+
+    await waitFor(() => expect(onConfirm).toHaveBeenCalledTimes(1));
+    expect(onConfirm.mock.calls[0][0]).toMatchObject({
+      items: rescuedItems,
+      columns: rescuedColumns,
+      quoteMeta: { documentTitle: 'PLUMBING QUOTE', builder: 'Glenmore Homes' },
+      listedQuoteTotal: 1450,
+      pricedColumnBasis: 'line_total',
+    });
+  });
 });
