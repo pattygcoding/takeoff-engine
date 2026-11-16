@@ -1,11 +1,11 @@
 import { lazy, useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
 import { Navigate, Route, Routes, useNavigate, useParams, Link } from 'react-router-dom';
 import Stepper from '@/product/components/Stepper';
 import NotFoundPage from '@/core/components/shared/NotFoundPage';
 import UploadStep from '@/product/components/UploadStep';
 import ProjectDashboard from '@/product/components/ProjectDashboard';
 import { useAuth } from '@/core/components/context/AuthContext';
+import { useTranslation } from '@/core/components/context/I18nContext';
 import { DEFAULT_RATES } from '@/product/lib/calculations';
 import { useLocalStorageState } from '@/core/lib/shared/useLocalStorageState';
 import { projectsApi } from '@/product/lib/projects';
@@ -34,6 +34,7 @@ function firstNonEmptyObject<T>(...candidates: unknown[]): T | null {
 export default function UserWorkspace() {
   const { username } = useParams();
   const { user } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [items, setItems] = useLocalStorageState<TakeoffItem[]>('takeoff-engine.items', []);
@@ -162,15 +163,26 @@ export default function UserWorkspace() {
         path="/upload"
         element={
           <>
-            <div className="max-w-6xl mx-auto px-4 pt-5 pb-3 flex items-center justify-between">
-              <Link
-                to={`/${username}`}
-                className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition"
-              >
-                <ArrowLeft className="w-3.5 h-3.5" /> Back to Projects Dashboard
-              </Link>
+            <div className="bg-slate-50/80 dark:bg-slate-900/60 border-b border-slate-200/70 dark:border-slate-800/80">
+              <div className="max-w-6xl mx-auto px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
+                <Link
+                  to={`/${username}`}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition"
+                >
+                  {t('product.projectWorkspace.backToProjects')}
+                </Link>
+                {items.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => goToStep(2)}
+                    className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 cursor-pointer"
+                  >
+                    {t('product.uploadStep.returnToActiveTakeoff', { count: items.length })}
+                  </button>
+                )}
+              </div>
             </div>
-            <Stepper step={1} onStepClick={goToStep} />
+            <Stepper step={1} onStepClick={goToStep} hasItems={items.length > 0} />
             <UploadStep onItemsParsed={handleItemsParsed} />
           </>
         }

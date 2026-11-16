@@ -165,12 +165,14 @@ export default function RatesDrawer({
   rates,
   onChange,
   readOnly = false,
+  initialSection = 'all',
 }: Readonly<{
   open: boolean;
   onClose: () => void;
   rates: Rates;
   onChange: (rates: Rates) => void;
   readOnly?: boolean;
+  initialSection?: string;
 }>) {
   const { user } = useAuth();
   const { showAlert, showConfirm } = useModal();
@@ -188,14 +190,15 @@ export default function RatesDrawer({
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const [activeSection, setActiveSection] = useState('all'); // 'all' | 'templates' | 'labor' | 'equipment' | 'trenching' | 'markups'
+  const [activeSection, setActiveSection] = useState(initialSection); // 'all' | 'templates' | 'labor' | 'equipment' | 'trenching' | 'markups'
 
   const guard = useSingleFlight();
   useEffect(() => {
-    if (open && user) {
-      void loadRates();
+    if (open) {
+      setActiveSection(initialSection || 'all');
+      if (user) void loadRates();
     }
-  }, [open, user]);
+  }, [open, user, initialSection]);
 
   const loadRates = async () => {
     try {

@@ -811,6 +811,9 @@
       "updateProjectFailed": "No se pudo actualizar el proyecto.",
       "deleteProjectFailed": "No se pudo eliminar el proyecto.",
       "duplicateProjectFailed": "No se pudo duplicar el proyecto.",
+      "fetchColumnPresetsFailed": "No se pudieron obtener los preajustes de columnas.",
+      "saveColumnPresetFailed": "No se pudo guardar el preajuste de columnas.",
+      "deleteColumnPresetFailed": "No se pudo eliminar el preajuste de columnas.",
       "counterOfferFailed": "No se pudo enviar la solicitud de contraoferta."
     },
     "paddle": {
@@ -1352,6 +1355,7 @@
       "statusDescDeclined": "Esta propuesta fue rechazada por el cliente. Las cifras están bloqueadas en modo de solo lectura. Puede duplicarla como una nueva revisión para hacer actualizaciones.",
       "lockedReadOnly": "Bloqueado - Solo lectura",
       "duplicateAsNewRevision": "Duplicar como nueva revisión",
+      "duplicateDraftBtn": "Duplicar como nuevo borrador",
       "clientProposalTitle": "Propuesta para el cliente",
       "internalCostBreakdownTitle": "Desglose interno de costos",
       "clientProposalSubtitle": "Resumen limpio para el cliente, listo para compartir o exportar.",
@@ -1649,6 +1653,29 @@
       "parseError": "No se pudo leer este archivo. Asegúrese de que sea un archivo CSV o Excel (.xlsx) válido."
     },
     "takeoffGrid": {
+      "columns": {
+        "presets": {
+          "button": "Preajustes de columnas",
+          "title": "Preajustes de columnas",
+          "hint": "Guarde esta disposición de columnas y reutilícela en otro proyecto",
+          "saveAction": "Guardar la disposición actual como preajuste…",
+          "namePlaceholder": "p. ej. Servicios estándar",
+          "saveConfirm": "Guardar preajuste",
+          "saving": "Guardando…",
+          "loading": "Cargando preajustes…",
+          "empty": "Aún no hay preajustes guardados. Guarde esta disposición para reutilizarla más adelante.",
+          "loadHint": "Aplicar esta disposición a la cuadrícula",
+          "columnCount": "{{count}} columnas",
+          "delete": "Eliminar preajuste",
+          "deleteConfirm": "Haga clic de nuevo para eliminar este preajuste",
+          "deleteConfirmShort": "¿Seguro?",
+          "saved": "Preajuste \"{{name}}\" guardado.",
+          "loaded": "Preajuste \"{{name}}\" cargado.",
+          "loadFailed": "No se pudieron cargar sus preajustes de columnas.",
+          "saveFailed": "No se pudo guardar el preajuste.",
+          "deleteFailed": "No se pudo eliminar el preajuste."
+        }
+      },
       "system": "Sistema",
       "description": "Descripción",
       "sizeSpec": "Tamaño / Especificación",
@@ -1784,6 +1811,8 @@
       "draftSaved": "Guardado {{time}}",
       "draftSaveFailed": "No se pudo guardar — reintentar",
       "untitledTakeoff": "Takeoff sin título",
+      "duplicateProject": "Duplicar proyecto",
+      "duplicateProjectHint": "Crear un nuevo borrador a partir de este proyecto",
       "loadingTakeoff": "Cargando takeoff #{{id}}...",
       "couldNotLoadTitle": "No se pudo cargar el takeoff",
       "backToProjects": "← Volver al panel de proyectos",
@@ -1884,6 +1913,7 @@
       "lockedBannerTitle": "Proyecto {{status}} (bloqueado - solo lectura)",
       "duplicateRevision": "Duplicar como nueva revisión",
       "duplicateRevisionBtn": "Duplicar como nueva revisión",
+      "duplicateDraftBtn": "Duplicar como nuevo borrador",
       "viewTakeoffTitle": "Ver takeoff ({{status}})",
       "titleView": "Ver takeoff ({{status}})",
       "editTitle": "Editar y revisar takeoff",

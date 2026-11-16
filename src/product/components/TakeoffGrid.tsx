@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { ChangeEvent, FormEvent, MouseEvent, PointerEvent, ReactNode } from 'react';
-import { Truck, AlertTriangle, X, Plus, Trash2, ChevronDown, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
+import { Truck, AlertTriangle, X, Plus, Trash2, ChevronDown, ChevronLeft, ChevronRight, Eye, Search, LayoutTemplate } from 'lucide-react';
 import { createBlankItem } from '@/product/lib/csv';
 import {
   COLUMN_TYPES,
@@ -28,6 +28,7 @@ import {
   setCustomFieldValue,
   visibleColumns,
 } from '@/product/lib/takeoffColumns';
+import { applyColumnPreset, columnPresetsApi, presetColumns } from '@/product/lib/columnPresets';
 import { newId } from '@/core/lib/shared/ids';
 import { toNumberOr } from '@/core/lib/shared/coerce';
 import { useTranslation } from '@/core/components/context/I18nContext';
@@ -38,6 +39,7 @@ import {
 } from '@/product/constants/calculations.constants';
 import type {
   ColumnDefinition,
+  ColumnPreset,
   ColumnType,
   EquipmentCatalogItem,
   LaborRole,
@@ -61,24 +63,26 @@ interface ColumnMenuAnchor {
 /** Width budget of the column menu, and how tall it may grow before it scrolls. */
 const COLUMN_MENU_WIDTH = 224;
 const COLUMN_MENU_MAX_HEIGHT = 360;
+/** The preset menu needs room for a name plus its delete affordance. */
+const PRESETS_MENU_WIDTH = 268;
 
 /**
- * Fixed-position style for the column menu.
+ * Fixed-position style for a header menu.
  *
  * The grid scrolls horizontally, so a menu positioned inside a header cell is clipped by that scroll
  * container. The menu is portalled to the body instead, then flipped up (and pulled left) as needed
  * so it always lands inside the viewport.
  */
-function columnMenuStyle(anchor: ColumnMenuAnchor) {
+function columnMenuStyle(anchor: ColumnMenuAnchor, width: number = COLUMN_MENU_WIDTH) {
   const gap = 6;
-  const viewportWidth = window.innerWidth || COLUMN_MENU_WIDTH + gap * 2;
+  const viewportWidth = window.innerWidth || width + gap * 2;
   const viewportHeight = window.innerHeight || COLUMN_MENU_MAX_HEIGHT + gap * 2;
   const spaceBelow = viewportHeight - anchor.bottom - gap;
   const openUpwards = spaceBelow < COLUMN_MENU_MAX_HEIGHT && anchor.top > spaceBelow;
 
   return {
-    left: Math.max(gap, Math.min(anchor.left, viewportWidth - COLUMN_MENU_WIDTH - gap)),
-    width: COLUMN_MENU_WIDTH,
+    left: Math.max(gap, Math.min(anchor.left, viewportWidth - width - gap)),
+    width,
     maxHeight: Math.max(120, Math.min(COLUMN_MENU_MAX_HEIGHT, openUpwards ? anchor.top - gap : spaceBelow)),
     ...(openUpwards ? { bottom: viewportHeight - anchor.top + gap } : { top: anchor.bottom + gap }),
   };
@@ -181,21 +185,38 @@ export default function TakeoffGrid({
   } | null>(null);
   /** The open column menu, together with the header button it is anchored to. */
   const [openColumnMenu, setOpenColumnMenu] = useState<ColumnMenuAnchor | null>(null);
+  /** The open column-preset menu, anchored to the toolbar button. */
+  const [openPresetsMenu, setOpenPresetsMenu] = useState<ColumnMenuAnchor | null>(null);
+  /** Saved layouts for this user, loaded from the API the first time the menu opens. */
+  const [presets, setPresets] = useState<ColumnPreset[]>([]);
+  const [presetsLoading, setPresetsLoading] = useState(false);
+  const [presetsError, setPresetsError] = useState('');
+  const [presetSaving, setPresetSaving] = useState(false);
+  const [showPresetSaveForm, setShowPresetSaveForm] = useState(false);
+  const [presetNameInput, setPresetNameInput] = useState('');
+  const [pendingDeletePresetId, setPendingDeletePresetId] = useState<string | null>(null);
+  /** Short confirmation shown beside the toolbar button after a save or a load. */
+  const [presetFeedback, setPresetFeedback] = useState('');
 
-  // The menu is portalled onto the body, so it has to close itself when the page moves out from
-  // under it (a scroll, a resize, a click elsewhere, or Escape).
+  // Both menus are portalled onto the body, so they have to close themselves when the page moves out
+  // from under them (a scroll, a resize, a click elsewhere, or Escape).
+  const headerMenuOpen = Boolean(openColumnMenu || openPresetsMenu);
   useEffect(() => {
-    if (!openColumnMenu) return;
+    if (!headerMenuOpen) return;
 
+    const closeMenus = () => {
+      setOpenColumnMenu(null);
+      setOpenPresetsMenu(null);
+    };
     const closeOnOutsidePointerDown = (event: Event) => {
       const target = event.target as Element | null;
       if (target?.closest('[data-column-menu]')) return;
-      setOpenColumnMenu(null);
+      closeMenus();
     };
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setOpenColumnMenu(null);
+      if (event.key === 'Escape') closeMenus();
     };
-    const closeOnViewportMove = () => setOpenColumnMenu(null);
+    const closeOnViewportMove = () => closeMenus();
 
     document.addEventListener('pointerdown', closeOnOutsidePointerDown);
     document.addEventListener('keydown', closeOnEscape);
@@ -207,7 +228,14 @@ export default function TakeoffGrid({
       window.removeEventListener('scroll', closeOnViewportMove, true);
       window.removeEventListener('resize', closeOnViewportMove);
     };
-  }, [openColumnMenu]);
+  }, [headerMenuOpen]);
+
+  // A save/load confirmation is a passing note, not a persistent banner.
+  useEffect(() => {
+    if (!presetFeedback) return undefined;
+    const timer = setTimeout(() => setPresetFeedback(''), 4000);
+    return () => clearTimeout(timer);
+  }, [presetFeedback]);
   // Column add/rename runs through a small inline editor so the grid stays usable without the
   // global modal host (which is not mounted in unit tests).
   const [columnEditor, setColumnEditor] = useState<{ key: string | null; label: string } | null>(null);
@@ -215,12 +243,50 @@ export default function TakeoffGrid({
 
   const [selectedItemIds, setSelectedItemIds] = useState<Set<ItemId>>(new Set());
   const [bulkRoleId, setBulkRoleId] = useState('');
+  const [activeSystemFilter, setActiveSystemFilter] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  /** Distinct systems currently present on rows, with counts for quick trade filtering. */
+  const presentSystems = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const item of items) {
+      const sys = (item.system ?? '').trim();
+      if (!sys) continue;
+      counts.set(sys, (counts.get(sys) ?? 0) + 1);
+    }
+    return Array.from(counts.entries()).map(([name, count]) => ({ name, count }));
+  }, [items]);
+
+  // Reset system filter if the last row of that system was deleted or renamed.
+  useEffect(() => {
+    if (activeSystemFilter !== 'all' && !presentSystems.some((s) => s.name === activeSystemFilter)) {
+      setActiveSystemFilter('all');
+    }
+  }, [activeSystemFilter, presentSystems]);
+
+  const filteredItems = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    return items.filter((item) => {
+      if (activeSystemFilter !== 'all' && (item.system ?? '').trim() !== activeSystemFilter) {
+        return false;
+      }
+      if (!query) return true;
+      const haystack = `${item.system ?? ''} ${item.description ?? ''} ${item.sizeSpec ?? ''} ${item.unit ?? ''}`.toLowerCase();
+      return haystack.includes(query);
+    });
+  }, [items, activeSystemFilter, searchQuery]);
+
+  const isFiltered = activeSystemFilter !== 'all' || searchQuery.trim().length > 0;
 
   const handleToggleSelectAll = () => {
-    if (selectedItemIds.size === items.length) {
-      setSelectedItemIds(new Set());
+    if (filteredItems.length > 0 && filteredItems.every((it) => selectedItemIds.has(it.id))) {
+      const next = new Set(selectedItemIds);
+      filteredItems.forEach((it) => next.delete(it.id));
+      setSelectedItemIds(next);
     } else {
-      setSelectedItemIds(new Set(items.map((it) => it.id)));
+      const next = new Set(selectedItemIds);
+      filteredItems.forEach((it) => next.add(it.id));
+      setSelectedItemIds(next);
     }
   };
 
@@ -462,7 +528,10 @@ export default function TakeoffGrid({
 
   const addRow = () => {
     if (readOnly) return;
-    onChange([...items, createBlankItem()]);
+    const blank = createBlankItem();
+    const nextRow = activeSystemFilter !== 'all' ? { ...blank, system: activeSystemFilter } : blank;
+    if (searchQuery.trim()) setSearchQuery('');
+    onChange([...items, nextRow]);
   };
 
   const numberField = (item: TakeoffItem, field: string) => (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -549,6 +618,85 @@ export default function TakeoffGrid({
   const handleRestoreColumn = (column: ColumnDefinition) => {
     if (readOnly || !onColumnsChange) return;
     applyColumns(restoreColumn(columns, column.key));
+  };
+
+  /** Opens (or closes) the saved-presets menu, refreshing the list from the API each time. */
+  const togglePresetsMenu = async (event: MouseEvent<HTMLButtonElement>) => {
+    if (readOnly || !onColumnsChange) return;
+    if (openPresetsMenu) {
+      setOpenPresetsMenu(null);
+      return;
+    }
+    const rect = event.currentTarget.getBoundingClientRect();
+    setOpenPresetsMenu({ key: 'presets', top: rect.top, bottom: rect.bottom, left: rect.left });
+    setPresetFeedback('');
+    setPresetsError('');
+    setPendingDeletePresetId(null);
+    setShowPresetSaveForm(false);
+    setPresetsLoading(true);
+    try {
+      setPresets(await columnPresetsApi.list());
+    } catch (err) {
+      setPresetsError(
+        (err as Error)?.message ||
+          t('product.takeoffGrid.columns.presets.loadFailed', 'Could not load your column presets.'),
+      );
+    } finally {
+      setPresetsLoading(false);
+    }
+  };
+
+  /** Applies a saved layout, keeping any passthrough columns this project already holds. */
+  const handleLoadPreset = (preset: ColumnPreset) => {
+    if (readOnly || !onColumnsChange) return;
+    applyColumns(applyColumnPreset(columns, presetColumns(preset), resolveColumnLabel));
+    setOpenPresetsMenu(null);
+    setPresetFeedback(t('product.takeoffGrid.columns.presets.loaded', { name: preset.name }));
+  };
+
+  /** Saves the current layout; a name the user already uses replaces that preset. */
+  const handleSavePreset = async (event: FormEvent) => {
+    event.preventDefault();
+    if (readOnly || !onColumnsChange) return;
+    const name = presetNameInput.trim();
+    if (!name || presetSaving) return;
+
+    setPresetSaving(true);
+    setPresetsError('');
+    try {
+      const saved = await columnPresetsApi.create({ name, columns: orderedColumns });
+      setPresets((prev) => [saved, ...prev.filter((preset) => preset.id !== saved.id)]);
+      setShowPresetSaveForm(false);
+      setPresetNameInput('');
+      setOpenPresetsMenu(null);
+      setPresetFeedback(t('product.takeoffGrid.columns.presets.saved', { name }));
+    } catch (err) {
+      setPresetsError(
+        (err as Error)?.message ||
+          t('product.takeoffGrid.columns.presets.saveFailed', 'Could not save the preset.'),
+      );
+    } finally {
+      setPresetSaving(false);
+    }
+  };
+
+  /** Deletes a preset on the second click, so a single mis-click cannot drop a saved layout. */
+  const handleDeletePreset = async (preset: ColumnPreset) => {
+    if (pendingDeletePresetId !== preset.id) {
+      setPendingDeletePresetId(preset.id);
+      return;
+    }
+    setPendingDeletePresetId(null);
+    setPresetsError('');
+    try {
+      await columnPresetsApi.delete(preset.id);
+      setPresets((prev) => prev.filter((entry) => entry.id !== preset.id));
+    } catch (err) {
+      setPresetsError(
+        (err as Error)?.message ||
+          t('product.takeoffGrid.columns.presets.deleteFailed', 'Could not delete the preset.'),
+      );
+    }
   };
 
   /** Opens a column's menu under its header button, or closes it when that column's menu is open. */
@@ -695,7 +843,261 @@ export default function TakeoffGrid({
         </form>
       )}
 
-      <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 transition-colors">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs overflow-hidden transition-colors">
+        {(items.length > 0 || (!readOnly && onColumnsChange)) && (
+          <div className="px-3.5 py-2.5 border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 flex flex-wrap items-center justify-between gap-2.5">
+            <div className="flex flex-wrap items-center gap-1.5 min-w-0">
+              {presentSystems.length > 1 && (
+                <div className="flex flex-wrap items-center gap-1 mr-1">
+                  <button
+                    type="button"
+                    onClick={() => setActiveSystemFilter('all')}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                      activeSystemFilter === 'all'
+                        ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 shadow-2xs'
+                        : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
+                    }`}
+                  >
+                    {t('product.takeoffGrid.filterAllSystems')} ({items.length})
+                  </button>
+                  {presentSystems.map((sys) => (
+                    <button
+                      key={sys.name}
+                      type="button"
+                      onClick={() => setActiveSystemFilter(sys.name)}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                        activeSystemFilter === sys.name
+                          ? 'bg-blue-600 text-white shadow-2xs'
+                          : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-700'
+                      }`}
+                    >
+                      {sys.name} ({sys.count})
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {items.length > 3 && (
+                <div className="relative flex items-center">
+                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 pointer-events-none" aria-hidden="true" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder={t('product.takeoffGrid.searchPlaceholder')}
+                    aria-label={t('product.takeoffGrid.searchLabel')}
+                    className="pl-7 pr-7 py-1 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 w-40 sm:w-48"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery('')}
+                      aria-label={t('product.takeoffGrid.clearSearch')}
+                      className="absolute right-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                    >
+                      <X className="w-3 h-3" aria-hidden="true" />
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+            {!readOnly && onColumnsChange && (
+              <div className="flex flex-wrap items-center gap-2 ml-auto">
+                {hiddenColumnList.map((column) => (
+                  <button
+                    key={column.key}
+                    type="button"
+                    onClick={() => handleRestoreColumn(column)}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:border-blue-300 hover:text-blue-700 dark:hover:text-blue-300 transition cursor-pointer"
+                    title={t('product.takeoffGrid.columns.showColumn', 'Show column')}
+                    aria-label={`${t('product.takeoffGrid.columns.showColumn', 'Show column')}: ${column.label}`}
+                  >
+                    <Eye className="w-3.5 h-3.5" aria-hidden="true" />
+                    {t('product.takeoffGrid.columns.hiddenHeading', 'Hidden column')}: {column.label}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  data-column-menu=""
+                  onClick={(event) => void togglePresetsMenu(event)}
+                  aria-haspopup="menu"
+                  aria-expanded={Boolean(openPresetsMenu)}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:border-blue-300 dark:hover:border-blue-600 hover:text-blue-700 dark:hover:text-blue-300 transition cursor-pointer"
+                  title={t(
+                    'product.takeoffGrid.columns.presets.hint',
+                    'Save this column layout and reuse it on another project',
+                  )}
+                >
+                  <LayoutTemplate className="w-3.5 h-3.5" aria-hidden="true" />
+                  {t('product.takeoffGrid.columns.presets.button', 'Column presets')}
+                </button>
+                {presetFeedback && (
+                  <span
+                    role="status"
+                    className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300"
+                  >
+                    {presetFeedback}
+                  </span>
+                )}
+                {openPresetsMenu &&
+                  createPortal(
+                    <div
+                      data-column-menu=""
+                      style={columnMenuStyle(openPresetsMenu, PRESETS_MENU_WIDTH)}
+                      className="fixed z-50 overflow-y-auto p-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-xl text-left normal-case tracking-normal font-normal"
+                    >
+                      <div className="px-2.5 pt-1.5 pb-1 text-[10px] font-bold uppercase tracking-wide text-slate-400 dark:text-slate-500">
+                        {t('product.takeoffGrid.columns.presets.title', 'Column presets')}
+                      </div>
+                      {presetsLoading && (
+                        <p className="px-2.5 py-2 text-xs text-slate-500 dark:text-slate-400">
+                          {t('product.takeoffGrid.columns.presets.loading', 'Loading presets…')}
+                        </p>
+                      )}
+
+                      {!presetsLoading && presets.length === 0 && (
+                        <p className="px-2.5 py-2 text-xs text-slate-500 dark:text-slate-400">
+                          {t(
+                            'product.takeoffGrid.columns.presets.empty',
+                            'No saved presets yet. Save this layout to reuse it later.',
+                          )}
+                        </p>
+                      )}
+
+                      {!presetsLoading &&
+                        presets.map((preset) => (
+                          <div key={preset.id} className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => handleLoadPreset(preset)}
+                              title={t(
+                                'product.takeoffGrid.columns.presets.loadHint',
+                                'Apply this layout to the grid',
+                              )}
+                              className="min-w-0 flex-1 text-left px-2.5 py-1.5 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                            >
+                              <span className="block truncate text-xs font-semibold">{preset.name}</span>
+                              <span className="block text-[10px] text-slate-400 dark:text-slate-500">
+                                {t('product.takeoffGrid.columns.presets.columnCount', {
+                                  count: presetColumns(preset).length,
+                                })}
+                              </span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => void handleDeletePreset(preset)}
+                              aria-label={`${t(
+                                'product.takeoffGrid.columns.presets.delete',
+                                'Delete preset',
+                              )}: ${preset.name}`}
+                              title={
+                                pendingDeletePresetId === preset.id
+                                  ? t(
+                                      'product.takeoffGrid.columns.presets.deleteConfirm',
+                                      'Click again to delete this preset',
+                                    )
+                                  : t('product.takeoffGrid.columns.presets.delete', 'Delete preset')
+                              }
+                              className={`shrink-0 px-2 py-1.5 text-[10px] font-semibold rounded-lg cursor-pointer ${
+                                pendingDeletePresetId === preset.id
+                                  ? 'bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300'
+                                  : 'text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                              }`}
+                            >
+                              {pendingDeletePresetId === preset.id ? (
+                                t('product.takeoffGrid.columns.presets.deleteConfirmShort', 'Sure?')
+                              ) : (
+                                <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
+                              )}
+                            </button>
+                          </div>
+                        ))}
+
+                      {presetsError && (
+                        <p className="px-2.5 py-1.5 text-[11px] font-semibold text-red-600 dark:text-red-400">
+                          {presetsError}
+                        </p>
+                      )}
+                      <div className="mt-1 pt-1 border-t border-slate-100 dark:border-slate-800">
+                        {showPresetSaveForm ? (
+                          <form
+                            onSubmit={(event) => void handleSavePreset(event)}
+                            className="px-1.5 py-1 space-y-1.5"
+                          >
+                            <input
+                              autoFocus
+                              value={presetNameInput}
+                              onChange={(event) => setPresetNameInput(event.target.value)}
+                              maxLength={150}
+                              placeholder={t(
+                                'product.takeoffGrid.columns.presets.namePlaceholder',
+                                'e.g. Standard utilities',
+                              )}
+                              aria-label={t(
+                                'product.takeoffGrid.columns.presets.namePlaceholder',
+                                'e.g. Standard utilities',
+                              )}
+                              className="w-full px-2 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            />
+                            <div className="flex items-center gap-1">
+                              <button
+                                type="submit"
+                                disabled={presetSaving || !presetNameInput.trim()}
+                                className="flex-1 px-2 py-1.5 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                {presetSaving
+                                  ? t('product.takeoffGrid.columns.presets.saving', 'Saving…')
+                                  : t('product.takeoffGrid.columns.presets.saveConfirm', 'Save preset')}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setShowPresetSaveForm(false);
+                                  setPresetNameInput('');
+                                }}
+                                className="px-2 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer"
+                              >
+                                {t('core.common.cancel', 'Cancel')}
+                              </button>
+                            </div>
+                          </form>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowPresetSaveForm(true);
+                              setPresetNameInput('');
+                              setPresetsError('');
+                            }}
+                            className="w-full px-2.5 py-1.5 text-xs text-left text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer"
+                          >
+                            {t(
+                              'product.takeoffGrid.columns.presets.saveAction',
+                              'Save current layout as preset…',
+                            )}
+                          </button>
+                        )}
+                      </div>
+                    </div>,
+                    document.body,
+                  )}
+                {customColumns.length < MAX_CUSTOM_COLUMNS && (
+                  <button
+                    type="button"
+                    onClick={() => openColumnEditor(null)}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:border-blue-300 dark:hover:border-blue-600 hover:text-blue-700 dark:hover:text-blue-300 transition cursor-pointer"
+                    title={t('product.takeoffGrid.columns.addHint', 'Add a column for data the parser did not map')}
+                  >
+                    <Plus className="w-3.5 h-3.5" aria-hidden="true" />
+                    {t('product.takeoffGrid.columns.addButton', 'Add column')}
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="overflow-x-auto">
         <table className="min-w-full text-sm">
           <thead className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800">
             <tr>
@@ -703,7 +1105,7 @@ export default function TakeoffGrid({
                 <th className="px-3 py-2 w-8 text-center">
                   <input
                     type="checkbox"
-                    checked={items.length > 0 && selectedItemIds.size === items.length}
+                    checked={filteredItems.length > 0 && filteredItems.every((it) => selectedItemIds.has(it.id))}
                     onChange={handleToggleSelectAll}
                     className="rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500"
                     title={t('product.takeoffGrid.selectAll', 'Select all line items')}
@@ -912,7 +1314,27 @@ export default function TakeoffGrid({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-800 dark:text-slate-200">
-            {items.map((item) => {
+            {isFiltered && filteredItems.length === 0 && (
+              <tr>
+                <td
+                  colSpan={shownColumns.length + (readOnly ? 1 : 2)}
+                  className="px-4 py-8 text-center text-xs text-slate-500 dark:text-slate-400"
+                >
+                  <span>{t('product.takeoffGrid.noMatchingItems')}</span>{' '}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveSystemFilter('all');
+                      setSearchQuery('');
+                    }}
+                    className="font-semibold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
+                  >
+                    {t('product.takeoffGrid.resetFilters')}
+                  </button>
+                </td>
+              </tr>
+            )}
+            {filteredItems.map((item) => {
               const matchedRole = item.laborRoleId ? laborRoles.find((r) => r.id === item.laborRoleId) : null;
               const itemHourlyRate = matchedRole ? (matchedRole.hourlyRate ?? hourlyRate) : hourlyRate;
               const itemRoleTitle = matchedRole ? matchedRole.title : 'Project Base Rate';
@@ -1155,50 +1577,36 @@ export default function TakeoffGrid({
             })}
           </tbody>
         </table>
+        </div>
 
         {!readOnly && (
-          <div className="p-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
-            <div className="flex items-center gap-3">
+          <div className="px-3.5 py-2.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2.5">
               <button
                 type="button"
                 onClick={addRow}
-                className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 border border-blue-200 dark:border-blue-800 rounded-lg transition cursor-pointer"
               >
-                + {t('product.takeoffGrid.addRow')}
+                <Plus className="w-3.5 h-3.5" aria-hidden="true" />
+                {t('product.takeoffGrid.addRow')}
               </button>
-              {onColumnsChange && customColumns.length < MAX_CUSTOM_COLUMNS && (
-                <button
-                  type="button"
-                  onClick={() => openColumnEditor(null)}
-                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-blue-700 dark:hover:text-blue-300 cursor-pointer"
-                  title={t('product.takeoffGrid.columns.addHint', 'Add a column for data the parser did not map')}
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  {t('product.takeoffGrid.columns.addButton', 'Add column')}
-                </button>
-              )}
-              {onColumnsChange &&
-                hiddenColumnList.map((column) => (
-                  <button
-                    key={column.key}
-                    type="button"
-                    onClick={() => handleRestoreColumn(column)}
-                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-blue-700 dark:hover:text-blue-300 cursor-pointer"
-                    title={t('product.takeoffGrid.columns.showColumn', 'Show column')}
-                    aria-label={`${t('product.takeoffGrid.columns.showColumn', 'Show column')}: ${column.label}`}
-                  >
-                    <Eye className="w-3.5 h-3.5" />
-                    {t('product.takeoffGrid.columns.hiddenHeading', 'Hidden column')}: {column.label}
-                  </button>
-                ))}
               <button
                 type="button"
                 onClick={handleOpenAddEquipmentModal}
-                className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 dark:hover:bg-amber-900/60 border border-amber-200 dark:border-amber-800 rounded-lg transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 dark:hover:bg-amber-900/60 border border-amber-200 dark:border-amber-800 rounded-lg transition cursor-pointer"
               >
-                <Truck className="w-3.5 h-3.5 inline mr-1.5 -mt-0.5" />{t('product.takeoffGrid.addEquipmentRental', '+ Add Equipment Rental')}
+                <Truck className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+                {t('product.takeoffGrid.addEquipmentRental', '+ Add Equipment Rental')}
               </button>
             </div>
+            <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500">
+              {isFiltered
+                ? t('product.takeoffGrid.showingFilteredCount', {
+                    shown: filteredItems.length,
+                    total: items.length,
+                  })
+                : t('product.takeoffGrid.totalItemsCount', { count: items.length })}
+            </span>
           </div>
         )}
       </div>

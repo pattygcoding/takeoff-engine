@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Check, FileDown, Link2, Lock, X, Mail, Sparkles, Truck } from 'lucide-react';
+import { Check, CopyPlus, FileDown, Link2, Lock, X, Mail, Sparkles, Truck } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { calculationsApi, formatCurrency, formatNumber } from '@/product/lib/calculations';
 import { formatMarkupBasisNote, formatMarkupLine } from '@/product/lib/markupFormatting';
@@ -309,16 +309,12 @@ function resultsSubtitle(t: TranslateFn, proposalMode: boolean): string {
   return t('product.resultsStep.internalCostBreakdownSubtitle');
 }
 
-/** Track colour of the proposal-mode toggle. */
-function toggleTrackClass(proposalMode: boolean): string {
-  if (proposalMode) return 'bg-blue-600';
-  return 'bg-slate-300 dark:bg-slate-700';
-}
-
-/** Knob offset of the proposal-mode toggle. */
-function toggleKnobClass(proposalMode: boolean): string {
-  if (proposalMode) return 'translate-x-6';
-  return 'translate-x-1';
+/** Styling for the Internal vs. Client-Facing segmented mode switcher. */
+function modeSegmentClass(active: boolean): string {
+  if (active) {
+    return 'bg-white dark:bg-slate-900 text-blue-700 dark:text-blue-300 shadow-xs font-bold';
+  }
+  return 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-semibold';
 }
 
 /** Lock / download glyph for the PDF button. */
@@ -795,44 +791,54 @@ export default function ResultsStep({
         </div>
       )}
 
-      <div className="no-print flex flex-wrap items-center justify-between gap-4 mb-6">
+      <div className="no-print flex flex-wrap items-start justify-between gap-4 mb-5">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
             {resultsTitle(t, proposalMode)}
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
             {resultsSubtitle(t, proposalMode)}
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div
+          role="group"
+          aria-label={t('product.resultsStep.clientFacingProposalMode')}
+          className="inline-flex items-center rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-1 text-xs sm:text-sm"
+        >
           <button
             type="button"
-            onClick={onBack}
-            className="rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer"
+            aria-pressed={!proposalMode}
+            onClick={() => setProposalMode(false)}
+            className={`px-3.5 py-1.5 rounded-lg transition cursor-pointer ${modeSegmentClass(!proposalMode)}`}
           >
-            {t('product.resultsStep.backToEdit')}
+            {t('product.resultsStep.internalCostBreakdownTitle')}
           </button>
-          <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200 select-none cursor-pointer">
-            <span>{t('product.resultsStep.clientFacingProposalMode')}</span>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={proposalMode}
-              aria-label={t('product.resultsStep.clientFacingProposalMode')}
-              onClick={() => setProposalMode((v) => !v)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${toggleTrackClass(proposalMode)}`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${toggleKnobClass(proposalMode)}`}
-              />
-            </button>
-          </label>
+          <button
+            type="button"
+            aria-pressed={proposalMode}
+            onClick={() => setProposalMode(true)}
+            className={`px-3.5 py-1.5 rounded-lg transition cursor-pointer ${modeSegmentClass(proposalMode)}`}
+          >
+            {t('product.resultsStep.clientProposalTitle')}
+          </button>
         </div>
       </div>
 
-      <div className="no-print flex flex-wrap items-center justify-between gap-3 mb-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs transition-colors">
+      <div className="no-print flex flex-wrap items-center justify-between gap-3 mb-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 shadow-xs transition-colors">
         <div className="flex flex-wrap items-center gap-2">
+          {!readOnly && onBack && (
+            <button
+              type="button"
+              onClick={onBack}
+              className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition cursor-pointer"
+            >
+              {t('product.resultsStep.backToEdit')}
+            </button>
+          )}
+
+          {saveState && <SaveStatusChip state={saveState} />}
+
           {!readOnly && (
             <button
               type="button"
@@ -843,52 +849,65 @@ export default function ResultsStep({
                 setShowSaveModal(true);
               }}
               disabled={isSavingProject}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-xs transition cursor-pointer"
+              className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold transition cursor-pointer ${
+                currentProject?.id
+                  ? 'border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700'
+                  : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs'
+              }`}
             >
-              <svg aria-hidden="true" className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg aria-hidden="true" className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
               </svg>
-              {saveButtonLabel(t, isSavingProject, Boolean(currentProject?.id))}
+              {currentProject?.id && !isSavingProject
+                ? t('product.resultsStep.editProjectDetailsBtn')
+                : saveButtonLabel(t, isSavingProject, Boolean(currentProject?.id))}
             </button>
           )}
-          {saveState && <SaveStatusChip state={saveState} />}
+
+          {!readOnly && onDuplicate && (
+            <button
+              type="button"
+              onClick={onDuplicate}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition cursor-pointer"
+            >
+              <CopyPlus className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" aria-hidden="true" />
+              {t('product.resultsStep.duplicateDraftBtn')}
+            </button>
+          )}
+
+          {saveSuccessMsg && (
+            <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5">
+              <Check className="w-3.5 h-3.5" aria-hidden="true" /> {saveSuccessMsg}
+            </span>
+          )}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2 ml-auto">
+          <button
+            type="button"
+            onClick={exportCsv}
+            className="rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition cursor-pointer"
+          >
+            {t('product.resultsStep.exportCsvExcel')}
+          </button>
+
+          <button
+            type="button"
+            onClick={navigateToExportHub}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3.5 py-2 text-xs font-semibold text-slate-800 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700 transition cursor-pointer"
+          >
+            <FileDown className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" aria-hidden="true" />
+            <span>{t('product.resultsStep.printExportFormats')}</span>
+          </button>
 
           <button
             type="button"
             onClick={handleGenerateShareableProposal}
             disabled={isGeneratingShareLink}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 px-4 py-2 text-sm font-semibold text-white shadow-xs transition cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 px-4 py-2 text-xs sm:text-sm font-bold text-white shadow-xs transition cursor-pointer disabled:opacity-60"
           >
-            <svg aria-hidden="true" className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-            </svg>
+            <Link2 className="w-4 h-4 shrink-0" aria-hidden="true" />
             {shareButtonLabel(t, isGeneratingShareLink)}
-          </button>
-
-          {saveSuccessMsg && (
-            <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5">
-              <Check className="w-3.5 h-3.5" /> {saveSuccessMsg}
-            </span>
-          )}
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={navigateToExportHub}
-            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 shadow-xs transition cursor-pointer"
-          >
-            <svg aria-hidden="true" className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-            </svg>
-            <span>{t('product.resultsStep.printExportFormats')}</span>
-          </button>
-          <button
-            type="button"
-            onClick={exportCsv}
-            className="rounded-xl border border-emerald-600 dark:border-emerald-500 bg-white dark:bg-slate-800 px-3.5 py-2 text-sm font-semibold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-slate-700 transition cursor-pointer"
-          >
-            {t('product.resultsStep.exportCsvExcel')}
           </button>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Lock } from 'lucide-react';
+import { Check, CopyPlus, Lock, Pencil, X } from 'lucide-react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Stepper from './Stepper';
 import EditStep from './EditStep';
@@ -50,6 +50,9 @@ export default function ProjectWorkspace({
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState(false);
+  const [nameDraft, setNameDraft] = useState('');
+  const [customDraftName, setCustomDraftName] = useState('');
 
   const guard = useSingleFlight();
   // The load effect runs only when the project id changes, so it reads the local draft through a
@@ -177,11 +180,33 @@ export default function ProjectWorkspace({
   // One live estimate feeds both the Step 2 totals bar and the autosaved `summary_json`.
   const live = useLiveEstimate(items, rates);
   const draftName =
+    customDraftName.trim() ||
+    currentProject?.name ||
     importContext?.quoteMeta?.projectAddress ||
     importContext?.quoteMeta?.documentTitle ||
-    currentProject?.name ||
     importContext?.file?.name?.replace(/\.[^.]+$/, '') ||
     t('product.projectWorkspace.untitledTakeoff', 'Untitled takeoff');
+
+  const startEditingProjectName = () => {
+    if (isLocked) return;
+    setNameDraft(currentProject?.name || draftName);
+    setEditingName(true);
+  };
+
+  const commitProjectName = async () => {
+    const trimmed = nameDraft.trim();
+    setEditingName(false);
+    if (!trimmed) return;
+    setCustomDraftName(trimmed);
+    if (currentProject?.id && trimmed !== currentProject.name) {
+      try {
+        const updated = await projectsApi.update(String(currentProject.id), { name: trimmed });
+        if (updated) setCurrentProject(updated);
+      } catch (err) {
+        console.error('Failed to rename project:', err);
+      }
+    }
+  };
 
   // Drafts save themselves: the first Step 2 edit creates the project, later edits update it.
   const autosave = useProjectAutosave({
@@ -264,47 +289,114 @@ export default function ProjectWorkspace({
 
   return (
     <>
-      <div className="max-w-6xl mx-auto px-4 pt-5 pb-3 flex flex-wrap items-center justify-between gap-3">
-        <Link
-          to={`/${username}`}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition"
-        >
-          {t('product.projectWorkspace.backToProjects')}
-        </Link>
-        {currentProject?.name && (
+      <div className="no-print bg-slate-50/80 dark:bg-slate-900/60 border-b border-slate-200/70 dark:border-slate-800/80">
+        <div className="max-w-6xl mx-auto px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
+          <Link
+            to={`/${username}`}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition"
+          >
+            {t('product.projectWorkspace.backToProjects')}
+          </Link>
+
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-200/70 dark:bg-slate-800 border border-slate-300/60 dark:border-slate-700 px-2.5 py-1 rounded-lg">
-              {t('product.projectWorkspace.projectPrefix', { name: currentProject.name })}
-            </span>
+            {editingName && !isLocked ? (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  void commitProjectName();
+                }}
+                className="inline-flex items-center gap-1.5"
+              >
+                <input
+                  type="text"
+                  autoFocus
+                  value={nameDraft}
+                  onChange={(e) => setNameDraft(e.target.value)}
+                  maxLength={120}
+                  aria-label={t('product.projectWorkspace.renameProjectLabel')}
+                  className="px-2.5 py-1 text-xs font-semibold rounded-lg border border-blue-400 dark:border-blue-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 w-48 sm:w-64"
+                />
+                <button
+                  type="submit"
+                  aria-label={t('product.projectWorkspace.saveProjectNameLabel')}
+                  className="p-1 rounded-md bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
+                >
+                  <Check className="w-3.5 h-3.5" aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditingName(false)}
+                  aria-label={t('core.common.cancel')}
+                  className="p-1 rounded-md text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800 cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" aria-hidden="true" />
+                </button>
+              </form>
+            ) : !isLocked ? (
+              <button
+                type="button"
+                onClick={startEditingProjectName}
+                title={t('product.projectWorkspace.clickToRename')}
+                className="group inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600 px-2.5 py-1 rounded-lg transition cursor-pointer"
+              >
+                <span className="truncate max-w-[220px] sm:max-w-[320px]">
+                  {currentProject?.name || draftName}
+                </span>
+                <Pencil className="w-3 h-3 text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 shrink-0" aria-hidden="true" />
+              </button>
+            ) : (
+              currentProject?.name && (
+                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-200/70 dark:bg-slate-800 border border-slate-300/60 dark:border-slate-700 px-2.5 py-1 rounded-lg">
+                  {t('product.projectWorkspace.projectPrefix', { name: currentProject.name })}
+                </span>
+              )
+            )}
+
             {currentProject?.status === 'awarded' && (
               <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/70 border border-emerald-300 dark:border-emerald-800 px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                <span><Lock className="w-3 h-3" /></span>
+                <span><Lock className="w-3 h-3" aria-hidden="true" /></span>
                 <span>{t('product.projectWorkspace.statusAwarded')}</span>
               </span>
             )}
             {currentProject?.status === 'submitted' && (
               <span className="text-xs font-bold text-blue-800 dark:text-blue-300 bg-blue-100 dark:bg-blue-950/70 border border-blue-300 dark:border-blue-800 px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                <span><Lock className="w-3 h-3" /></span>
+                <span><Lock className="w-3 h-3" aria-hidden="true" /></span>
                 <span>{t('product.projectWorkspace.statusSubmitted')}</span>
               </span>
             )}
             {currentProject?.status === 'archived' && (
               <span className="text-xs font-bold text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/70 border border-amber-300 dark:border-amber-800 px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                <span><Lock className="w-3 h-3" /></span>
+                <span><Lock className="w-3 h-3" aria-hidden="true" /></span>
                 <span>{t('product.projectWorkspace.statusArchived')}</span>
               </span>
             )}
             {currentProject?.status === 'declined' && (
               <span className="text-xs font-bold text-red-800 dark:text-red-300 bg-red-100 dark:bg-red-950/70 border border-red-300 dark:border-red-800 px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                <span><Lock className="w-3 h-3" /></span>
+                <span><Lock className="w-3 h-3" aria-hidden="true" /></span>
                 <span>{t('product.projectWorkspace.statusDeclined')}</span>
               </span>
             )}
+
+            {/* Drafts can be duplicated too: the clone starts as a fresh draft of the same takeoff. */}
+            {currentProject?.id && !isLocked && (
+              <button
+                type="button"
+                onClick={() => void handleDuplicate()}
+                title={t(
+                  'product.projectWorkspace.duplicateProjectHint',
+                  'Duplicate this draft as a new project',
+                )}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600 hover:text-blue-700 dark:hover:text-blue-300 px-2.5 py-1 rounded-lg transition cursor-pointer"
+              >
+                <CopyPlus className="w-3.5 h-3.5" aria-hidden="true" />
+                {t('product.projectWorkspace.duplicateProject', 'Duplicate')}
+              </button>
+            )}
           </div>
-        )}
+        </div>
       </div>
 
-      <Stepper step={step} onStepClick={goToStep} isAwarded={isLocked} />
+      <Stepper step={step} onStepClick={goToStep} isAwarded={isLocked} hasItems={items.length > 0} />
 
       {step === 2 && (
         <EditStep
@@ -315,7 +407,7 @@ export default function ProjectWorkspace({
           onCalculate={handleCalculate}
           readOnly={isLocked}
           projectStatus={currentProject?.status}
-          onDuplicate={isLocked ? handleDuplicate : undefined}
+          onDuplicate={currentProject?.id ? handleDuplicate : undefined}
           importContext={importContext}
           onImportContextChange={setImportContext}
           columns={columns}
@@ -335,7 +427,7 @@ export default function ProjectWorkspace({
           onBack={handleBackToEdit}
           readOnly={isLocked}
           projectStatus={currentProject?.status}
-          onDuplicate={isLocked ? handleDuplicate : undefined}
+          onDuplicate={currentProject?.id ? handleDuplicate : undefined}
           columns={columns}
           saveState={autosave}
         />

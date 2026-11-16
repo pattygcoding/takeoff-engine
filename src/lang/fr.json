@@ -811,6 +811,9 @@
       "updateProjectFailed": "Échec de la mise à jour du projet.",
       "deleteProjectFailed": "Échec de la suppression du projet.",
       "duplicateProjectFailed": "Échec de la duplication du projet.",
+      "fetchColumnPresetsFailed": "Impossible de récupérer les préréglages de colonnes.",
+      "saveColumnPresetFailed": "Impossible d'enregistrer le préréglage de colonnes.",
+      "deleteColumnPresetFailed": "Impossible de supprimer le préréglage de colonnes.",
       "counterOfferFailed": "Échec de l'envoi de la demande de contre-offre."
     },
     "paddle": {
@@ -1352,6 +1355,7 @@
       "statusDescDeclined": "Ce devis a été refusé par le client. Les montants sont verrouillés en lecture seule. Vous pouvez le dupliquer comme nouvelle révision pour effectuer des mises à jour.",
       "lockedReadOnly": "Verrouillé - Lecture seule",
       "duplicateAsNewRevision": "Dupliquer comme nouvelle révision",
+      "duplicateDraftBtn": "Dupliquer en nouveau brouillon",
       "clientProposalTitle": "Devis client",
       "internalCostBreakdownTitle": "Ventilation interne des coûts",
       "clientProposalSubtitle": "Résumé épuré destiné au client, prêt à partager ou à exporter.",
@@ -1649,6 +1653,29 @@
       "parseError": "Impossible de lire ce fichier. Assurez-vous qu'il s'agit d'un fichier CSV ou Excel (.xlsx) valide."
     },
     "takeoffGrid": {
+      "columns": {
+        "presets": {
+          "button": "Préréglages de colonnes",
+          "title": "Préréglages de colonnes",
+          "hint": "Enregistrez cette disposition des colonnes et réutilisez-la sur un autre projet",
+          "saveAction": "Enregistrer la disposition actuelle comme préréglage…",
+          "namePlaceholder": "ex. Services standard",
+          "saveConfirm": "Enregistrer le préréglage",
+          "saving": "Enregistrement…",
+          "loading": "Chargement des préréglages…",
+          "empty": "Aucun préréglage enregistré. Enregistrez cette disposition pour la réutiliser plus tard.",
+          "loadHint": "Appliquer cette disposition à la grille",
+          "columnCount": "{{count}} colonnes",
+          "delete": "Supprimer le préréglage",
+          "deleteConfirm": "Cliquez à nouveau pour supprimer ce préréglage",
+          "deleteConfirmShort": "Sûr ?",
+          "saved": "Préréglage « {{name}} » enregistré.",
+          "loaded": "Préréglage « {{name}} » chargé.",
+          "loadFailed": "Impossible de charger vos préréglages de colonnes.",
+          "saveFailed": "Impossible d'enregistrer le préréglage.",
+          "deleteFailed": "Impossible de supprimer le préréglage."
+        }
+      },
       "system": "Système",
       "description": "Description",
       "sizeSpec": "Taille / Spécification",
@@ -1784,6 +1811,8 @@
       "draftSaved": "Enregistré {{time}}",
       "draftSaveFailed": "Échec de l'enregistrement — réessayer",
       "untitledTakeoff": "Métré sans titre",
+      "duplicateProject": "Dupliquer le projet",
+      "duplicateProjectHint": "Créer un nouveau brouillon à partir de ce projet",
       "loadingTakeoff": "Chargement du métré n°{{id}}...",
       "couldNotLoadTitle": "Impossible de charger le métré",
       "backToProjects": "← Retour au tableau de bord des projets",
@@ -1884,6 +1913,7 @@
       "lockedBannerTitle": "Projet {{status}} (verrouillé - lecture seule)",
       "duplicateRevision": "Dupliquer comme nouvelle révision",
       "duplicateRevisionBtn": "Dupliquer comme nouvelle révision",
+      "duplicateDraftBtn": "Dupliquer en nouveau brouillon",
       "viewTakeoffTitle": "Voir le métré ({{status}})",
       "titleView": "Voir le métré ({{status}})",
       "editTitle": "Modifier et réviser le métré",

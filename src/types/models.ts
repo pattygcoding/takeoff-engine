@@ -137,6 +137,21 @@ export interface ScopePreset {
 }
 
 /**
+ * A saved takeoff column layout (`public.column_presets`).
+ *
+ * A preset holds the grid's ordered column schema, so an estimator can re-apply a house layout
+ * (renamed columns, value kinds, widths, visibility and client-document flags) to another project.
+ */
+export interface ColumnPreset {
+  id: string;
+  name: string;
+  columns_json: ColumnDefinition[];
+  created_at?: string;
+  updated_at?: string;
+  [key: string]: unknown;
+}
+
+/**
  * Label/value block found above the table header of a client quote spreadsheet
  * (quote date, builder, job address, contractor address, estimator, phone).
  */

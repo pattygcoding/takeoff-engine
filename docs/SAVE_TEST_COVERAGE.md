@@ -23,6 +23,7 @@ email a stale estimate. For the behaviour itself, see `useProjectAutosave.ts`,
 | Generating a share link adopts the project the backend created, so the next save updates it instead of creating a duplicate. | `tests/product/projects/saveGuards.test.ts` |
 | Both Step 2 and Step 3 render the draft save status (`Saving…` / `Saved 12:04` / `Couldn't save — retry`). | `tests/product/projects/saveGuards.test.ts` |
 | `summary_json` is built from one shared helper, so the dashboard's bid total cannot silently go to `$0.00`. | `tests/product/projects/estimateSummary.test.ts` + `tests/product/projects/saveGuards.test.ts` |
+| A draft can be duplicated into a new draft (same estimate, column schema and quote cover block), and Step 2/3 offer the action while the project is still editable. | `tests/product/projects/draftClone.vitest.tsx` + `tests/product/projects/draftCloneWiring.test.ts` |
 | This manifest stays in sync with the suite (every test file listed, every listed file real). | `tests/product/projects/saveCoverageManifest.test.ts` |
 
 ## Why static guards as well as behavioural tests

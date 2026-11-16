@@ -40,7 +40,7 @@ export default function ImportMethodChooser({
     <div
       role="group"
       aria-label={t('product.uploadStep.chooseMethodLabel', 'How would you like to start?')}
-      className="mt-6 grid gap-3 sm:grid-cols-3"
+      className="grid gap-2.5 sm:grid-cols-3"
     >
       <button
         type="button"

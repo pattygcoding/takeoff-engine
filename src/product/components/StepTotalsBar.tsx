@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, Loader2 } from 'lucide-react';
+import { ArrowRight, ChevronDown, Loader2 } from 'lucide-react';
 import { formatCurrency, formatNumber } from '@/product/lib/calculations';
 import { formatMarkupBasisNote, formatMarkupLine } from '@/product/lib/markupFormatting';
 import { useTranslation } from '@/core/components/context/I18nContext';
@@ -31,11 +31,16 @@ export default function StepTotalsBar({
   loading,
   stale,
   itemCount,
+  onCalculate,
+  calculateLabel,
 }: Readonly<{
   totals: EstimateTotals;
   loading: boolean;
   stale: boolean;
   itemCount: number;
+  /** Optional primary Step 3 CTA anchored directly in the sticky footer. */
+  onCalculate?: () => void;
+  calculateLabel?: string;
 }>) {
   const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
@@ -147,8 +152,8 @@ export default function StepTotalsBar({
             />
           </div>
 
-          <div className="ml-auto flex items-center gap-3">
-            <div className="text-right">
+          <div className="ml-auto flex flex-wrap items-center gap-2.5 sm:gap-3">
+            <div className="text-right mr-1">
               <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 {t('product.resultsStep.finalBidAmount')}
               </p>
@@ -166,7 +171,7 @@ export default function StepTotalsBar({
                   : t('product.liveTotals.expandAria', 'Show the full cost breakdown')
               }
               onClick={() => setExpanded((prev) => !prev)}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition cursor-pointer"
             >
               {expanded
                 ? t('product.liveTotals.hideBreakdown', 'Hide breakdown')
@@ -176,6 +181,18 @@ export default function StepTotalsBar({
                 aria-hidden="true"
               />
             </button>
+
+            {onCalculate && (
+              <button
+                type="button"
+                onClick={onCalculate}
+                disabled={isEmpty}
+                className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 sm:px-5 py-2 text-xs sm:text-sm font-bold text-white hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm transition cursor-pointer"
+              >
+                <span>{calculateLabel || t('product.editStep.calculateBtn')}</span>
+                <ArrowRight className="h-4 w-4 shrink-0" aria-hidden="true" />
+              </button>
+            )}
           </div>
         </div>
 

@@ -811,6 +811,9 @@
       "updateProjectFailed": "Falha ao atualizar o projeto.",
       "deleteProjectFailed": "Falha ao excluir o projeto.",
       "duplicateProjectFailed": "Falha ao duplicar o projeto.",
+      "fetchColumnPresetsFailed": "Falha ao buscar predefinições de colunas.",
+      "saveColumnPresetFailed": "Falha ao salvar a predefinição de colunas.",
+      "deleteColumnPresetFailed": "Falha ao excluir a predefinição de colunas.",
       "counterOfferFailed": "Falha ao enviar a solicitação de contraproposta."
     },
     "paddle": {
@@ -1352,6 +1355,7 @@
       "statusDescDeclined": "Esta proposta foi recusada pelo cliente. Os valores estão bloqueados em modo somente leitura. Você pode duplicá-la como uma nova revisão para fazer atualizações.",
       "lockedReadOnly": "Bloqueado - Somente leitura",
       "duplicateAsNewRevision": "Duplicar como nova revisão",
+      "duplicateDraftBtn": "Duplicar como novo rascunho",
       "clientProposalTitle": "Proposta do cliente",
       "internalCostBreakdownTitle": "Detalhamento interno de custos",
       "clientProposalSubtitle": "Resumo limpo voltado ao cliente, pronto para compartilhar ou exportar.",
@@ -1649,6 +1653,29 @@
       "parseError": "Não foi possível ler este arquivo. Certifique-se de que seja um arquivo CSV ou Excel (.xlsx) válido."
     },
     "takeoffGrid": {
+      "columns": {
+        "presets": {
+          "button": "Predefinições de colunas",
+          "title": "Predefinições de colunas",
+          "hint": "Salve este layout de colunas e reutilize-o em outro projeto",
+          "saveAction": "Salvar o layout atual como predefinição…",
+          "namePlaceholder": "ex. Serviços padrão",
+          "saveConfirm": "Salvar predefinição",
+          "saving": "Salvando…",
+          "loading": "Carregando predefinições…",
+          "empty": "Nenhuma predefinição salva ainda. Salve este layout para reutilizá-lo depois.",
+          "loadHint": "Aplicar este layout à grade",
+          "columnCount": "{{count}} colunas",
+          "delete": "Excluir predefinição",
+          "deleteConfirm": "Clique novamente para excluir esta predefinição",
+          "deleteConfirmShort": "Certeza?",
+          "saved": "Predefinição \"{{name}}\" salva.",
+          "loaded": "Predefinição \"{{name}}\" carregada.",
+          "loadFailed": "Não foi possível carregar suas predefinições de colunas.",
+          "saveFailed": "Não foi possível salvar a predefinição.",
+          "deleteFailed": "Não foi possível excluir a predefinição."
+        }
+      },
       "system": "Sistema",
       "description": "Descrição",
       "sizeSpec": "Tamanho / Especificação",
@@ -1784,6 +1811,8 @@
       "draftSaved": "Salvo {{time}}",
       "draftSaveFailed": "Não foi possível salvar — tentar novamente",
       "untitledTakeoff": "Takeoff sem título",
+      "duplicateProject": "Duplicar projeto",
+      "duplicateProjectHint": "Criar um novo rascunho a partir deste projeto",
       "loadingTakeoff": "Carregando takeoff #{{id}}...",
       "couldNotLoadTitle": "Não foi possível carregar o takeoff",
       "backToProjects": "← Voltar ao painel de projetos",
@@ -1884,6 +1913,7 @@
       "lockedBannerTitle": "Projeto {{status}} (bloqueado - somente leitura)",
       "duplicateRevision": "Duplicar como nova revisão",
       "duplicateRevisionBtn": "Duplicar como nova revisão",
+      "duplicateDraftBtn": "Duplicar como novo rascunho",
       "viewTakeoffTitle": "Ver takeoff ({{status}})",
       "titleView": "Ver takeoff ({{status}})",
       "editTitle": "Editar e revisar takeoff",
