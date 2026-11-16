@@ -14,6 +14,7 @@ import SeoHead from '@/core/components/shared/SeoHead';
 import { preloadRoutesOnIdle } from '@/core/lib/shared/preloadRoutes';
 import AccessibleDialog from '@/core/components/shared/AccessibleDialog';
 import InfisicalEnvironmentBadge from '@/core/components/landing/InfisicalEnvironmentBadge';
+import { APP_VERSION } from '@/core/constants/appVersion.constants';
 import DotPattern from '@/core/components/landing/DotPattern';
 import GridPattern from '@/core/components/landing/GridPattern';
 import { BentoCard, BentoGrid } from '@/core/components/landing/BentoGrid';
@@ -897,8 +898,14 @@ export default function LandingPage() {
           </div>
           <div className="mt-14 pt-6 border-t border-[var(--lp-inverse-rule)] flex flex-wrap justify-between gap-5 text-[12.5px]">
             <span>{t('core.footer.copyright', { year: new Date().getFullYear() })}</span>
-            <span className="inline-flex items-center gap-2">
+            <span className="inline-flex flex-wrap items-center gap-2">
               <InfisicalEnvironmentBadge />
+              <span
+                className="inline-flex items-center border border-[var(--lp-inverse-rule)] px-2 py-0.5 font-mono text-[11px] tracking-wide text-white/85"
+                aria-label={`${t('core.footer.versionLabel')}: ${APP_VERSION}`}
+              >
+                {APP_VERSION}
+              </span>
               <span>Powered by Takeoff Engine · Merchant of Record: Paddle.com</span>
             </span>
           </div>

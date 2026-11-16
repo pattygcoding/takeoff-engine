@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import { useAuth } from '@/core/components/context/AuthContext';
 import { isClientProposalPath, isPublicLandingPath } from '@/core/lib/shared/publicRoutes';
+import { APP_VERSION } from '@/core/constants/appVersion.constants';
 import { Ruler } from 'lucide-react';
 
 export default function AppFooter() {
@@ -174,9 +175,17 @@ export default function AppFooter() {
         {/* Bottom Copyright Bar */}
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left text-[11px] text-slate-400">
           <p>{t('core.footer.copyright', { year: new Date().getFullYear() })}</p>
-          <p className="text-slate-400">
-            Powered by Takeoff Engine • Merchant of Record: Paddle.com
-          </p>
+          <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2">
+            <span
+              className="inline-flex items-center rounded-full border border-slate-700 bg-slate-800 px-2 py-0.5 font-mono text-[10px] font-semibold tracking-wide text-slate-300"
+              aria-label={`${t('core.footer.versionLabel', 'Build version')}: ${APP_VERSION}`}
+            >
+              {APP_VERSION}
+            </span>
+            <p className="text-slate-400">
+              Powered by Takeoff Engine • Merchant of Record: Paddle.com
+            </p>
+          </div>
         </div>
       </div>
     </footer>

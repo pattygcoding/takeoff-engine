@@ -825,6 +825,7 @@
     "footer": {
       "brandName": "Takeoff Engine",
       "copyright": "© {{year}} Takeoff Engine. All rights reserved.",
+      "versionLabel": "Build version",
       "tagline": "Automated Construction Estimating, Takeoffs & Bidding Platform for Contractors.",
       "merchantOfRecordNotice": "Our order process is conducted by our online reseller Paddle.com. Paddle.com is the Merchant of Record for all our orders. Paddle provides all customer service inquiries and handles returns.",
       "supportEmailLabel": "Contact Support:",

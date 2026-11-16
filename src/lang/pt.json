@@ -824,6 +824,7 @@
     "footer": {
       "brandName": "Takeoff Engine",
       "copyright": "© {{year}} Takeoff Engine. Todos os direitos reservados.",
+      "versionLabel": "Versão da compilação",
       "tagline": "Plataforma automatizada de estimativa de construção, takeoffs e licitações para contratantes.",
       "merchantOfRecordNotice": "Nosso processo de pedidos é conduzido pelo nosso revendedor on-line Paddle.com. A Paddle.com é o comerciante de registro de todos os nossos pedidos. A Paddle atende todas as consultas de atendimento ao cliente e trata das devoluções.",
       "supportEmailLabel": "Contato de suporte:",
