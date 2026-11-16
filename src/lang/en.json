@@ -1926,6 +1926,17 @@
       "viewEstimateProposal": "View Estimate & Proposal",
       "calculateGenerateProposal": "Calculate & Generate Proposal"
     },
+    "liveTotals": {
+      "title": "Live Totals",
+      "showBreakdown": "Show breakdown",
+      "hideBreakdown": "Hide breakdown",
+      "expandAria": "Show the full cost breakdown",
+      "collapseAria": "Hide the full cost breakdown",
+      "updating": "Updating…",
+      "stale": "Couldn't refresh totals — showing the last update.",
+      "empty": "Add a line item to see live totals.",
+      "equipmentShort": "Equip / Mob"
+    },
     "templates": {
       "header": {
         "defaultCompanyName": "Takeoff Engine Estimating",

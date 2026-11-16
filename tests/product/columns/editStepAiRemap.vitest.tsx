@@ -39,6 +39,18 @@ vi.mock('@/core/components/context/I18nContext', () => ({
 
 vi.mock('@/product/components/RatesDrawer', () => ({ default: () => null }));
 
+// Step 2's live totals call the estimate endpoint; these tests are about the AI remap only.
+vi.mock('@/product/lib/calculations', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/product/lib/calculations')>();
+  return {
+    ...actual,
+    calculationsApi: {
+      ...actual.calculationsApi,
+      computeEstimate: vi.fn(async () => ({ totals: {}, bySystem: [], items: [] })),
+    },
+  };
+});
+
 vi.mock('@/core/components/context/ModalContext', () => ({
   useModal: () => ({
     showAlert: vi.fn(async () => true),

@@ -19,12 +19,15 @@ const getAuthHeaders = () => {
 export const calculationsApi = {
   /**
    * Compute full estimate on backend
+   *
+   * `signal` lets a live-preview caller abandon a request that a newer edit has superseded.
    */
-  async computeEstimate(items: TakeoffItem[], rates: Rates) {
+  async computeEstimate(items: TakeoffItem[], rates: Rates, signal?: AbortSignal) {
     const res = await fetch(`${API_BASE_URL}/calculations/estimate`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({ items, rates }),
+      signal,
     });
 
     if (!res.ok) {

@@ -1887,6 +1887,17 @@
       "viewEstimateProposal": "Voir l'estimation et le devis",
       "calculateGenerateProposal": "Calculer et générer le devis"
     },
+    "liveTotals": {
+      "title": "Totaux en direct",
+      "showBreakdown": "Voir le détail",
+      "hideBreakdown": "Masquer le détail",
+      "expandAria": "Afficher le détail complet des coûts",
+      "collapseAria": "Masquer le détail complet des coûts",
+      "updating": "Mise à jour…",
+      "stale": "Impossible d'actualiser les totaux — dernière mise à jour affichée.",
+      "empty": "Ajoutez une ligne pour voir les totaux en direct.",
+      "equipmentShort": "Équip. / Mob."
+    },
     "templates": {
       "header": {
         "defaultCompanyName": "Estimation Takeoff Engine",

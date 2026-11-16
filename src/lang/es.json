@@ -1887,6 +1887,17 @@
       "viewEstimateProposal": "Ver estimación y propuesta",
       "calculateGenerateProposal": "Calcular y generar propuesta"
     },
+    "liveTotals": {
+      "title": "Totales en vivo",
+      "showBreakdown": "Ver desglose",
+      "hideBreakdown": "Ocultar desglose",
+      "expandAria": "Mostrar el desglose completo de costos",
+      "collapseAria": "Ocultar el desglose completo de costos",
+      "updating": "Actualizando…",
+      "stale": "No se pudieron actualizar los totales; se muestra la última actualización.",
+      "empty": "Añada una partida para ver los totales en vivo.",
+      "equipmentShort": "Equipo / Mov."
+    },
     "templates": {
       "header": {
         "defaultCompanyName": "Estimación de Takeoff Engine",

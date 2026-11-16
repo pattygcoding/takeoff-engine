@@ -3,11 +3,13 @@ import { Check, Sparkles, Lock } from 'lucide-react';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import { parseTakeoffFile, buildMappingModalDataFromItems, requestAiMapping } from '@/product/lib/csv';
 import { useAiAssist } from '@/product/lib/useAiAssist';
+import { useLiveEstimate } from '@/product/lib/useLiveEstimate';
 import { DEFAULT_SCOPE_ITEMS } from '@/product/lib/scope';
 import TakeoffGrid from './TakeoffGrid';
 import RatesDrawer from './RatesDrawer';
 import ColumnMappingModal from './ColumnMappingModal';
 import ScopeInclusionsModal from './ScopeInclusionsModal';
+import StepTotalsBar from './StepTotalsBar';
 import type { TakeoffFileLike } from '@/product/lib/csv';
 import type { AiAssistResult, ColumnDefinition, ImportContext, MappingModalData, Rates, TakeoffItem } from '@/types/models';
 
@@ -69,6 +71,8 @@ export default function EditStep({
   // Opening the modal from "Remap Using AI" *is* the request, so the modal runs the assist on mount.
   const [aiAutoRun, setAiAutoRun] = useState(false);
   const ai = useAiAssist();
+  // Real-time totals: same backend engine Step 3 uses, debounced so grid typing stays smooth.
+  const live = useLiveEstimate(items, rates);
 
   const statusCopy = STATUS_COPY[projectStatus] ?? STATUS_COPY.awarded;
   const statusLabel = t(statusCopy.label);
@@ -227,7 +231,7 @@ export default function EditStep({
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="max-w-6xl mx-auto px-4 py-8 pb-28">
       {successToast && (
         <div className="mb-6 p-4 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 rounded-2xl flex items-center gap-2 text-sm font-semibold shadow-xs animate-fade-in">
           <span><Check className="w-4 h-4" /></span>
@@ -406,6 +410,13 @@ export default function EditStep({
           onCancel={closeMappingModal}
         />
       )}
+
+      <StepTotalsBar
+        totals={live.totals}
+        loading={live.loading}
+        stale={live.stale}
+        itemCount={items.length}
+      />
     </div>
   );
 }
