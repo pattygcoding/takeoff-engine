@@ -60,7 +60,7 @@ export default function TermsOfServicePage() {
               {t('core.termsOfService.headerTitle')}
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-              {t('core.termsOfService.effectiveDate', { date: 'September 18, 2026' })} • {t('core.termsOfService.subtitle')}
+              {t('core.termsOfService.effectiveDate', { date: 'November 16, 2026' })} • {t('core.termsOfService.subtitle')}
             </p>
           </div>
 
@@ -223,6 +223,17 @@ export default function TermsOfServicePage() {
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
               {t('core.termsOfService.s14Body')}
+            </p>
+          </section>
+
+          {/* Section 15 - AI-Powered Services (highlighted) */}
+          <section className="space-y-3 rounded-xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/90 dark:border-amber-800/60 p-5">
+            <h3 className="text-lg font-bold text-amber-950 dark:text-amber-200 flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-amber-200/80 dark:bg-amber-900/60 text-amber-900 dark:text-amber-300 flex items-center justify-center text-xs font-black">15</span>
+              {t('core.termsOfService.s15Title')}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
+              {t('core.termsOfService.s15Body')}
             </p>
           </section>
         </div>

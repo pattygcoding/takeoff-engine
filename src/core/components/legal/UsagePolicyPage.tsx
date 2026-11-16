@@ -59,7 +59,7 @@ export default function UsagePolicyPage() {
               {t('core.usagePolicy.headerTitle')}
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-              {t('core.usagePolicy.effectiveDate', { date: 'September 18, 2026' })} • {t('core.usagePolicy.subtitle')}
+              {t('core.usagePolicy.effectiveDate', { date: 'November 16, 2026' })} • {t('core.usagePolicy.subtitle')}
             </p>
           </div>
 
@@ -91,6 +91,9 @@ export default function UsagePolicyPage() {
               <li>{t('core.usagePolicy.s2Item5')}</li>
               <li>{t('core.usagePolicy.s2Item6')}</li>
               <li>{t('core.usagePolicy.s2Item7')}</li>
+              <li>{t('core.usagePolicy.s2Item8')}</li>
+              <li>{t('core.usagePolicy.s2Item9')}</li>
+              <li>{t('core.usagePolicy.s2Item10')}</li>
             </ul>
           </section>
 

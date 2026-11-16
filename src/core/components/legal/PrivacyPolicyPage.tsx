@@ -60,14 +60,14 @@ export default function PrivacyPolicyPage() {
               {t('core.privacyPolicy.headerTitle')}
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-              {t('core.privacyPolicy.effectiveDate', { date: 'August 2026' })} • {t('core.privacyPolicy.subtitle')}
+              {t('core.privacyPolicy.effectiveDate', { date: 'November 2026' })} • {t('core.privacyPolicy.subtitle')}
             </p>
           </div>
 
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((n) => (
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].map((n) => (
             <section
               key={n}
-              className={`space-y-3 ${n === 6 ? 'rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 p-5' : ''} ${n === 13 ? 'pt-4 border-t border-slate-100 dark:border-slate-800' : ''}`}
+              className={`space-y-3 ${n === 6 ? 'rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 p-5' : ''} ${n === 14 ? 'pt-4 border-t border-slate-100 dark:border-slate-800' : ''}`}
             >
               <h3 className="text-lg font-bold flex items-center gap-2 text-slate-900 dark:text-white">
                 <span className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-black ${n === 6 ? 'bg-blue-600 text-white' : 'bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400'}`}>
@@ -78,7 +78,7 @@ export default function PrivacyPolicyPage() {
               <p className={`text-xs sm:text-sm leading-relaxed ${n === 6 ? 'text-slate-700 dark:text-slate-300 font-medium' : 'text-slate-600 dark:text-slate-300'}`}>
                 {t(`core.privacyPolicy.s${n}Body`)}
               </p>
-              {n === 13 && (
+              {n === 14 && (
                 <div className="pt-2">
                   <a
                     href="mailto:pattygsocials@gmail.com"

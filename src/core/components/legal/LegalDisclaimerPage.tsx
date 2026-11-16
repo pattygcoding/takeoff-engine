@@ -59,7 +59,7 @@ export default function LegalDisclaimerPage() {
               {t('core.legalDisclaimer.headerTitle')}
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-              {t('core.legalDisclaimer.effectiveDate', { date: 'August 2026' })} • {t('core.legalDisclaimer.subtitle')}
+              {t('core.legalDisclaimer.effectiveDate', { date: 'November 2026' })} • {t('core.legalDisclaimer.subtitle')}
             </p>
           </div>
 
@@ -227,6 +227,26 @@ export default function LegalDisclaimerPage() {
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
               {t('core.legalDisclaimer.s14Body')}
             </p>
+          </section>
+
+          {/* Section 15: AI-Assisted Column Mapping Disclaimer (highlighted) */}
+          <section className="space-y-4 rounded-xl bg-violet-50/70 dark:bg-violet-950/30 border border-violet-200/90 dark:border-violet-800/60 p-5">
+            <h3 className="text-lg font-bold text-violet-950 dark:text-violet-200 flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-violet-200/80 dark:bg-violet-900/60 text-violet-900 dark:text-violet-300 flex items-center justify-center text-xs font-black">15</span>
+              {t('core.legalDisclaimer.s15Title')}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
+              {t('core.legalDisclaimer.s15Intro')}
+            </p>
+            <ul className="list-disc list-outside ml-6 space-y-2 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              <li>{t('core.legalDisclaimer.s15Item1')}</li>
+              <li>{t('core.legalDisclaimer.s15Item2')}</li>
+              <li>{t('core.legalDisclaimer.s15Item3')}</li>
+              <li>{t('core.legalDisclaimer.s15Item4')}</li>
+              <li>{t('core.legalDisclaimer.s15Item5')}</li>
+              <li>{t('core.legalDisclaimer.s15Item6')}</li>
+              <li>{t('core.legalDisclaimer.s15Item7')}</li>
+            </ul>
           </section>
         </div>
       </div>
