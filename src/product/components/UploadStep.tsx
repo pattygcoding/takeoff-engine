@@ -1,18 +1,21 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, Loader2 } from 'lucide-react';
+import { ArrowRight, Loader2, PenLine, Sparkles } from 'lucide-react';
 import {
+  createBlankItem,
   downloadSampleCsv,
   downloadSampleExcel,
-  getAiAssistUsage,
   parseTakeoffFile,
   requestAiMapping,
 } from '@/product/lib/csv';
 import { useTranslation } from '@/core/components/context/I18nContext';
 import ColumnMappingModal from './ColumnMappingModal';
+import ImportMethodChooser from './ImportMethodChooser';
+import { useAiAssist } from '@/product/lib/useAiAssist';
 import { useSingleFlight } from '@/core/lib/shared/useSingleFlight';
+import type { ImportMode } from './ImportMethodChooser';
 import type { TakeoffFileLike } from '@/product/lib/csv';
-import type { AiAssistResult, AiAssistUsage, ColumnDefinition, ImportContext, QuoteMetadata, QuoteSections, ScopeItem, TakeoffItem } from '@/types/models';
+import type { AiAssistResult, ColumnDefinition, ImportContext, QuoteMetadata, QuoteSections, ScopeItem, TakeoffItem } from '@/types/models';
 
 interface MappingModalData {
   headers?: string[];
@@ -57,29 +60,96 @@ export default function UploadStep({
   const [mappingModalData, setMappingModalData] = useState<MappingModalData | null>(null);
   const [currentUploadedFile, setCurrentUploadedFile] = useState<TakeoffFileLike | null>(null);
   const [checksumSummary, setChecksumSummary] = useState<ChecksumSummary | null>(null);
-  // AI mapping fallback: offered as an optional rescue when the deterministic parse disappoints.
-  const [aiEnabled, setAiEnabled] = useState(false);
-  const [aiUsage, setAiUsage] = useState<AiAssistUsage | null>(null);
+  // How the user wants to start: the deterministic parser, the AI-assisted import, or by hand.
+  const [mode, setMode] = useState<ImportMode>('parser');
+  // Opening the mapping modal *as* the AI request, so it runs the assist on mount.
+  const [aiAutoRun, setAiAutoRun] = useState(false);
+  // AI mapping fallback: also offered as an optional rescue when the deterministic parse disappoints.
   const [aiRunning, setAiRunning] = useState(false);
   const [aiNotice, setAiNotice] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+  const ai = useAiAssist();
 
-  /** Read the allowance once per page visit (cheap, and only once the feature is known to exist). */
-  const refreshAiUsage = async () => {
+  const aiPlanMissing = Boolean(ai.usage) && !ai.usage?.unlimited && (ai.usage?.max ?? 0) <= 0;
+  const aiSpent = Boolean(ai.usage) && !ai.usage?.unlimited && (ai.usage?.remaining ?? 0) <= 0;
+  /** Why the AI import cannot run, most specific reason first; null when it is usable. */
+  const aiReason = !ai.enabled && ai.loaded
+    ? t('product.aiAssist.disabledOnDeployment')
+    : aiPlanMissing
+      ? t('product.aiAssist.upgradeHint')
+      : aiSpent
+        ? t('product.aiAssist.quotaHint', { max: ai.usage?.max ?? 0 })
+        : null;
+  const aiAvailable = aiReason === null;
+  const aiAllowanceLabel = ai.usage
+    ? ai.usage.unlimited
+      ? t('product.uploadStep.aiAllowanceUnlimited', 'Unlimited AI imports')
+      : t('product.uploadStep.aiAllowance', {
+          remaining: ai.usage.remaining ?? 0,
+          max: ai.usage.max,
+        })
+    : null;
+
+  // A plan change or an exhausted allowance can land after the choice was made; fall back rather
+  // than leaving the page on a mode it can no longer run.
+  useEffect(() => {
+    if (mode === 'ai' && !aiAvailable) setMode('parser');
+  }, [mode, aiAvailable]);
+
+  /**
+   * The "just do it for me" path: the AI maps the sheet and its result goes straight to step 2.
+   * Also used as the automatic hand-off when "Import with AI" was chosen but the deterministic
+   * parse could not read the sheet at all.
+   */
+  const runAiRescue = async (fileOverride?: TakeoffFileLike | null) => {
+    const file = fileOverride ?? currentUploadedFile;
+    if (!file || aiRunning) return;
+    setAiRunning(true);
+    setAiNotice('');
+    setErrors([]);
+
     try {
-      const { enabled, usage } = await getAiAssistUsage();
-      setAiEnabled(enabled);
-      setAiUsage(usage);
-    } catch {
-      // An unreadable allowance must never block the manual upload path.
+      const result = await requestAiMapping(file);
+      ai.recordUsage(result.usage);
+      setAiNotice(
+        t('product.aiAssist.appliedBody', {
+          count: result.itemCount,
+          confidence: Math.round((result.confidence ?? 0) * 100),
+        }),
+      );
+
+      if (result.items && result.items.length > 0) {
+        onItemsParsed(result.items, {
+          detectedLaborMode: result.detectedLaborMode,
+          file,
+          mappingData: result,
+          columns: result.columns,
+          quoteMeta: result.quoteMeta,
+          quoteSections: result.quoteSections,
+          scopeItems: result.scopeItems,
+        });
+      }
+    } catch (err) {
+      setAiNotice((err as Error)?.message || t('product.aiAssist.failedFallback'));
+      void ai.refresh();
+    } finally {
+      setAiRunning(false);
     }
   };
 
   const guard = useSingleFlight();
   const handleFile = guard(
     'parse',
-    async (file: TakeoffFileLike | null, explicitSheetName: string | null = null, explicitTableId: string | null = null) => {
+    async (
+      file: TakeoffFileLike | null,
+      explicitSheetName: string | null = null,
+      explicitTableId: string | null = null,
+      modeOverride?: ImportMode,
+    ) => {
       if (!file) return;
+      const activeMode = modeOverride ?? mode;
+      if (activeMode === 'manual') return;
+
       setFileName(file.name || '');
       setCurrentUploadedFile(file);
       setIsParsing(true);
@@ -88,12 +158,18 @@ export default function UploadStep({
 
       try {
         const result = await parseTakeoffFile(file, explicitSheetName, explicitTableId);
-        if (typeof result.aiAssist?.enabled === 'boolean') setAiEnabled(result.aiAssist.enabled);
         setAiNotice('');
+
+        // "Import with AI": the parse only supplies the sheet preview; the modal runs the assist on
+        // open, so the AI decides the layout before the user sees any mapping controls.
+        if (activeMode === 'ai') {
+          setMappingModalData({ ...result, requiresMappingModal: true });
+          setAiAutoRun(true);
+          return;
+        }
 
         if (result.requiresMappingModal) {
           setMappingModalData(result);
-          void refreshAiUsage();
           return;
         }
 
@@ -117,6 +193,12 @@ export default function UploadStep({
         }
       } catch (err) {
         console.error('Failed to parse takeoff file:', err);
+        // The user already asked for the assist, so a failed parse hands straight over to it.
+        if (activeMode === 'ai') {
+          setIsParsing(false);
+          await runAiRescue(file);
+          return;
+        }
         const errMsg = (err as Error)?.message || t('product.uploadStep.parseError');
         setErrors([errMsg]);
       } finally {
@@ -127,13 +209,13 @@ export default function UploadStep({
 
   const handleSheetChange = (sheetName: string) => {
     if (currentUploadedFile) {
-      handleFile(currentUploadedFile, sheetName, null);
+      handleFile(currentUploadedFile, sheetName, null, mode);
     }
   };
 
   const handleTableChange = (tableId: string) => {
     if (currentUploadedFile) {
-      handleFile(currentUploadedFile, mappingModalData?.activeSheetName || null, tableId);
+      handleFile(currentUploadedFile, mappingModalData?.activeSheetName || null, tableId, mode);
     }
   };
 
@@ -161,6 +243,7 @@ export default function UploadStep({
     pricedColumnBasis?: 'unit' | 'line_total';
   }) => {
     setMappingModalData(null);
+    setAiAutoRun(false);
     setErrors(mappingErrors || []);
     if (checksum?.hasSubtotals) {
       setChecksumSummary(checksum);
@@ -202,51 +285,17 @@ export default function UploadStep({
         mappingModalData?.activeSheetName || null,
         mappingModalData?.activeTableId || null,
       );
-      setAiUsage(result.usage);
+      ai.recordUsage(result.usage);
       return result;
     } catch (err) {
-      void refreshAiUsage();
+      void ai.refresh();
       throw err;
     }
   };
 
-  /**
-   * AI mapping straight from the upload error state: no mapping modal, the AI's result goes to step 2.
-   * This is the "the parse did not work, just do it for me" path.
-   */
-  const handleAiRescue = async () => {
-    if (!currentUploadedFile || aiRunning) return;
-    setAiRunning(true);
-    setAiNotice('');
-    setErrors([]);
-
-    try {
-      const result = await requestAiMapping(currentUploadedFile);
-      setAiUsage(result.usage);
-      setAiNotice(
-        t('product.aiAssist.appliedBody', {
-          count: result.itemCount,
-          confidence: Math.round((result.confidence ?? 0) * 100),
-        }),
-      );
-
-      if (result.items && result.items.length > 0) {
-        onItemsParsed(result.items, {
-          detectedLaborMode: result.detectedLaborMode,
-          file: currentUploadedFile,
-          mappingData: result,
-          columns: result.columns,
-          quoteMeta: result.quoteMeta,
-          quoteSections: result.quoteSections,
-          scopeItems: result.scopeItems,
-        });
-      }
-    } catch (err) {
-      setAiNotice((err as Error)?.message || t('product.aiAssist.failedFallback'));
-      void refreshAiUsage();
-    } finally {
-      setAiRunning(false);
-    }
+  /** Manual entry: skip the file entirely and land on step 2 with one empty row to type into. */
+  const handleStartManual = () => {
+    onItemsParsed([createBlankItem()], {});
   };
 
   const onDrop = (e: React.DragEvent) => {
@@ -258,58 +307,106 @@ export default function UploadStep({
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
-      <div className="text-center mb-8">
+      <div className="text-center mb-2">
         <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">{t('product.uploadStep.title')}</h1>
         <p className="mt-2 text-slate-500 dark:text-slate-400">
           {t('product.uploadStep.subtitle')}
         </p>
       </div>
 
-      <div
-        onDragOver={(e) => {
-          e.preventDefault();
-          setIsDragging(true);
-        }}
-        onDragLeave={() => setIsDragging(false)}
-        onDrop={onDrop}
-        className={`rounded-2xl border-2 border-dashed p-12 text-center transition duration-200
-          ${isDragging
-            ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/40'
-            : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-blue-400 dark:hover:border-blue-500 shadow-sm'}`}
-      >
-        <input
-          ref={inputRef}
-          type="file"
-          accept=".csv,text/csv,.xlsx,.xls,.xlsm,.xlsb,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
-          className="hidden"
-          onChange={(e) => handleFile(e.target.files?.[0] || null)}
-        />
-        <svg aria-hidden="true" className="mx-auto h-12 w-12 text-slate-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
+      <ImportMethodChooser
+        mode={mode}
+        onChange={setMode}
+        aiAvailable={aiAvailable}
+        aiReason={aiReason}
+        aiAllowanceLabel={aiAllowanceLabel}
+      />
+
+      {mode === 'manual' ? (
+        <div className="mt-6 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-12 text-center shadow-sm">
+          <PenLine className="mx-auto h-12 w-12 text-slate-400 dark:text-slate-500" aria-hidden="true" />
+          <p className="mt-4 font-semibold text-slate-700 dark:text-slate-200">
+            {t('product.uploadStep.modeManualDesc', 'Skip the file and type your line items straight into the grid.')}
+          </p>
+          <button
+            type="button"
+            onClick={handleStartManual}
+            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition cursor-pointer"
+          >
+            {t('product.uploadStep.modeManualCta', 'Start with a blank grid')}
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </button>
+          <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
+            {t(
+              'product.uploadStep.modeManualHint',
+              "You'll land on the item grid with one empty row. Add as many as you need.",
+            )}
+          </p>
+        </div>
+      ) : (
+        <div
+          onDragOver={(e) => {
+            e.preventDefault();
+            setIsDragging(true);
+          }}
+          onDragLeave={() => setIsDragging(false)}
+          onDrop={onDrop}
+          className={`mt-6 rounded-2xl border-2 border-dashed p-12 text-center transition duration-200
+            ${isDragging
+              ? mode === 'ai'
+                ? 'border-violet-500 bg-violet-50 dark:bg-violet-950/40'
+                : 'border-blue-500 bg-blue-50 dark:bg-blue-950/40'
+              : mode === 'ai'
+                ? 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-violet-400 dark:hover:border-violet-500 shadow-sm'
+                : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-blue-400 dark:hover:border-blue-500 shadow-sm'}`}
+        >
+          <input
+            ref={inputRef}
+            type="file"
+            accept=".csv,text/csv,.xlsx,.xls,.xlsm,.xlsb,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+            className="hidden"
+            onChange={(e) => handleFile(e.target.files?.[0] || null)}
           />
-        </svg>
-        <p className="mt-4 font-semibold text-slate-700 dark:text-slate-200">
-          {isParsing ? (
-            t('product.uploadStep.parsingMessage')
+          {mode === 'ai' ? (
+            <Sparkles className="mx-auto h-12 w-12 text-violet-400 dark:text-violet-500" aria-hidden="true" />
           ) : (
-            <>
-              {t('product.uploadStep.dragDropMessage')}{' '}
-              <button
-                type="button"
-                onClick={() => inputRef.current?.click()}
-                className="text-blue-600 dark:text-blue-400 underline cursor-pointer"
-              >
-                {t('product.uploadStep.browseLink')}
-              </button>
-            </>
+            <svg aria-hidden="true" className="mx-auto h-12 w-12 text-slate-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
+              />
+            </svg>
           )}
-        </p>
-        <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">{fileName || t('product.uploadStep.fileTypeHint')}</p>
-      </div>
+          <p className="mt-4 font-semibold text-slate-700 dark:text-slate-200">
+            {isParsing ? (
+              t('product.uploadStep.parsingMessage')
+            ) : (
+              <>
+                {t('product.uploadStep.dragDropMessage')}{' '}
+                <button
+                  type="button"
+                  onClick={() => inputRef.current?.click()}
+                  className={`underline cursor-pointer ${
+                    mode === 'ai'
+                      ? 'text-violet-600 dark:text-violet-400'
+                      : 'text-blue-600 dark:text-blue-400'
+                  }`}
+                >
+                  {t('product.uploadStep.browseLink')}
+                </button>
+              </>
+            )}
+          </p>
+          <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">
+            {fileName ||
+              (mode === 'ai'
+                ? t('product.uploadStep.dropzoneAiHint', 'Choose a file and the AI will map it for you.')
+                : t('product.uploadStep.fileTypeHint'))}
+          </p>
+        </div>
+      )}
 
       {checksumSummary && (
         <div className={`mt-6 rounded-2xl border p-4 text-xs ${
@@ -341,7 +438,7 @@ export default function UploadStep({
       )}
 
       {/* Optional AI rescue: the parser could not read this sheet, so let the AI set up step 2. */}
-      {aiEnabled && currentUploadedFile && errors.length > 0 && (
+      {ai.enabled && currentUploadedFile && errors.length > 0 && (
         <div className="mt-4 rounded-2xl border border-violet-200 dark:border-violet-800 bg-violet-50 dark:bg-violet-950/40 p-4">
           <p className="flex items-center gap-1.5 font-semibold text-violet-800 dark:text-violet-200">
             <Sparkles className="w-4 h-4" aria-hidden="true" />
@@ -351,12 +448,12 @@ export default function UploadStep({
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <button
               type="button"
-              onClick={handleAiRescue}
+              onClick={() => void runAiRescue()}
               disabled={
                 aiRunning ||
-                (aiUsage !== null &&
-                  !aiUsage.unlimited &&
-                  ((aiUsage.max ?? 0) <= 0 || (aiUsage.remaining ?? 0) <= 0))
+                (ai.usage !== null &&
+                  !ai.usage.unlimited &&
+                  ((ai.usage.max ?? 0) <= 0 || (ai.usage.remaining ?? 0) <= 0))
               }
               className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl bg-violet-600 hover:bg-violet-700 text-white shadow-xs transition cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
             >
@@ -372,9 +469,9 @@ export default function UploadStep({
                 </>
               )}
             </button>
-            {aiUsage && !aiUsage.unlimited && (
+            {ai.usage && !ai.usage.unlimited && (
               <span className="font-mono text-[11px] text-violet-700 dark:text-violet-300">
-                {aiUsage.used}/{aiUsage.max}
+                {ai.usage.used}/{ai.usage.max}
               </span>
             )}
           </div>
@@ -588,13 +685,17 @@ export default function UploadStep({
           activeSheetName={mappingModalData.activeSheetName}
           subTables={mappingModalData.subTables || []}
           activeTableId={mappingModalData.activeTableId}
-          aiAvailable={aiEnabled}
-          aiUsage={aiUsage}
+          aiAvailable={ai.enabled}
+          aiUsage={ai.usage}
+          aiAutoRun={aiAutoRun}
           onAiAssist={handleAiAssistFromModal}
           onSheetChange={handleSheetChange}
           onTableChange={handleTableChange}
           onConfirm={handleMappingConfirm}
-          onCancel={() => setMappingModalData(null)}
+          onCancel={() => {
+            setMappingModalData(null);
+            setAiAutoRun(false);
+          }}
         />
       )}
     </div>
