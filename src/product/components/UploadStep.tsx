@@ -143,27 +143,49 @@ export default function UploadStep({
     checksum,
     detectedLaborMode,
     columns,
+    quoteMeta,
+    quoteSections,
+    scopeItems,
+    listedQuoteTotal,
+    pricedColumnBasis,
   }: {
     items?: TakeoffItem[];
     errors?: string[];
     checksum?: ChecksumSummary;
     detectedLaborMode?: string;
     columns?: ColumnDefinition[];
+    quoteMeta?: QuoteMetadata;
+    quoteSections?: QuoteSections;
+    scopeItems?: ScopeItem[];
+    listedQuoteTotal?: number;
+    pricedColumnBasis?: 'unit' | 'line_total';
   }) => {
     setMappingModalData(null);
     setErrors(mappingErrors || []);
     if (checksum?.hasSubtotals) {
       setChecksumSummary(checksum);
     }
+    // An AI assist can read a cover block and stacked sections the original parse missed, so its
+    // values win; otherwise keep what the parse found.
+    const resolvedQuoteMeta = quoteMeta ?? mappingModalData?.quoteMeta;
+    const resolvedQuoteSections = quoteSections ?? mappingModalData?.quoteSections;
+    const resolvedScopeItems = scopeItems ?? mappingModalData?.scopeItems;
     if (items && items.length > 0) {
       onItemsParsed(items, {
         detectedLaborMode,
         file: currentUploadedFile,
-        mappingData: mappingModalData,
+        mappingData: {
+          ...mappingModalData,
+          ...(resolvedQuoteMeta ? { quoteMeta: resolvedQuoteMeta } : {}),
+          ...(resolvedQuoteSections ? { quoteSections: resolvedQuoteSections } : {}),
+          ...(resolvedScopeItems ? { scopeItems: resolvedScopeItems } : {}),
+          ...(listedQuoteTotal !== undefined ? { listedQuoteTotal } : {}),
+          ...(pricedColumnBasis ? { pricedColumnBasis } : {}),
+        },
         columns: columns ?? mappingModalData?.columns,
-        quoteMeta: mappingModalData?.quoteMeta,
-        quoteSections: mappingModalData?.quoteSections,
-        scopeItems: mappingModalData?.scopeItems,
+        quoteMeta: resolvedQuoteMeta,
+        quoteSections: resolvedQuoteSections,
+        scopeItems: resolvedScopeItems,
       });
     }
   };

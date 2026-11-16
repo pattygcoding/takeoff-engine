@@ -10,7 +10,15 @@ import {
 } from '@/product/lib/csv';
 import { customColumnsOf } from '@/product/lib/takeoffColumns';
 import { useTranslation } from '@/core/components/context/I18nContext';
-import type { AiAssistResult, AiAssistUsage, ColumnDefinition, TakeoffItem } from '@/types/models';
+import type {
+  AiAssistResult,
+  AiAssistUsage,
+  ColumnDefinition,
+  QuoteMetadata,
+  QuoteSections,
+  ScopeItem,
+  TakeoffItem,
+} from '@/types/models';
 import { useModal } from '@/core/components/context/ModalContext';
 
 /** Badge styling for a mapping-confidence score. */
@@ -82,6 +90,16 @@ export default function ColumnMappingModal({
     detectedLaborMode?: string;
     /** Refreshed column schema (canonical + passthrough) for the confirmed mapping. */
     columns?: ColumnDefinition[];
+    /**
+     * Quote metadata the AI assist read from the sheet. The confirm step re-normalizes the rows, which
+     * cannot rediscover the cover block or the stacked sections, so they are carried through from the
+     * assist result when one ran.
+     */
+    quoteMeta?: QuoteMetadata;
+    quoteSections?: QuoteSections;
+    scopeItems?: ScopeItem[];
+    listedQuoteTotal?: number;
+    pricedColumnBasis?: 'unit' | 'line_total';
   }) => void;
   onCancel: () => void;
 }>) {
@@ -105,6 +123,8 @@ export default function ColumnMappingModal({
   // AI fallback: the model chooses the header row and column mapping, a human still confirms.
   const [aiRunning, setAiRunning] = useState(false);
   const [aiApplied, setAiApplied] = useState<{ confidence: number; notes: string; itemCount: number } | null>(null);
+  /** The full assist payload, kept so its quote metadata survives the confirm re-normalize. */
+  const [aiResult, setAiResult] = useState<AiAssistResult | null>(null);
   const [aiError, setAiError] = useState('');
   // Seeded from the prop, then replaced by whatever the backend returns for the assist we just spent.
   // The prop is re-read too: UploadStep fetches the allowance when it opens this modal, which lands
@@ -150,6 +170,7 @@ export default function ColumnMappingModal({
         notes: result.notes || '',
         itemCount: result.itemCount ?? 0,
       });
+      setAiResult(result);
       if (result.usage) setAiUsageState(result.usage);
     } catch (err) {
       setAiError((err as Error)?.message || t('product.aiAssist.failedFallback'));
@@ -178,6 +199,8 @@ export default function ColumnMappingModal({
   const handleHeaderRowChange = async (newRowIndex: string | number) => {
     const rIdx = Number(newRowIndex);
     setHeaderRowIndex(rIdx);
+    // A different header row invalidates the assist's cover block and stacked sections.
+    setAiResult(null);
 
     if (sampleMatrix && sampleMatrix.length > 0) {
       const { headers: newHeaders, rows: newRows, mapping: newAutoMapping, matchConfidences: newConfidences, confidence: newOverallConf } =
@@ -269,6 +292,13 @@ export default function ColumnMappingModal({
       detectedLaborMode,
       // Prefer the schema the server rebuilt for this mapping, else keep what we were handed.
       columns: Array.isArray(normalizedColumns) && normalizedColumns.length > 0 ? normalizedColumns : initialColumns,
+      // Quote metadata read by the assist: re-normalizing rows cannot rediscover the cover block or
+      // the stacked fixture/terms sections, so hand them through from the assist result.
+      quoteMeta: aiResult?.quoteMeta,
+      quoteSections: aiResult?.quoteSections,
+      scopeItems: aiResult?.scopeItems,
+      listedQuoteTotal: aiResult?.listedQuoteTotal,
+      pricedColumnBasis: aiResult?.pricedColumnBasis,
     });
   };
 
